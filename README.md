@@ -1,6 +1,10 @@
 # GEO-COMMANDER
 GEO Commander - Ensemble de commande ecrit en Pascal d'aide à la géographie.
 
+<h2>Liste des fichiers</h3>
+
+Voici la liste des différents fichiers proposés dans GEO Commander :
+
 <table>
   <tr>
     <th>Nom</th>
