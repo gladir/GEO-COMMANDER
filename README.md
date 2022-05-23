@@ -9,7 +9,11 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   <tr>
     <th>Nom</th>
     <th>Description</th>
-   </tr>
+  </tr>
+  <tr>
+      <td><b>CAPITAL.PAS</b></td>
+      <td>Cette commande permet de retourner la capitale d'un pays.</td>
+  </tr>
   <tr>
       <td><b>GEODELTA.PAS</b></td>
       <td>Cette commande permet de demander la distance entre deux villes, soit par coordonnée géographique, soit par son nom s'il est répertorié.</td>
