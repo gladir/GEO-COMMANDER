@@ -4,7 +4,7 @@
   @abstract(Target: Turbo Pascal, Free Pascal)
 }
 
-Program CAPITAL;
+Program DOMAIN;
 
 Uses Strings;
 
@@ -17,6 +17,7 @@ Type
   LongDirection:Char;
   Superficie:LongInt; { Km2 }
   Capital:PChar;
+  Domain:PChar; { Extension de nom de domaine }
  End;
 
 Const
@@ -29,7 +30,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    647500;
-   Capital:       'Kaboul'
+   Capital:       'Kaboul';
+   Domain:        '.af'
   ),
   (Country:       'Afrique du sud';
    Latitude:      28;
@@ -39,7 +41,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    1219912;
-   Capital:       'Pretoria'
+   Capital:       'Pretoria';
+   Domain:        '.za'
   ),
   (Country:       'Albanie';
    Latitude:      41;
@@ -49,7 +52,8 @@ Const
    LongDeg:       10;
    LongDirection: 'E';
    Superficie:    28748;
-   Capital:       'Tirana'
+   Capital:       'Tirana';
+   Domain:        '.al'
   ),
   (Country:       'Algerie';
    Latitude:      28;
@@ -59,7 +63,8 @@ Const
    LongDeg:       39;
    LongDirection: 'E';
    Superficie:    2381740;
-   Capital:       'Alger'
+   Capital:       'Alger';
+   Domain:        '.dz'
   ),
   (Country:       'Allemagne';
    Latitude:      51;
@@ -69,9 +74,10 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    357021;
-   Capital:       'Berlin'
+   Capital:       'Berlin';
+   Domain:        '.de'
   ),
-  (Country:'Andorre';
+  (Country:       'Andorre';
    Latitude:      42;
    LatiDeg:       32;
    LatiDirection: 'N';
@@ -79,7 +85,8 @@ Const
    LongDeg:       35;
    LongDirection: 'E';
    Superficie:    468;
-   Capital:       'Andorre-la-Vieille'
+   Capital:       'Andorre-la-Vieille';
+   Domain:        '.ad'
   ),
   (Country:       'Angola';
    Latitude:      11;
@@ -89,7 +96,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    1246700;
-   Capital:       'Luanda'
+   Capital:       'Luanda';
+   Domain:        '.ao'
   ),
   (Country:       'Anguilla';
    Latitude:      18;
@@ -99,7 +107,8 @@ Const
    LongDeg:       4;
    LongDirection: 'O';
    Superficie:    102;
-   Capital:       'The Valley'
+   Capital:       'The Valley';
+   Domain:        '.ai'
   ),
   (Country:       'Antarctique';
    Latitude:      75;
@@ -109,7 +118,8 @@ Const
    LongDeg:       0;
    LongDirection: 'E';
    Superficie:    14000000;
-   Capital:       ''
+   Capital:       '';
+   Domain:        '.aq'
   ),
   (Country:       'Antigua et Barbuda';
    Latitude:      17;
@@ -119,7 +129,8 @@ Const
    LongDeg:       47;
    LongDirection: 'O';
    Superficie:    443;
-   Capital:       'Saint John''s'
+   Capital:       'Saint John''s';
+   Domain:        '.ag'
   ),
   (Country:       'Arabie saoudite';
    Latitude:      23;
@@ -129,7 +140,8 @@ Const
    LongDeg:       4;
    LongDirection: 'E';
    Superficie:    1960582;
-   Capital:       'Riyad'
+   Capital:       'Riyad';
+   Domain:        '.sa'
   ),
   (Country:       'Argentine';
    Latitude:      38;
@@ -139,7 +151,8 @@ Const
    LongDeg:       35;
    LongDirection: 'O';
    Superficie:    2766890;
-   Capital:       'Buenos Aires'
+   Capital:       'Buenos Aires';
+   Domain:        '.ar'
   ),
   (Country:       'Armenie';
    Latitude:      40;
@@ -149,9 +162,10 @@ Const
    LongDeg:       6;
    LongDirection: 'E';
    Superficie:    29800;
-   Capital:       'Erevan'
+   Capital:       'Erevan';
+   Domain:        '.am'
   ),
-  (Country:'Aruba';
+  (Country:       'Aruba';
    Latitude:      12;
    LatiDeg:       31;
    LatiDirection: 'N';
@@ -159,9 +173,10 @@ Const
    LongDeg:       57;
    LongDirection: 'O';
    Superficie:    193;
-   Capital:       'Oranjestad'
+   Capital:       'Oranjestad';
+   Domain:        '.aw'
   ),
-  (Country:'Australie';
+  (Country:       'Australie';
    Latitude:      26;
    LatiDeg:       51;
    LatiDirection: 'S';
@@ -169,9 +184,10 @@ Const
    LongDeg:       16;
    LongDirection: 'E';
    Superficie:    7686850;
-   Capital:       'Canberra'
+   Capital:       'Canberra';
+   Domain:        '.au'
   ),
-  (Country:'Autriche';
+  (Country:       'Autriche';
    Latitude:      47;
    LatiDeg:       41;
    LatiDirection: 'N';
@@ -179,7 +195,8 @@ Const
    LongDeg:       20;
    LongDirection: 'E';
    Superficie:    83858;
-   Capital:       'Vienne'
+   Capital:       'Vienne';
+   Domain:        '.at'
   ),
   (Country:       'Azerbaidjan';
    Latitude:      40;
@@ -189,7 +206,8 @@ Const
    LongDeg:       34;
    LongDirection: 'E';
    Superficie:    86600;
-   Capital:       'Bakou'
+   Capital:       'Bakou';
+   Domain:        '.az'
   ),
   (Country:       'Bahamas';
    Latitude:      24;
@@ -199,7 +217,8 @@ Const
    LongDeg:       42;
    LongDirection: 'O';
    Superficie:    13940;
-   Capital:       'Nassau'
+   Capital:       'Nassau';
+   Domain:        '.bs'
   ),
   (Country:       'Bahrein';
    Latitude:      26;
@@ -209,7 +228,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    665;
-   Capital:       'Manama'
+   Capital:       'Manama';
+   Domain:        '.bh'
   ),
   (Country:       'Bangladesh';
    Latitude:      23;
@@ -219,7 +239,8 @@ Const
    LongDeg:       21;
    LongDirection: 'E';
    Superficie:    144000;
-   Capital:       'Dacca'
+   Capital:       'Dacca';
+   Domain:        '.bd'
   ),
   (Country:       'Barbade';
    Latitude:      13;
@@ -229,7 +250,8 @@ Const
    LongDeg:       32;
    LongDirection: 'O';
    Superficie:    431;
-   Capital:       'Bridgetown'
+   Capital:       'Bridgetown';
+   Domain:        '.bb'
   ),
   (Country:       'Belgique';
    Latitude:      50;
@@ -239,7 +261,8 @@ Const
    LongDeg:       28;
    LongDirection: 'E';
    Superficie:    30510;
-   Capital:       'Bruxelles'
+   Capital:       'Bruxelles';
+   Domain:        '.be'
   ),
   (Country:       'Belize';
    Latitude:      17;
@@ -249,7 +272,8 @@ Const
    LongDeg:       30;
    LongDirection: 'O';
    Superficie:    22966;
-   Capital:       'Belmopan'
+   Capital:       'Belmopan';
+   Domain:        '.bz'
   ),
   (Country:       'Benin';
    Latitude:      9;
@@ -259,7 +283,8 @@ Const
    LongDeg:       18;
    LongDirection: 'E';
    Superficie:    112620;
-   Capital:       'Porto Novo'
+   Capital:       'Porto Novo';
+   Domain:        '.bj'
   ),
   (Country:       'Bermudes';
    Latitude:      32;
@@ -269,7 +294,8 @@ Const
    LongDeg:       46;
    LongDirection: 'O';
    Superficie:    53;
-   Capital:       'Hamilton'
+   Capital:       'Hamilton';
+   Domain:        '.bm'
   ),
   (Country:       'Bhutan';
    Latitude:      27;
@@ -279,7 +305,8 @@ Const
    LongDeg:       26;
    LongDirection: 'E';
    Superficie:    47000;
-   Capital:       'Thimphou'
+   Capital:       'Thimphou';
+   Domain:        '.bt'
   ),
   (Country:       'Bielorussie';
    Latitude:      53;
@@ -289,7 +316,8 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    207600;
-   Capital:       'Minsk'
+   Capital:       'Minsk';
+   Domain:        '.by'
   ),
   (Country:       'Bolivie';
    Latitude:      16;
@@ -299,7 +327,8 @@ Const
    LongDeg:       32;
    LongDirection: 'O';
    Superficie:    1098580;
-   Capital:       'Sucre'
+   Capital:       'Sucre';
+   Domain:        '.bo'
   ),
   (Country:       'Bonaire';
    Latitude:      12;
@@ -309,7 +338,8 @@ Const
    LongDeg:       18;
    LongDirection: 'O';
    Superficie:    322;
-   Capital:       'Kralendijk'
+   Capital:       'Kralendijk';
+   Domain:        ''
   ),
   (Country:       'Bosnie-Herzegovine';
    Latitude:      43;
@@ -319,7 +349,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    51129;
-   Capital:       'Sarajevo'
+   Capital:       'Sarajevo';
+   Domain:        '.ba'
   ),
   (Country:       'Botswana';
    Latitude:      22;
@@ -329,7 +360,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    600370;
-   Capital:       'Gaborone'
+   Capital:       'Gaborone';
+   Domain:        '.bw'
   ),
   (Country:       'Bresil';
    Latitude:      14;
@@ -339,7 +371,8 @@ Const
    LongDeg:       11;
    LongDirection: 'O';
    Superficie:    8511965;
-   Capital:       'Brasilia'
+   Capital:       'Brasilia';
+   Domain:        '.br'
   ),
   (Country:       'Brunei Darussalam';
    Latitude:      4;
@@ -349,7 +382,8 @@ Const
    LongDeg:       42;
    LongDirection: 'E';
    Superficie:    5770;
-   Capital:       'Bandar Seri Begawan'
+   Capital:       'Bandar Seri Begawan';
+   Domain:        '.bn'
   ),
   (Country:       'Bulgarie';
    Latitude:      42;
@@ -359,7 +393,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    110910;
-   Capital:       'Sofia'
+   Capital:       'Sofia';
+   Domain:        '.bg'
   ),
   (Country:       'Burkina Faso';
    Latitude:      12;
@@ -369,7 +404,8 @@ Const
    LongDeg:       33;
    LongDirection: 'O';
    Superficie:    274200;
-   Capital:       'Ouagadougou'
+   Capital:       'Ouagadougou';
+   Domain:        '.bf'
   ),
   (Country:       'Burundi';
    Latitude:      3;
@@ -379,7 +415,8 @@ Const
    LongDeg:       55;
    LongDirection: 'E';
    Superficie:    27830;
-   Capital:       'Bujumbura'
+   Capital:       'Bujumbura';
+   Domain:        '.bi'
   ),
   (Country:       'Cambodge';
    Latitude:      12;
@@ -389,7 +426,8 @@ Const
    LongDeg:       59;
    LongDirection: 'E';
    Superficie:    181040;
-   Capital:       'Cambodge'
+   Capital:       'Cambodge';
+   Domain:        '.kh'
   ),
   (Country:       'Cameroun';
    Latitude:      7;
@@ -399,7 +437,8 @@ Const
    LongDeg:       20;
    LongDirection: 'E';
    Superficie:    475440;
-   Capital:       'Yaound‚'
+   Capital:       'Yaound‚';
+   Domain:        '.cm'
   ),
   (Country:       'Canada';
    Latitude:      62;
@@ -409,7 +448,8 @@ Const
    LongDeg:       49;
    LongDirection: 'O';
    Superficie:    9984670;
-   Capital:       'Ottawa'
+   Capital:       'Ottawa';
+   Domain:        '.ca'
   ),
   (Country:       'Cap-Vert';
    Latitude:      16;
@@ -419,7 +459,8 @@ Const
    LongDeg:       0;
    LongDirection: 'O';
    Superficie:    4033;
-   Capital:       'Praia'
+   Capital:       'Praia';
+   Domain:        '.cv'
   ),
   (Country:       'Centrafrique';
    Latitude:      6;
@@ -429,7 +470,8 @@ Const
    LongDeg:       56;
    LongDirection: 'E';
    Superficie:    622984;
-   Capital:       'Bangui'
+   Capital:       'Bangui';
+   Domain:        '.cf'
   ),
   (Country:       'Chili';
    Latitude:      36;
@@ -439,7 +481,8 @@ Const
    LongDeg:       36;
    LongDirection: 'O';
    Superficie:    756950;
-   Capital:       'Santiago du Chili'
+   Capital:       'Santiago du Chili';
+   Domain:        '.cl'
   ),
   (Country:       'Chine';
    Latitude:      34;
@@ -449,7 +492,8 @@ Const
    LongDeg:       9;
    LongDirection: 'E';
    Superficie:    9596960;
-   Capital:       'P‚kin'
+   Capital:       'P‚kin';
+   Domain:        '.cn'
   ),
   (Country:       'Chypre';
    Latitude:      35;
@@ -459,7 +503,8 @@ Const
    LongDeg:       26;
    LongDirection: 'E';
    Superficie:    9250;
-   Capital:       'Nicosie'
+   Capital:       'Nicosie';
+   Domain:        '.cy'
   ),
   (Country:       'Colombie';
    Latitude:      4;
@@ -469,7 +514,8 @@ Const
    LongDeg:       17;
    LongDirection: 'O';
    Superficie:    1138910;
-   Capital:       'Bogot '
+   Capital:       'Bogot ';
+   Domain:        '.co'
   ),
   (Country:       'Comores';
    Latitude:      11;
@@ -479,7 +525,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    2170;
-   Capital:       'Moroni'
+   Capital:       'Moroni';
+   Domain:        '.km'
   ),
   (Country:       'Congo-Brazzaville';
    Latitude:      0;
@@ -489,7 +536,8 @@ Const
    LongDeg:       55;
    LongDirection: 'E';
    Superficie:    342000;
-   Capital:       'Brazzaville'
+   Capital:       'Brazzaville';
+   Domain:        '.cd'
   ),
   (Country:       'Coree du Nord';
    Latitude:      40;
@@ -499,7 +547,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    120540;
-   Capital:       'Pyongyang'
+   Capital:       'Pyongyang';
+   Domain:        '.kp'
   ),
   (Country:       'Coree du Sud';
    Latitude:      35;
@@ -509,7 +558,8 @@ Const
    LongDeg:       44;
    LongDirection: 'E';
    Superficie:    98480;
-   Capital:       'S‚oul'
+   Capital:       'S‚oul';
+   Domain:        '.kr'
   ),
   (Country:       'Costa Rica';
    Latitude:      9;
@@ -519,7 +569,8 @@ Const
    LongDeg:       15;
    LongDirection: 'O';
    Superficie:    51100;
-   Capital:       'San Jos‚'
+   Capital:       'San Jos‚';
+   Domain:        '.cr'
   ),
   (Country:       'Cote d''Ivoire';
    Latitude:      7;
@@ -529,7 +580,8 @@ Const
    LongDeg:       32;
    LongDirection: 'O';
    Superficie:    322460;
-   Capital:       'Yamoussoukro'
+   Capital:       'Yamoussoukro';
+   Domain:        '.ci'
   ),
   (Country:       'Croatie';
    Latitude:      44;
@@ -539,7 +591,8 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    56542;
-   Capital:       'Zagreb'
+   Capital:       'Zagreb';
+   Domain:        '.hr'
   ),
   (Country:       'Cuba';
    Latitude:      21;
@@ -549,7 +602,8 @@ Const
    LongDeg:       32;
    LongDirection: 'O';
    Superficie:    110860;
-   Capital:       'La Havane'
+   Capital:       'La Havane';
+   Domain:        '.cu'
   ),
   (Country:       'Curacao';
    Latitude:      12;
@@ -559,7 +613,8 @@ Const
    LongDeg:       56;
    LongDirection: 'O';
    Superficie:    444;
-   Capital:       'Willemstad'
+   Capital:       'Willemstad';
+   Domain:        '.cw'
   ),
   (Country:       'Danemark';
    Latitude:      56;
@@ -569,7 +624,8 @@ Const
    LongDeg:       37;
    LongDirection: 'E';
    Superficie:    43094;
-   Capital:       'Copenhague'
+   Capital:       'Copenhague';
+   Domain:        '.dk'
   ),
   (Country:       'Djibouti';
    Latitude:      11;
@@ -579,7 +635,8 @@ Const
    LongDeg:       35;
    LongDirection: 'E';
    Superficie:    23000;
-   Capital:       'Djibouti'
+   Capital:       'Djibouti';
+   Domain:        '.dj'
   ),
   (Country:       'Dominique';
    Latitude:      15;
@@ -589,7 +646,8 @@ Const
    LongDeg:       21;
    LongDirection: 'O';
    Superficie:    754;
-   Capital:       'Roseau'
+   Capital:       'Roseau';
+   Domain:        '.dm'
   ),
   (Country:       'Egypte';
    Latitude:      26;
@@ -599,7 +657,8 @@ Const
    LongDeg:       14;
    LongDirection: 'E';
    Superficie:    1001450;
-   Capital:       'Le Caire'
+   Capital:       'Le Caire';
+   Domain:        '.eg'
   ),
   (Country:       'Emirats arabes unis';
    Latitude:      24;
@@ -609,7 +668,8 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    82880;
-   Capital:       'Abu Dhabi'
+   Capital:       'Abu Dhabi';
+   Domain:        '.ae'
   ),
   (Country:       'Equateur';
    Latitude:      1;
@@ -619,7 +679,8 @@ Const
    LongDeg:       7;
    LongDirection: 'O';
    Superficie:    283560;
-   Capital:       'Quito'
+   Capital:       'Quito';
+   Domain:        '.ec'
   ),
   (Country:       'Erythree';
    Latitude:      15;
@@ -629,7 +690,8 @@ Const
    LongDeg:       47;
    LongDirection: 'E';
    Superficie:    121320;
-   Capital:       'Asmara'
+   Capital:       'Asmara';
+   Domain:        '.er'
   ),
   (Country:       'Espagne';
    Latitude:      39;
@@ -639,7 +701,8 @@ Const
    LongDeg:       29;
    LongDirection: 'O';
    Superficie:    504782;
-   Capital:       'Madrid'
+   Capital:       'Madrid';
+   Domain:        '.es'
   ),
   (Country:       'Estonie';
    Latitude:      58;
@@ -649,7 +712,8 @@ Const
    LongDeg:       1;
    LongDirection: 'E';
    Superficie:    45226;
-   Capital:       'Tallinn'
+   Capital:       'Tallinn';
+   Domain:        '.ee'
   ),
   (Country:       'Etats-Unis';
    Latitude:      36;
@@ -659,7 +723,8 @@ Const
    LongDeg:       50;
    LongDirection: 'O';
    Superficie:    9629091;
-   Capital:       'Washington'
+   Capital:       'Washington';
+   Domain:        '.us'
   ),
   (Country:       'Ethiopie';
    Latitude:      9;
@@ -669,7 +734,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    1127127;
-   Capital:       'Addis-Abeba'
+   Capital:       'Addis-Abeba';
+   Domain:        '.et'
   ),
   (Country:       'Fidji';
    Latitude:      16;
@@ -679,7 +745,8 @@ Const
    LongDeg:       21;
    LongDirection: 'E';
    Superficie:    18270;
-   Capital:       'Suva'
+   Capital:       'Suva';
+   Domain:        '.fj'
   ),
   (Country:       'Finlande';
    Latitude:      64;
@@ -689,7 +756,8 @@ Const
    LongDeg:       4;
    LongDirection: 'E';
    Superficie:    337030;
-   Capital:       'Helsinki'
+   Capital:       'Helsinki';
+   Domain:        '.fi'
   ),
   (Country:       'France';
    Latitude:      46;
@@ -699,7 +767,8 @@ Const
    LongDeg:       12;
    LongDirection: 'E';
    Superficie:    643801;
-   Capital:       'Paris'
+   Capital:       'Paris';
+   Domain:        '.fr'
   ),
   (Country:       'Gabon';
    Latitude:      0;
@@ -709,7 +778,8 @@ Const
    LongDeg:       35;
    LongDirection: 'E';
    Superficie:    267667;
-   Capital:       'Libreville'
+   Capital:       'Libreville';
+   Domain:        '.ga'
   ),
   (Country:       'Gambie';
    Latitude:      13;
@@ -719,7 +789,8 @@ Const
    LongDeg:       18;
    LongDirection: 'O';
    Superficie:    11300;
-   Capital:       'Banjul'
+   Capital:       'Banjul';
+   Domain:        '.gm'
   ),
   (Country:       'Georgie';
    Latitude:      42;
@@ -729,7 +800,8 @@ Const
    LongDeg:       22;
    LongDirection: 'E';
    Superficie:    69700;
-   Capital:       'Tbilissi'
+   Capital:       'Tbilissi';
+   Domain:        '.ge'
   ),
   (Country:       'Georgie du Sud';
    Latitude:      56;
@@ -739,7 +811,8 @@ Const
    LongDeg:       7;
    LongDirection: 'O';
    Superficie:    3903;
-   Capital:       'Grytviken'
+   Capital:       'Grytviken';
+   Domain:        '.gs'
   ),
   (Country:       'Ghana';
    Latitude:      7;
@@ -749,7 +822,8 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    239460;
-   Capital:       'Accra'
+   Capital:       'Accra';
+   Domain:        '.gh'
   ),
   (Country:       'Gibraltar';
    Latitude:      36;
@@ -759,7 +833,8 @@ Const
    LongDeg:       21;
    LongDirection: 'O';
    Superficie:    7;
-   Capital:       'Gibraltar'
+   Capital:       'Gibraltar';
+   Domain:        '.gi'
   ),
   (Country:       'Grece';
    Latitude:      38;
@@ -769,7 +844,8 @@ Const
    LongDeg:       48;
    LongDirection: 'E';
    Superficie:    131940;
-   Capital:       'AthŠnes'
+   Capital:       'AthŠnes';
+   Domain:        '.gr'
   ),
   (Country:       'Grenade';
    Latitude:      12;
@@ -779,7 +855,8 @@ Const
    LongDeg:       41;
    LongDirection: 'O';
    Superficie:    344;
-   Capital:       'Saint-Georges'
+   Capital:       'Saint-Georges';
+   Domain:        '.gd'
   ),
   (Country:       'Groenland';
    Latitude:      71;
@@ -789,7 +866,8 @@ Const
    LongDeg:       10;
    LongDirection: 'O';
    Superficie:    2166086;
-   Capital:       'Nuuk'
+   Capital:       'Nuuk';
+   Domain:        '.gl'
   ),
   (Country:       'Guadeloupe';
    Latitude:      16;
@@ -799,7 +877,8 @@ Const
    LongDeg:       16;
    LongDirection: 'O';
    Superficie:    1780;
-   Capital:       'Basse-Terre'
+   Capital:       'Basse-Terre';
+   Domain:        '.gp'
   ),
   (Country:       'Guam';
    Latitude:      13;
@@ -809,7 +888,8 @@ Const
    LongDeg:       47;
    LongDirection: 'E';
    Superficie:    549;
-   Capital:       'Hag†t¤a'
+   Capital:       'Hag†t¤a';
+   Domain:        '.gu'
   ),
   (Country:       'Guatemala';
    Latitude:      15;
@@ -819,7 +899,8 @@ Const
    LongDeg:       13;
    LongDirection: 'O';
    Superficie:    108890;
-   Capital:       'Guatemala'
+   Capital:       'Guatemala';
+   Domain:        '.gt'
   ),
   (Country:       'Guernesey';
    Latitude:      49;
@@ -829,7 +910,8 @@ Const
    LongDeg:       25;
    LongDirection: 'O';
    Superficie:    78;
-   Capital:       'Saint-Pierre-Port'
+   Capital:       'Saint-Pierre-Port';
+   Domain:        '.gg'
   ),
   (Country:       'Guinee';
    Latitude:      9;
@@ -839,7 +921,8 @@ Const
    LongDeg:       17;
    LongDirection: 'O';
    Superficie:    245857;
-   Capital:       'Conakry'
+   Capital:       'Conakry';
+   Domain:        '.gn'
   ),
   (Country:       'Guinee equatoriale';
    Latitude:      1;
@@ -849,7 +932,8 @@ Const
    LongDeg:       20;
    LongDirection: 'E';
    Superficie:    28051;
-   Capital:       'Malabo'
+   Capital:       'Malabo';
+   Domain:        '.gq'
   ),
   (Country:       'Guinee-Bissau';
    Latitude:      11;
@@ -859,7 +943,8 @@ Const
    LongDeg:       10;
    LongDirection: 'O';
    Superficie:    36120;
-   Capital:       'Bissau'
+   Capital:       'Bissau';
+   Domain:        '.gw'
   ),
   (Country:       'Guyana';
    Latitude:      4;
@@ -869,7 +954,8 @@ Const
    LongDeg:       55;
    LongDirection: 'O';
    Superficie:    214970;
-   Capital:       'Georgetown'
+   Capital:       'Georgetown';
+   Domain:        '.gy'
   ),
   (Country:       'Guyane';
    Latitude:      3;
@@ -879,7 +965,8 @@ Const
    LongDeg:       4;
    LongDirection: 'O';
    Superficie:    91000;
-   Capital:       'Cayenne'
+   Capital:       'Cayenne';
+   Domain:        '.gf'
   ),
   (Country:       'Haiti';
    Latitude:      19;
@@ -889,7 +976,8 @@ Const
    LongDeg:       2;
    LongDirection: 'O';
    Superficie:    27750;
-   Capital:       'Port-au-Prince'
+   Capital:       'Port-au-Prince';
+   Domain:        '.ht'
   ),
   (Country:       'Honduras';
    Latitude:      14;
@@ -899,7 +987,8 @@ Const
    LongDeg:       15;
    LongDirection: 'O';
    Superficie:    112090;
-   Capital:       'Tegucigalpa'
+   Capital:       'Tegucigalpa';
+   Domain:        '.hn'
   ),
   (Country:       'Hong Kong';
    Latitude:      22;
@@ -909,7 +998,8 @@ Const
    LongDeg:       8;
    LongDirection: 'E';
    Superficie:    1092;
-   Capital:       'Hong Kong'
+   Capital:       'Hong Kong';
+   Domain:        '.hk'
   ),
   (Country:       'Hongrie';
    Latitude:      47;
@@ -919,7 +1009,8 @@ Const
    LongDeg:       30;
    LongDirection: 'E';
    Superficie:    93030;
-   Capital:       'Budapest'
+   Capital:       'Budapest';
+   Domain:        '.hu'
   ),
   (Country:       'Ile Bouvet';
    Latitude:      54;
@@ -929,7 +1020,8 @@ Const
    LongDeg:       24;
    LongDirection: 'E';
    Superficie:    49;
-   Capital:       ''
+   Capital:       '';
+   Domain:        '.bv'
   ),
   (Country:       'Ile Christmas';
    Latitude:      10;
@@ -939,7 +1031,8 @@ Const
    LongDeg:       37;
    LongDirection: 'E';
    Superficie:    135;
-   Capital:       'Flying Fish Cove'
+   Capital:       'Flying Fish Cove';
+   Domain:        '.cx'
   ),
   (Country:       'Ile de Man';
    Latitude:      54;
@@ -949,7 +1042,8 @@ Const
    LongDeg:       33;
    LongDirection: 'O';
    Superficie:    572;
-   Capital:       'Douglas'
+   Capital:       'Douglas';
+   Domain:        '.im'
   ),
   (Country:       'Ile Heard';
    Latitude:      53;
@@ -959,7 +1053,8 @@ Const
    LongDeg:       13;
    LongDirection: 'E';
    Superficie:    412;
-   Capital:       ''
+   Capital:       '';
+   Domain:        '.hm'
   ),
   (Country:       'Ile Norfolk';
    Latitude:      29;
@@ -969,7 +1064,8 @@ Const
    LongDeg:       57;
    LongDirection: 'E';
    Superficie:    34;
-   Capital:       'Kingston'
+   Capital:       'Kingston';
+   Domain:        '.nf'
   ),
   (Country:       'Iles Aland';
    Latitude:      60;
@@ -979,7 +1075,8 @@ Const
    LongDeg:       9;
    LongDirection: 'E';
    Superficie:    26;
-   Capital:       'Mariehamn'
+   Capital:       'Mariehamn';
+   Domain:        ''
   ),
   (Country:       'Iles Caimans';
    Latitude:      19;
@@ -989,7 +1086,8 @@ Const
    LongDeg:       34;
    LongDirection: 'O';
    Superficie:    262;
-   Capital:       'George Town'
+   Capital:       'George Town';
+   Domain:        '.ky'
   ),
   (Country:       'Iles Cocos';
    Latitude:      12;
@@ -999,7 +1097,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    14;
-   Capital:       'West Island'
+   Capital:       'West Island';
+   Domain:        '.cc'
   ),
   (Country:       'Iles Cook';
    Latitude:      15;
@@ -1009,7 +1108,8 @@ Const
    LongDeg:       12;
    LongDirection: 'O';
    Superficie:    240;
-   Capital:       'Avarua'
+   Capital:       'Avarua';
+   Domain:        '.ck'
   ),
   (Country:       'Iles Feroe';
    Latitude:      61;
@@ -1019,7 +1119,8 @@ Const
    LongDeg:       55;
    LongDirection: 'O';
    Superficie:    1399;
-   Capital:       'T¢rshavn'
+   Capital:       'T¢rshavn';
+   Domain:        '.fo'
   ),
   (Country:       'Iles Malouines';
    Latitude:      51;
@@ -1029,7 +1130,8 @@ Const
    LongDeg:       31;
    LongDirection: 'O';
    Superficie:    12173;
-   Capital:       'Port Stanley'
+   Capital:       'Port Stanley';
+   Domain:        '.fk'
   ),
   (Country:       'Iles Mariannes du Nord';
    Latitude:      17;
@@ -1039,7 +1141,8 @@ Const
    LongDeg:       0;
    LongDirection: 'E';
    Superficie:    477;
-   Capital:       'Saipan'
+   Capital:       'Saipan';
+   Domain:        '.mp'
   ),
   (Country:       'Iles Marshall';
    Latitude:      10;
@@ -1049,7 +1152,8 @@ Const
    LongDeg:       43;
    LongDirection: 'E';
    Superficie:    181;
-   Capital:       'Majuro'
+   Capital:       'Majuro';
+   Domain:        '.mh'
   ),
   (Country:       'Iles mineures';
    Latitude:      13;
@@ -1059,7 +1163,8 @@ Const
    LongDeg:       22;
    LongDirection: 'O';
    Superficie:    40;
-   Capital:       ''
+   Capital:       '';
+   Domain:        ''
   ),
   (Country:       'Iles Salomon';
    Latitude:      9;
@@ -1069,7 +1174,8 @@ Const
    LongDeg:       14;
    LongDirection: 'E';
    Superficie:    28450;
-   Capital:       'Honiara'
+   Capital:       'Honiara';
+   Domain:        '.sb'
   ),
   (Country:       'Iles Turques-et-Caiques';
    Latitude:      21;
@@ -1079,7 +1185,8 @@ Const
    LongDeg:       0;
    LongDirection: 'O';
    Superficie:    430;
-   Capital:       'Cockburn Town'
+   Capital:       'Cockburn Town';
+   Domain:        '.tc'
   ),
   (Country:       'Iles Vierges';
    Latitude:      18;
@@ -1089,7 +1196,8 @@ Const
    LongDeg:       0;
    LongDirection: 'O';
    Superficie:    153;
-   Capital:       'Road Town'
+   Capital:       'Road Town';
+   Domain:        '.vg'
   ),
   (Country:       'Iles Vierges des Etats-Unis';
    Latitude:      18;
@@ -1099,7 +1207,8 @@ Const
    LongDeg:       48;
    LongDirection: 'O';
    Superficie:    352;
-   Capital:       'Charlotte Amalie'
+   Capital:       'Charlotte Amalie';
+   Domain:        '.vi'
   ),
   (Country:       'Inde';
    Latitude:      21;
@@ -1109,7 +1218,8 @@ Const
    LongDeg:       47;
    LongDirection: 'E';
    Superficie:    3287590;
-   Capital:       'New Delhi'
+   Capital:       'New Delhi';
+   Domain:        '.in'
   ),
   (Country:       'Indonesie';
    Latitude:      2;
@@ -1119,7 +1229,8 @@ Const
    LongDeg:       0;
    LongDirection: 'E';
    Superficie:    1919440;
-   Capital:       'Jakarta'
+   Capital:       'Jakarta';
+   Domain:        '.id'
   ),
   (Country:       'Irak';
    Latitude:      33;
@@ -1129,7 +1240,8 @@ Const
    LongDeg:       41;
    LongDirection: 'E';
    Superficie:    437072;
-   Capital:       'Bagdad'
+   Capital:       'Bagdad';
+   Domain:        '.iq'
   ),
   (Country:       'Iran';
    Latitude:      32;
@@ -1139,7 +1251,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    1648000;
-   Capital:       'T‚h‚ran'
+   Capital:       'T‚h‚ran';
+   Domain:        '.ir'
   ),
   (Country:       'Irlande';
    Latitude:      53;
@@ -1149,7 +1262,8 @@ Const
    LongDeg:       14;
    LongDirection: 'O';
    Superficie:    70280;
-   Capital:       'Dublin'
+   Capital:       'Dublin';
+   Domain:        '.ie'
   ),
   (Country:       'Islande';
    Latitude:      64;
@@ -1159,7 +1273,8 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    103000;
-   Capital:       'Reykjav¡k'
+   Capital:       'Reykjav¡k';
+   Domain:        '.is'
   ),
   (Country:       'Israel';
    Latitude:      31;
@@ -1169,7 +1284,8 @@ Const
    LongDeg:       4;
    LongDirection: 'E';
    Superficie:    20770;
-   Capital:       'J‚rusalem'
+   Capital:       'J‚rusalem';
+   Domain:        '.il'
   ),
   (Country:       'Italie';
    Latitude:      41;
@@ -1179,7 +1295,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    301230;
-   Capital:       'Rome'
+   Capital:       'Rome';
+   Domain:        '.it'
   ),
   (Country:       'Jamaique';
    Latitude:      18;
@@ -1189,7 +1306,8 @@ Const
    LongDeg:       16;
    LongDirection: 'O';
    Superficie:    10991;
-   Capital:       'Kingston'
+   Capital:       'Kingston';
+   Domain:        '.jm'
   ),
   (Country:       'Japon';
    Latitude:      34;
@@ -1199,7 +1317,8 @@ Const
    LongDeg:       22;
    LongDirection: 'E';
    Superficie:    377835;
-   Capital:       'Tokyo'
+   Capital:       'Tokyo';
+   Domain:        '.jp'
   ),
   (Country:       'Jersey';
    Latitude:      49;
@@ -1209,7 +1328,8 @@ Const
    LongDeg:       8;
    LongDirection: 'O';
    Superficie:    116;
-   Capital:       'Saint Helier'
+   Capital:       'Saint Helier';
+   Domain:        '.je'
   ),
   (Country:       'Jordanie';
    Latitude:      31;
@@ -1219,7 +1339,8 @@ Const
    LongDeg:       7;
    LongDirection: 'E';
    Superficie:    92300;
-   Capital:       'Amman'
+   Capital:       'Amman';
+   Domain:        '.jo'
   ),
   (Country:       'Kazakhstan';
    Latitude:      48;
@@ -1229,7 +1350,8 @@ Const
    LongDeg:       54;
    LongDirection: 'E';
    Superficie:    2717300;
-   Capital:       'Astana'
+   Capital:       'Astana';
+   Domain:        '.kz'
   ),
   (Country:       'Kenya';
    Latitude:      0;
@@ -1239,7 +1361,8 @@ Const
    LongDeg:       54;
    LongDirection: 'E';
    Superficie:    582650;
-   Capital:       'Nairobi'
+   Capital:       'Nairobi';
+   Domain:        '.ke'
   ),
   (Country:       'Kirghizistan';
    Latitude:      41;
@@ -1249,7 +1372,8 @@ Const
    LongDeg:       46;
    LongDirection: 'E';
    Superficie:    198500;
-   Capital:       'Bichkek'
+   Capital:       'Bichkek';
+   Domain:        '.kg'
   ),
   (Country:       'Kiribati';
    Latitude:      3;
@@ -1259,7 +1383,8 @@ Const
    LongDeg:       19;
    LongDirection: 'O';
    Superficie:    811;
-   Capital:       'Tarawa-Sud'
+   Capital:       'Tarawa-Sud';
+   Domain:        '.ki'
   ),
   (Country:       'Kosovo';
    Latitude:      42;
@@ -1269,7 +1394,8 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    10908;
-   Capital:       'Pristina'
+   Capital:       'Pristina';
+   Domain:        '.xk'
   ),
   (Country:       'Koweit';
    Latitude:      29;
@@ -1279,7 +1405,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    17820;
-   Capital:       'Kowe‹t'
+   Capital:       'Kowe‹t';
+   Domain:        '.kw'
   ),
   (Country:       'Laos';
    Latitude:      18;
@@ -1289,7 +1416,8 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    236800;
-   Capital:       'Vientiane'
+   Capital:       'Vientiane';
+   Domain:        '.la'
   ),
   (Country:       'Lesotho';
    Latitude:      29;
@@ -1299,7 +1427,8 @@ Const
    LongDeg:       14;
    LongDirection: 'E';
    Superficie:    30355;
-   Capital:       'Maseru'
+   Capital:       'Maseru';
+   Domain:        '.ls'
   ),
   (Country:       'Lettonie';
    Latitude:      56;
@@ -1309,7 +1438,8 @@ Const
    LongDeg:       36;
    LongDirection: 'E';
    Superficie:    64589;
-   Capital:       'Riga'
+   Capital:       'Riga';
+   Domain:        '.lv'
   ),
   (Country:       'Liban';
    Latitude:      33;
@@ -1319,7 +1449,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    10400;
-   Capital:       'Beyrouth'
+   Capital:       'Beyrouth';
+   Domain:        '.lb'
   ),
   (Country:       'Liberia';
    Latitude:      6;
@@ -1329,7 +1460,8 @@ Const
    LongDeg:       25;
    LongDirection: 'O';
    Superficie:    111370;
-   Capital:       'Monrovia'
+   Capital:       'Monrovia';
+   Domain:        '.lr'
   ),
   (Country:       'Libye';
    Latitude:      26;
@@ -1339,7 +1471,8 @@ Const
    LongDeg:       16;
    LongDirection: 'E';
    Superficie:    1759540;
-   Capital:       'Tripoli'
+   Capital:       'Tripoli';
+   Domain:        '.ly'
   ),
   (Country:       'Liechtenstein';
    Latitude:      47;
@@ -1349,7 +1482,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    160;
-   Capital:       'Vaduz'
+   Capital:       'Vaduz';
+   Domain:        '.li'
   ),
   (Country:       'Lituanie';
    Latitude:      55;
@@ -1359,7 +1493,8 @@ Const
    LongDeg:       54;
    LongDirection: 'E';
    Superficie:    65200;
-   Capital:       'Vilnius'
+   Capital:       'Vilnius';
+   Domain:        '.lt'
   ),
   (Country:       'Luxembourg';
    Latitude:      49;
@@ -1369,7 +1504,8 @@ Const
    LongDeg:       7;
    LongDirection: 'E';
    Superficie:    2586;
-   Capital:       'Luxembourg'
+   Capital:       'Luxembourg';
+   Domain:        '.lu'
   ),
   (Country:       'Macao';
    Latitude:      22;
@@ -1379,7 +1515,8 @@ Const
    LongDeg:       32;
    LongDirection: 'E';
    Superficie:    254;
-   Capital:       'Macao'
+   Capital:       'Macao';
+   Domain:        '.mo'
   ),
   (Country:       'Macedoine';
    Latitude:      41;
@@ -1389,7 +1526,8 @@ Const
    LongDeg:       45;
    LongDirection: 'E';
    Superficie:    25333;
-   Capital:       'Skopje'
+   Capital:       'Skopje';
+   Domain:        '.mk'
   ),
   (Country:       'Madagascar';
    Latitude:      18;
@@ -1399,7 +1537,8 @@ Const
    LongDeg:       51;
    LongDirection: 'E';
    Superficie:    587040;
-   Capital:       'Antananarivo'
+   Capital:       'Antananarivo';
+   Domain:        '.mg'
   ),
   (Country:       'Malaisie';
    Latitude:      4;
@@ -1409,7 +1548,8 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    329750;
-   Capital:       'Kuala Lumpur'
+   Capital:       'Kuala Lumpur';
+   Domain:        '.my'
   ),
   (Country:       'Malawi';
    Latitude:      13;
@@ -1419,7 +1559,8 @@ Const
    LongDeg:       17;
    LongDirection: 'E';
    Superficie:    118480;
-   Capital:       'Lilongwe'
+   Capital:       'Lilongwe';
+   Domain:        '.mw'
   ),
   (Country:       'Maldives';
    Latitude:      3;
@@ -1429,7 +1570,8 @@ Const
    LongDeg:       9;
    LongDirection: 'E';
    Superficie:    300;
-   Capital:       'Mal‚'
+   Capital:       'Mal‚';
+   Domain:        '.mv'
   ),
   (Country:       'Mali';
    Latitude:      17;
@@ -1439,7 +1581,8 @@ Const
    LongDeg:       59;
    LongDirection: 'O';
    Superficie:    1240000;
-   Capital:       'Bamako'
+   Capital:       'Bamako';
+   Domain:        '.ml'
   ),
   (Country:       'Malte';
    Latitude:      35;
@@ -1449,7 +1592,8 @@ Const
    LongDeg:       22;
    LongDirection: 'E';
    Superficie:    316;
-   Capital:       'La Valette'
+   Capital:       'La Valette';
+   Domain:        '.mt'
   ),
   (Country:       'Maroc';
    Latitude:      31;
@@ -1459,7 +1603,8 @@ Const
    LongDeg:       4;
    LongDirection: 'O';
    Superficie:    446550;
-   Capital:       'Rabat'
+   Capital:       'Rabat';
+   Domain:        '.ma'
   ),
   (Country:       'Martinique';
    Latitude:      14;
@@ -1469,7 +1614,8 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    1100;
-   Capital:       'Fort-de-France'
+   Capital:       'Fort-de-France';
+   Domain:        '.mq'
   ),
   (Country:       'Maurice';
    Latitude:      15;
@@ -1479,7 +1625,8 @@ Const
    LongDeg:       0;
    LongDirection: 'E';
    Superficie:    2040;
-   Capital:       'Port-Louis'
+   Capital:       'Port-Louis';
+   Domain:        '.mu'
   ),
   (Country:       'Mauritanie';
    Latitude:      21;
@@ -1489,7 +1636,8 @@ Const
    LongDeg:       56;
    LongDirection: 'O';
    Superficie:    1030700;
-   Capital:       'Nouakchott'
+   Capital:       'Nouakchott';
+   Domain:        '.mr'
   ),
   (Country:       'Mayotte';
    Latitude:      12;
@@ -1499,7 +1647,8 @@ Const
    LongDeg:       9;
    LongDirection: 'E';
    Superficie:    374;
-   Capital:       'Mamoudzou'
+   Capital:       'Mamoudzou';
+   Domain:        '.yt'
   ),
   (Country:       'Mexique';
    Latitude:      23;
@@ -1509,7 +1658,8 @@ Const
    LongDeg:       34;
    LongDirection: 'O';
    Superficie:    1972550;
-   Capital:       'Mexico'
+   Capital:       'Mexico';
+   Domain:        '.mx'
   ),
   (Country:       'Micronesie';
    Latitude:      5;
@@ -1519,7 +1669,8 @@ Const
    LongDeg:       11;
    LongDirection: 'E';
    Superficie:    702;
-   Capital:       'Palikir'
+   Capital:       'Palikir';
+   Domain:        '.fm'
   ),
   (Country:       'Moldavie';
    Latitude:      46;
@@ -1529,7 +1680,8 @@ Const
    LongDeg:       22;
    LongDirection: 'E';
    Superficie:    33843;
-   Capital:       'Chisinau'
+   Capital:       'Chisinau';
+   Domain:        '.md'
   ),
   (Country:       'Monaco';
    Latitude:      43;
@@ -1539,7 +1691,8 @@ Const
    LongDeg:       25;
    LongDirection: 'E';
    Superficie:    2;
-   Capital:       'Monaco'
+   Capital:       'Monaco';
+   Domain:        '.mc'
   ),
   (Country:       'Mongolie';
    Latitude:      46;
@@ -1549,7 +1702,8 @@ Const
    LongDeg:       50;
    LongDirection: 'E';
    Superficie:    1565000;
-   Capital:       'Oulan-Bator'
+   Capital:       'Oulan-Bator';
+   Domain:        '.mn'
   ),
   (Country:       'Montenegro';
    Latitude:      42;
@@ -1559,7 +1713,8 @@ Const
    LongDeg:       24;
    LongDirection: 'E';
    Superficie:    14026;
-   Capital:       'Podgorica'
+   Capital:       'Podgorica';
+   Domain:        '.me'
   ),
   (Country:       'Montserrat';
    Latitude:      16;
@@ -1569,7 +1724,8 @@ Const
    LongDeg:       11;
    LongDirection: 'O';
    Superficie:    102;
-   Capital:       'Plymouth'
+   Capital:       'Plymouth';
+   Domain:        '.ms'
   ),
   (Country:       'Mozambique';
    Latitude:      18;
@@ -1579,7 +1735,8 @@ Const
    LongDeg:       31;
    LongDirection: 'E';
    Superficie:    801590;
-   Capital:       'Maputo'
+   Capital:       'Maputo';
+   Domain:        '.mz'
   ),
   (Country:       'Myanmar';
    Latitude:      19;
@@ -1589,7 +1746,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    678500;
-   Capital:       'Nay Pyi Taw'
+   Capital:       'Nay Pyi Taw';
+   Domain:        '.mm'
   ),
   (Country:       'Namibie';
    Latitude:      22;
@@ -1599,7 +1757,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    825418;
-   Capital:       'Windhoek'
+   Capital:       'Windhoek';
+   Domain:        '.na'
   ),
   (Country:       'Nauru';
    Latitude:      0;
@@ -1609,7 +1768,8 @@ Const
    LongDeg:       55;
    LongDirection: 'E';
    Superficie:    21;
-   Capital:       'Yaren'
+   Capital:       'Yaren';
+   Domain:        '.nr'
   ),
   (Country:       'Nepal';
    Latitude:      28;
@@ -1619,7 +1779,8 @@ Const
    LongDeg:       7;
    LongDirection: 'E';
    Superficie:    140800;
-   Capital:       'Managua'
+   Capital:       'Managua';
+   Domain:        '.np'
   ),
   (Country:       'Nicaragua';
    Latitude:      12;
@@ -1629,7 +1790,8 @@ Const
    LongDeg:       12;
    LongDirection: 'O';
    Superficie:    129494;
-   Capital:       'Managua'
+   Capital:       'Managua';
+   Domain:        '.ni'
   ),
   (Country:       'Niger';
    Latitude:      17;
@@ -1639,7 +1801,8 @@ Const
    LongDeg:       4;
    LongDirection: 'E';
    Superficie:    1267000;
-   Capital:       'Niamey'
+   Capital:       'Niamey';
+   Domain:        '.ne'
   ),
   (Country:       'Nigeria';
    Latitude:      9;
@@ -1649,7 +1812,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    923768;
-   Capital:       'Abuja'
+   Capital:       'Abuja';
+   Domain:        '.ng'
   ),
   (Country:       'Nioue';
    Latitude:      19;
@@ -1659,7 +1823,8 @@ Const
    LongDeg:       51;
    LongDirection: 'O';
    Superficie:    260;
-   Capital:       'Alofi'
+   Capital:       'Alofi';
+   Domain:        '.nu'
   ),
   (Country:       'Norvege';
    Latitude:      64;
@@ -1669,7 +1834,8 @@ Const
    LongDeg:       51;
    LongDirection: 'E';
    Superficie:    324220;
-   Capital:       'Oslo'
+   Capital:       'Oslo';
+   Domain:        '.no'
   ),
   (Country:       'Nouvelle-Caledonie';
    Latitude:      21;
@@ -1679,7 +1845,8 @@ Const
    LongDeg:       50;
    LongDirection: 'E';
    Superficie:    19060;
-   Capital:       'Noum‚a'
+   Capital:       'Noum‚a';
+   Domain:        '.nc'
   ),
   (Country:       'Nouvelle-Zelande';
    Latitude:      41;
@@ -1689,7 +1856,8 @@ Const
    LongDeg:       0;
    LongDirection: 'E';
    Superficie:    268680;
-   Capital:       'Wellington'
+   Capital:       'Wellington';
+   Domain:        '.nz'
   ),
   (Country:       'Oman';
    Latitude:      21;
@@ -1699,7 +1867,8 @@ Const
    LongDeg:       51;
    LongDirection: 'E';
    Superficie:    212460;
-   Capital:       'Mascate'
+   Capital:       'Mascate';
+   Domain:        '.om'
   ),
   (Country:       'Ouganda';
    Latitude:      1;
@@ -1709,7 +1878,8 @@ Const
    LongDeg:       18;
    LongDirection: 'E';
    Superficie:    236040;
-   Capital:       'Kampala'
+   Capital:       'Kampala';
+   Domain:        '.ug'
   ),
   (Country:       'Ouzbekistan';
    Latitude:      41;
@@ -1719,7 +1889,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    447400;
-   Capital:       'Tachkent'
+   Capital:       'Tachkent';
+   Domain:        '.uz'
   ),
   (Country:       'Pakistan';
    Latitude:      30;
@@ -1729,7 +1900,8 @@ Const
    LongDeg:       21;
    LongDirection: 'E';
    Superficie:    803940;
-   Capital:       'Islamabad'
+   Capital:       'Islamabad';
+   Domain:        '.pk'
   ),
   (Country:       'Palaos';
    Latitude:      5;
@@ -1739,7 +1911,8 @@ Const
    LongDeg:       55;
    LongDirection: 'E';
    Superficie:    458;
-   Capital:       'Melekeok - Palau State Capital'
+   Capital:       'Melekeok - Palau State Capital';
+   Domain:        '.pw'
   ),
   (Country:       'Panama';
    Latitude:      8;
@@ -1749,7 +1922,8 @@ Const
    LongDeg:       6;
    LongDirection: 'O';
    Superficie:    78200;
-   Capital:       'Panam '
+   Capital:       'Panam ';
+   Domain:        '.pa'
   ),
   (Country:       'Papouasie-Nouvelle Guinee';
    Latitude:      6;
@@ -1759,7 +1933,8 @@ Const
    LongDeg:       24;
    LongDirection: 'E';
    Superficie:    462840;
-   Capital:       'Port Moresby'
+   Capital:       'Port Moresby';
+   Domain:        '.pg'
   ),
   (Country:       'Paraguay';
    Latitude:      23;
@@ -1769,7 +1944,8 @@ Const
    LongDeg:       27;
    LongDirection: 'O';
    Superficie:    406750;
-   Capital:       'Asunci¢n'
+   Capital:       'Asunci¢n';
+   Domain:        '.py'
   ),
   (Country:       'Pays-Bas';
    Latitude:      52;
@@ -1779,7 +1955,8 @@ Const
    LongDeg:       17;
    LongDirection: 'E';
    Superficie:    41526;
-   Capital:       'Amsterdam'
+   Capital:       'Amsterdam';
+   Domain:        '.nl'
   ),
   (Country:       'Perou';
    Latitude:      9;
@@ -1789,7 +1966,8 @@ Const
    LongDeg:       0;
    LongDirection: 'O';
    Superficie:    1285220;
-   Capital:       'Lima'
+   Capital:       'Lima';
+   Domain:        '.pe'
   ),
   (Country:       'Philippines';
    Latitude:      12;
@@ -1799,7 +1977,8 @@ Const
    LongDeg:       45;
    LongDirection: 'E';
    Superficie:    300000;
-   Capital:       'Manille'
+   Capital:       'Manille';
+   Domain:        '.ph'
   ),
   (Country:       'Pitcairn';
    Latitude:      24;
@@ -1809,7 +1988,8 @@ Const
    LongDeg:       33;
    LongDirection: 'O';
    Superficie:    47;
-   Capital:       'Adamstown'
+   Capital:       'Adamstown';
+   Domain:        '.pn'
   ),
   (Country:       'Pologne';
    Latitude:      51;
@@ -1819,7 +1999,8 @@ Const
    LongDeg:       8;
    LongDirection: 'E';
    Superficie:    312685;
-   Capital:       'Varsovie'
+   Capital:       'Varsovie';
+   Domain:        '.pl'
   ),
   (Country:       'Polynesie Francaise';
    Latitude:      17;
@@ -1829,7 +2010,8 @@ Const
    LongDeg:       54;
    LongDirection: 'O';
    Superficie:    4167;
-   Capital:       'Papeete'
+   Capital:       'Papeete';
+   Domain:        '.pf'
   ),
   (Country:       'Porto Rico';
    Latitude:      18;
@@ -1839,7 +2021,8 @@ Const
    LongDeg:       35;
    LongDirection: 'O';
    Superficie:    9104;
-   Capital:       'San Juan'
+   Capital:       'San Juan';
+   Domain:        '.pr'
   ),
   (Country:       'Portugal';
    Latitude:      39;
@@ -1849,7 +2032,8 @@ Const
    LongDeg:       50;
    LongDirection: 'O';
    Superficie:    92391;
-   Capital:       'Lisbonne'
+   Capital:       'Lisbonne';
+   Domain:        '.pt'
   ),
   (Country:       'Qatar';
    Latitude:      25;
@@ -1859,7 +2043,8 @@ Const
    LongDeg:       11;
    LongDirection: 'E';
    Superficie:    11437;
-   Capital:       'Doha'
+   Capital:       'Doha';
+   Domain:        '.qa'
   ),
   (Country:       'Republique democratique du congo';
    Latitude:      4;
@@ -1869,7 +2054,8 @@ Const
    LongDeg:       45;
    LongDirection: 'E';
    Superficie:    2345410;
-   Capital:       'Kinshasa'
+   Capital:       'Kinshasa';
+   Domain:        '.cd'
   ),
   (Country:       'Republique Dominicaine';
    Latitude:      18;
@@ -1879,7 +2065,8 @@ Const
    LongDeg:       9;
    LongDirection: 'O';
    Superficie:    48730;
-   Capital:       'Santo Domingo'
+   Capital:       'Santo Domingo';
+   Domain:        '.do'
   ),
   (Country:       'Republique Togolaise';
    Latitude:      8;
@@ -1889,7 +2076,8 @@ Const
    LongDeg:       49;
    LongDirection: 'E';
    Superficie:    56785;
-   Capital:       'Lom‚'
+   Capital:       'Lom‚';
+   Domain:        '.tg'
   ),
   (Country:       'Reunion';
    Latitude:      21;
@@ -1899,7 +2087,8 @@ Const
    LongDeg:       31;
    LongDirection: 'E';
    Superficie:    2517;
-   Capital:       'Saint-Denis'
+   Capital:       'Saint-Denis';
+   Domain:        '.re'
   ),
   (Country:       'Roumanie';
    Latitude:      45;
@@ -1909,7 +2098,8 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    237500;
-   Capital:       'Bucarest'
+   Capital:       'Bucarest';
+   Domain:        '.ro'
   ),
   (Country:       'Royaume-Uni';
    Latitude:      54;
@@ -1919,7 +2109,8 @@ Const
    LongDeg:       25;
    LongDirection: 'O';
    Superficie:    244820;
-   Capital:       'Londres'
+   Capital:       'Londres';
+   Domain:        '.uk'
   ),
   (Country:       'Russie';
    Latitude:      61;
@@ -1929,7 +2120,8 @@ Const
    LongDeg:       6;
    LongDirection: 'E';
    Superficie:    17125191;
-   Capital:       'Moscou'
+   Capital:       'Moscou';
+   Domain:        '.ru'
   ),
   (Country:       'Rwanda';
    Latitude:      1;
@@ -1939,7 +2131,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    26338;
-   Capital:       'Kigali'
+   Capital:       'Kigali';
+   Domain:        '.rw'
   ),
   (Country:       'Sahara Occidental';
    Latitude:      24;
@@ -1949,7 +2142,8 @@ Const
    LongDeg:       53;
    LongDirection: 'O';
    Superficie:    266000;
-   Capital:       'Laƒyoune'
+   Capital:       'Laƒyoune';
+   Domain:        '.eh'
   ),
   (Country:       'Saint-Barthelemy';
    Latitude:      17;
@@ -1959,7 +2153,8 @@ Const
    LongDeg:       49;
    LongDirection: 'O';
    Superficie:    21;
-   Capital:       'Gustavia'
+   Capital:       'Gustavia';
+   Domain:        '.bl'
   ),
   (Country:       'Saint-Christophe-et-Nieves';
    Latitude:      17;
@@ -1969,7 +2164,8 @@ Const
    LongDeg:       42;
    LongDirection: 'O';
    Superficie:    261;
-   Capital:       'Basseterre'
+   Capital:       'Basseterre';
+   Domain:        '.kn'
   ),
   (Country:       'Saint-Marin';
    Latitude:      43;
@@ -1979,9 +2175,10 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    61;
-   Capital:       'Saint-Marin'
+   Capital:       'Saint-Marin';
+   Domain:        '.sm'
   ),
-  (Country:'Saint-Martin';
+  (Country:       'Saint-Martin';
    Latitude:      18;
    LatiDeg:       2;
    LatiDirection: 'N';
@@ -1989,7 +2186,8 @@ Const
    LongDeg:       4;
    LongDirection: 'O';
    Superficie:    53;
-   Capital:       'Philipsburg'
+   Capital:       'Philipsburg';
+   Domain:        ''
   ),
   (Country:       'Saint-Pierre et Miquelon';
    Latitude:      46;
@@ -1999,7 +2197,8 @@ Const
    LongDeg:       20;
    LongDirection: 'O';
    Superficie:    242;
-   Capital:       'Saint-Pierre'
+   Capital:       'Saint-Pierre';
+   Domain:        '.pm'
   ),
   (Country:       'Saint-Vincent-et-les Grenadines';
    Latitude:      12;
@@ -2009,7 +2208,8 @@ Const
    LongDeg:       17;
    LongDirection: 'O';
    Superficie:    389;
-   Capital:       'Kingstown'
+   Capital:       'Kingstown';
+   Domain:        '.vc'
   ),
   (Country:       'Sainte-Helene';
    Latitude:      11;
@@ -2019,7 +2219,8 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    410;
-   Capital:       'Jamestown'
+   Capital:       'Jamestown';
+   Domain:        '.sh'
   ),
   (Country:       'Sainte-Lucie';
    Latitude:      13;
@@ -2029,7 +2230,8 @@ Const
    LongDeg:       58;
    LongDirection: 'O';
    Superficie:    616;
-   Capital:       'Castries'
+   Capital:       'Castries';
+   Domain:        '.lc'
   ),
   (Country:       'Salvador';
    Latitude:      13;
@@ -2039,7 +2241,8 @@ Const
    LongDeg:       54;
    LongDirection: 'O';
    Superficie:    21040;
-   Capital:       'San Salvador'
+   Capital:       'San Salvador';
+   Domain:        '.sv'
   ),
   (Country:       'Samoa';
    Latitude:      13;
@@ -2049,7 +2252,8 @@ Const
    LongDeg:       6;
    LongDirection: 'O';
    Superficie:    2944;
-   Capital:       'Apia'
+   Capital:       'Apia';
+   Domain:        '.ws'
   ),
   (Country:       'Samoa americaines';
    Latitude:      12;
@@ -2059,7 +2263,8 @@ Const
    LongDeg:       15;
    LongDirection: 'O';
    Superficie:    199;
-   Capital:       'Pago Pago'
+   Capital:       'Pago Pago';
+   Domain:        '.as'
   ),
   (Country:       'Sao Tome-et-Principe';
    Latitude:      0;
@@ -2069,7 +2274,8 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    1001;
-   Capital:       'Sao Tom‚'
+   Capital:       'Sao Tom‚';
+   Domain:        '.st'
   ),
   (Country:       'Senegal';
    Latitude:      14;
@@ -2079,7 +2285,8 @@ Const
    LongDeg:       26;
    LongDirection: 'O';
    Superficie:    196190;
-   Capital:       'Dakar'
+   Capital:       'Dakar';
+   Domain:        '.sn'
   ),
   (Country:       'Serbie';
    Latitude:      44;
@@ -2089,7 +2296,8 @@ Const
    LongDeg:       54;
    LongDirection: 'E';
    Superficie:    88361;
-   Capital:       'Belgrade'
+   Capital:       'Belgrade';
+   Domain:        '.rs'
   ),
   (Country:       'Seychelles';
    Latitude:      7;
@@ -2099,7 +2307,8 @@ Const
    LongDeg:       14;
    LongDirection: 'E';
    Superficie:    455;
-   Capital:       'Victoria'
+   Capital:       'Victoria';
+   Domain:        '.sc'
   ),
   (Country:       'Sierra Leone';
    Latitude:      8;
@@ -2109,7 +2318,8 @@ Const
    LongDeg:       47;
    LongDirection: 'O';
    Superficie:    71740;
-   Capital:       'Freetown'
+   Capital:       'Freetown';
+   Domain:        '.sl'
   ),
   (Country:       'Singapour';
    Latitude:      1;
@@ -2119,7 +2329,8 @@ Const
    LongDeg:       49;
    LongDirection: 'E';
    Superficie:    692;
-   Capital:       'Singapour'
+   Capital:       'Singapour';
+   Domain:        '.sg'
   ),
   (Country:       'Slovaquie';
    Latitude:      48;
@@ -2129,7 +2340,8 @@ Const
    LongDeg:       42;
    LongDirection: 'E';
    Superficie:    48845;
-   Capital:       'Bratislava'
+   Capital:       'Bratislava';
+   Domain:        '.sk'
   ),
   (Country:       'Slovenie';
    Latitude:      46;
@@ -2139,7 +2351,8 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    20273;
-   Capital:       'Ljubljana'
+   Capital:       'Ljubljana';
+   Domain:        '.si'
   ),
   (Country:       'Somalie';
    Latitude:      5;
@@ -2149,7 +2362,8 @@ Const
    LongDeg:       11;
    LongDirection: 'E';
    Superficie:    637657;
-   Capital:       'Mogadiscio'
+   Capital:       'Mogadiscio';
+   Domain:        '.so'
   ),
   (Country:       'Soudan';
    Latitude:      15;
@@ -2159,7 +2373,8 @@ Const
    LongDeg:       13;
    LongDirection: 'E';
    Superficie:    1861484;
-   Capital:       'Khartoum'
+   Capital:       'Khartoum';
+   Domain:        '.sd'
   ),
   (Country:       'Sri Lanka';
    Latitude:      7;
@@ -2169,7 +2384,8 @@ Const
    LongDeg:       46;
    LongDirection: 'E';
    Superficie:    65610;
-   Capital:       'Colombo'
+   Capital:       'Colombo';
+   Domain:        '.lk'
   ),
   (Country:       'Sud-Soudan';
    Latitude:      7;
@@ -2179,7 +2395,8 @@ Const
    LongDeg:       2;
    LongDirection: 'E';
    Superficie:    644329;
-   Capital:       'Djouba'
+   Capital:       'Djouba';
+   Domain:        '.ss'
   ),
   (Country:       'Suede';
    Latitude:      62;
@@ -2189,7 +2406,8 @@ Const
    LongDeg:       38;
    LongDirection: 'E';
    Superficie:    449964;
-   Capital:       'Stockholm'
+   Capital:       'Stockholm';
+   Domain:        '.se'
   ),
   (Country:       'Suisse';
    Latitude:      46;
@@ -2199,7 +2417,8 @@ Const
    LongDeg:       13;
    LongDirection: 'E';
    Superficie:    41290;
-   Capital:       'Berne'
+   Capital:       'Berne';
+   Domain:        '.ch'
   ),
   (Country:       'Surinam';
    Latitude:      3;
@@ -2209,7 +2428,8 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    163270;
-   Capital:       'Paramaribo'
+   Capital:       'Paramaribo';
+   Domain:        '.sr'
   ),
   (Country:       'Svalbard et Ile Jan Mayen';
    Latitude:      79;
@@ -2219,7 +2439,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    62049;
-   Capital:       'Longyearbyen'
+   Capital:       'Longyearbyen';
+   Domain:        '.sj'
   ),
   (Country:       'Swaziland';
    Latitude:      26;
@@ -2229,7 +2450,8 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    17363;
-   Capital:       'Mbabane'
+   Capital:       'Mbabane';
+   Domain:        '.sz'
   ),
   (Country:       'Syrie';
    Latitude:      34;
@@ -2239,7 +2461,8 @@ Const
    LongDeg:       3;
    LongDirection: 'E';
    Superficie:    185180;
-   Capital:       'Damas'
+   Capital:       'Damas';
+   Domain:        '.sy'
   ),
   (Country:       'Tadjikistan';
    Latitude:      38;
@@ -2249,7 +2472,8 @@ Const
    LongDeg:       15;
    LongDirection: 'E';
    Superficie:    143100;
-   Capital:       'Douchanb‚'
+   Capital:       'Douchanb‚';
+   Domain:        '.tj'
   ),
   (Country:       'Taiwan';
    Latitude:      23;
@@ -2259,7 +2483,8 @@ Const
    LongDeg:       46;
    LongDirection: 'E';
    Superficie:    35980;
-   Capital:       'Taipei'
+   Capital:       'Taipei';
+   Domain:        '.tw'
   ),
   (Country:       'Tanzanie';
    Latitude:      6;
@@ -2269,7 +2494,8 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    945087;
-   Capital:       'Dodoma'
+   Capital:       'Dodoma';
+   Domain:        '.tz'
   ),
   (Country:       'Tchad';
    Latitude:      15;
@@ -2279,7 +2505,8 @@ Const
    LongDeg:       44;
    LongDirection: 'E';
    Superficie:    1284000;
-   Capital:       'Ndjamena'
+   Capital:       'Ndjamena';
+   Domain:        '.td'
   ),
   (Country:       'Tchequie';
    Latitude:      49;
@@ -2289,7 +2516,8 @@ Const
    LongDeg:       28;
    LongDirection: 'E';
    Superficie:    78866;
-   Capital:       'Prague'
+   Capital:       'Prague';
+   Domain:        '.cz'
   ),
   (Country:       'Terres australes francaises';
    Latitude:      43;
@@ -2299,7 +2527,8 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    7829;
-   Capital:       'Port-aux-Fran‡ais'
+   Capital:       'Port-aux-Fran‡ais';
+   Domain:        ''
   ),
   (Country:       'Territoire britannique de l''ocean Indien';
    Latitude:      6;
@@ -2309,7 +2538,8 @@ Const
    LongDeg:       52;
    LongDirection: 'E';
    Superficie:    60;
-   Capital:       ''
+   Capital:       '';
+   Domain:        '.io'
   ),
   (Country:       'Territoire palestinien';
    Latitude:      31;
@@ -2319,7 +2549,8 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    5970;
-   Capital:       ''
+   Capital:       '';
+   Domain:        ''
   ),
   (Country:       'Thailande';
    Latitude:      13;
@@ -2329,7 +2560,8 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    514000;
-   Capital:       'Bangkok'
+   Capital:       'Bangkok';
+   Domain:        '.th'
   ),
   (Country:       'Timor Oriental';
    Latitude:      8;
@@ -2339,7 +2571,8 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    15007;
-   Capital:       'Dili'
+   Capital:       'Dili';
+   Domain:        '.tp'
   ),
   (Country:       'Tokelau';
    Latitude:      8;
@@ -2349,7 +2582,8 @@ Const
    LongDeg:       51;
    LongDirection: 'O';
    Superficie:    10;
-   Capital:       ''
+   Capital:       '';
+   Domain:        '.tk'
   ),
   (Country:       'Tonga';
    Latitude:      18;
@@ -2359,7 +2593,8 @@ Const
    LongDeg:       47;
    LongDirection: 'O';
    Superficie:    748;
-   Capital:       'Nuku''alofa'
+   Capital:       'Nuku''alofa';
+   Domain:        '.to'
   ),
   (Country:       'Trinidad et Tobago';
    Latitude:      10;
@@ -2529,16 +2764,17 @@ End;
 BEGIN
   If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
-  WriteLn('CAPITAL : Cette commande permet de retourner la capital d''un pays');
+  WriteLn('DOMAIN : Cette commande permet de retourner l''extension de nom ',
+                    'de domaine d''un pays');
   WriteLn;
-  WriteLn('Syntaxe : CAPITAL [pays]');
+  WriteLn('Syntaxe : DOMAIN [pays]');
  End
   Else
  If ParamCount>0Then Begin
   For I:=1 to ParamCount do Begin
    For J:=Low(Country) to High(Country)do Begin
     If StrToUpper(StrPas(Country[J].Country))=StrToUpper(ParamStr(I))Then Begin
-     WriteLn(StrPas(Country[J].Capital));
+     WriteLn(StrPas(Country[J].Domain));
     End;
    End;
   End;
