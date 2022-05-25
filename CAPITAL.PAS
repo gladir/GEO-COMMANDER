@@ -389,7 +389,7 @@ Const
    LongDeg:       59;
    LongDirection: 'E';
    Superficie:    181040;
-   Capital:       'Cambodge'
+   Capital:       'Phnom Penh'
   ),
   (Country:       'Cameroun';
    Latitude:      7;
