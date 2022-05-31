@@ -4,7 +4,7 @@
   @abstract(Target: Turbo Pascal, Free Pascal)
 }
 
-Program CAPITAL;
+Program COUNTRY;
 
 Uses Strings;
 
@@ -20,7 +20,7 @@ Type
  End;
 
 Const
- Country:Array[0..248]of CountryGeoRecord=(
+ _Country:Array[0..248]of CountryGeoRecord=(
   (Country:       'Afghanistan';
    Latitude:      33;
    LatiDeg:       55;
@@ -2529,18 +2529,24 @@ End;
 BEGIN
   If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
-  WriteLn('CAPITAL : Cette commande permet de retourner la capital d''un pays');
+  WriteLn('COUNTRY : Cette commande permet de retourner les informations d''un pays');
   WriteLn;
-  WriteLn('Syntaxe : CAPITAL [pays]');
+  WriteLn('Syntaxe : COUNTRY [pays]');
  End
   Else
  If ParamCount>0Then Begin
   For I:=1 to ParamCount do Begin
-   For J:=Low(Country) to High(Country)do Begin
-    If StrToUpper(StrPas(Country[J].Country))=StrToUpper(ParamStr(I))Then Begin
-     WriteLn(StrPas(Country[J].Capital));
+   For J:=Low(_Country) to High(_Country)do Begin
+    If StrToUpper(StrPas(_Country[J].Country))=StrToUpper(ParamStr(I))Then Begin
+     WriteLn('Nom du pays : ',StrPas(_Country[J].Country));
+     Write('Coordonn‚es : ');
+     Write(_Country[J].Latitude,'ø ',_Country[J].LatiDeg,''' ',_Country[J].LatiDirection,' ');
+     WriteLn(_Country[J].Longitude,'ø ',_Country[J].LongDeg,''' ',_Country[J].LongDirection);
+     WriteLn('Superficie  : ',_Country[J].Superficie,' kmý');
+     WriteLn('Capitale    : ',StrPas(_Country[J].Capital));
     End;
    End;
   End;
  End;
 END.
+
