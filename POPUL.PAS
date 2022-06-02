@@ -347,20 +347,20 @@ Const
    LongDirection: 'E';
    Superficie:    29800;
    Capital:       'Erevan';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:2900000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
+   Population1951:1367803;
+   Population1956:1592209;
+   Population1961:1908085;
+   Population1966:2243943;
+   Population1971:2556649;
+   Population1975:2803493;
+   Population1979:3023475;
+   Population1985:3310971;
+   Population1990:3537325;
+   Population1995:3250234;
+   Population2000:3079255;
+   Population2005:2990909;
+   Population2010:2882660;
+   Population2015:2919035;
    Population2022:2968000
   ),
   (Country:       'Aruba';
@@ -372,21 +372,21 @@ Const
    LongDirection: 'O';
    Superficie:    193;
    Capital:       'Oranjestad';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:-1;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:71566
+   Population1951:38161;
+   Population1956:44833;
+   Population1961:54826;
+   Population1966:57531;
+   Population1971:59258;
+   Population1975:60591;
+   Population1979:60036;
+   Population1985:62926;
+   Population1990:61597;
+   Population1995:78529;
+   Population2000:89943;
+   Population2005:99391;
+   Population2010:101559;
+   Population2015:104060;
+   Population2022:107493
   ),
   (Country:       'Australie';
    Latitude:      26;
@@ -397,21 +397,21 @@ Const
    LongDirection: 'E';
    Superficie:    7686850;
    Capital:       'Canberra';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:14420000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:21515754
+   Population1951:8288694;
+   Population1956:9269304;
+   Population1961:10344790;
+   Population1966:11454446;
+   Population1971:12914067;
+   Population1975:13690121;
+   Population1979:14331875;
+   Population1985:15544402;
+   Population1990:16838308;
+   Population1995:17896604;
+   Population2000:18890366;
+   Population2005:20030327;
+   Population2010:21954429;
+   Population2015:23765844;
+   Population2022:26152604
   ),
   (Country:       'Autriche';
    Latitude:      47;
@@ -422,21 +422,21 @@ Const
    LongDirection: 'E';
    Superficie:    83858;
    Capital:       'Vienne';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:7510000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:8205000
+   Population1951:6933873;
+   Population1956:6960553;
+   Population1961:7091122;
+   Population1966:7328890;
+   Population1971:7533429;
+   Population1975:7632035;
+   Population1979:7622782;
+   Population1985:7611116;
+   Population1990:7705413;
+   Population1995:7968840;
+   Population2000:8060246;
+   Population2005:8235384;
+   Population2010:8391455;
+   Population2015:8647197;
+   Population2022:9045673
   ),
   (Country:       'Azerbaidjan';
    Latitude:      40;
@@ -447,21 +447,21 @@ Const
    LongDirection: 'E';
    Superficie:    86600;
    Capital:       'Bakou';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:5800000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:8303512
+   Population1951:2957839;
+   Population1956:3380296;
+   Population1961:3963416;
+   Population1966:4657594;
+   Population1971:5232704;
+   Population1975:5626991;
+   Population1979:6006174;
+   Population1985:6612461;
+   Population1990:7185294;
+   Population1995:7729938;
+   Population2000:8088622;
+   Population2005:8494143;
+   Population2010:8978868;
+   Population2015:9564660;
+   Population2022:10375843
   ),
   (Country:       'Bahamas';
    Latitude:      24;
@@ -472,21 +472,21 @@ Const
    LongDirection: 'O';
    Superficie:    13940;
    Capital:       'Nassau';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:230000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:301790
+   Population1951:79543;
+   Population1956:90271;
+   Population1961:112348;
+   Population1966:143246;
+   Population1971:171654;
+   Population1975:187016;
+   Population1979:203755;
+   Population1985:232265;
+   Population1990:254001;
+   Population1995:278032;
+   Population2000:296065;
+   Population2005:321895;
+   Population2010:352290;
+   Population2015:372427;
+   Population2022:402825
   ),
   (Country:       'Bahrein';
    Latitude:      26;
@@ -497,21 +497,21 @@ Const
    LongDirection: 'E';
    Superficie:    665;
    Capital:       'Manama';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:290000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:738004
+   Population1951:116225;
+   Population1956:136436;
+   Population1961:165186;
+   Population1966:189626;
+   Population1971:216491;
+   Population1975:259284;
+   Population1979:333215;
+   Population1985:413381;
+   Population1990:488565;
+   Population1995:556702;
+   Population2000:650652;
+   Population2005:859745;
+   Population2010:1213199;
+   Population2015:1354110;
+   Population2022:1730827
   ),
   (Country:       'Bangladesh';
    Latitude:      23;
@@ -522,16 +522,16 @@ Const
    LongDirection: 'E';
    Superficie:    144000;
    Capital:       'Dacca';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
+   Population1951:38303871;
+   Population1956:42602921;
+   Population1961:48693715;
+   Population1966:56278667;
+   Population1971:64887399;
+   Population1975:69409707;
    Population1979:86650000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
+   Population1985:85046395;
+   Population1990:101943904;
+   Population1995:113963804;
    Population2000:-1;
    Population2005:-1;
    Population2010:-1;
@@ -6266,7 +6266,10 @@ Const
  );
 
 Var
- I,J:Integer;
+ Option:Set Of (_Graph);
+ I,J,K,L:Integer;
+ Data:Array[0..14]of LongInt;
+ MinValue,MaxValue,Intervalle,Value:LongInt;
 
 Function StrToUpper(S:String):String;
 Var
@@ -6287,54 +6290,105 @@ BEGIN
  End
   Else
  If ParamCount>0Then Begin
+  Option:=[];
+  For I:=1 to ParamCount do Begin
+   If StrToUpper(ParamStr(I))='/GRAPH'Then Include(Option,_Graph);
+  End;
   For I:=1 to ParamCount do Begin
    For J:=Low(_Country) to High(_Country)do Begin
+    If StrToUpper(ParamStr(I))='/GRAPH'Then Begin
+    End
+     Else
     If StrToUpper(StrPas(_Country[J].Country))=StrToUpper(ParamStr(I))Then Begin
-     WriteLn('Nom du pays : ',StrPas(_Country[J].Country));
-     WriteLn('Superficie  : ',_Country[J].Superficie,' kmý');
-     If _Country[J].Population1951<>-1Then Begin
-      WriteLn('Population en 1951 : ',_Country[J].Population1951,' personnes');
+     If(_Graph in Option)Then Begin
+      Data[0]:=_Country[J].Population1951;
+      Data[1]:=_Country[J].Population1956;
+      Data[2]:=_Country[J].Population1961;
+      Data[3]:=_Country[J].Population1966;
+      Data[4]:=_Country[J].Population1971;
+      Data[5]:=_Country[J].Population1975;
+      Data[6]:=_Country[J].Population1979;
+      Data[7]:=_Country[J].Population1985;
+      Data[8]:=_Country[J].Population1990;
+      Data[9]:=_Country[J].Population1995;
+      Data[10]:=_Country[J].Population2000;
+      Data[11]:=_Country[J].Population2005;
+      Data[12]:=_Country[J].Population2010;
+      Data[13]:=_Country[J].Population2015;
+      Data[14]:=_Country[J].Population2022;
+      MinValue:=0;
+      MaxValue:=0;
+      For K:=Low(Data) to High(Data) do Begin
+       If Data[K]>MaxValue Then MaxValue:=Data[K];
+       If Data[K]<MinValue Then MinValue:=Data[K];
+      End;
+      Intervalle:=(MaxValue-MinValue) div 16;
+      For L:=0 to 16 do Begin
+       For K:=Low(Data) to High(Data) do Begin
+        Value:=Data[K] div Intervalle;
+        If Value>=16-L Then Write('  *  ')
+                       Else Write(' ':5);
+       End;
+       Case L of
+        0:Write(MaxValue div 1000000);
+        1:Write('mill');
+        2:Write('ions');
+        14:Write(MinValue div 1000000);
+        15:Write('mill');
+        16:Write('ion');
+       End;
+       WriteLn;
+      End;
+      Write('1951 1956 1961 1966 1971 1975 1979 1985 1990 1995 2000 2005 2010 2015 2022');
+     End
+      Else
+     Begin
+      WriteLn('Nom du pays : ',StrPas(_Country[J].Country));
+      WriteLn('Superficie  : ',_Country[J].Superficie,' kmý');
+      If _Country[J].Population1951<>-1Then Begin
+       WriteLn('Population en 1951 : ',_Country[J].Population1951,' personnes');
+      End;
+      If _Country[J].Population1956<>-1Then Begin
+       WriteLn('Population en 1956 : ',_Country[J].Population1956,' personnes');
+      End;
+      If _Country[J].Population1961<>-1Then Begin
+       WriteLn('Population en 1961 : ',_Country[J].Population1961,' personnes');
+      End;
+      If _Country[J].Population1966<>-1Then Begin
+       WriteLn('Population en 1966 : ',_Country[J].Population1966,' personnes');
+      End;
+      If _Country[J].Population1971<>-1Then Begin
+       WriteLn('Population en 1971 : ',_Country[J].Population1971,' personnes');
+      End;
+      If _Country[J].Population1975<>-1Then Begin
+       WriteLn('Population en 1975 : ',_Country[J].Population1975,' personnes');
+      End;
+      If _Country[J].Population1979<>-1Then Begin
+       WriteLn('Population en 1979 : ',_Country[J].Population1979,' personnes');
+      End;
+      If _Country[J].Population1985<>-1Then Begin
+       WriteLn('Population en 1985 : ',_Country[J].Population1985,' personnes');
+      End;
+      If _Country[J].Population1990<>-1Then Begin
+       WriteLn('Population en 1990 : ',_Country[J].Population1990,' personnes');
+      End;
+      If _Country[J].Population1995<>-1Then Begin
+       WriteLn('Population en 1995 : ',_Country[J].Population1995,' personnes');
+      End;
+      If _Country[J].Population2000<>-1Then Begin
+       WriteLn('Population en 2000 : ',_Country[J].Population2000,' personnes');
+      End;
+      If _Country[J].Population2005<>-1Then Begin
+       WriteLn('Population en 2005 : ',_Country[J].Population2005,' personnes');
+      End;
+      If _Country[J].Population2010<>-1Then Begin
+       WriteLn('Population en 2010 : ',_Country[J].Population2010,' personnes');
+      End;
+      If _Country[J].Population2015<>-1Then Begin
+       WriteLn('Population en 2015 : ',_Country[J].Population2015,' personnes');
+      End;
+      WriteLn('Population en 2022 : ',_Country[J].Population2022,' personnes');
      End;
-     If _Country[J].Population1956<>-1Then Begin
-      WriteLn('Population en 1956 : ',_Country[J].Population1956,' personnes');
-     End;
-     If _Country[J].Population1961<>-1Then Begin
-      WriteLn('Population en 1961 : ',_Country[J].Population1961,' personnes');
-     End;
-     If _Country[J].Population1966<>-1Then Begin
-      WriteLn('Population en 1966 : ',_Country[J].Population1966,' personnes');
-     End;
-     If _Country[J].Population1971<>-1Then Begin
-      WriteLn('Population en 1971 : ',_Country[J].Population1971,' personnes');
-     End;
-     If _Country[J].Population1975<>-1Then Begin
-      WriteLn('Population en 1975 : ',_Country[J].Population1975,' personnes');
-     End;
-     If _Country[J].Population1979<>-1Then Begin
-      WriteLn('Population en 1979 : ',_Country[J].Population1979,' personnes');
-     End;
-     If _Country[J].Population1985<>-1Then Begin
-      WriteLn('Population en 1985 : ',_Country[J].Population1985,' personnes');
-     End;
-     If _Country[J].Population1990<>-1Then Begin
-      WriteLn('Population en 1990 : ',_Country[J].Population1990,' personnes');
-     End;
-     If _Country[J].Population1995<>-1Then Begin
-      WriteLn('Population en 1995 : ',_Country[J].Population1995,' personnes');
-     End;
-     If _Country[J].Population2000<>-1Then Begin
-      WriteLn('Population en 2000 : ',_Country[J].Population2000,' personnes');
-     End;
-     If _Country[J].Population2005<>-1Then Begin
-      WriteLn('Population en 2005 : ',_Country[J].Population2005,' personnes');
-     End;
-     If _Country[J].Population2010<>-1Then Begin
-      WriteLn('Population en 2010 : ',_Country[J].Population2010,' personnes');
-     End;
-     If _Country[J].Population2015<>-1Then Begin
-      WriteLn('Population en 2015 : ',_Country[J].Population2015,' personnes');
-     End;
-     WriteLn('Population en 2022 : ',_Country[J].Population2022,' personnes');
     End;
    End;
   End;
