@@ -532,10 +532,10 @@ Const
    Population1985:85046395;
    Population1990:101943904;
    Population1995:113963804;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
+   Population2000:126430502;
+   Population2005:138019388;
+   Population2010:146756897;
+   Population2015:155393982;
    Population2022:156118464
   ),
   (Country:       'Barbade';
@@ -547,21 +547,21 @@ Const
    LongDirection: 'O';
    Superficie:    431;
    Capital:       'Bridgetown';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
+   Population1951:213376;
+   Population1956:227772;
+   Population1961:231355;
+   Population1966:235752;
+   Population1971:239499;
+   Population1975:245407;
    Population1979:254996;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:285653
+   Population1985:255880;
+   Population1990:260451;
+   Population1995:265428;
+   Population2000:270986;
+   Population2005:275806;
+   Population2010:281623;
+   Population2015:285078;
+   Population2022:289096
   ),
   (Country:       'Belgique';
    Latitude:      50;
@@ -572,20 +572,20 @@ Const
    LongDirection: 'E';
    Superficie:    30510;
    Capital:       'Bruxelles';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:9870000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
+   Population1951:8659024;
+   Population1956:8914992;
+   Population1961:9196626;
+   Population1966:9466538;
+   Population1971:9647879;
+   Population1975:9759403;
+   Population1979:9845664;
+   Population1985:9911515;
+   Population1990:9993468;
+   Population1995:10171231;
+   Population2000:10268677;
+   Population2005:10513776;
+   Population2010:10899658;
+   Population2015:11254852;
    Population2022:10403000
   ),
   (Country:       'Belize';
@@ -597,20 +597,20 @@ Const
    LongDirection: 'O';
    Superficie:    22966;
    Capital:       'Belmopan';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
+   Population1951:70087;
+   Population1956:81007;
+   Population1961:93395;
+   Population1966:107747;
+   Population1971:123500;
+   Population1975:132293;
    Population1979:151600;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
+   Population1985:162648;
+   Population1990:185529;
+   Population1995:204342;
+   Population2000:243167;
+   Population2005:280187;
+   Population2010:318592;
+   Population2015:357177;
    Population2022:314522
   ),
   (Country:       'Benin';
@@ -622,21 +622,21 @@ Const
    LongDirection: 'E';
    Superficie:    112620;
    Capital:       'Porto Novo';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
+   Population1951:2256862;
+   Population1956:2313375;
+   Population1961:2448882;
+   Population1966:2657465;
+   Population1971:2944720;
+   Population1975:3226610;
    Population1979:3470000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:9056010
+   Population1985:4218161;
+   Population1990:4899906;
+   Population1995:5810670;
+   Population2000:6765575;
+   Population2005:7867067;
+   Population2010:9073030;
+   Population2015:10432589;
+   Population2022:12614586
   ),
   (Country:       'Bermudes';
    Latitude:      32;
@@ -647,21 +647,21 @@ Const
    LongDirection: 'O';
    Superficie:    53;
    Capital:       'Hamilton';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:60000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:65365
+   Population1951:37530;
+   Population1956:41124;
+   Population1961:45446;
+   Population1966:49753;
+   Population1971:52862;
+   Population1975:55143;
+   Population1979:56962;
+   Population1985:59389;
+   Population1990:61438;
+   Population1995:63271;
+   Population2000:64861;
+   Population2005:66208;
+   Population2010:65530;
+   Population2015:63865;
+   Population2022:63134
   ),
   (Country:       'Bhutan';
    Latitude:      27;
@@ -697,21 +697,21 @@ Const
    LongDirection: 'E';
    Superficie:    207600;
    Capital:       'Minsk';
-   Population1951:-1;
-   Population1956:-1;
-   Population1961:-1;
-   Population1966:-1;
-   Population1971:-1;
-   Population1975:-1;
-   Population1979:9500000;
-   Population1985:-1;
-   Population1990:-1;
-   Population1995:-1;
-   Population2000:-1;
-   Population2005:-1;
-   Population2010:-1;
-   Population2015:-1;
-   Population2022:9685000
+   Population1951:7721719;
+   Population1956:7777178;
+   Population1961:8164939;
+   Population1966:8546784;
+   Population1971:8950593;
+   Population1975:9220886;
+   Population1979:9473400;
+   Population1985:9869304;
+   Population1990:10137679;
+   Population1995:10092817;
+   Population2000:9897893;
+   Population2005:9589131;
+   Population2010:9426816;
+   Population2015:9435615;
+   Population2022:9452369
   ),
   (Country:       'Bolivie';
    Latitude:      16;
