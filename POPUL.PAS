@@ -6,6 +6,8 @@
 
 Program POPUL;
 
+{$E+,N+}
+
 Uses Strings;
 
 Type
@@ -6270,6 +6272,7 @@ Var
  I,J,K,L:Integer;
  Data:Array[0..14]of LongInt;
  MinValue,MaxValue,Intervalle,Value:LongInt;
+ Total:Comp;
 
 Function StrToUpper(S:String):String;
 Var
@@ -6286,7 +6289,11 @@ BEGIN
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('POPUL : Cette commande permet de retourner la population d''un pays');
   WriteLn;
-  WriteLn('Syntaxe : POPUL [pays]');
+  WriteLn('Syntaxe : POPUL [pays|annee] [/GRAPH]');
+  WriteLn;
+  WriteLn(' annee   Ce parametre permet d''indiquer la population mondiale d''une annee');
+  WriteLn(' pays    Ce parametre permet d''indiquer la population d''un pays');
+  WriteLn(' /GRAPH  Ce parametre permet d''afficher le graphique de population');
  End
   Else
  If ParamCount>0Then Begin
@@ -6295,6 +6302,126 @@ BEGIN
    If StrToUpper(ParamStr(I))='/GRAPH'Then Include(Option,_Graph);
   End;
   For I:=1 to ParamCount do Begin
+   If ParamStr(I)='1951'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1951<>-1Then Total:=Total+_Country[J].Population1951;
+    End;
+    WriteLn('La population mondiale en 1951 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1956'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1956<>-1Then Total:=Total+_Country[J].Population1956;
+    End;
+    WriteLn('La population mondiale en 1956 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1961'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1961<>-1Then Total:=Total+_Country[J].Population1961;
+    End;
+    WriteLn('La population mondiale en 1961 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1966'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1966<>-1Then Total:=Total+_Country[J].Population1966;
+    End;
+    WriteLn('La population mondiale en 1966 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1971'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1971<>-1Then Total:=Total+_Country[J].Population1971;
+    End;
+    WriteLn('La population mondiale en 1971 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1975'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1975<>-1Then Total:=Total+_Country[J].Population1975;
+    End;
+    WriteLn('La population mondiale en 1975 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1979'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1979<>-1Then Total:=Total+_Country[J].Population1979;
+    End;
+    WriteLn('La population mondiale en 1979 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1985'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1985<>-1Then Total:=Total+_Country[J].Population1985;
+    End;
+    WriteLn('La population mondiale en 1985 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1990'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1990<>-1Then Total:=Total+_Country[J].Population1990;
+    End;
+    WriteLn('La population mondiale en 1990 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='1995'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population1995<>-1Then Total:=Total+_Country[J].Population1995;
+    End;
+    WriteLn('La population mondiale en 1995 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='2000'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population2000<>-1Then Total:=Total+_Country[J].Population2000;
+    End;
+    WriteLn('La population mondiale en 2000 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='2005'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population2005<>-1Then Total:=Total+_Country[J].Population2005;
+    End;
+    WriteLn('La population mondiale en 2005 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='2010'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population2010<>-1Then Total:=Total+_Country[J].Population2010;
+    End;
+    WriteLn('La population mondiale en 2010 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='2015'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population2015<>-1Then Total:=Total+_Country[J].Population2015;
+    End;
+    WriteLn('La population mondiale en 2015 est de ',Total:1:0);
+   End
+    Else
+   If ParamStr(I)='2022'Then Begin
+    Total:=0;
+    For J:=Low(_Country) to High(_Country)do Begin
+     If _Country[J].Population2022<>-1Then Total:=Total+_Country[J].Population2022;
+    End;
+    WriteLn('La population mondiale en 2022 est de ',Total:1:0);
+   End
+    Else
    For J:=Low(_Country) to High(_Country)do Begin
     If StrToUpper(ParamStr(I))='/GRAPH'Then Begin
     End
@@ -6392,7 +6519,98 @@ BEGIN
     End;
    End;
   End;
+ End
+  Else
+ Begin
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1951<>-1Then Total:=Total+_Country[J].Population1951;
+  End;
+  WriteLn('La population mondiale en 1951 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1956<>-1Then Total:=Total+_Country[J].Population1956;
+  End;
+  WriteLn('La population mondiale en 1956 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1961<>-1Then Total:=Total+_Country[J].Population1961;
+  End;
+  WriteLn('La population mondiale en 1961 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1966<>-1Then Total:=Total+_Country[J].Population1966;
+  End;
+  WriteLn('La population mondiale en 1966 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1971<>-1Then Total:=Total+_Country[J].Population1971;
+  End;
+  WriteLn('La population mondiale en 1971 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1975<>-1Then Total:=Total+_Country[J].Population1975;
+  End;
+  WriteLn('La population mondiale en 1975 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1979<>-1Then Total:=Total+_Country[J].Population1979;
+  End;
+  WriteLn('La population mondiale en 1979 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1985<>-1Then Total:=Total+_Country[J].Population1985;
+  End;
+  WriteLn('La population mondiale en 1985 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1990<>-1Then Total:=Total+_Country[J].Population1990;
+  End;
+  WriteLn('La population mondiale en 1990 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population1995<>-1Then Total:=Total+_Country[J].Population1995;
+  End;
+  WriteLn('La population mondiale en 1995 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population2000<>-1Then Total:=Total+_Country[J].Population2000;
+  End;
+  WriteLn('La population mondiale en 2000 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population2005<>-1Then Total:=Total+_Country[J].Population2005;
+  End;
+  WriteLn('La population mondiale en 2005 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population2010<>-1Then Total:=Total+_Country[J].Population2010;
+  End;
+  WriteLn('La population mondiale en 2010 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population2015<>-1Then Total:=Total+_Country[J].Population2015;
+  End;
+  WriteLn('La population mondiale en 2015 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
+  Total:=0;
+  For J:=Low(_Country) to High(_Country)do Begin
+   If _Country[J].Population2022<>-1Then Total:=Total+_Country[J].Population2022;
+  End;
+  WriteLn('La population mondiale en 2022 est de ',Total/1000000000:1:1,' milliards d''habitants');
+
  End;
 END.
-
-
