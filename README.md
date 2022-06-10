@@ -25,6 +25,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de retourner l'extension d'un nom de domaine d'un pays.</td>
   </tr>
   <tr>
+      <td><b>FINDCITY.PAS</b></td>
+      <td>Cette commande permet de detecter les villes mentionnées dans un texte.</td>
+  </tr>
+  <tr>
       <td><b>GEODELTA.PAS</b></td>
       <td>Cette commande permet de demander la distance entre deux villes, soit par coordonnée géographique, soit par son nom s'il est répertorié.</td>
    </tr>
