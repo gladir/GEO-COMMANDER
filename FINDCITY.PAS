@@ -136,7 +136,7 @@ BEGIN
  If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('FINDCITY : Cette commande permet de detecter les villes ',
-                      'mentionne un texte.');
+                      'mentionne dans un texte.');
   WriteLn;
   WriteLn('Syntaxe : FINDCITY "message"');
   WriteLn('          FINCCITY /FILE:fichier [/LINES]');
