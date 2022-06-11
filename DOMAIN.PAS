@@ -2604,7 +2604,8 @@ Const
    LongDeg:       13;
    LongDirection: 'O';
    Superficie:    5128;
-   Capital:       'Port-d''Espagne'
+   Capital:       'Port-d''Espagne';
+   Domain:        '.tt'
   ),
   (Country:       'Tunisie';
    Latitude:      33;
@@ -2614,7 +2615,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    163610;
-   Capital:       'Tunis'
+   Capital:       'Tunis';
+   Domain:        '.tn'
   ),
   (Country:       'Turkmenistan';
    Latitude:      38;
@@ -2624,7 +2626,8 @@ Const
    LongDeg:       33;
    LongDirection: 'E';
    Superficie:    488100;
-   Capital:       'Achgabat'
+   Capital:       'Achgabat';
+   Domain:        '.tm'
   ),
   (Country:       'Turquie';
    Latitude:      38;
@@ -2634,7 +2637,8 @@ Const
    LongDeg:       15;
    LongDirection: 'E';
    Superficie:    780580;
-   Capital:       'Ankara'
+   Capital:       'Ankara';
+   Domain:        '.tr'
   ),
   (Country:       'Tuvalu';
    Latitude:      8;
@@ -2644,7 +2648,8 @@ Const
    LongDeg:       57;
    LongDirection: 'E';
    Superficie:    26;
-   Capital:       'Funafuti'
+   Capital:       'Funafuti';
+   Domain:        '.tv'
   ),
   (Country:       'Ukraine';
    Latitude:      48;
@@ -2654,7 +2659,8 @@ Const
    LongDeg:       10;
    LongDirection: 'E';
    Superficie:    603700;
-   Capital:       'Kiev'
+   Capital:       'Kiev';
+   Domain:        '.ua'
   ),
   (Country:       'Uruguay';
    Latitude:      32;
@@ -2664,7 +2670,8 @@ Const
    LongDeg:       45;
    LongDirection: 'O';
    Superficie:    176220;
-   Capital:       'Montevideo'
+   Capital:       'Montevideo';
+   Domain:        '.uy'
   ),
   (Country:       'Vanuatu';
    Latitude:      16;
@@ -2674,7 +2681,8 @@ Const
    LongDeg:       12;
    LongDirection: 'E';
    Superficie:    12200;
-   Capital:       'Port-Vila'
+   Capital:       'Port-Vila';
+   Domain:        '.vu'
   ),
   (Country:       'Vatican';
    Latitude:      41;
@@ -2684,7 +2692,8 @@ Const
    LongDeg:       27;
    LongDirection: 'E';
    Superficie:    1;
-   Capital:       'Vatican City'
+   Capital:       'Vatican City';
+   Domain:        '.va'
   ),
   (Country:       'Venezuela';
    Latitude:      6;
@@ -2694,7 +2703,8 @@ Const
    LongDeg:       34;
    LongDirection: 'O';
    Superficie:    912050;
-   Capital:       'Caracas'
+   Capital:       'Caracas';
+   Domain:        '.ve'
   ),
   (Country:       'Vietnam';
    Latitude:      15;
@@ -2704,7 +2714,8 @@ Const
    LongDeg:       48;
    LongDirection: 'E';
    Superficie:    329560;
-   Capital:       'Hano‹'
+   Capital:       'Hano‹';
+   Domain:        '.vn'
   ),
   (Country:       'Wallis-et-Futuna';
    Latitude:      13;
@@ -2714,7 +2725,8 @@ Const
    LongDeg:       10;
    LongDirection: 'O';
    Superficie:    274;
-   Capital:       'Mata-Utu'
+   Capital:       'Mata-Utu';
+   Domain:        '.wf'
   ),
   (Country:       'Yemen';
    Latitude:      15;
@@ -2724,7 +2736,8 @@ Const
    LongDeg:       31;
    LongDirection: 'E';
    Superficie:    527970;
-   Capital:       'Sanaa'
+   Capital:       'Sanaa';
+   Domain:        '.ye'
   ),
   (Country:       'Zambie';
    Latitude:      13;
@@ -2734,7 +2747,8 @@ Const
    LongDeg:       51;
    LongDirection: 'E';
    Superficie:    752614;
-   Capital:       'Lusaka'
+   Capital:       'Lusaka';
+   Domain:        '.zm'
   ),
   (Country:       'Zimbabwe';
    Latitude:      19;
@@ -2744,7 +2758,8 @@ Const
    LongDeg:       8;
    LongDirection: 'E';
    Superficie:    390580;
-   Capital:       'Harare'
+   Capital:       'Harare';
+   Domain:        '.zw'
   )
  );
 
