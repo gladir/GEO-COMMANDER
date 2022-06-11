@@ -29,6 +29,9 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de detecter les villes mentionnées dans un texte.</td>
   </tr>
   <tr>
+      <td><b>FINDCTRY.PAS</b></td>
+    <td>Cette commande permet de detecter les pays mentionnées dans un texte.</td>
+  <tr>
       <td><b>GEODELTA.PAS</b></td>
       <td>Cette commande permet de demander la distance entre deux villes, soit par coordonnée géographique, soit par son nom s'il est répertorié.</td>
    </tr>
