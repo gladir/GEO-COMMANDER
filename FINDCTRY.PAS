@@ -93,7 +93,7 @@ Begin
   If StrToUpper(StrPas(CountryList[I]))=StrToUpper(CurrWord)Then Begin
    If FileName<>''Then Begin
     If(_Lines in Option)Then Begin
-     WriteLn('Ville trouve dans la ligne numero ',LineNumber,' :');
+     WriteLn('Pays trouve dans la ligne numero ',LineNumber,' :');
     End;
    End;
    WriteLn(StrPas(CountryList[I]));
