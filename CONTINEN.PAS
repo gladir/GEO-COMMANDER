@@ -3537,7 +3537,7 @@ End;
 BEGIN
   If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
-  WriteLn('CONTINEN : Cette commande permet de retourner la devise d''un pays');
+  WriteLn('CONTINEN : Cette commande permet de retourner le continent d''un pays');
   WriteLn;
   WriteLn('Syntaxe : CONTINEN [pays]');
  End
