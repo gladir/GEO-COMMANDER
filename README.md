@@ -18,7 +18,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>CONTINEN.PAS</b></td>
-      <td>Cette comamnde permet de retourner le continent d'un pays.</td>
+      <td>Cette commande permet de retourner le continent d'un pays.</td>
   </tr>
   <tr>
       <td><b>COUNTRY.PAS</b></td>
