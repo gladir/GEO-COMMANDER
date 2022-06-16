@@ -49,7 +49,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>WATER.PAS</b></td>
-      <td>Cette commande permet de retourner les informations d'une superficie d'eau.</td>
+      <td>Cette commande permet de retourner les informations d'une superficie d'eau (océan, mer, lac, golfe, baie,...).</td>
   </tr>
  </table>
 
