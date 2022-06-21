@@ -40,6 +40,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de demander la distance entre deux villes, soit par coordonnée géographique, soit par son nom s'il est répertorié.</td>
    </tr>
   <tr>
+      <td><b>KM2MILES.PAS</b></td>
+      <td>Cette commande permet de convertir des Km en miles.</td>
+  </tr>
+  <tr>
       <td><b>POPUL.PAS</b></td>
       <td>Cette commande permet de demander la population d'un pays.</td>
   </tr>
