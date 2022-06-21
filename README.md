@@ -44,6 +44,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de convertir des Km en miles.</td>
   </tr>
   <tr>
+      <td><b>MILES2KM.PAS</b></td>
+      <td>Cette commande permet de convertir des miles en Km.</td>
+  </tr>
+  <tr>
       <td><b>POPUL.PAS</b></td>
       <td>Cette commande permet de demander la population d'un pays.</td>
   </tr>
