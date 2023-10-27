@@ -138,14 +138,14 @@ End;
 BEGIN
  If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
-  WriteLn('FINDCTRY : Cette commande permet de detecter les pays ',
-                      'mentionne dans un texte.');
+  WriteLn('FINDCTRY : Cette commande permet de d‚tecter les pays ',
+                      'mentionn‚ dans un texte.');
   WriteLn;
   WriteLn('Syntaxe : FINDCTRY "message"');
-  WriteLn('          FINCCTRY /FILE:fichier [/LINES]');
+  WriteLn('          FINDCTRY /FILE:fichier [/LINES]');
   WriteLn;
-  WriteLn(' /FILE:  Ce parametre permet d''indiquer le fichier a analyser');
-  WriteLn(' /LINES  Ce parametre permet d''afficher le numero de ligne');
+  WriteLn(' /FILE:  Ce paramŠtre permet d''indiquer le fichier a analyser');
+  WriteLn(' /LINES  Ce paramŠtre permet d''afficher le num‚ro de ligne');
  End
   Else
  Begin
