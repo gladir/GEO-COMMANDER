@@ -99,9 +99,9 @@ BEGIN
   {$ENDIF}
  {$ENDIF}
  If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')Then Begin
-  WriteLn('MATHQUIZ - Cette commande permet de passer un QUIZ de math‚matique');
+  WriteLn('GEOQUIZ - Cette commande permet de passer un QUIZ de g‚ographie.');
   WriteLn;
-  WriteLn('Syntaxe : MATHQUIZ');
+  WriteLn('Syntaxe : GEOQUIZ');
  End
   Else
  Begin
