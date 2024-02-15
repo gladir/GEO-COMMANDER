@@ -25,6 +25,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de retourner les informations d'un pays.</td>
   </tr>
   <tr>
+      <td><b>CSV2GEO.PAS</b></td>
+      <td>Cette commande permet de convertir un fichier CSV contenant des coordonnées géographiques en format «.geojson».</td>
+ </tr>
+  <tr>
       <td><b>DOMAIN.PAS</b></td>
       <td>Cette commande permet de retourner l'extension d'un nom de domaine d'un pays.</td>
   </tr>
