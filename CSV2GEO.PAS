@@ -39,7 +39,7 @@ End;
 
 Function LongitudeToReal(S:String):Real;
 Var
- R:Real;
+ Minute,R:Real;
  I:Integer;
  Err:Word;
  Num:String;
@@ -50,6 +50,20 @@ Begin
   Num:=Num+S[I];
  End;
  Val(Num,R,Err);
+ If I<Length(S)Then Begin
+  While(Not(S[I]in['.','0'..'9']))and(I<=Length(S))do Inc(I);
+  Num:='';
+  If I<Length(S)Then Begin
+   While(S[I]in['.','0'..'9'])and(I<=Length(S))do Begin
+    Num:=Num+S[I];
+    Inc(I);
+   End;
+   If Num<>''Then Begin
+    Val(Num,Minute,Err);
+    R:=R+Minute*((100/60)/100);
+   End;
+  End;
+ End;
  If UpCase(S[Length(S)])in['O','W']Then R:=-R;
  LongitudeToReal:=R;
 End;
@@ -73,7 +87,7 @@ End;
 
 Function LattitudeToReal(S:String):Real;
 Var
- R:Real;
+ Minute,R:Real;
  I:Integer;
  Err:Word;
  Num:String;
@@ -84,6 +98,20 @@ Begin
   Num:=Num+S[I];
  End;
  Val(Num,R,Err);
+ If I<Length(S)Then Begin
+  While(Not(S[I]in['.','0'..'9']))and(I<=Length(S))do Inc(I);
+  Num:='';
+  If I<Length(S)Then Begin
+   While(S[I]in['.','0'..'9'])and(I<=Length(S))do Begin
+    Num:=Num+S[I];
+    Inc(I);
+   End;
+   If Num<>''Then Begin
+    Val(Num,Minute,Err);
+    R:=R+Minute*((100/60)/100);
+   End;
+  End;
+ End;
  If UpCase(S[Length(S)])in['S']Then R:=-R;
  LattitudeToReal:=R;
 End;
