@@ -57,6 +57,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de convertir des miles en Km.</td>
   </tr>
   <tr>
+      <td><b>PARIS2G.PAS</b></td>
+      <td>Cette commande permet de convertir le méridien de Paris en méridien de Greenwich.</td>
+  </tr>
+  <tr>
       <td><b>POPUL.PAS</b></td>
       <td>Cette commande permet de demander la population d'un pays.</td>
   </tr>
