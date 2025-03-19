@@ -1003,7 +1003,7 @@ Const
    Code2:         'GM';
    Code3:         'GMB';
    Currency:      'GMD';
-   Continent:     Afrique;
+   Continent:     Afrique
   ),
   (Country:       'Georgie';
    Latitude:      42;
