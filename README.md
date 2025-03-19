@@ -58,7 +58,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>PARIS2G.PAS</b></td>
-      <td>Cette commande permet de convertir le mériden de Paris en mériden de Greenwich.</td>
+      <td>Cette commande permet de convertir le méridien de Paris en méridien de Greenwich.</td>
   </tr>
   <tr>
       <td><b>POPUL.PAS</b></td>
