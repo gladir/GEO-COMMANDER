@@ -25,7 +25,7 @@ BEGIN
  If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('PARIS2G : Cette commande permet de convertir la longitude du ',
-          'm‚riden de Paris vers le m‚riden de Greenwich.');
+          'm‚ridien de Paris vers le m‚ridien de Greenwich.');
   WriteLn;
   WriteLn('Syntaxe : PARIS2G [longitude]');
   WriteLn;
