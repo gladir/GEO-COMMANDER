@@ -57,6 +57,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de convertir des miles en Km.</td>
   </tr>
   <tr>
+	<td><b>MOUNTAIN.PAS</b></td>
+	  <td>Cette commande permet de retourner les informations sur la montagne spécifié.</td>
+  </tr>
+  <tr>
       <td><b>PARIS2G.PAS</b></td>
       <td>Cette commande permet de convertir le méridien de Paris en méridien de Greenwich.</td>
   </tr>
