@@ -68,6 +68,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td><b>SIZE.PAS</b></td>
       <td>Cette commande permet de retourner la taille d'un pays en Km<sup>2</sup>.</td>
   </tr>
+<tr>
+	<td><b>TIMEZONE.PAS</b></td>
+	<td>Cette commande permet de retourner le fuseau horaire du pays spécifié.</td>
+</tr>
   <tr>
       <td><b>WATER.PAS</b></td>
       <td>Cette commande permet de retourner les informations d'une superficie d'eau (océan, mer, lac, golfe, baie,...).</td>
