@@ -76,6 +76,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
 	<td><b>TIMEZONE.PAS</b></td>
 	<td>Cette commande permet de retourner le fuseau horaire du pays spécifié.</td>
 </tr>
+<tr>
+	<td><b>URL2CTRY.PAS</b></td>
+	<td>Cette commande permet de retourner le nom de d'un pays associé à un URL.</td>
+</tr>
   <tr>
       <td><b>WATER.PAS</b></td>
       <td>Cette commande permet de retourner les informations d'une superficie d'eau (océan, mer, lac, golfe, baie,...).</td>
