@@ -48,6 +48,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td><b>GEOQUIZ.PAS</b></td>
       <td>Cette commande permet de passer un QUIZ de géographie.</td>  
  </tr> 
+<tr>
+	<td><b>HOLIDAY.PAS</b></td>
+	<td>Cette commande permet dte retourner la liste des jours fériés pour le pays spécifié.</td>
+</tr>
   <tr>
       <td><b>KM2MILES.PAS</b></td>
       <td>Cette commande permet de convertir des Km en miles.</td>
