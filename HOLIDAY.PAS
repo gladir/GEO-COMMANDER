@@ -955,7 +955,7 @@ Var
  i:Integer;
 Begin
  WriteLn('Jour f‚ri‚(s) pour ', Pays, ' :');
- For i:=1 to 15 do Begin
+ For i:=1 to High(JoursFeries) do Begin
   If StrToUpper(JoursFeries[i].Pays)=StrToUpper(Pays)Then Begin
    Write(JoursFeries[i].Jour);
    If JoursFeries[i].Jour=1 Then Write('er');
