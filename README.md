@@ -80,6 +80,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
 	<td><b>TIMEZONE.PAS</b></td>
 	<td>Cette commande permet de retourner le fuseau horaire du pays spécifié.</td>
 </tr>
+	<tr>
+		<td><b>TRIANGLE.PAS</b></td>
+		<td>Cette commande permet la triangulation d'une position en utilisant un algorithme de trilatération géographique.</td>
+	</tr>
 <tr>
 	<td><b>URL2CTRY.PAS</b></td>
 	<td>Cette commande permet de retourner le nom de d'un pays associé à un URL.</td>
