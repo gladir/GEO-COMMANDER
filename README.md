@@ -1,5 +1,5 @@
 # GEO-COMMANDER
-GEO Commander - Ensemble de commande ecrit en Pascal d'aide à la géographie.
+GEO Commander - Ensemble de commande ecrit en Pascal (Turbo Pascal ou Free Pascal) d'aide à la géographie.
 
 ![image](https://user-images.githubusercontent.com/11842176/171527776-3fb9d57b-57e4-4c16-8e4d-32694a13d419.png)
 
