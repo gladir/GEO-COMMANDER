@@ -87,7 +87,7 @@ Const
    Population2005:47588523;
    Population2010:50850031;
    Population2015:54968738;
-   Population2022:49000000
+   Population2022:62378410
   ),
   (Country:       'Albanie';
    Latitude:      41;
