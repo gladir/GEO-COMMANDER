@@ -6269,10 +6269,12 @@ Const
 
 Var
  Option:Set Of (_Graph);
+ OutputFormat:(_Text,_CSV,_HTML,_Json,_Pascal,_SQL,_XML);
  I,J,K,L:Integer;
  Data:Array[0..14]of LongInt;
  MinValue,MaxValue,Intervalle,Value:LongInt;
  Total:Comp;
+ CurrParam:String;
 
 Function StrToUpper(S:String):String;
 Var
@@ -6289,17 +6291,28 @@ BEGIN
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('POPUL : Cette commande permet de retourner la population d''un pays');
   WriteLn;
-  WriteLn('Syntaxe : POPUL [pays|annee] [/GRAPH]');
+  WriteLn('Syntaxe : POPUL [pays|annee] [/GRAPH] [/FORMAT:HTML]');
   WriteLn;
-  WriteLn(' annee   Ce parametre permet d''indiquer la population mondiale d''une annee');
-  WriteLn(' pays    Ce parametre permet d''indiquer la population d''un pays');
-  WriteLn(' /GRAPH  Ce parametre permet d''afficher le graphique de population');
+  WriteLn(' annee         Ce parametre permet d''indiquer la population mondiale d''une annee');
+  WriteLn(' pays          Ce parametre permet d''indiquer la population d''un pays');
+  WriteLn(' /GRAPH        Ce parametre permet d''afficher le graphique de population');
+  WriteLn(' /FORMAT:HTML  Ce paramŠtre permet de demander un format de sortie HTML');
  End
   Else
  If ParamCount>0Then Begin
   Option:=[];
+  OutputFormat:=_Text;
   For I:=1 to ParamCount do Begin
-   If StrToUpper(ParamStr(I))='/GRAPH'Then Include(Option,_Graph);
+   CurrParam:=ParamStr(I);
+   If StrToUpper(CurrParam)='/GRAPH'Then Include(Option,_Graph) Else
+   If(StrToUpper(Copy(CurrParam,1,8))='/FORMAT:')Then Begin
+    If StrToUpper(Copy(CurrParam,9,255))='CSV'Then OutputFormat:=_CSV Else
+    If StrToUpper(Copy(CurrParam,9,255))='HTML'Then OutputFormat:=_HTML Else
+    If StrToUpper(Copy(CurrParam,9,255))='JSON'Then OutputFormat:=_Json Else
+    If StrToUpper(Copy(CurrParam,9,255))='PASCAL'Then OutputFormat:=_Pascal Else
+    If StrToUpper(Copy(CurrParam,9,255))='SQL'Then OutputFormat:=_SQL Else
+    If StrToUpper(Copy(CurrParam,9,255))='XML'Then OutputFormat:=_XML;
+   End;
   End;
   For I:=1 to ParamCount do Begin
    If ParamStr(I)='1951'Then Begin
@@ -6469,52 +6482,130 @@ BEGIN
       Write('1951 1956 1961 1966 1971 1975 1979 1985 1990 1995 2000 2005 2010 2015 2022');
      End
       Else
+     If(OutputFormat=_HTML)Then Begin
+      WriteLn('<table>');
+      If _Country[j].population1951<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1951</td><td>',_Country[j].Population1951,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1956<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1956</td><td>',_Country[j].Population1956,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1961<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1961</td><td>',_Country[j].Population1961,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].population1966<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1966</td><td>',_Country[j].Population1966,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1971<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1971</td><td>',_Country[j].Population1971,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1975<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1975</td><td>',_Country[j].Population1975,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1979<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1979</td><td>',_Country[j].Population1979,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1985<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1985</td><td>',_Country[j].Population1985,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1990<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1990</td><td>',_Country[j].Population1990,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population1995<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 1995</td><td>',_Country[j].Population1995,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population2000<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 2000</td><td>',_Country[j].Population2000,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population2005<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 2005</td><td>',_Country[j].Population2005,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population2010<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 2010</td><td>',_Country[j].Population2010,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+      If _Country[j].Population2015<>-1Then Begin
+       WriteLn(#9'<tr>');
+       WriteLn(#9#9'<td>Population en 2015</td><td>',_Country[j].Population2015,' personnes</td>');
+       WriteLn(#9'</tr>');
+      End;
+       WriteLn(#9'<tr>');
+      WriteLn(#9#9'<td>Population en 2022</td><td>',_Country[j].Population2022,' personnes</td>');
+      WriteLn(#9'</tr>');
+      WriteLn('</table>');
+     End
+      Else
      Begin
       WriteLn('Nom du pays : ',StrPas(_Country[J].Country));
       WriteLn('Superficie  : ',_Country[J].Superficie,' kmý');
-      If _Country[J].Population1951<>-1Then Begin
-       WriteLn('Population en 1951 : ',_Country[J].Population1951,' personnes');
+      If _Country[j].Population1951<>-1Then Begin
+       WriteLn('Population en 1951 : ',_Country[j].Population1951,' personnes');
       End;
-      If _Country[J].Population1956<>-1Then Begin
-       WriteLn('Population en 1956 : ',_Country[J].Population1956,' personnes');
+      If _Country[j].Population1956<>-1Then Begin
+       WriteLn('Population en 1956 : ',_Country[j].Population1956,' personnes');
       End;
-      If _Country[J].Population1961<>-1Then Begin
-       WriteLn('Population en 1961 : ',_Country[J].Population1961,' personnes');
+      If _Country[j].Population1961<>-1Then Begin
+       WriteLn('Population en 1961 : ',_Country[j].Population1961,' personnes');
       End;
-      If _Country[J].Population1966<>-1Then Begin
-       WriteLn('Population en 1966 : ',_Country[J].Population1966,' personnes');
+      If _Country[j].Population1966<>-1Then Begin
+       WriteLn('Population en 1966 : ',_Country[j].Population1966,' personnes');
+      end;
+      If _Country[j].population1971<>-1Then Begin
+       WriteLn('Population en 1971 : ',_Country[j].Population1971,' personnes');
       End;
-      If _Country[J].Population1971<>-1Then Begin
-       WriteLn('Population en 1971 : ',_Country[J].Population1971,' personnes');
+      If _Country[j].population1975<>-1Then Begin
+       WriteLn('Population en 1975 : ',_Country[j].Population1975,' personnes');
       End;
-      If _Country[J].Population1975<>-1Then Begin
-       WriteLn('Population en 1975 : ',_Country[J].Population1975,' personnes');
+      If _Country[j].population1979<>-1Then Begin
+       Writeln('Population en 1979 : ',_Country[j].Population1979,' personnes');
       End;
-      If _Country[J].Population1979<>-1Then Begin
-       WriteLn('Population en 1979 : ',_Country[J].Population1979,' personnes');
+      If _Country[j].Population1985<>-1Then Begin
+       Writeln('Population en 1985 : ',_Country[j].Population1985,' personnes');
       End;
-      If _Country[J].Population1985<>-1Then Begin
-       WriteLn('Population en 1985 : ',_Country[J].Population1985,' personnes');
+      If _Country[j].Population1990<>-1Then Begin
+       WriteLn('Population en 1990 : ',_Country[j].Population1990,' personnes');
       End;
-      If _Country[J].Population1990<>-1Then Begin
-       WriteLn('Population en 1990 : ',_Country[J].Population1990,' personnes');
+      If _Country[j].Population1995<>-1Then Begin
+       WriteLn('Population en 1995 : ',_Country[j].Population1995,' personnes');
       End;
-      If _Country[J].Population1995<>-1Then Begin
-       WriteLn('Population en 1995 : ',_Country[J].Population1995,' personnes');
+      If _Country[j].Population2000<>-1Then Begin
+       WriteLn('Population en 2000 : ',_Country[j].Population2000,' personnes');
       End;
-      If _Country[J].Population2000<>-1Then Begin
-       WriteLn('Population en 2000 : ',_Country[J].Population2000,' personnes');
+      If _Country[j].Population2005<>-1Then Begin
+       Writeln('Population en 2005 : ',_Country[j].Population2005,' personnes');
       End;
-      If _Country[J].Population2005<>-1Then Begin
-       WriteLn('Population en 2005 : ',_Country[J].Population2005,' personnes');
+      If _Country[j].Population2010<>-1Then Begin
+       WriteLn('Population en 2010 : ',_Country[j].Population2010,' personnes');
       End;
-      If _Country[J].Population2010<>-1Then Begin
-       WriteLn('Population en 2010 : ',_Country[J].Population2010,' personnes');
+      If _Country[j].Population2015<>-1Then Begin
+       WriteLn('Population en 2015 : ',_Country[j].Population2015,' personnes');
       End;
-      If _Country[J].Population2015<>-1Then Begin
-       WriteLn('Population en 2015 : ',_Country[J].Population2015,' personnes');
-      End;
-      WriteLn('Population en 2022 : ',_Country[J].Population2022,' personnes');
+      WriteLn('Population en 2022 : ',_Country[j].Population2022,' personnes');
      End;
     End;
    End;
