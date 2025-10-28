@@ -6299,6 +6299,13 @@ BEGIN
   WriteLn(' /FORMAT:HTML  Ce paramŠtre permet de demander un format de sortie HTML');
  End
   Else
+ If ParamStr(1)='--version'Then Begin
+  WriteLn('POPUL 1.01 - Pascal pour GEO-COMMANDER');
+  WriteLn('Licence MIT');
+  WriteLn;
+  WriteLn('Ecrit par Sylvain Maltais');
+ End
+  Else
  If ParamCount>0Then Begin
   Option:=[];
   OutputFormat:=_Text;
