@@ -96,7 +96,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
 
 <h2>Remarque</h2>
 <ul>
-	<li>Ajout du paramètre "/FORMAT:HTML" pour la commande POPUL.</li>
+	<li>Ajout des paramètres "/FORMAT:HTML" et "--verison" pour la commande POPUL à partir de la version 1.01.</li>
 </ul>
 
 <h2>Compilation</h2>
