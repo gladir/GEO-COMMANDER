@@ -94,6 +94,11 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
  </table>
 
+<h2>Remarque</h2>
+<ul>
+	<li>Ajout du paramètre "/FORMAT:HTML" pour la commande POPUL.</li>
+</ul>
+
 <h2>Compilation</h2>
 	
 Les fichiers Pascal n'ont aucune dépendances, il suffit de télécharger le fichier désiré et de le compiler avec Free Pascal avec la syntaxe de commande  :
