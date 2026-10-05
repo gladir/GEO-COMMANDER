@@ -90,7 +90,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
 	</tr>
 <tr>
 	<td><b>URL2CTRY.PAS</b></td>
-	<td>Cette commande permet de retourner le nom de d'un pays associé à un URL.</td>
+	<td>Cette commande permet de retourner le nom d'un pays associé à un URL.</td>
 </tr>
   <tr>
       <td><b>WATER.PAS</b></td>
