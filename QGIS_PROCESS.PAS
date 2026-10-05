@@ -18,6 +18,13 @@
   PackBits, predicteurs, tuiles, multibandes ; ecriture non compressee) et
   ESRI ASCII Grid (.asc). PostGIS n'est pas disponible.
 
+  Geometries : valeurs Z et M (dans les coordonnees GeoJSON, M seul signale par la cle
+  "mOnly" de la geometrie), GeometryCollection (fusionnee par dimension pour les
+  algorithmes, conservee en entree/sortie des formats), courbes circulaires linearisees a
+  la lecture, predicats exacts (DE-9IM), tampon (extremites ronde/plate/carree, jointures
+  ronde/mitre/biseau) et validation OGC (self-intersection, trous hors de l'exterieur...).
+  Limites : les polygones Shapefile Z/M perdent leurs valeurs Z/M a la lecture.
+
   Note : les algorithmes de couches et de rasters allouent de grands blocs de
   memoire (plus de 64 Ko) : utiliser Free Pascal (mode -Mtp possible) ou un
   Turbo Pascal en mode protege.
@@ -31,9 +38,9 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=134;
- MaxParam=580;
- MaxOut=161;
+ MaxAlgo=135;
+ MaxParam=586;
+ MaxOut=167;
  MaxArg=30;
  MaxCells=40000000;
 
@@ -46,7 +53,7 @@ Type
  End;
  ParamRec=Record
   A:Byte;
-  Name:String[23];
+  Name:String[29];
   Typ:String[18];
   Desc:String[146];
   Def:String[12];    { '' = obligatoire, '*' = facultatif }
@@ -461,7 +468,10 @@ Const
    Descr:'NOT SUPPORTED: needs the map renderer (use gdal:rasterize)'),
   (Id:'native:rasterrank';Title:'Raster rank';
    Group:'Not supported';
-   Descr:'NOT SUPPORTED: definition of this algorithm not available')
+   Descr:'NOT SUPPORTED: definition of this algorithm not available'),
+  (Id:'native:checkvalidity';Title:'Check validity';
+   Group:'Vector geometry';
+   Descr:'Splits the features into valid and invalid ones and reports the errors found in the geometries.')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -1044,7 +1054,13 @@ Const
   (A:133;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
   (A:133;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
   (A:134;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
-  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*')
+  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:135;Name:'INPUT_LAYER';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:135;Name:'METHOD';Typ:'number';Desc:'Method (0 default, 1 QGIS, 2 GEOS)';Def:'2'),
+  (A:135;Name:'IGNORE_RING_SELF_INTERSECTION';Typ:'boolean';Desc:'Ignore ring self intersection';Def:'false'),
+  (A:135;Name:'VALID_OUTPUT';Typ:'vectorDestination';Desc:'Valid output';Def:'*'),
+  (A:135;Name:'INVALID_OUTPUT';Typ:'vectorDestination';Desc:'Invalid output';Def:'*'),
+  (A:135;Name:'ERROR_OUTPUT';Typ:'vectorDestination';Desc:'Error output';Def:'*')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -1208,7 +1224,13 @@ Const
   (A:131;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:132;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:133;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
-  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Not produced')
+  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:135;Name:'VALID_OUTPUT';Typ:'vectorDestination';Desc:'Valid output'),
+  (A:135;Name:'VALID_COUNT';Typ:'number';Desc:'Count of valid features'),
+  (A:135;Name:'INVALID_OUTPUT';Typ:'vectorDestination';Desc:'Invalid output'),
+  (A:135;Name:'INVALID_COUNT';Typ:'number';Desc:'Count of invalid features'),
+  (A:135;Name:'ERROR_OUTPUT';Typ:'vectorDestination';Desc:'Error output'),
+  (A:135;Name:'ERROR_COUNT';Typ:'number';Desc:'Count of errors')
  );
 
 Type
@@ -3351,6 +3373,17 @@ Begin
  L1:=Sqrt(Dx1*Dx1+Dy1*Dy1);
  L2:=Sqrt(Dx2*Dx2+Dy2*Dy2);
  Den:=Dx1*Dy2-Dy1*Dx2;
+ { extremite commune : le croisement calcule serait mal conditionne pour des segments presque alignes }
+ If((OvAll^[I].X1=OvAll^[J].X1)and(OvAll^[I].Y1=OvAll^[J].Y1))or((OvAll^[I].X1=OvAll^[J].X2)and(OvAll^[I].Y1=OvAll^[J].Y2))or
+   ((OvAll^[I].X2=OvAll^[J].X1)and(OvAll^[I].Y2=OvAll^[J].Y1))or((OvAll^[I].X2=OvAll^[J].X2)and(OvAll^[I].Y2=OvAll^[J].Y2))Then Begin
+  If(L1>0)and(L2>0)Then Begin
+   ProjSplit(I,OvAll^[J].X1,OvAll^[J].Y1,L1,Dx1,Dy1);
+   ProjSplit(I,OvAll^[J].X2,OvAll^[J].Y2,L1,Dx1,Dy1);
+   ProjSplit(J,OvAll^[I].X1,OvAll^[I].Y1,L2,Dx2,Dy2);
+   ProjSplit(J,OvAll^[I].X2,OvAll^[I].Y2,L2,Dx2,Dy2);
+  End;
+  Exit;
+ End;
  If Abs(Den)<=1E-12*L1*L2 Then Begin
   { paralleles : on ne decoupe que si elles se recouvrent }
   ProjSplit(I,OvAll^[J].X1,OvAll^[J].Y1,L1,Dx1,Dy1);
@@ -3504,6 +3537,76 @@ Begin
    Inc(NU);
   End;
  End;
+End;
+
+{ Ajoute a EG l'anneau RB[0..RN-1] (non referme) ; un anneau qui repasse par un meme sommet est
+  decoupe en anneaux simples (un trou qui touche l'exterieur en un point reste un trou) }
+Procedure AddRingParts(Var EG:TGeom;RB:PPts;RN:LongInt;Tol:Real);
+Var
+ Idx:PLongs;
+ Dup:PBools;
+ Stk,Lp:PPts;
+ I,J,Top,LN:LongInt;
+ AnyDup:Boolean;
+ Pa:PPath;
+
+ Procedure AddOne(P:PPts;N:LongInt);
+ Var
+  Q:PPath;
+ Begin
+  If N<3Then Exit;
+  Q:=NewPath(EG,N+1,0);
+  Move(P^,Q^.Pts^,N*SizeOf(TPt));
+  Q^.Pts^[N]:=Q^.Pts^[0];
+  Q^.N:=N+1;
+  CleanRing(Q,Tol);
+  Q^.Area:=RingArea(Q);
+ End;
+
+Begin
+ If RN<3Then Exit;
+ Idx:=AllocBlock(RN*SizeOf(LongInt));
+ Dup:=AllocBlock(RN*SizeOf(Boolean));
+ For I:=0 to RN-1do Begin Idx^[I]:=I;Dup^[I]:=False;End;
+ SP:=RB;SMode:=1;
+ SortIdx(Idx,0,RN-1);
+ AnyDup:=False;
+ For I:=1 to RN-1do
+  If(RB^[Idx^[I]].X=RB^[Idx^[I-1]].X)and(RB^[Idx^[I]].Y=RB^[Idx^[I-1]].Y)Then Begin
+   Dup^[Idx^[I]]:=True;Dup^[Idx^[I-1]]:=True;AnyDup:=True;
+  End;
+ FreeMem(Idx,RN*SizeOf(LongInt));
+ If Not AnyDup Then Begin
+  AddOne(RB,RN);
+  FreeMem(Dup,RN*SizeOf(Boolean));
+  Exit;
+ End;
+ Stk:=AllocBlock((RN+2)*SizeOf(TPt));
+ Lp:=AllocBlock((RN+2)*SizeOf(TPt));
+ Top:=-1;
+ For I:=0 to RN-1do Begin
+  J:=-1;
+  If Dup^[I]Then Begin
+   J:=Top;
+   While(J>=0)and Not((Stk^[J].X=RB^[I].X)and(Stk^[J].Y=RB^[I].Y))do Dec(J);
+  End;
+  If J>=0Then Begin
+   { boucle fermee de J a Top }
+   LN:=Top-J+1;
+   Move(Stk^[J],Lp^[0],LN*SizeOf(TPt));
+   AddOne(Lp,LN);
+   Top:=J;
+  End
+   Else
+  Begin
+   Inc(Top);
+   Stk^[Top]:=RB^[I];
+  End;
+ End;
+ AddOne(Stk,Top+1);
+ FreeMem(Stk,(RN+2)*SizeOf(TPt));
+ FreeMem(Lp,(RN+2)*SizeOf(TPt));
+ FreeMem(Dup,RN*SizeOf(Boolean));
 End;
 
 { Mode 0 : union (nettoyage) de A, 1 : A inter B, 2 : A moins B }
@@ -3667,15 +3770,7 @@ Begin
       If Best<0Then Cur:=-1 Else Cur:=Best;
      End;
     Until Ok or(Cur<0);
-    If Ok and(RN>=3)Then Begin
-     Pa:=NewPath(EG,RN+1,0);
-     { l'anneau est range dans EG puis deplace selon son aire }
-     Move(RB^,Pa^.Pts^,RN*SizeOf(TPt));
-     Pa^.Pts^[RN]:=Pa^.Pts^[0];
-     Pa^.N:=RN+1;
-     CleanRing(Pa,SnapQ*2);
-     Pa^.Area:=RingArea(Pa);
-    End;
+    If Ok and(RN>=3)Then AddRingParts(EG,RB,RN,SnapQ*2);
    End;
   End;
   FreeMem(RB,(KN+2)*SizeOf(TPt));
@@ -5478,23 +5573,352 @@ Begin
  Case Pred of
   0:GeomPredicate:=GeomIntersects(A,B);
   1:Begin
-   GeomPredicate:=GeomContains(A,B);
-   If GeomPredicate and Not((A.Cls=3)and(B.Cls=1))Then GeomPredicate:=RelatePredicate(10,A,B)
+   Hit:=GeomContains(A,B);
+   If Hit and Not((A.Cls=3)and(B.Cls=1))Then Hit:=RelatePredicate(10,A,B)
     Else
-   If(Not GeomPredicate)and(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=RelatePredicate(10,A,B);
+   If(Not Hit)and(A.Cls=3)and(B.Cls=3)Then Hit:=RelatePredicate(10,A,B);
+   GeomPredicate:=Hit;
   End;
   2:GeomPredicate:=Not GeomIntersects(A,B);
   6:Begin
-   GeomPredicate:=GeomContains(B,A);
-   If GeomPredicate and Not((B.Cls=3)and(A.Cls=1))Then GeomPredicate:=RelatePredicate(9,A,B)
+   Hit:=GeomContains(B,A);
+   If Hit and Not((B.Cls=3)and(A.Cls=1))Then Hit:=RelatePredicate(9,A,B)
     Else
-   If(Not GeomPredicate)and(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=RelatePredicate(9,A,B);
+   If(Not Hit)and(A.Cls=3)and(B.Cls=3)Then Hit:=RelatePredicate(9,A,B);
+   GeomPredicate:=Hit;
   End;
   3,4,5,7,8:Begin
    If Not GeomIntersects(A,B)Then Exit;
    GeomPredicate:=RelatePredicate(Pred,A,B);
   End;
  End;
+End;
+
+{ ---- Validation des geometries (regles OGC) ---- }
+
+Procedure SortByKey(Ord:PLongs;Key:PReals;Lo,Hi:LongInt);
+Var
+ I,J,T:LongInt;
+ Pv:Real;
+Begin
+ While Lo<Hi do Begin
+  I:=Lo;J:=Hi;
+  Pv:=Key^[Ord^[(Lo+Hi)div 2]];
+  Repeat
+   While Key^[Ord^[I]]<Pv do Inc(I);
+   While Key^[Ord^[J]]>Pv do Dec(J);
+   If I<=J Then Begin
+    T:=Ord^[I];Ord^[I]:=Ord^[J];Ord^[J]:=T;
+    Inc(I);Dec(J);
+   End;
+  Until I>J;
+  If J-Lo<Hi-I Then Begin
+   SortByKey(Ord,Key,Lo,J);
+   Lo:=I;
+  End
+   Else
+  Begin
+   SortByKey(Ord,Key,I,Hi);
+   Hi:=J;
+  End;
+ End;
+End;
+
+Function OrientSgn(Px,Py,Qx,Qy,Rx,Ry,Eps:Real):Integer;
+Var
+ V:Real;
+Begin
+ V:=(Qx-Px)*(Ry-Py)-(Qy-Py)*(Rx-Px);
+ If Abs(V)<=Eps*(Sqrt(Sqr(Qx-Px)+Sqr(Qy-Py))*Sqrt(Sqr(Rx-Px)+Sqr(Ry-Py))+1E-300)Then OrientSgn:=0 Else
+ If V>0Then OrientSgn:=1 Else OrientSgn:=-1;
+End;
+
+{ Relation entre deux segments : 0 aucune, 1 un point (Proper : croisement strict), 2 chevauchement colineaire }
+Function SegRel(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:Real;Var Ix,Iy:Real;Var Proper:Boolean):Integer;
+Var
+ D1,D2,D3,D4:Integer;
+ Rx,Ry,Sx,Sy,Den,T,Lo1,Hi1,Lo2,Hi2,Lo,Hi,Sc:Real;
+ Ex:Boolean;
+
+ Function OnSeg(Px,Py,Qx,Qy,Rx2,Ry2:Real):Boolean;Begin
+  OnSeg:=(Rx2>=MinR(Px,Qx)-1E-12*Sc)and(Rx2<=MaxR(Px,Qx)+1E-12*Sc)and
+         (Ry2>=MinR(Py,Qy)-1E-12*Sc)and(Ry2<=MaxR(Py,Qy)+1E-12*Sc);
+ End;
+
+Begin
+ SegRel:=0;Proper:=False;Ix:=0;Iy:=0;
+ Sc:=MaxR(MaxR(Abs(Bx-Ax),Abs(By-Ay)),MaxR(Abs(Dx-Cx),Abs(Dy-Cy)))+1E-300;
+ D1:=OrientSgn(Cx,Cy,Dx,Dy,Ax,Ay,1E-12);
+ D2:=OrientSgn(Cx,Cy,Dx,Dy,Bx,By,1E-12);
+ D3:=OrientSgn(Ax,Ay,Bx,By,Cx,Cy,1E-12);
+ D4:=OrientSgn(Ax,Ay,Bx,By,Dx,Dy,1E-12);
+ If(D1=0)and(D2=0)and(D3=0)and(D4=0)Then Begin
+  { colineaires : projection sur l'axe dominant }
+  If Abs(Bx-Ax)>=Abs(By-Ay)Then Begin
+   Lo1:=MinR(Ax,Bx);Hi1:=MaxR(Ax,Bx);Lo2:=MinR(Cx,Dx);Hi2:=MaxR(Cx,Dx);
+  End
+   Else
+  Begin
+   Lo1:=MinR(Ay,By);Hi1:=MaxR(Ay,By);Lo2:=MinR(Cy,Dy);Hi2:=MaxR(Cy,Dy);
+  End;
+  Lo:=MaxR(Lo1,Lo2);Hi:=MinR(Hi1,Hi2);
+  If Hi<Lo-1E-12*Sc Then Exit;
+  If Hi-Lo>1E-12*Sc Then Begin
+   SegRel:=2;
+   Ix:=Ax;Iy:=Ay;
+   Exit;
+  End;
+  SegRel:=1;
+  { point commun : une extremite }
+  If OnSeg(Cx,Cy,Dx,Dy,Ax,Ay)Then Begin Ix:=Ax;Iy:=Ay;End Else
+  If OnSeg(Cx,Cy,Dx,Dy,Bx,By)Then Begin Ix:=Bx;Iy:=By;End Else
+  Begin Ix:=Cx;Iy:=Cy;End;
+  Exit;
+ End;
+ If(D1*D2<0)and(D3*D4<0)Then Begin
+  Rx:=Bx-Ax;Ry:=By-Ay;Sx:=Dx-Cx;Sy:=Dy-Cy;
+  Den:=Rx*Sy-Ry*Sx;
+  T:=((Cx-Ax)*Sy-(Cy-Ay)*Sx)/Den;
+  Ix:=Ax+T*Rx;Iy:=Ay+T*Ry;
+  SegRel:=1;Proper:=True;
+  Exit;
+ End;
+ Ex:=False;
+ If(D1=0)and OnSeg(Cx,Cy,Dx,Dy,Ax,Ay)Then Begin Ix:=Ax;Iy:=Ay;Ex:=True;End Else
+ If(D2=0)and OnSeg(Cx,Cy,Dx,Dy,Bx,By)Then Begin Ix:=Bx;Iy:=By;Ex:=True;End Else
+ If(D3=0)and OnSeg(Ax,Ay,Bx,By,Cx,Cy)Then Begin Ix:=Cx;Iy:=Cy;Ex:=True;End Else
+ If(D4=0)and OnSeg(Ax,Ay,Bx,By,Dx,Dy)Then Begin Ix:=Dx;Iy:=Dy;Ex:=True;End;
+ If Ex Then SegRel:=1;
+End;
+
+{ Premier anneau (exterieur) du polygone Poly }
+Function FirstOfPoly(Var G:TGeom;Poly:Integer):PPath;
+Var
+ P:PPath;
+Begin
+ P:=G.First;
+ While(P<>Nil)and(P^.Poly<>Poly)do P:=P^.Next;
+ FirstOfPoly:=P;
+End;
+
+{ 1 si l'anneau P est strictement a l'interieur de l'anneau Q (test sur un sommet hors frontiere) }
+Function RingIn(P,Q:PPath):Integer;
+Var
+ I,K:LongInt;
+Begin
+ K:=2;
+ For I:=0 to P^.N-2do Begin
+  K:=PointInRing(Q,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12*(Abs(P^.Pts^[I].X)+Abs(P^.Pts^[I].Y)+1));
+  If K<>2Then Break;
+ End;
+ If K=2Then K:=PointInRing(Q,(P^.Pts^[0].X+P^.Pts^[1].X)/2,(P^.Pts^[0].Y+P^.Pts^[1].Y)/2,0);
+ RingIn:=K;
+End;
+
+{ Valide une geometrie ; Msg et (Ex,Ey) decrivent la premiere erreur trouvee }
+Function GeomValidate(Var G:TGeom;IgnoreRingSelf:Boolean;Var Msg:String;Var Ex,Ey:Real):Boolean;
+Var
+ P,Q:PPath;
+ NP,NS,I,J,K,L,Cnt:LongInt;
+ Seg:PEdges;
+ Own,SIdx,Ord,Head,Nxt,TOth,PSC:PLongs;
+ PathArr:^PPathArr;
+ MinKey:PReals;
+ TX,TY:PReals;
+ NT,NS0:LongInt;
+ Ix,Iy,Sc:Real;
+ Proper,Bad:Boolean;
+ Rel,A,B,Pa,Pb:LongInt;
+ Fnd:Boolean;
+ X1,Y1,X2,Y2:Real;
+ Shell:PPath;
+
+ Procedure Fail2(Const M:String;X,Y:Real);Begin
+  If Not Bad Then Begin Bad:=True;Msg:=M;Ex:=X;Ey:=Y;End;
+ End;
+
+Begin
+ GeomValidate:=True;
+ Msg:='';Ex:=0;Ey:=0;Bad:=False;
+ If G.First=Nil Then Exit;
+ P:=G.First;
+ { nombre de points }
+ While P<>Nil do Begin
+  If G.Cls=1Then Begin
+   If(P^.Pts^[0].X<>P^.Pts^[0].X)or(P^.Pts^[0].Y<>P^.Pts^[0].Y)Then Fail2('Invalid coordinate',0,0);
+  End
+   Else
+  If G.Cls=2Then Begin
+   Cnt:=0;
+   For I:=1 to P^.N-1do If(P^.Pts^[I].X<>P^.Pts^[0].X)or(P^.Pts^[I].Y<>P^.Pts^[0].Y)Then Cnt:=1;
+   If(P^.N<2)or(Cnt=0)Then Fail2('Too few points in geometry component',P^.Pts^[0].X,P^.Pts^[0].Y);
+  End
+   Else
+  Begin
+   If(P^.N<4)or(P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y)Then
+    Fail2('Too few points in geometry component',P^.Pts^[0].X,P^.Pts^[0].Y);
+  End;
+  P:=P^.Next;
+ End;
+ If Bad Then Begin GeomValidate:=False;Exit;End;
+ If G.Cls<>3Then Exit;
+ { anneaux et segments }
+ NP:=0;NS:=0;
+ P:=G.First;
+ While P<>Nil do Begin Inc(NP);Inc(NS,P^.N-1);P:=P^.Next;End;
+ NS0:=NS;
+ PathArr:=AllocBlock((NP+1)*SizeOf(PPath));
+ Seg:=AllocBlock((NS0+1)*SizeOf(TEdge));
+ Own:=AllocBlock((NS0+1)*SizeOf(LongInt));
+ SIdx:=AllocBlock((NS0+1)*SizeOf(LongInt));
+ Ord:=AllocBlock((NS0+1)*SizeOf(LongInt));
+ MinKey:=AllocBlock((NS0+1)*SizeOf(Real));
+ Head:=AllocBlock((NP+1)*SizeOf(LongInt));
+ PSC:=AllocBlock((NP+1)*SizeOf(LongInt));
+ Nxt:=AllocBlock((NS0+8)*SizeOf(LongInt));
+ TOth:=AllocBlock((NS0+8)*SizeOf(LongInt));
+ TX:=AllocBlock((NS0+8)*SizeOf(Real));
+ TY:=AllocBlock((NS0+8)*SizeOf(Real));
+ NT:=0;
+ For I:=0 to NP-1do Head^[I]:=-1;
+ NS:=0;I:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  PathArr^[I]:=P;
+  K:=0;
+  For J:=0 to P^.N-2do
+   If(P^.Pts^[J].X<>P^.Pts^[J+1].X)or(P^.Pts^[J].Y<>P^.Pts^[J+1].Y)Then Begin
+    Seg^[NS].X1:=P^.Pts^[J].X;Seg^[NS].Y1:=P^.Pts^[J].Y;
+    Seg^[NS].X2:=P^.Pts^[J+1].X;Seg^[NS].Y2:=P^.Pts^[J+1].Y;
+    Own^[NS]:=I;SIdx^[NS]:=K;
+    MinKey^[NS]:=MinR(Seg^[NS].X1,Seg^[NS].X2);
+    Ord^[NS]:=NS;
+    Inc(NS);Inc(K);
+   End;
+  PSC^[I]:=K;
+  Inc(I);
+  P:=P^.Next;
+ End;
+ If NS>1Then SortByKey(Ord,MinKey,0,NS-1);
+ For I:=0 to NS-1do Begin
+  A:=Ord^[I];
+  X2:=MaxR(Seg^[A].X1,Seg^[A].X2);
+  J:=I+1;
+  While(J<NS)and(MinKey^[Ord^[J]]<=X2)and Not Bad do Begin
+   B:=Ord^[J];
+   Inc(J);
+   If(MinR(Seg^[B].Y1,Seg^[B].Y2)>MaxR(Seg^[A].Y1,Seg^[A].Y2))or(MaxR(Seg^[B].Y1,Seg^[B].Y2)<MinR(Seg^[A].Y1,Seg^[A].Y2))Then Continue;
+   If((Seg^[A].X1=Seg^[A].X2)and(Seg^[A].Y1=Seg^[A].Y2))or((Seg^[B].X1=Seg^[B].X2)and(Seg^[B].Y1=Seg^[B].Y2))Then Continue;
+   Rel:=SegRel(Seg^[A].X1,Seg^[A].Y1,Seg^[A].X2,Seg^[A].Y2,Seg^[B].X1,Seg^[B].Y1,Seg^[B].X2,Seg^[B].Y2,Ix,Iy,Proper);
+   If Rel=0Then Continue;
+   Pa:=Own^[A];Pb:=Own^[B];
+   If Pa=Pb Then Begin
+    If IgnoreRingSelf Then Continue;
+    K:=Abs(SIdx^[A]-SIdx^[B]);
+    L:=PSC^[Pa];
+    If(K=1)or(K=L-1)Then Begin
+     { segments voisins : seul le sommet commun est permis }
+     If Rel=2Then Fail2('Ring Self-intersection',Ix,Iy);
+    End
+     Else
+    Fail2('Ring Self-intersection',Ix,Iy);
+   End
+    Else
+   Begin
+    If(Rel=2)or Proper Then Fail2('Self-intersection',Ix,Iy)
+     Else
+    Begin
+     { contact en un point : un seul point de contact par paire d'anneaux }
+     If Pa>Pb Then Begin K:=Pa;Pa:=Pb;Pb:=K;End;
+     Fnd:=False;
+     K:=Head^[Pa];
+     While K>=0 do Begin
+      If TOth^[K]=Pb Then Begin
+       Fnd:=True;
+       Sc:=1E-9*(MaxR(Abs(Seg^[A].X2-Seg^[A].X1),Abs(Seg^[A].Y2-Seg^[A].Y1))+MaxR(Abs(Seg^[B].X2-Seg^[B].X1),Abs(Seg^[B].Y2-Seg^[B].Y1))+1E-300);
+       If(Abs(TX^[K]-Ix)>Sc)or(Abs(TY^[K]-Iy)>Sc)Then Fail2('Interior is disconnected',Ix,Iy);
+       Break;
+      End;
+      K:=Nxt^[K];
+     End;
+     If Not Fnd Then Begin
+      TOth^[NT]:=Pb;TX^[NT]:=Ix;TY^[NT]:=Iy;Nxt^[NT]:=Head^[Pa];Head^[Pa]:=NT;
+      Inc(NT);
+     End;
+    End;
+   End;
+  End;
+  If Bad Then Break;
+ End;
+ { trous dans l'anneau exterieur, trous imbriques, polygones imbriques }
+ If Not Bad Then Begin
+  Shell:=Nil;
+  P:=G.First;
+  While(P<>Nil)and Not Bad do Begin
+   If(Shell=Nil)or(P^.Poly<>Shell^.Poly)Then Shell:=P
+    Else
+   Begin
+    { le trou doit etre dans l'exterieur }
+    K:=2;
+    For I:=0 to P^.N-2do Begin
+     K:=PointInRing(Shell,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12*(Abs(P^.Pts^[I].X)+Abs(P^.Pts^[I].Y)+1));
+     If K<>2Then Break;
+    End;
+    If K=2Then Begin
+     K:=PointInRing(Shell,(P^.Pts^[0].X+P^.Pts^[1].X)/2,(P^.Pts^[0].Y+P^.Pts^[1].Y)/2,0);
+    End;
+    If K=0Then Fail2('Hole lies outside shell',P^.Pts^[0].X,P^.Pts^[0].Y);
+   End;
+   P:=P^.Next;
+  End;
+ End;
+ If Not Bad Then Begin
+  { trous imbriques dans un meme polygone ; polygones recouverts }
+  P:=G.First;
+  While(P<>Nil)and Not Bad do Begin
+   If P^.N>=4Then Begin
+    Q:=P^.Next;
+    While(Q<>Nil)and(Q^.Poly=P^.Poly)do Begin
+     { P est l'exterieur ou un trou ; deux trous l'un dans l'autre }
+     If(Q^.N>=4)and(P<>FirstOfPoly(G,P^.Poly))Then
+      If(RingIn(Q,P)=1)or(RingIn(P,Q)=1)Then Fail2('Nested holes',Q^.Pts^[0].X,Q^.Pts^[0].Y);
+     Q:=Q^.Next;
+    End;
+    If P=FirstOfPoly(G,P^.Poly)Then Begin
+     Q:=G.First;
+     While(Q<>Nil)and Not Bad do Begin
+      If(Q^.Poly<>P^.Poly)and(Q=FirstOfPoly(G,Q^.Poly))and(Q^.N>=4)Then Begin
+       If RingIn(P,Q)=1Then Begin
+        { exterieur dans un exterieur : permis seulement dans un trou }
+        Fnd:=False;
+        Shell:=Q^.Next;
+        While(Shell<>Nil)and(Shell^.Poly=Q^.Poly)do Begin
+         If(Shell^.N>=4)and(RingIn(P,Shell)=1)Then Fnd:=True;
+         Shell:=Shell^.Next;
+        End;
+        If Not Fnd Then Fail2('Self-intersection',P^.Pts^[0].X,P^.Pts^[0].Y);
+       End;
+      End;
+      Q:=Q^.Next;
+     End;
+    End;
+   End;
+   P:=P^.Next;
+  End;
+ End;
+ FreeMem(PathArr,(NP+1)*SizeOf(PPath));
+ FreeMem(Seg,(NS0+1)*SizeOf(TEdge));
+ FreeMem(Own,(NS0+1)*SizeOf(LongInt));
+ FreeMem(SIdx,(NS0+1)*SizeOf(LongInt));
+ FreeMem(Ord,(NS0+1)*SizeOf(LongInt));
+ FreeMem(MinKey,(NS0+1)*SizeOf(Real));
+ FreeMem(Head,(NP+1)*SizeOf(LongInt));
+ FreeMem(PSC,(NP+1)*SizeOf(LongInt));
+ FreeMem(Nxt,(NS0+8)*SizeOf(LongInt));
+ FreeMem(TOth,(NS0+8)*SizeOf(LongInt));
+ FreeMem(TX,(NS0+8)*SizeOf(Real));
+ FreeMem(TY,(NS0+8)*SizeOf(Real));
+ GeomValidate:=Not Bad;
 End;
 
 { Convertit une geometrie aplatie en noeud GeoJSON selon sa classe (Nil si vide) }
@@ -6130,6 +6554,167 @@ Begin
  FreeMem(Sub,(NU+1)*SizeOf(TEdge));
 End;
 
+{ Point interieur d'une face par balayage a la hauteur relative F (milieu de l'intervalle le plus large) }
+Function FaceSample(Var Face:TGeom;F:Real;Var X,Y:Real):Boolean;
+Var
+ P:PPath;
+ I,J,N,Tot:LongInt;
+ Xs:PReals;
+ Y0,Ymin,Ymax,T,W,Best:Real;
+ Xa,Ya,Xb,Yb:Real;
+Begin
+ FaceSample:=False;
+ Tot:=0;
+ P:=Face.First;
+ While P<>Nil do Begin Inc(Tot,P^.N);P:=P^.Next;End;
+ If Tot<4Then Exit;
+ Xs:=AllocBlock((Tot+2)*SizeOf(Real));
+ Ymin:=Face.First^.Pts^[0].Y;Ymax:=Ymin;
+ P:=Face.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-1do Begin
+   If P^.Pts^[I].Y<Ymin Then Ymin:=P^.Pts^[I].Y;
+   If P^.Pts^[I].Y>Ymax Then Ymax:=P^.Pts^[I].Y;
+  End;
+  P:=P^.Next;
+ End;
+ Y0:=Ymin+F*(Ymax-Ymin);
+ N:=0;
+ P:=Face.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-2do Begin
+   Xa:=P^.Pts^[I].X;Ya:=P^.Pts^[I].Y;Xb:=P^.Pts^[I+1].X;Yb:=P^.Pts^[I+1].Y;
+   If((Ya>Y0)<>(Yb>Y0))Then Begin
+    Xs^[N]:=Xa+(Y0-Ya)/(Yb-Ya)*(Xb-Xa);
+    Inc(N);
+   End;
+  End;
+  P:=P^.Next;
+ End;
+ { tri par insertion }
+ For I:=1 to N-1do Begin
+  T:=Xs^[I];J:=I-1;
+  While(J>=0)and(Xs^[J]>T)do Begin Xs^[J+1]:=Xs^[J];Dec(J);End;
+  Xs^[J+1]:=T;
+ End;
+ Best:=-1;
+ I:=0;
+ While I+1<N do Begin
+  W:=Xs^[I+1]-Xs^[I];
+  If W>Best Then Begin Best:=W;X:=(Xs^[I]+Xs^[I+1])/2;Y:=Y0;End;
+  Inc(I,2);
+ End;
+ FaceSample:=Best>0;
+ FreeMem(Xs,(Tot+2)*SizeOf(Real));
+End;
+
+{ Supprime les pointes (A,B,A) d'un anneau ferme }
+Procedure RemoveSpikes(P:PPath);
+Var
+ I,K:LongInt;
+ Q:PPts;
+ Again:Boolean;
+Begin
+ Repeat
+  Again:=False;
+  Q:=P^.Pts;
+  K:=0;
+  I:=0;
+  While I<P^.N do Begin
+   If(K>=2)and(Q^[K-2].X=Q^[I].X)and(Q^[K-2].Y=Q^[I].Y)Then Begin
+    Dec(K);
+    Again:=True;
+   End
+    Else
+   Begin
+    Q^[K]:=Q^[I];
+    Inc(K);
+   End;
+   Inc(I);
+  End;
+  P^.N:=K;
+ Until Not Again or(P^.N<4);
+End;
+
+{ Parite du nombre d'anneaux de G contenant le point : 1 impair, 0 pair, 2 sur un anneau }
+Function RingParity(Var G:TGeom;X,Y:Real;Tol:Real):Integer;
+Var
+ P:PPath;
+ K,C:Integer;
+Begin
+ C:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  K:=PointInRing(P,X,Y,Tol);
+  If K=2Then Begin RingParity:=2;Exit;End;
+  If K=1Then Inc(C);
+  P:=P^.Next;
+ End;
+ RingParity:=C and 1;
+End;
+
+{ Rend valide un polygone (anneaux de G) : regle pair/impair sur le reseau des anneaux }
+Procedure FixOnePolygon(Var G:TGeom;Var R:TGeom);
+Var
+ L,Faces,Face,Empty:TGeom;
+ P,Q:PPath;
+ X,Y:Real;
+ K,J:Integer;
+ Tl,Bx1,By1,Bx2,By2:Real;
+Begin
+ InitGeom(R);R.Cls:=3;
+ Tl:=0;
+ If GeomBBox(G,Bx1,By1,Bx2,By2)Then Tl:=MaxR(Bx2-Bx1,By2-By1)*1E-8;
+ InitGeom(L);L.Cls:=2;
+ P:=G.First;
+ While P<>Nil do Begin
+  Q:=CopyPath(L,P,0);
+  RemoveSpikes(Q);
+  If Q^.N<2Then Begin
+   { chemin vide : retire de L }
+   Q^.N:=1;
+  End;
+  P:=P^.Next;
+ End;
+ PolygonizeLines(L,Faces);
+ P:=Faces.First;
+ While P<>Nil do Begin
+  { chaque face : on garde celles dont un point interieur a un nombre impair d'anneaux autour }
+  Q:=P;
+  InitGeom(Face);Face.Cls:=3;Face.NPoly:=1;
+  CopyPath(Face,Q,0);
+  P:=P^.Next;
+  While(P<>Nil)and(P^.Poly=Q^.Poly)do Begin CopyPath(Face,P,0);P:=P^.Next;End;
+  PointOnSurface(Face,X,Y);
+  K:=RingParity(G,X,Y,Tl);
+  If K=2Then Begin
+   { point sur une frontiere : autre point interieur de la face }
+   For J:=1 to 6do Begin
+    If FaceSample(Face,0.5+(J-3.5)*0.13,X,Y)Then Begin
+     K:=RingParity(G,X,Y,Tl);
+     If K<>2Then Break;
+    End;
+   End;
+  End;
+  If K=1Then GeomAppend(R,Face);
+  FreeGeom(Face);
+ End;
+ FreeGeom(Faces);FreeGeom(L);
+ If R.First<>Nil Then Begin
+  InitGeom(Empty);
+  OrientPolygons(R);
+  KeepOrient:=True;
+  Overlay(0,R,Empty,L);
+  KeepOrient:=False;
+  FreeGeom(R);
+  R:=L;
+ End;
+End;
+
+{ Rend valides les polygones de G (regle pair/impair sur l'ensemble du reseau des anneaux) }
+Procedure FixPolygons(Var G:TGeom;Var R:TGeom);Begin
+ FixOnePolygon(G,R);
+End;
 
 { Utilitaires de couches deplaces avant les formats }
 Function Unesc(S:String):String;
@@ -14419,7 +15004,7 @@ End;
 Const
  GeomFnNames1=',AREA,PERIMETER,LENGTH,NUM_POINTS,NUM_GEOMETRIES,NUM_INTERIOR_RINGS,NUM_RINGS,GEOMETRY_TYPE,IS_EMPTY,IS_CLOSED,IS_VALID,X,Y,X_MIN,X_MAX,Y_MIN,Y_MAX,Z,M,Z_MAX,Z_MIN,M_MAX,M_MIN,';
  GeomFnNames2='BOUNDS_WIDTH,BOUNDS_HEIGHT,ENVELOPE,BOUNDS,ORIENTED_BBOX,CENTROID,POINT_ON_SURFACE,CONVEX_HULL,START_POINT,END_POINT,POINT_N,NODES_TO_POINTS,SEGMENTS_TO_LINES,';
- GeomFnNames3='EXTERIOR_RING,INTERIOR_RING_N,GEOMETRY_N,BOUNDARY,REVERSE,TRANSLATE,ROTATE,SCALE,AFFINE_TRANSFORM,BUFFER,SIMPLIFY,SIMPLIFY_VW,SMOOTH,DENSIFY_BY_COUNT,OFFSET_CURVE,EXTEND,';
+ GeomFnNames3='EXTERIOR_RING,INTERIOR_RING_N,GEOMETRY_N,BOUNDARY,REVERSE,TRANSLATE,ROTATE,SCALE,AFFINE_TRANSFORM,BUFFER,SIMPLIFY,SIMPLIFY_VW,SMOOTH,DENSIFY_BY_COUNT,OFFSET_CURVE,EXTEND,MAKE_VALID,';
  GeomFnNames4='LINE_INTERPOLATE_POINT,LINE_INTERPOLATE_ANGLE,LINE_SUBSTRING,LINE_LOCATE_POINT,STRAIGHT_DISTANCE_2D,SINUOSITY,PROJECT,AZIMUTH,ANGLE_AT_VERTEX,DISTANCE,CLOSEST_POINT,SHORTEST_LINE,';
  GeomFnNames5='INTERSECTS,CONTAINS,WITHIN,TOUCHES,CROSSES,OVERLAPS,DISJOINT,EQUALS,INTERSECTION,DIFFERENCE,COMBINE,SYM_DIFFERENCE,UNION,TRANSFORM,GEOM_TO_WKT,RELATE,';
 
@@ -14616,16 +15201,18 @@ Begin
   End Else If Gp^.Cls=3Then FnGeom:=VBool(True);
  End Else
  If Nm='IS_VALID'Then Begin
-  Ok:=True;
-  P:=Gp^.First;
-  While P<>Nil do Begin
-   If Gp^.Cls=3Then Begin
-    If(P^.N<4)or(P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y)Then Ok:=False;
-   End Else
-   If(Gp^.Cls=2)and(P^.N<2)Then Ok:=False;
-   P:=P^.Next;
+  FnGeom:=VBool(GeomValidate(Gp^,False,S,R,R2));
+ End Else
+ If Nm='MAKE_VALID'Then Begin
+  If(Gp^.Cls=3)and Not GeomValidate(Gp^,False,S,R,R2)Then Begin
+   FixPolygons(Gp^,Res);
+   FnGeom:=GRes(Res);
+  End
+   Else
+  Begin
+   GeomCopy(Gp^,Res);
+   FnGeom:=GRes(Res);
   End;
-  FnGeom:=VBool(Ok);
  End Else
  If(Nm='X')or(Nm='Y')Then Begin
   CentroidGeom(Gp^,Cx,Cy,Ok);
@@ -21515,7 +22102,9 @@ End;
 Procedure RunPathOp(A:Integer;Mode:Integer);
 Var
  Root,Arr,F:PJ;
- G,R:TGeom;
+ G,R,Fixed:TGeom;
+ Msg:String;
+ Vx,Vy:Real;
  P:PPath;
  Cnt,Method,Iter:LongInt;
  Tol,Off,MaxAng:Real;
@@ -21552,9 +22141,11 @@ Begin
     End;
     P:=P^.Next;
    End;
-   If Closed and(R.Count>0)Then Begin
-    { un polygone dont l'exterieur disparait perd aussi ses trous }
-    If R.First^.Poly<>0Then Begin End;
+   If Closed and(R.Count>0)and(Mode>0)and Not GeomValidate(R,False,Msg,Vx,Vy)Then Begin
+    { le lissage ou la simplification des anneaux peut produire des trous debordants : on repare }
+    FixPolygons(R,Fixed);
+    FreeGeom(R);
+    R:=Fixed;
    End;
    SetGeom(F,BuildGeom(R));
    FreeGeom(R);
@@ -22081,53 +22672,81 @@ Begin
  SaveOut(A,'OUTPUT',Out);
 End;
 
-{ Rend valides les polygones (regle pair/impair sur le reseau des anneaux) }
+{ Controle de validite : couches valide, invalide (champ _errors) et points d'erreur }
+Procedure RunCheckValidity(A:Integer);
+Var
+ Root,Arr,F,VRoot,VArr,IRoot,IArr,ERoot,EArr,Nf,Gj:PJ;
+ G:TGeom;
+ Msg:String;
+ X,Y:Real;
+ OutV,OutI,OutE:String;
+ NV,NI,NE:LongInt;
+ IgnoreRing,Ok:Boolean;
+ Pt:TGeom;
+Begin
+ LoadIn(A,'INPUT_LAYER',Root,Arr);
+ IgnoreRing:=NeedBool(A,'IGNORE_RING_SELF_INTERSECTION');
+ OutV:=NeedStr(A,'VALID_OUTPUT');
+ OutI:=NeedStr(A,'INVALID_OUTPUT');
+ OutE:=NeedStr(A,'ERROR_OUTPUT');
+ VRoot:=NewLayerLike(Root,VArr);
+ IRoot:=NewLayerLike(Root,IArr);
+ ERoot:=NewLayerLike(Root,EArr);
+ NV:=0;NI:=0;NE:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Gj:=JFind(F,'geometry');
+  Msg:='';
+  Ok:=True;
+  If(Gj<>Nil)and(Gj^.Kind=5)Then Begin
+   Flatten(Gj,G);
+   Ok:=GeomValidate(G,IgnoreRing,Msg,X,Y);
+   FreeGeom(G);
+  End;
+  If Ok Then Begin
+   JAdd(VArr,NewFeature(PropsClone(F),JClone(Gj)));
+   Inc(NV);
+  End
+   Else
+  Begin
+   Nf:=NewFeature(PropsClone(F),JClone(Gj));
+   PutProp(Nf,'_errors',JText(Msg));
+   JAdd(IArr,Nf);
+   Inc(NI);
+   PointGeom(Pt,X,Y);
+   Nf:=NewFeature(NewJ(5),BuildPoints(Pt));
+   FreeGeom(Pt);
+   PutProp(Nf,'message',JText(Msg));
+   JAdd(EArr,Nf);
+   Inc(NE);
+  End;
+  F:=F^.Next;
+ End;
+ If OutV<>''Then Begin SaveLayer(OutV,VRoot);AddRes('VALID_OUTPUT',OutV);End;
+ AddRes('VALID_COUNT',IntToStr(NV));
+ If OutI<>''Then Begin SaveLayer(OutI,IRoot);AddRes('INVALID_OUTPUT',OutI);End;
+ AddRes('INVALID_COUNT',IntToStr(NI));
+ If OutE<>''Then Begin SaveLayer(OutE,ERoot);AddRes('ERROR_OUTPUT',OutE);End;
+ AddRes('ERROR_COUNT',IntToStr(NE));
+End;
+
+{ Rend valides les polygones (les geometries deja valides sont conservees telles quelles) }
 Procedure RunFixGeometries(A:Integer);
 Var
  Root,Arr,F:PJ;
- G,L,Faces,R:TGeom;
- P,Q:PPath;
+ G,R:TGeom;
+ Msg:String;
  X,Y:Real;
- K:Integer;
- Face:TGeom;
- Empty:TGeom;
 Begin
  LoadIn(A,'INPUT',Root,Arr);
  F:=Arr^.First;
  While F<>Nil do Begin
   FlattenFeature(F,G);
-  If G.Cls=3Then Begin
-   InitGeom(L);L.Cls:=2;
-   P:=G.First;
-   While P<>Nil do Begin CopyPath(L,P,0);P:=P^.Next;End;
-   PolygonizeLines(L,Faces);
-   InitGeom(R);R.Cls:=3;
-   K:=0;
-   P:=Faces.First;
-   While P<>Nil do Begin
-    { chaque face : on garde celles dont un point interieur a un nombre impair d'anneaux autour }
-    Q:=P;
-    InitGeom(Face);Face.Cls:=3;Face.NPoly:=1;
-    CopyPath(Face,Q,0);
-    P:=P^.Next;
-    While(P<>Nil)and(P^.Poly=Q^.Poly)do Begin CopyPath(Face,P,0);P:=P^.Next;End;
-    PointOnSurface(Face,X,Y);
-    If PtInPolys(G,X,Y,0)=1Then Begin
-     GeomAppend(R,Face);
-    End;
-    FreeGeom(Face);
-   End;
-   If R.First<>Nil Then Begin
-    InitGeom(Empty);
-    KeepOrient:=True;
-    FreeGeom(L);
-    Overlay(0,R,Empty,L);
-    KeepOrient:=False;
-    SetGeom(F,BuildPolygons(L));
-   End
-    Else
-   SetGeom(F,Nil);
-   FreeGeom(R);FreeGeom(L);FreeGeom(Faces);
+  If(G.Cls=3)and Not GeomValidate(G,False,Msg,X,Y)Then Begin
+   FixPolygons(G,R);
+   If R.First<>Nil Then SetGeom(F,BuildPolygons(R))
+                   Else SetGeom(F,Nil);
+   FreeGeom(R);
   End;
   FreeGeom(G);
   F:=F^.Next;
@@ -24968,6 +25587,7 @@ Begin
   132:RunUnsupported(A);
   133:RunUnsupported(A);
   134:RunUnsupported(A);
+  135:RunCheckValidity(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
