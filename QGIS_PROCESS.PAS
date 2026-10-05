@@ -4,8 +4,12 @@
   @abstract(Target: Turbo Pascal, Free Pascal)
   @description: Clone minimaliste de la commande qgis_process de QGIS
 
-  Les couches vectorielles sont des fichiers GeoJSON (EPSG:4326 ou EPSG:3857),
-  les rasters sont des fichiers ESRI ASCII Grid (.asc).
+  Formats vectoriels (EPSG:4326 ou EPSG:3857) : GeoJSON, Shapefile, GeoPackage,
+  CSV (WKT ou colonnes X/Y, URI "file://...?xField=..."), GML, KML et KMZ ;
+  sources "chemin|layername=...|subset=..." et noms de couches d'un projet
+  .qgs/.qgz (--project_path). Formats rasters : GeoTIFF (lecture Deflate, LZW,
+  PackBits, predicteurs, tuiles, multibandes ; ecriture non compressee) et
+  ESRI ASCII Grid (.asc). PostGIS n'est pas disponible.
 
   Note : les algorithmes de couches et de rasters allouent de grands blocs de
   memoire (plus de 64 Ko) : utiliser Free Pascal (mode -Mtp possible) ou un
@@ -438,7 +442,7 @@ Const
    Descr:'NOT SUPPORTED: GeoJSON has no M values'),
   (Id:'native:package';Title:'Package layers';
    Group:'Not supported';
-   Descr:'NOT SUPPORTED: GeoPackage files are not available'),
+   Descr:'NOT SUPPORTED: packaging several layers in one GeoPackage is not available'),
   (Id:'native:writevectortiles_mbtiles';Title:'Write vector tiles (MBTiles)';
    Group:'Not supported';
    Descr:'NOT SUPPORTED: MBTiles/vector tile encoding is not available'),
@@ -5055,6 +5059,18 @@ Function Unesc(S:String):String;
 Var
  I:Integer;
  T:String;
+ V,V2,Code:LongInt;
+
+ Function Hex4(P:Integer):LongInt;
+ Var
+  H,E:LongInt;
+ Begin
+  If P+3>Length(S)Then Begin Hex4:=-1;Exit;End;
+  Val('$'+Copy(S,P,4),H,E);
+  If E<>0Then H:=-1;
+  Hex4:=H;
+ End;
+
 Begin
  T:='';
  I:=1;
@@ -5065,6 +5081,27 @@ Begin
     'n':T:=T+#10;
     't':T:=T+#9;
     'r':T:=T+#13;
+    'b':T:=T+#8;
+    'f':T:=T+#12;
+    'u':Begin
+     V:=Hex4(I+1);
+     If V<0Then T:=T+'u'
+      Else
+     Begin
+      Inc(I,4);
+      If(V>=$D800)and(V<=$DBFF)and(I+6<=Length(S))and(S[I+1]='\')and(S[I+2]='u')Then Begin
+       V2:=Hex4(I+3);
+       If(V2>=$DC00)and(V2<=$DFFF)Then Begin
+        V:=$10000+((V-$D800)shl 10)+(V2-$DC00);
+        Inc(I,6);
+       End;
+      End;
+      If V<128Then T:=T+Chr(V) Else
+      If V<2048Then T:=T+Chr(192+(V shr 6))+Chr(128+(V and 63)) Else
+      If V<65536Then T:=T+Chr(224+(V shr 12))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63))
+      Else T:=T+Chr(240+(V shr 18))+Chr(128+((V shr 12)and 63))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63));
+     End;
+    End;
     Else T:=T+S[I];
    End;
   End
@@ -6050,19 +6087,3372 @@ Begin
  If Crs=3857Then WriteSmallText(ChangeExt(Path,'.prj'),PrjMerc1,PrjMerc2);
 End;
 
+{ ------------------------------------------------------------------ }
+{ Decompression : Deflate (zlib), LZW TIFF, PackBits                  }
+{ ------------------------------------------------------------------ }
+
+Type
+ THuff=Record
+  Cnt:Array[0..15]of Integer;
+  Sym:Array[0..319]of Integer;
+ End;
+ TLens=Array[0..319]of Integer;
+
+Const
+ LBase:Array[0..28]of Integer=(3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258);
+ LExt:Array[0..28]of Integer=(0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0);
+ DBase:Array[0..29]of Integer=(1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577);
+ DExt:Array[0..29]of Integer=(0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13);
+ CodeOrder:Array[0..18]of Integer=(16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15);
+
+Var
+ InP:PBytes;
+ InN,InPos:LongInt;
+ BitBuf:LongInt;
+ BitCnt:Integer;
+ OutP:PBytes;
+ OutCap,OutPos:LongInt;
+ HuffL,HuffD:THuff;
+
+Procedure BadData;Begin
+ Fail('Error: corrupt compressed data');
+End;
+
+Function InBits(Need:Integer):LongInt;
+Var
+ V:LongInt;
+Begin
+ V:=BitBuf;
+ While BitCnt<Need do Begin
+  If InPos>=InN Then BadData;
+  V:=V or(LongInt(InP^[InPos])shl BitCnt);
+  Inc(InPos);
+  Inc(BitCnt,8);
+ End;
+ BitBuf:=V shr Need;
+ BitCnt:=BitCnt-Need;
+ InBits:=V and((LongInt(1)shl Need)-1);
+End;
+
+Function BuildHuff(Var H:THuff;Var L:TLens;N:Integer):Integer;
+Var
+ I,Len,Left:Integer;
+ Offs:Array[0..15]of Integer;
+Begin
+ For I:=0 to 15do H.Cnt[I]:=0;
+ For I:=0 to N-1do Inc(H.Cnt[L[I]]);
+ BuildHuff:=0;
+ If H.Cnt[0]=N Then Exit;
+ Left:=1;
+ For Len:=1 to 15do Begin
+  Left:=Left*2-H.Cnt[Len];
+  If Left<0Then Begin BuildHuff:=Left;Exit;End;
+ End;
+ Offs[1]:=0;
+ For Len:=1 to 14do Offs[Len+1]:=Offs[Len]+H.Cnt[Len];
+ For I:=0 to N-1do If L[I]<>0Then Begin
+  H.Sym[Offs[L[I]]]:=I;
+  Inc(Offs[L[I]]);
+ End;
+ BuildHuff:=Left;
+End;
+
+Function HuffDecode(Var H:THuff):Integer;
+Var
+ Len,Code,First,Index,Count:Integer;
+Begin
+ Code:=0;First:=0;Index:=0;
+ For Len:=1 to 15do Begin
+  Code:=Code or Integer(InBits(1));
+  Count:=H.Cnt[Len];
+  If Code-Count<First Then Begin
+   HuffDecode:=H.Sym[Index+(Code-First)];
+   Exit;
+  End;
+  Index:=Index+Count;
+  First:=(First+Count)shl 1;
+  Code:=Code shl 1;
+ End;
+ BadData;
+ HuffDecode:=0;
+End;
+
+Procedure InflateCodes;
+Var
+ Sym,Len,Dist:Integer;
+Begin
+ Repeat
+  Sym:=HuffDecode(HuffL);
+  If Sym<256Then Begin
+   If OutPos>=OutCap Then BadData;
+   OutP^[OutPos]:=Sym;
+   Inc(OutPos);
+  End
+   Else
+  If Sym>256Then Begin
+   Dec(Sym,257);
+   If Sym>=29Then BadData;
+   Len:=LBase[Sym]+Integer(InBits(LExt[Sym]));
+   Sym:=HuffDecode(HuffD);
+   If Sym>=30Then BadData;
+   Dist:=DBase[Sym]+Integer(InBits(DExt[Sym]));
+   If(Dist>OutPos)or(OutPos+Len>OutCap)Then BadData;
+   While Len>0do Begin
+    OutP^[OutPos]:=OutP^[OutPos-Dist];
+    Inc(OutPos);
+    Dec(Len);
+   End;
+  End;
+ Until Sym=256;
+End;
+
+Procedure InflateFixed;
+Var
+ L:TLens;
+ I:Integer;
+Begin
+ For I:=0 to 143do L[I]:=8;
+ For I:=144 to 255do L[I]:=9;
+ For I:=256 to 279do L[I]:=7;
+ For I:=280 to 287do L[I]:=8;
+ BuildHuff(HuffL,L,288);
+ For I:=0 to 29do L[I]:=5;
+ BuildHuff(HuffD,L,30);
+ InflateCodes;
+End;
+
+Procedure InflateDynamic;
+Var
+ L:TLens;
+ NLen,NDist,NCode,I,Sym,Rep,Prev:Integer;
+Begin
+ NLen:=Integer(InBits(5))+257;
+ NDist:=Integer(InBits(5))+1;
+ NCode:=Integer(InBits(4))+4;
+ If(NLen>286)or(NDist>30)Then BadData;
+ For I:=0 to 18do L[I]:=0;
+ For I:=0 to NCode-1do L[CodeOrder[I]]:=Integer(InBits(3));
+ If BuildHuff(HuffL,L,19)<>0Then BadData;
+ I:=0;
+ While I<NLen+NDist do Begin
+  Sym:=HuffDecode(HuffL);
+  If Sym<16Then Begin L[I]:=Sym;Inc(I);End
+   Else
+  Begin
+   Prev:=0;
+   If Sym=16Then Begin
+    If I=0Then BadData;
+    Prev:=L[I-1];
+    Rep:=3+Integer(InBits(2));
+   End
+    Else
+   If Sym=17Then Rep:=3+Integer(InBits(3))
+            Else Rep:=11+Integer(InBits(7));
+   If I+Rep>NLen+NDist Then BadData;
+   While Rep>0do Begin L[I]:=Prev;Inc(I);Dec(Rep);End;
+  End;
+ End;
+ If L[256]=0Then BadData;
+ Rep:=BuildHuff(HuffL,L,NLen);
+ If(Rep<0)or((Rep>0)and(NLen-HuffL.Cnt[0]<>1))Then BadData;
+ { les longueurs de distance sont decalees pour une table propre }
+ For I:=0 to NDist-1do L[I]:=L[NLen+I];
+ Rep:=BuildHuff(HuffD,L,NDist);
+ If(Rep<0)or((Rep>0)and(NDist-HuffD.Cnt[0]<>1))Then BadData;
+ InflateCodes;
+End;
+
+{ Inflate brut (Zlib=True : entete zlib de 2 octets ignore) ; retourne le nombre d'octets produits }
+Function Inflate(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt;Zlib:Boolean):LongInt;
+Var
+ Last,Typ:Integer;
+ Len,NLen,I:LongInt;
+Begin
+ InP:=Src;InN:=SrcN;InPos:=0;BitBuf:=0;BitCnt:=0;
+ OutP:=Dst;OutCap:=Cap;OutPos:=0;
+ If Zlib Then Begin
+  If SrcN<2Then BadData;
+  InPos:=2;
+ End;
+ Repeat
+  Last:=Integer(InBits(1));
+  Typ:=Integer(InBits(2));
+  If Typ=0Then Begin
+   BitBuf:=0;BitCnt:=0;
+   If InPos+4>InN Then BadData;
+   Len:=LongInt(InP^[InPos])or(LongInt(InP^[InPos+1])shl 8);
+   NLen:=LongInt(InP^[InPos+2])or(LongInt(InP^[InPos+3])shl 8);
+   If Len<>(NLen xor $FFFF)Then BadData;
+   Inc(InPos,4);
+   If(InPos+Len>InN)or(OutPos+Len>OutCap)Then BadData;
+   For I:=0 to Len-1do Begin
+    OutP^[OutPos]:=InP^[InPos];
+    Inc(OutPos);Inc(InPos);
+   End;
+  End
+   Else
+  If Typ=1Then InflateFixed Else
+  If Typ=2Then InflateDynamic
+          Else BadData;
+ Until Last=1;
+ Inflate:=OutPos;
+End;
+
+Var
+ LzPre:Array[0..4095]of Integer;
+ LzSuf:Array[0..4095]of Byte;
+ LzLen:Array[0..4095]of Integer;
+ LzFst:Array[0..4095]of Byte;
+
+Function LzwDecode(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt):LongInt;
+Var
+ Pos,Op:LongInt;
+ Buf:LongInt;
+ Cnt,Bits,Code,Old,Next,I,L:Integer;
+ Fc:Byte;
+Procedure Emit(C:Integer);
+Var
+ K,Q:LongInt;
+Begin
+ L:=LzLen[C];
+ If Op+L>Cap Then L:=Cap-Op;
+ If L<=0Then Exit;
+ { ecriture a rebours depuis la fin de la chaine complete }
+ Q:=C;
+ K:=LzLen[C];
+ While K>0do Begin
+  If Op+K-1<Cap Then Dst^[Op+K-1]:=LzSuf[Q];
+  Q:=LzPre[Q];
+  Dec(K);
+ End;
+ Op:=Op+L;
+End;
+Begin
+ For I:=0 to 255do Begin LzSuf[I]:=I;LzPre[I]:=-1;LzLen[I]:=1;LzFst[I]:=I;End;
+ Pos:=0;Op:=0;Buf:=0;Cnt:=0;Bits:=9;Next:=258;Old:=-1;
+ While Op<Cap do Begin
+  While Cnt<Bits do Begin
+   If Pos>=SrcN Then Begin LzwDecode:=Op;Exit;End;
+   Buf:=(Buf shl 8)or Src^[Pos];
+   Inc(Pos);Inc(Cnt,8);
+  End;
+  Code:=Integer((Buf shr(Cnt-Bits))and((1 shl Bits)-1));
+  Dec(Cnt,Bits);
+  Buf:=Buf and((LongInt(1)shl Cnt)-1);
+  If Code=257Then Break;
+  If Code=256Then Begin
+   Next:=258;Bits:=9;Old:=-1;
+  End
+   Else
+  If Old<0Then Begin
+   If Code>=256Then BadData;
+   Emit(Code);
+   Old:=Code;
+  End
+   Else
+  Begin
+   If Code>Next Then BadData;
+   If Code<Next Then Fc:=LzFst[Code]
+                Else Fc:=LzFst[Old];
+   If Next<4096Then Begin
+    LzPre[Next]:=Old;LzSuf[Next]:=Fc;LzLen[Next]:=LzLen[Old]+1;LzFst[Next]:=LzFst[Old];
+    Inc(Next);
+   End;
+   If Code>=Next Then BadData;
+   Emit(Code);
+   Old:=Code;
+   If Next>=2047Then Bits:=12 Else
+   If Next>=1023Then Bits:=11 Else
+   If Next>=511Then Bits:=10;
+  End;
+ End;
+ LzwDecode:=Op;
+End;
+
+Function PackBitsDecode(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt):LongInt;
+Var
+ P,Op,N,I:LongInt;
+ C:Integer;
+Begin
+ P:=0;Op:=0;
+ While(P<SrcN)and(Op<Cap)do Begin
+  C:=Src^[P];Inc(P);
+  If C>127Then C:=C-256;
+  If C>=0Then Begin
+   N:=C+1;
+   For I:=1 to N do If(P<SrcN)and(Op<Cap)Then Begin Dst^[Op]:=Src^[P];Inc(Op);Inc(P);End;
+  End
+   Else
+  If C<>-128Then Begin
+   N:=1-C;
+   If P>=SrcN Then Break;
+   For I:=1 to N do If Op<Cap Then Begin Dst^[Op]:=Src^[P];Inc(Op);End;
+   Inc(P);
+  End;
+ End;
+ PackBitsDecode:=Op;
+End;
+
+{ ------------------------------------------------------------------ }
+{ Formats supplementaires : collecteur de geometries, WKT, WKB, XML  }
+{ ------------------------------------------------------------------ }
+
+Var
+ GcP,GcL,GcA:TGeom;
+ GcPoly:Integer;
+ TpP:PPts;
+ TpN,TpCap:LongInt;
+
+Procedure TpClear;Begin TpN:=0;End;
+
+Procedure TpAdd(X,Y:Real);
+Var
+ Q:PPts;
+Begin
+ If TpP=Nil Then Begin TpCap:=256;TpP:=AllocBlock(TpCap*SizeOf(TPt));End;
+ If TpN>=TpCap Then Begin
+  Q:=AllocBlock(TpCap*2*SizeOf(TPt));
+  Move(TpP^,Q^,TpN*SizeOf(TPt));
+  FreeMem(TpP,TpCap*SizeOf(TPt));
+  TpP:=Q;TpCap:=TpCap*2;
+ End;
+ TpP^[TpN].X:=X;TpP^[TpN].Y:=Y;
+ Inc(TpN);
+End;
+
+Procedure GcInit;Begin
+ InitGeom(GcP);GcP.Cls:=1;
+ InitGeom(GcL);GcL.Cls:=2;
+ InitGeom(GcA);GcA.Cls:=3;
+ GcPoly:=0;TpN:=0;
+End;
+
+Procedure GcPoint(X,Y:Real);
+Var
+ P:PPath;
+Begin
+ P:=NewPath(GcP,1,0);
+ P^.Pts^[0].X:=X;P^.Pts^[0].Y:=Y;
+End;
+
+Procedure GcLine;
+Var
+ P:PPath;
+Begin
+ If TpN>=2Then Begin
+  P:=NewPath(GcL,TpN,0);
+  Move(TpP^,P^.Pts^,TpN*SizeOf(TPt));
+ End;
+ TpN:=0;
+End;
+
+Procedure GcRing;
+Var
+ P:PPath;
+Begin
+ If TpN>=3Then Begin
+  If(TpP^[0].X<>TpP^[TpN-1].X)or(TpP^[0].Y<>TpP^[TpN-1].Y)Then TpAdd(TpP^[0].X,TpP^[0].Y);
+  If TpN>=4Then Begin
+   P:=NewPath(GcA,TpN,GcPoly);
+   Move(TpP^,P^.Pts^,TpN*SizeOf(TPt));
+  End;
+ End;
+ TpN:=0;
+End;
+
+Function GcResult:PJ;
+Var
+ R:PJ;
+Begin
+ R:=Nil;
+ If GcA.First<>Nil Then R:=BuildGeom(GcA) Else
+ If GcL.First<>Nil Then R:=BuildGeom(GcL) Else
+ If GcP.First<>Nil Then R:=BuildGeom(GcP);
+ FreeGeom(GcA);FreeGeom(GcL);FreeGeom(GcP);
+ GcResult:=R;
+End;
+
+{ ---- WKT ---- }
+
+Var
+ WB:PBytes;
+ WP,WE:LongInt;
+
+Procedure WFail;Begin
+ Fail('Error: invalid WKT geometry');
+End;
+
+Procedure WSkip;Begin
+ While(WP<WE)and(WB^[WP]in[9,10,13,32])do Inc(WP);
+End;
+
+Function WPeek:Integer;Begin
+ WSkip;
+ If WP<WE Then WPeek:=WB^[WP]
+          Else WPeek:=-1;
+End;
+
+Function WCh(C:Char):Boolean;Begin
+ WCh:=False;
+ WSkip;
+ If(WP<WE)and(WB^[WP]=Ord(C))Then Begin
+  Inc(WP);
+  WCh:=True;
+ End;
+End;
+
+Procedure WNeed(C:Char);Begin
+ If Not WCh(C)Then WFail;
+End;
+
+Function WIsNumStart:Boolean;
+Var
+ C:Integer;
+Begin
+ C:=WPeek;
+ WIsNumStart:=((C>=48)and(C<=57))or(C=43)or(C=45)or(C=46);
+End;
+
+Function WWord:String;
+Var
+ S:String;
+ C:Integer;
+Begin
+ WSkip;
+ S:='';
+ While WP<WE do Begin
+  C:=WB^[WP];
+  If(C>=97)and(C<=122)Then C:=C-32;
+  If(C<65)or(C>90)Then Break;
+  If Length(S)<40Then S:=S+Chr(C);
+  Inc(WP);
+ End;
+ WWord:=S;
+End;
+
+Function WNum:Real;
+Var
+ S:String;
+ V:Real;
+ E:Integer;
+Begin
+ WSkip;
+ S:='';
+ While(WP<WE)and(Chr(WB^[WP])in['0'..'9','+','-','.','e','E'])do Begin
+  If Length(S)<60Then S:=S+Chr(WB^[WP]);
+  Inc(WP);
+ End;
+ Val(S,V,E);
+ If(S='')or(E<>0)Then WFail;
+ WNum:=V;
+End;
+
+Procedure WSkipNums;Begin
+ While WIsNumStart do WNum;
+End;
+
+Procedure WSeq;
+Var
+ X,Y:Real;
+Begin
+ WNeed('(');
+ TpClear;
+ Repeat
+  X:=WNum;Y:=WNum;
+  WSkipNums;
+  TpAdd(X,Y);
+ Until Not WCh(',');
+ WNeed(')');
+End;
+
+Procedure WPoly;Begin
+ WNeed('(');
+ Inc(GcPoly);
+ Repeat
+  WSeq;
+  GcRing;
+ Until Not WCh(',');
+ WNeed(')');
+End;
+
+Procedure WGeom;
+Var
+ T,Z:String;
+ X,Y:Real;
+ C:Integer;
+Begin
+ T:=WWord;
+ If T=''Then WFail;
+ C:=WPeek;
+ While((C>=65)and(C<=90))or((C>=97)and(C<=122))do Begin
+  Z:=WWord;
+  If Z='EMPTY'Then Exit;
+  C:=WPeek;
+ End;
+ If T='POINT'Then Begin
+  WNeed('(');
+  X:=WNum;Y:=WNum;
+  WSkipNums;
+  WNeed(')');
+  GcPoint(X,Y);
+ End Else
+ If(T='LINESTRING')or(T='LINEARRING')Then Begin
+  WSeq;GcLine;
+ End Else
+ If T='POLYGON'Then WPoly Else
+ If T='MULTIPOINT'Then Begin
+  WNeed('(');
+  Repeat
+   If WCh('(')Then Begin
+    X:=WNum;Y:=WNum;WSkipNums;
+    WNeed(')');
+   End
+    Else
+   Begin X:=WNum;Y:=WNum;WSkipNums;End;
+   GcPoint(X,Y);
+  Until Not WCh(',');
+  WNeed(')');
+ End Else
+ If T='MULTILINESTRING'Then Begin
+  WNeed('(');
+  Repeat
+   WSeq;GcLine;
+  Until Not WCh(',');
+  WNeed(')');
+ End Else
+ If T='MULTIPOLYGON'Then Begin
+  WNeed('(');
+  Repeat
+   WPoly;
+  Until Not WCh(',');
+  WNeed(')');
+ End Else
+ If T='GEOMETRYCOLLECTION'Then Begin
+  WNeed('(');
+  Repeat
+   WGeom;
+  Until Not WCh(',');
+  WNeed(')');
+ End
+  Else
+ Fail('Error: unsupported WKT geometry type '+T);
+End;
+
+Function WktToGeom(B:PBytes;S,E:LongInt):PJ;
+Begin
+ WktToGeom:=Nil;
+ WB:=B;WP:=S;WE:=E;
+ WSkip;
+ If WP>=WE Then Exit;
+ If(WE-WP>5)and(UpCase(Chr(WB^[WP]))='S')and(UpCase(Chr(WB^[WP+1]))='R')and(UpCase(Chr(WB^[WP+2]))='I')Then Begin
+  While(WP<WE)and(WB^[WP]<>59)do Inc(WP);
+  Inc(WP);
+ End;
+ GcInit;
+ WGeom;
+ WktToGeom:=GcResult;
+End;
+
+{ ---- WKB ---- }
+
+Var
+ KB:PBytes;
+ KP,KE:LongInt;
+
+Procedure KFail;Begin
+ Fail('Error: invalid WKB geometry');
+End;
+
+Function KU32(LE:Boolean):LongInt;Begin
+ If KP+4>KE Then KFail;
+ If LE Then KU32:=RdLE32(KB,KP)
+       Else KU32:=RdBE32(KB,KP);
+ Inc(KP,4);
+End;
+
+Function KDbl(LE:Boolean):Real;
+Var
+ D:Double;
+ B:Array[0..7]of Byte absolute D;
+ I:Integer;
+Begin
+ If KP+8>KE Then KFail;
+ If LE Then Move(KB^[KP],D,8)
+       Else For I:=0 to 7do B[7-I]:=KB^[KP+I];
+ Inc(KP,8);
+ KDbl:=D;
+End;
+
+Procedure WkbGeom;
+Var
+ LE:Boolean;
+ T,Hi,Base,Dim,I,N,J,Rings,K:LongInt;
+ X,Y,Dum:Real;
+Begin
+ If KP+5>KE Then KFail;
+ LE:=KB^[KP]=1;
+ Inc(KP);
+ If LE Then Begin T:=RdLE32(KB,KP)and $FFFF;Hi:=KB^[KP+3];End
+       Else Begin T:=RdBE32(KB,KP)and $FFFF;Hi:=KB^[KP];End;
+ Inc(KP,4);
+ Dim:=2;
+ If(Hi and $80)<>0Then Inc(Dim);
+ If(Hi and $40)<>0Then Inc(Dim);
+ If(Hi and $20)<>0Then KU32(LE);
+ Base:=T mod 1000;
+ K:=T div 1000;
+ If(K=1)or(K=2)Then Inc(Dim) Else
+ If K=3Then Inc(Dim,2);
+ Case Base of
+  1:Begin
+   X:=KDbl(LE);Y:=KDbl(LE);
+   For J:=3 to Dim do Dum:=KDbl(LE);
+   If(X=X)and(Y=Y)Then GcPoint(X,Y);
+  End;
+  2:Begin
+   N:=KU32(LE);
+   If(N<0)or(KP+N*8*Dim>KE)Then KFail;
+   TpClear;
+   For I:=1 to N do Begin
+    X:=KDbl(LE);Y:=KDbl(LE);
+    For J:=3 to Dim do Dum:=KDbl(LE);
+    TpAdd(X,Y);
+   End;
+   GcLine;
+  End;
+  3:Begin
+   Rings:=KU32(LE);
+   If(Rings<0)or(Rings>KE-KP)Then KFail;
+   Inc(GcPoly);
+   For K:=1 to Rings do Begin
+    N:=KU32(LE);
+    If(N<0)or(KP+N*8*Dim>KE)Then KFail;
+    TpClear;
+    For I:=1 to N do Begin
+     X:=KDbl(LE);Y:=KDbl(LE);
+     For J:=3 to Dim do Dum:=KDbl(LE);
+     TpAdd(X,Y);
+    End;
+    GcRing;
+   End;
+  End;
+  4,5,6,7:Begin
+   N:=KU32(LE);
+   If(N<0)or(N>KE-KP)Then KFail;
+   For I:=1 to N do WkbGeom;
+  End;
+  Else Fail('Error: unsupported WKB geometry type '+IntToStr(Base));
+ End;
+End;
+
+Function WkbToGeom(B:PBytes;S,E:LongInt):PJ;Begin
+ KB:=B;KP:=S;KE:=E;
+ GcInit;
+ WkbGeom;
+ WkbToGeom:=GcResult;
+End;
+
+{ ---- XML ---- }
+
+Type
+ PX=^TX;
+ TX=Record
+  Name,Orig:PStr;
+  TS,TL:LongInt;
+  CData:Boolean;
+  AtS,AtL:LongInt;
+  First,Last,Next,Par:PX;
+ End;
+
+Var
+ XB:PBytes;
+ XN:LongInt;
+
+Function NewX(Par:PX):PX;
+Var
+ N:PX;
+Begin
+ New(N);
+ N^.Name:=Nil;N^.Orig:=Nil;N^.TS:=0;N^.TL:=0;N^.CData:=False;N^.AtS:=0;N^.AtL:=0;
+ N^.First:=Nil;N^.Last:=Nil;N^.Next:=Nil;N^.Par:=Par;
+ If Par<>Nil Then Begin
+  If Par^.Last=Nil Then Par^.First:=N
+                   Else Par^.Last^.Next:=N;
+  Par^.Last:=N;
+ End;
+ NewX:=N;
+End;
+
+Function XAt(B:PBytes;N,I:LongInt;Const S:String):Boolean;
+Var
+ K:Integer;
+Begin
+ XAt:=False;
+ If I+Length(S)>N Then Exit;
+ For K:=1 to Length(S)do If B^[I+K-1]<>Ord(S[K])Then Exit;
+ XAt:=True;
+End;
+
+Function XParse(B:PBytes;N:LongInt):PX;
+Var
+ Root,Cur,Nd:PX;
+ I,J,S,E,Q:LongInt;
+ C:Byte;
+ Nm,Loc:String;
+ SelfClose:Boolean;
+ K:LongInt;
+Begin
+ XB:=B;XN:=N;
+ Root:=NewX(Nil);
+ Cur:=Root;
+ I:=0;
+ If(N>=3)and(B^[0]=$EF)and(B^[1]=$BB)and(B^[2]=$BF)Then I:=3;
+ While I<N do Begin
+  If B^[I]=60Then Begin
+   If I+1>=N Then Break;
+   C:=B^[I+1];
+   If C=63Then Begin
+    J:=I+2;
+    While(J+1<N)and Not((B^[J]=63)and(B^[J+1]=62))do Inc(J);
+    I:=J+2;
+   End Else
+   If XAt(B,N,I,'<!--')Then Begin
+    J:=I+4;
+    While(J+2<N)and Not XAt(B,N,J,'-->')do Inc(J);
+    I:=J+3;
+   End Else
+   If XAt(B,N,I,'<![CDATA[')Then Begin
+    S:=I+9;J:=S;
+    While(J+2<N)and Not XAt(B,N,J,']]>')do Inc(J);
+    If J+2>=N Then Begin J:=N;E:=N;End Else E:=J;
+    If Cur^.TL=0Then Begin Cur^.TS:=S;Cur^.TL:=E-S;Cur^.CData:=True;End;
+    I:=J+3;
+   End Else
+   If C=33Then Begin
+    J:=I+2;
+    Q:=0;
+    While J<N do Begin
+     If B^[J]=91Then Inc(Q) Else
+     If B^[J]=93Then Dec(Q) Else
+     If(B^[J]=62)and(Q<=0)Then Break;
+     Inc(J);
+    End;
+    I:=J+1;
+   End Else
+   If C=47Then Begin
+    J:=I+2;
+    While(J<N)and(B^[J]<>62)do Inc(J);
+    If Cur^.Par<>Nil Then Cur:=Cur^.Par;
+    I:=J+1;
+   End
+    Else
+   Begin
+    J:=I+1;S:=J;
+    While(J<N)and Not(B^[J]in[9,10,13,32,47,62])do Inc(J);
+    Nm:='';
+    For K:=S to J-1do If Length(Nm)<80Then Nm:=Nm+Chr(B^[K]);
+    Loc:=Nm;
+    For K:=Length(Nm)downto 1do If Nm[K]=':'Then Begin Loc:=Copy(Nm,K+1,80);Break;End;
+    Nd:=NewX(Cur);
+    Nd^.Name:=MkStr(StrUpper(Loc));
+    Nd^.Orig:=MkStr(Loc);
+    Nd^.AtS:=J;
+    Q:=0;
+    While J<N do Begin
+     If Q<>0Then Begin
+      If B^[J]=Q Then Q:=0;
+     End
+      Else
+     If(B^[J]=34)or(B^[J]=39)Then Q:=B^[J] Else
+     If B^[J]=62Then Break;
+     Inc(J);
+    End;
+    Nd^.AtL:=J-Nd^.AtS;
+    SelfClose:=(J>I+1)and(B^[J-1]=47);
+    If Not SelfClose Then Cur:=Nd;
+    I:=J+1;
+   End;
+  End
+   Else
+  Begin
+   S:=I;
+   While(I<N)and(B^[I]<>60)do Inc(I);
+   If Cur^.TL=0Then Begin
+    E:=I;
+    While(S<E)and(B^[S]in[9,10,13,32])do Inc(S);
+    While(E>S)and(B^[E-1]in[9,10,13,32])do Dec(E);
+    If E>S Then Begin Cur^.TS:=S;Cur^.TL:=E-S;End;
+   End;
+  End;
+ End;
+ XParse:=Root;
+End;
+
+Function DecodeEnt(S:String):String;
+Var
+ R,Ent:String;
+ I,J,Code:Integer;
+ V:LongInt;
+ Done:Boolean;
+Begin
+ R:='';
+ I:=1;
+ While I<=Length(S)do Begin
+  Done:=False;
+  If S[I]='&'Then Begin
+   J:=I+1;
+   While(J<=Length(S))and(J-I<=9)and(S[J]<>';')do Inc(J);
+   If(J<=Length(S))and(S[J]=';')Then Begin
+    Ent:=Copy(S,I+1,J-I-1);
+    If Ent='amp'Then Begin R:=R+'&';Done:=True;End Else
+    If Ent='lt'Then Begin R:=R+'<';Done:=True;End Else
+    If Ent='gt'Then Begin R:=R+'>';Done:=True;End Else
+    If Ent='quot'Then Begin R:=R+'"';Done:=True;End Else
+    If Ent='apos'Then Begin R:=R+'''';Done:=True;End Else
+    If(Length(Ent)>1)and(Ent[1]='#')Then Begin
+     If(Ent[2]='x')or(Ent[2]='X')Then Val('$'+Copy(Ent,3,10),V,Code)
+                                 Else Val(Copy(Ent,2,10),V,Code);
+     If(Code=0)and(V>0)Then Begin
+      If V<128Then R:=R+Chr(V) Else
+      If V<2048Then R:=R+Chr(192+(V shr 6))+Chr(128+(V and 63)) Else
+      If V<65536Then R:=R+Chr(224+(V shr 12))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63))
+      Else R:=R+Chr(240+(V shr 18))+Chr(128+((V shr 12)and 63))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63));
+      Done:=True;
+     End;
+    End;
+    If Done Then I:=J+1;
+   End;
+  End;
+  If Not Done Then Begin
+   R:=R+S[I];
+   Inc(I);
+  End;
+ End;
+ DecodeEnt:=R;
+End;
+
+Function XText(N:PX):String;
+Var
+ S:String;
+ I,E:LongInt;
+Begin
+ XText:='';
+ If(N=Nil)or(N^.TL=0)Then Exit;
+ S:='';
+ I:=N^.TS;E:=N^.TS+N^.TL;
+ While(I<E)and(Length(S)<250)do Begin
+  S:=S+Chr(XB^[I]);
+  Inc(I);
+ End;
+ If N^.CData Then XText:=S
+             Else XText:=DecodeEnt(S);
+End;
+
+Function XAttr(N:PX;Name:String):String;
+Var
+ I,E,S,S2:LongInt;
+ Q:Byte;
+ Nm,V:String;
+ K:LongInt;
+Begin
+ XAttr:='';
+ If N=Nil Then Exit;
+ I:=N^.AtS;E:=N^.AtS+N^.AtL;
+ While I<E do Begin
+  While(I<E)and(XB^[I]in[9,10,13,32,47])do Inc(I);
+  S:=I;
+  While(I<E)and Not(XB^[I]in[61,9,10,13,32])do Inc(I);
+  Nm:='';
+  For K:=S to I-1do If Length(Nm)<60Then Nm:=Nm+Chr(XB^[K]);
+  While(I<E)and(XB^[I]in[9,10,13,32])do Inc(I);
+  V:='';
+  If(I<E)and(XB^[I]=61)Then Begin
+   Inc(I);
+   While(I<E)and(XB^[I]in[9,10,13,32])do Inc(I);
+   If(I<E)and(XB^[I]in[34,39])Then Begin
+    Q:=XB^[I];Inc(I);S2:=I;
+    While(I<E)and(XB^[I]<>Q)do Inc(I);
+    For K:=S2 to I-1do If Length(V)<250Then V:=V+Chr(XB^[K]);
+    Inc(I);
+   End;
+  End;
+  If(Nm=Name)or((Length(Nm)>Length(Name))and(Copy(Nm,Length(Nm)-Length(Name),Length(Name)+1)=':'+Name))Then Begin
+   XAttr:=DecodeEnt(V);
+   Exit;
+  End;
+ End;
+End;
+
+Function XKid(N:PX;Const Nm:String):PX;
+Var
+ C:PX;
+Begin
+ XKid:=Nil;
+ If N=Nil Then Exit;
+ C:=N^.First;
+ While C<>Nil do Begin
+  If C^.Name^=Nm Then Begin XKid:=C;Exit;End;
+  C:=C^.Next;
+ End;
+End;
+
+Function XFind(N:PX;Const Nm:String):PX;
+Var
+ C,R:PX;
+Begin
+ XFind:=Nil;
+ If N=Nil Then Exit;
+ C:=N^.First;
+ While C<>Nil do Begin
+  If C^.Name^=Nm Then Begin XFind:=C;Exit;End;
+  R:=XFind(C,Nm);
+  If R<>Nil Then Begin XFind:=R;Exit;End;
+  C:=C^.Next;
+ End;
+End;
+
+Function XNumAt(Var I:LongInt;E:LongInt;Var V:Real):Boolean;
+Var
+ S:String;
+ Err:Integer;
+Begin
+ S:='';
+ While(I<E)and(Chr(XB^[I])in['0'..'9','+','-','.','e','E'])do Begin
+  If Length(S)<60Then S:=S+Chr(XB^[I]);
+  Inc(I);
+ End;
+ Val(S,V,Err);
+ XNumAt:=(S<>'')and(Err=0);
+End;
+
+{ Coordonnees : Tuple=True : "x,y[,z] x,y[,z]" ; sinon nombres separes par des blancs, groupes par Dim }
+Procedure XCoords(S,E:LongInt;Tuple:Boolean;Dim:Integer;Swap:Boolean);
+Var
+ I,K:LongInt;
+ V,X,Y:Real;
+ N:Integer;
+ Have:Boolean;
+Begin
+ I:=S;
+ If Tuple Then Begin
+  While I<E do Begin
+   While(I<E)and(XB^[I]in[9,10,13,32])do Inc(I);
+   If I>=E Then Break;
+   N:=0;X:=0;Y:=0;
+   Repeat
+    Have:=XNumAt(I,E,V);
+    If Have Then Begin
+     If N=0Then X:=V Else
+     If N=1Then Y:=V;
+     Inc(N);
+    End
+     Else
+    If(I<E)and Not(XB^[I]in[9,10,13,32,44])Then Inc(I);
+    If(I<E)and(XB^[I]=44)Then Begin Inc(I);Have:=True;End
+                         Else Have:=False;
+   Until Not Have;
+   If N>=2Then Begin
+    If Swap Then TpAdd(Y,X)
+            Else TpAdd(X,Y);
+   End;
+  End;
+ End
+  Else
+ Begin
+  K:=0;X:=0;Y:=0;
+  While I<E do Begin
+   While(I<E)and(XB^[I]in[9,10,13,32,44])do Inc(I);
+   If I>=E Then Break;
+   If XNumAt(I,E,V)Then Begin
+    If K mod Dim=0Then X:=V Else
+    If K mod Dim=1Then Begin
+     Y:=V;
+     If Swap Then TpAdd(Y,X)
+             Else TpAdd(X,Y);
+    End;
+    Inc(K);
+   End
+    Else
+   Inc(I);
+  End;
+ End;
+End;
+
+Var
+ XSwap:Boolean;
+
+{ Remplit Tp avec les coordonnees contenues dans N (coordinates, posList ou suite de pos) }
+Procedure GmlRing(N:PX);
+Var
+ C:PX;
+ Dim,Code:Integer;
+Begin
+ TpClear;
+ C:=XFind(N,'COORDINATES');
+ If C<>Nil Then Begin
+  If C^.TL>0Then XCoords(C^.TS,C^.TS+C^.TL,True,2,XSwap);
+  Exit;
+ End;
+ C:=XFind(N,'POSLIST');
+ If C<>Nil Then Begin
+  Dim:=2;
+  Val(XAttr(C,'srsDimension'),Dim,Code);
+  If(Code<>0)or(Dim<2)Then Dim:=2;
+  If C^.TL>0Then XCoords(C^.TS,C^.TS+C^.TL,False,Dim,XSwap);
+  Exit;
+ End;
+ If XKid(N,'POS')=Nil Then Begin
+  C:=XFind(N,'POS');
+  If C<>Nil Then N:=C^.Par;
+ End;
+ C:=N^.First;
+ While C<>Nil do Begin
+  If(C^.Name^='POS')and(C^.TL>0)Then XCoords(C^.TS,C^.TS+C^.TL,False,2,XSwap);
+  C:=C^.Next;
+ End;
+End;
+
+Procedure GmlGeom(N:PX);
+Var
+ C:PX;
+ Nm,S:String;
+Begin
+ Nm:=N^.Name^;
+ S:=XAttr(N,'srsName');
+ If S<>''Then XSwap:=(Pos('urn:ogc:def:crs',S)>0)and(Copy(S,Length(S)-3,4)='4326');
+ If Nm='POINT'Then Begin
+  GmlRing(N);
+  If TpN>0Then GcPoint(TpP^[0].X,TpP^[0].Y);
+  TpN:=0;
+ End Else
+ If(Nm='LINESTRING')or(Nm='LINEARRING')or(Nm='CURVE')Then Begin
+  GmlRing(N);
+  GcLine;
+ End Else
+ If Nm='POLYGON'Then Begin
+  Inc(GcPoly);
+  C:=N^.First;
+  While C<>Nil do Begin
+   If(C^.Name^='OUTERBOUNDARYIS')or(C^.Name^='EXTERIOR')Then Begin GmlRing(C);GcRing;End;
+   C:=C^.Next;
+  End;
+  C:=N^.First;
+  While C<>Nil do Begin
+   If(C^.Name^='INNERBOUNDARYIS')or(C^.Name^='INTERIOR')Then Begin GmlRing(C);GcRing;End;
+   C:=C^.Next;
+  End;
+ End
+  Else
+ Begin
+  C:=N^.First;
+  While C<>Nil do Begin
+   GmlGeom(C);
+   C:=C^.Next;
+  End;
+ End;
+End;
+
+Function IsGeomName(Const Nm:String):Boolean;Begin
+ IsGeomName:=(Nm='POINT')or(Nm='LINESTRING')or(Nm='LINEARRING')or(Nm='POLYGON')or(Nm='MULTIPOINT')or
+  (Nm='MULTILINESTRING')or(Nm='MULTIPOLYGON')or(Nm='MULTICURVE')or(Nm='MULTISURFACE')or
+  (Nm='MULTIGEOMETRY')or(Nm='GEOMETRYCOLLECTION')or(Nm='CURVE');
+End;
+
+{ Valeur numerique "simple" : chiffres, signe, point, exposant, sans zero initial inutile }
+Function IsPlainNumber(S:String):Boolean;
+Var
+ I:Integer;
+ V:Real;
+ E:Integer;
+Begin
+ IsPlainNumber:=False;
+ If S=''Then Exit;
+ For I:=1 to Length(S)do If Not(S[I]in['0'..'9','+','-','.','e','E'])Then Exit;
+ If(Length(S)>1)and(S[1]='0')and(S[2]in['0'..'9'])Then Exit;
+ If(Length(S)>2)and(S[1]='-')and(S[2]='0')and(S[3]in['0'..'9'])Then Exit;
+ Val(S,V,E);
+ IsPlainNumber:=E=0;
+End;
+
+Function PropFromText(S:String):PJ;
+Var
+ V:Real;
+ E:Integer;
+Begin
+ If IsPlainNumber(S)Then Begin
+  Val(S,V,E);
+  PropFromText:=JNum(V);
+ End
+  Else
+ PropFromText:=JTextEsc(S);
+End;
+
+Function NewCollection:PJ;
+Var
+ Col:PJ;
+Begin
+ Col:=NewJ(5);
+ JAddKV(Col,'type',JText('FeatureCollection'));
+ JAddKV(Col,'features',NewJ(4));
+ NewCollection:=Col;
+End;
+
+Procedure AddFeature(Col,Props,Geom:PJ);
+Var
+ F:PJ;
+Begin
+ F:=NewJ(5);
+ JAddKV(F,'type',JText('Feature'));
+ JAddKV(F,'properties',Props);
+ If Geom=Nil Then Geom:=NewJ(0);
+ JAddKV(F,'geometry',Geom);
+ JAdd(JFind(Col,'features'),F);
+End;
+
+{ ---- GML ---- }
+
+Procedure GmlFeature(Col:PJ;F:PX);
+Var
+ Props,Geom:PJ;
+ C,G:PX;
+ V:String;
+ Have:Boolean;
+Begin
+ Props:=NewJ(5);
+ Geom:=Nil;
+ Have:=False;
+ XSwap:=False;
+ C:=F^.First;
+ While C<>Nil do Begin
+  G:=C^.First;
+  If(G<>Nil)and IsGeomName(G^.Name^)Then Begin
+   If Not Have Then Begin
+    GcInit;
+    GmlGeom(G);
+    Geom:=GcResult;
+    Have:=True;
+   End;
+  End
+   Else
+  If(G=Nil)and(C^.Name^<>'BOUNDEDBY')Then Begin
+   V:=XText(C);
+   If(C^.TL>0)Then JAddKV(Props,C^.Orig^,PropFromText(V))
+              Else JAddKV(Props,C^.Orig^,NewJ(0));
+  End;
+  C:=C^.Next;
+ End;
+ AddFeature(Col,Props,Geom);
+End;
+
+Function ReadGml(B:PBytes;N:LongInt):PJ;
+Var
+ Root,Rt,C,F:PX;
+ Col:PJ;
+Begin
+ Col:=NewCollection;
+ Root:=XParse(B,N);
+ Rt:=Root^.First;
+ If Rt=Nil Then Fail('Error: invalid GML file');
+ C:=Rt^.First;
+ While C<>Nil do Begin
+  If(C^.Name^='FEATUREMEMBER')or(C^.Name^='MEMBER')Then Begin
+   If C^.First<>Nil Then GmlFeature(Col,C^.First);
+  End Else
+  If C^.Name^='FEATUREMEMBERS'Then Begin
+   F:=C^.First;
+   While F<>Nil do Begin GmlFeature(Col,F);F:=F^.Next;End;
+  End;
+  C:=C^.Next;
+ End;
+ If Pos('3857',XAttr(XFind(Rt,'POINT'),'srsName'))>0Then SetLayerCrs(Col,3857);
+ ReadGml:=Col;
+End;
+
+{ ---- KML ---- }
+
+Procedure KmlPlacemark(Col:PJ;P:PX);
+Var
+ Props,Geom:PJ;
+ C,E,D:PX;
+ V,Nm:String;
+Begin
+ Props:=NewJ(5);
+ C:=XKid(P,'NAME');
+ If C<>Nil Then JAddKV(Props,'Name',JTextEsc(XText(C)));
+ C:=XKid(P,'DESCRIPTION');
+ If C<>Nil Then JAddKV(Props,'description',JTextEsc(XText(C)));
+ E:=XKid(P,'EXTENDEDDATA');
+ If E<>Nil Then Begin
+  D:=E^.First;
+  While D<>Nil do Begin
+   If D^.Name^='DATA'Then Begin
+    Nm:=XAttr(D,'name');
+    V:=XText(XKid(D,'VALUE'));
+    If Nm<>''Then JAddKV(Props,Nm,PropFromText(V));
+   End Else
+   If D^.Name^='SCHEMADATA'Then Begin
+    C:=D^.First;
+    While C<>Nil do Begin
+     If C^.Name^='SIMPLEDATA'Then Begin
+      Nm:=XAttr(C,'name');
+      If Nm<>''Then JAddKV(Props,Nm,PropFromText(XText(C)));
+     End;
+     C:=C^.Next;
+    End;
+   End;
+   D:=D^.Next;
+  End;
+ End;
+ GcInit;
+ XSwap:=False;
+ C:=P^.First;
+ While C<>Nil do Begin
+  If IsGeomName(C^.Name^)Then GmlGeom(C);
+  C:=C^.Next;
+ End;
+ Geom:=GcResult;
+ AddFeature(Col,Props,Geom);
+End;
+
+Procedure KmlWalk(Col:PJ;N:PX);
+Var
+ C:PX;
+Begin
+ C:=N^.First;
+ While C<>Nil do Begin
+  If C^.Name^='PLACEMARK'Then KmlPlacemark(Col,C)
+                         Else KmlWalk(Col,C);
+  C:=C^.Next;
+ End;
+End;
+
+Function ReadKml(B:PBytes;N:LongInt):PJ;
+Var
+ Col:PJ;
+ Root:PX;
+Begin
+ Col:=NewCollection;
+ Root:=XParse(B,N);
+ If Root^.First=Nil Then Fail('Error: invalid KML file');
+ KmlWalk(Col,Root);
+ ReadKml:=Col;
+End;
+
+{ ---- ZIP (KMZ, QGZ) ---- }
+
+Var
+ CrcTab:Array[0..255]of LongInt;
+ CrcReady:Boolean;
+
+Function Crc32Of(B:PBytes;N:LongInt):LongInt;
+Var
+ I,K:Integer;
+ C:LongInt;
+ J:LongInt;
+Begin
+ If Not CrcReady Then Begin
+  For I:=0 to 255do Begin
+   C:=I;
+   For K:=1 to 8do
+    If(C and 1)<>0Then C:=((C shr 1)and $7FFFFFFF)xor -306674912
+                  Else C:=(C shr 1)and $7FFFFFFF;
+   CrcTab[I]:=C;
+  End;
+  CrcReady:=True;
+ End;
+ C:=-1;
+ For J:=0 to N-1do
+  C:=CrcTab[(C xor B^[J])and 255]xor((C shr 8)and $FFFFFF);
+ Crc32Of:=C xor -1;
+End;
+
+{ Extrait la premiere entree dont le nom se termine par Ext (en majuscules) ; Nil si absente }
+Function ZipExtract(B:PBytes;N:LongInt;Ext:String;Var Size:LongInt):PBytes;
+Var
+ P,Cnt,I,Meth,CSize,USize,NLen,XLen,CLen,LOff,Data,E:LongInt;
+ Name:String;
+ K:LongInt;
+ Dst:PBytes;
+ Best:LongInt;
+Begin
+ ZipExtract:=Nil;
+ Size:=0;
+ P:=N-22;
+ While(P>=0)and Not((B^[P]=$50)and(B^[P+1]=$4B)and(B^[P+2]=5)and(B^[P+3]=6))do Dec(P);
+ If P<0Then Exit;
+ Cnt:=RdLE16(B,P+10);
+ E:=RdLE32(B,P+16);
+ Best:=-1;
+ For I:=1 to Cnt do Begin
+  If(E<0)or(E+46>N)or(RdLE32(B,E)<>$02014B50)Then Break;
+  NLen:=RdLE16(B,E+28);XLen:=RdLE16(B,E+30);CLen:=RdLE16(B,E+32);
+  Name:='';
+  For K:=0 to NLen-1do If Length(Name)<250Then Name:=Name+Chr(B^[E+46+K]);
+  Name:=StrUpper(Name);
+  If(Length(Name)>=Length(Ext))and(Copy(Name,Length(Name)-Length(Ext)+1,Length(Ext))=Ext)Then Begin
+   If Best<0Then Best:=E;
+   If(Name='DOC.KML')or(Name='DOC.QGS')Then Best:=E;
+  End;
+  E:=E+46+NLen+XLen+CLen;
+ End;
+ If Best<0Then Exit;
+ E:=Best;
+ Meth:=RdLE16(B,E+10);CSize:=RdLE32(B,E+20);USize:=RdLE32(B,E+24);LOff:=RdLE32(B,E+42);
+ If(LOff<0)or(LOff+30>N)Then Exit;
+ NLen:=RdLE16(B,LOff+26);XLen:=RdLE16(B,LOff+28);
+ Data:=LOff+30+NLen+XLen;
+ If(Data<0)or(CSize<0)or(USize<0)or(Data+CSize>N)Then Exit;
+ Dst:=AllocBlock(USize+16);
+ FillChar(Dst^,USize+16,0);
+ If Meth=0Then Move(B^[Data],Dst^,USize) Else
+ If Meth=8Then Inflate(@B^[Data],CSize,Dst,USize,False)
+          Else Fail('Error: unsupported zip compression method');
+ Size:=USize;
+ ZipExtract:=Dst;
+End;
+
+{ Archive ZIP a une seule entree (stockee) }
+Procedure ZipSingle(FileName,EntryName:String;Var Data:TBuf);
+Var
+ Z:TBuf;
+ Crc:LongInt;
+ I:Integer;
+ CdOff,CdLen:LongInt;
+Begin
+ BufInit(Z);
+ Crc:=Crc32Of(Data.P,Data.N);
+ BufLE32(Z,$04034B50);BufLE16(Z,20);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,$21);
+ BufLE32(Z,Crc);BufLE32(Z,Data.N);BufLE32(Z,Data.N);
+ BufLE16(Z,Length(EntryName));BufLE16(Z,0);
+ BufText(Z,EntryName);
+ BufGrow(Z,Data.N);
+ Move(Data.P^,Z.P^[Z.N],Data.N);
+ Inc(Z.N,Data.N);
+ CdOff:=Z.N;
+ BufLE32(Z,$02014B50);BufLE16(Z,20);BufLE16(Z,20);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,$21);
+ BufLE32(Z,Crc);BufLE32(Z,Data.N);BufLE32(Z,Data.N);
+ BufLE16(Z,Length(EntryName));BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,0);
+ BufLE32(Z,0);BufLE32(Z,0);
+ BufText(Z,EntryName);
+ CdLen:=Z.N-CdOff;
+ BufLE32(Z,$06054B50);BufLE16(Z,0);BufLE16(Z,0);BufLE16(Z,1);BufLE16(Z,1);
+ BufLE32(Z,CdLen);BufLE32(Z,CdOff);BufLE16(Z,0);
+ BufSave(FileName,Z);
+End;
+
+{ ---- CSV ---- }
+
+Var
+ CsvDelim:Integer;
+ CsvXName,CsvYName,CsvWName:String;
+ CsvCrs:Integer;
+
+Function CsvField(B:PBytes;N:LongInt;Var P:LongInt;Var S,E:LongInt;Var Quoted,EndRec:Boolean;D:Integer):Boolean;Begin
+ CsvField:=False;
+ If P>=N Then Exit;
+ CsvField:=True;
+ Quoted:=False;
+ If B^[P]=34Then Begin
+  Quoted:=True;
+  Inc(P);S:=P;
+  Repeat
+   While(P<N)and(B^[P]<>34)do Inc(P);
+   If(P+1<N)and(B^[P+1]=34)Then Inc(P,2)
+                           Else Break;
+  Until False;
+  E:=P;
+  If P<N Then Inc(P);
+  While(P<N)and(B^[P]<>D)and(B^[P]<>10)and(B^[P]<>13)do Inc(P);
+ End
+  Else
+ Begin
+  S:=P;
+  While(P<N)and(B^[P]<>D)and(B^[P]<>10)and(B^[P]<>13)do Inc(P);
+  E:=P;
+ End;
+ EndRec:=True;
+ If P>=N Then Exit;
+ If B^[P]=D Then Begin
+  Inc(P);
+  EndRec:=False;
+ End
+  Else
+ If B^[P]=13Then Begin
+  Inc(P);
+  If(P<N)and(B^[P]=10)Then Inc(P);
+ End
+  Else
+ Inc(P);
+End;
+
+Function CsvStr(B:PBytes;S,E:LongInt;Quoted:Boolean):String;
+Var
+ R:String;
+ I:LongInt;
+Begin
+ R:='';
+ I:=S;
+ While(I<E)and(Length(R)<255)do Begin
+  If Quoted and(B^[I]=34)and(I+1<E)and(B^[I+1]=34)Then Inc(I);
+  R:=R+Chr(B^[I]);
+  Inc(I);
+ End;
+ If Not Quoted Then Begin
+  While(R<>'')and(R[Length(R)]in[' ',#9])do Delete(R,Length(R),1);
+  While(R<>'')and(R[1]in[' ',#9])do Delete(R,1,1);
+ End;
+ CsvStr:=R;
+End;
+
+Function CsvInList(Const S:String;Const L:String):Boolean;Begin
+ CsvInList:=Pos(','+LowerStr(S)+',',','+L+',')>0;
+End;
+
+Function ReadCsv(B:PBytes;N:LongInt):PJ;
+Const
+ MaxCol=512;
+Var
+ Col,Props,Geom:PJ;
+ Start,P,I,Ncol,Pass,Rec:LongInt;
+ S,E:LongInt;
+ Q,EndRec,InQ:Boolean;
+ Names:Array[1..MaxCol]of String[60];
+ RS,RE:Array[1..MaxCol]of LongInt;
+ RQ:Array[1..MaxCol]of Boolean;
+ IsNum,AnyVal:Array[1..MaxCol]of Boolean;
+ Xc,Yc,Wc,K,Cnt,Delim,C0,C1,C2,C3:LongInt;
+ Best:LongInt;
+ Txt:String;
+ X,Y:Real;
+ EX,EY:Integer;
+Begin
+ Start:=0;
+ If(N>=3)and(B^[0]=$EF)and(B^[1]=$BB)and(B^[2]=$BF)Then Start:=3;
+ { separateur : celui qui apparait le plus dans la premiere ligne }
+ Delim:=CsvDelim;
+ If Delim=0Then Begin
+  C0:=0;C1:=0;C2:=0;C3:=0;InQ:=False;
+  I:=Start;
+  While(I<N)and Not((B^[I]=10)and Not InQ)do Begin
+   If B^[I]=34Then InQ:=Not InQ Else
+   If Not InQ Then Begin
+    If B^[I]=44Then Inc(C0) Else
+    If B^[I]=59Then Inc(C1) Else
+    If B^[I]=9Then Inc(C2) Else
+    If B^[I]=124Then Inc(C3);
+   End;
+   Inc(I);
+  End;
+  Delim:=44;Best:=C0;
+  If C1>Best Then Begin Delim:=59;Best:=C1;End;
+  If C2>Best Then Begin Delim:=9;Best:=C2;End;
+  If C3>Best Then Begin Delim:=124;Best:=C3;End;
+ End;
+ { en-tete }
+ P:=Start;
+ Ncol:=0;
+ Repeat
+  If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Fail('Error: empty CSV file');
+  If Ncol>=MaxCol Then Fail('Error: too many columns in CSV file');
+  Inc(Ncol);
+  Names[Ncol]:=CsvStr(B,S,E,Q);
+  If Names[Ncol]=''Then Names[Ncol]:='field_'+IntToStr(Ncol);
+ Until EndRec;
+ Xc:=0;Yc:=0;Wc:=0;
+ For K:=1 to Ncol do Begin
+  If CsvWName<>''Then Begin
+   If LowerStr(Names[K])=LowerStr(CsvWName)Then Wc:=K;
+  End
+   Else
+  If(Wc=0)and CsvInList(Names[K],'wkt,geom,geometry,the_geom,wkt_geometry,shape,wkb_geometry')Then Wc:=K;
+  If CsvXName<>''Then Begin
+   If LowerStr(Names[K])=LowerStr(CsvXName)Then Xc:=K;
+  End
+   Else
+  If(Xc=0)and CsvInList(Names[K],'x,lon,lng,long,longitude,xcoord,x_coord,easting,point_x,xcoordinate')Then Xc:=K;
+  If CsvYName<>''Then Begin
+   If LowerStr(Names[K])=LowerStr(CsvYName)Then Yc:=K;
+  End
+   Else
+  If(Yc=0)and CsvInList(Names[K],'y,lat,latitude,ycoord,y_coord,northing,point_y,ycoordinate')Then Yc:=K;
+ End;
+ If(Wc=0)and((Xc=0)or(Yc=0))Then Begin Xc:=0;Yc:=0;End;
+ If Wc>0Then Begin Xc:=0;Yc:=0;End;
+ For K:=1 to Ncol do Begin IsNum[K]:=True;AnyVal[K]:=False;End;
+ { passe 1 : types }
+ P:=Start;
+ Repeat
+  Rec:=P;
+  If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Break;
+ Until EndRec;
+ While P<N do Begin
+  K:=0;
+  Repeat
+   If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Break;
+   Inc(K);
+   If K<=Ncol Then Begin
+    Txt:=CsvStr(B,S,E,Q);
+    If Txt<>''Then Begin
+     AnyVal[K]:=True;
+     If Not IsPlainNumber(Txt)Then IsNum[K]:=False;
+    End;
+   End;
+  Until EndRec;
+ End;
+ { passe 2 : entites }
+ Col:=NewCollection;
+ If CsvCrs=3857Then SetLayerCrs(Col,3857);
+ P:=Start;
+ Repeat
+  If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Break;
+ Until EndRec;
+ While P<N do Begin
+  For K:=1 to Ncol do Begin RS[K]:=0;RE[K]:=0;RQ[K]:=False;End;
+  K:=0;
+  Repeat
+   If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Break;
+   Inc(K);
+   If K<=Ncol Then Begin RS[K]:=S;RE[K]:=E;RQ[K]:=Q;End;
+  Until EndRec;
+  If(K=1)and(RE[1]=RS[1])Then Continue;
+  Props:=NewJ(5);
+  Geom:=Nil;
+  For K:=1 to Ncol do Begin
+   If K=Wc Then Begin
+    If RE[K]>RS[K]Then Geom:=WktToGeom(B,RS[K],RE[K]);
+   End
+    Else
+   Begin
+    Txt:=CsvStr(B,RS[K],RE[K],RQ[K]);
+    If Txt=''Then JAddKV(Props,Names[K],NewJ(0)) Else
+    If IsNum[K]and AnyVal[K]Then JAddKV(Props,Names[K],PropFromText(Txt))
+                            Else JAddKV(Props,Names[K],JTextEsc(Txt));
+   End;
+  End;
+  If(Xc>0)and(Yc>0)Then Begin
+   Val(CsvStr(B,RS[Xc],RE[Xc],RQ[Xc]),X,EX);
+   Val(CsvStr(B,RS[Yc],RE[Yc],RQ[Yc]),Y,EY);
+   If(EX=0)and(EY=0)Then Begin
+    GcInit;
+    GcPoint(X,Y);
+    Geom:=GcResult;
+   End;
+  End;
+  AddFeature(Col,Props,Geom);
+ End;
+ ReadCsv:=Col;
+End;
+
+{ ---- ecriture CSV / GML / KML ---- }
+
+Procedure BufLn(Var B:TBuf;S:String);Begin
+ BufText(B,S);
+ BufByte(B,10);
+End;
+
+Function XmlEsc(S:String):String;
+Var
+ I:Integer;
+ R:String;
+Begin
+ R:='';
+ For I:=1 to Length(S)do Begin
+  If Length(R)>=240Then Break;
+  Case S[I]of
+   '&':R:=R+'&amp;';
+   '<':R:=R+'&lt;';
+   '>':R:=R+'&gt;';
+   '"':R:=R+'&quot;';
+   #0..#8,#11,#12,#14..#31:;
+   Else R:=R+S[I];
+  End;
+ End;
+ XmlEsc:=R;
+End;
+
+Function XmlName(S:String):String;
+Var
+ I:Integer;
+Begin
+ For I:=1 to Length(S)do
+  If Not(S[I]in['A'..'Z','a'..'z','0'..'9','_','-','.'])Then S[I]:='_';
+ If(S='')or Not(S[1]in['A'..'Z','a'..'z','_'])Then S:='_'+S;
+ XmlName:=S;
+End;
+
+Function PropValText(P:PJ):String;Begin
+ PropValText:='';
+ If P=Nil Then Exit;
+ Case P^.Kind of
+  1,2:PropValText:=JVal(P);
+  3:PropValText:=Unesc(JVal(P));
+ End;
+End;
+
+Function BaseNoExt(S:String):String;
+Var
+ I,E:Integer;
+Begin
+ E:=Length(S);
+ For I:=Length(S)downto 1do Begin
+  If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+ End;
+ For I:=Length(S)downto 1do If S[I]='.'Then Begin S:=Copy(S,1,I-1);Break;End;
+ BaseNoExt:=S;
+End;
+
+{ CRS declare par la couche : 4326 ou 3857 (0 = autre) }
+Function SoftCrs(Root:PJ):Integer;
+Var
+ S:String;
+Begin
+ SoftCrs:=4326;
+ If JFind(Root,'crs')=Nil Then Exit;
+ S:=JVal(JFind(JFind(JFind(Root,'crs'),'properties'),'name'));
+ If Pos('3857',S)>0Then SoftCrs:=3857 Else
+ If(Pos('4326',S)>0)or(Pos('CRS84',S)>0)Then SoftCrs:=4326
+                                       Else SoftCrs:=0;
+End;
+
+Procedure BufWkt(Var B:TBuf;Var G:TGeom);
+Var
+ P:PPath;
+ I:LongInt;
+ First:Boolean;
+ Prev:Integer;
+Begin
+ If G.First=Nil Then Exit;
+ Case G.Cls of
+  1:Begin
+   If G.Count=1Then BufText(B,'POINT (')Else BufText(B,'MULTIPOINT (');
+   P:=G.First;First:=True;
+   While P<>Nil do Begin
+    If Not First Then BufText(B,', ');
+    First:=False;
+    BufText(B,NumStr(P^.Pts^[0].X)+' '+NumStr(P^.Pts^[0].Y));
+    P:=P^.Next;
+   End;
+   BufText(B,')');
+  End;
+  2:Begin
+   If G.Count=1Then BufText(B,'LINESTRING ')Else BufText(B,'MULTILINESTRING (');
+   P:=G.First;First:=True;
+   While P<>Nil do Begin
+    If Not First Then BufText(B,', ');
+    First:=False;
+    BufText(B,'(');
+    For I:=0 to P^.N-1do Begin
+     If I>0Then BufText(B,', ');
+     BufText(B,NumStr(P^.Pts^[I].X)+' '+NumStr(P^.Pts^[I].Y));
+    End;
+    BufText(B,')');
+    P:=P^.Next;
+   End;
+   If G.Count>1Then BufText(B,')');
+  End;
+  3:Begin
+   If G.NPoly=1Then BufText(B,'POLYGON (')Else BufText(B,'MULTIPOLYGON ((');
+   Prev:=-1;
+   P:=G.First;
+   While P<>Nil do Begin
+    If P^.Poly<>Prev Then Begin
+     If Prev>=0Then BufText(B,'), (');
+     BufText(B,'(');
+    End
+     Else
+    BufText(B,', (');
+    For I:=0 to P^.N-1do Begin
+     If I>0Then BufText(B,', ');
+     BufText(B,NumStr(P^.Pts^[I].X)+' '+NumStr(P^.Pts^[I].Y));
+    End;
+    BufText(B,')');
+    Prev:=P^.Poly;
+    P:=P^.Next;
+   End;
+   If G.NPoly=1Then BufText(B,')')Else BufText(B,'))');
+  End;
+ End;
+End;
+
+Function CsvQuote(S:String):String;
+Var
+ I:Integer;
+ R:String;
+ Need:Boolean;
+Begin
+ Need:=(S<>'')and((S[1]=' ')or(S[Length(S)]=' '));
+ For I:=1 to Length(S)do If S[I]in[',',';','"',#10,#13,#9]Then Need:=True;
+ If Not Need Then Begin CsvQuote:=S;Exit;End;
+ R:='"';
+ For I:=1 to Length(S)do Begin
+  If S[I]='"'Then R:=R+'""' Else R:=R+S[I];
+ End;
+ CsvQuote:=R+'"';
+End;
+
+Procedure SaveCsv(FileName:String;Root:PJ);
+Const
+ MaxKeys=512;
+Var
+ B:TBuf;
+ Keys:Array[1..MaxKeys]of String[60];
+ NK,I,J:Integer;
+ Feats,F,Pr,C,V:PJ;
+ G:TGeom;
+ Found:Boolean;
+Begin
+ Feats:=JFind(Root,'features');
+ NK:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    Found:=False;
+    For I:=1 to NK do If Keys[I]=JKey(C)Then Found:=True;
+    If Not Found Then Begin
+     If NK>=MaxKeys Then Fail('Error: too many fields for CSV output');
+     Inc(NK);Keys[NK]:=JKey(C);
+    End;
+    C:=C^.Next;
+   End;
+  End;
+  F:=F^.Next;
+ End;
+ BufInit(B);
+ BufText(B,'WKT');
+ For I:=1 to NK do BufText(B,','+CsvQuote(Keys[I]));
+ BufByte(B,10);
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  InitGeom(G);
+  Flatten(JFind(F,'geometry'),G);
+  If G.First<>Nil Then Begin
+   BufText(B,'"');
+   BufWkt(B,G);
+   BufText(B,'"');
+  End;
+  FreeGeom(G);
+  Pr:=JFind(F,'properties');
+  For I:=1 to NK do Begin
+   BufText(B,',');
+   V:=Nil;
+   If Pr<>Nil Then V:=JFind(Pr,Keys[I]);
+   If V<>Nil Then Begin
+    If V^.Kind=3Then BufText(B,CsvQuote(PropValText(V))) Else
+    If(V^.Kind=1)or(V^.Kind=2)Then BufText(B,JVal(V));
+   End;
+  End;
+  BufByte(B,10);
+  F:=F^.Next;
+ End;
+ BufSave(FileName,B);
+End;
+
+Procedure GmlPath(Var B:TBuf;P:PPath);
+Var
+ I:LongInt;
+Begin
+ BufText(B,'<gml:coordinates>');
+ For I:=0 to P^.N-1do Begin
+  If I>0Then BufText(B,' ');
+  BufText(B,NumStr(P^.Pts^[I].X)+','+NumStr(P^.Pts^[I].Y));
+ End;
+ BufText(B,'</gml:coordinates>');
+End;
+
+Procedure GmlPolygon(Var B:TBuf;Var P:PPath;Srs:String);
+Var
+ Poly:Integer;
+ First:Boolean;
+Begin
+ Poly:=P^.Poly;
+ BufText(B,'<gml:Polygon'+Srs+'>');
+ First:=True;
+ While(P<>Nil)and(P^.Poly=Poly)do Begin
+  If First Then BufText(B,'<gml:outerBoundaryIs><gml:LinearRing>')
+           Else BufText(B,'<gml:innerBoundaryIs><gml:LinearRing>');
+  GmlPath(B,P);
+  If First Then BufText(B,'</gml:LinearRing></gml:outerBoundaryIs>')
+           Else BufText(B,'</gml:LinearRing></gml:innerBoundaryIs>');
+  First:=False;
+  P:=P^.Next;
+ End;
+ BufText(B,'</gml:Polygon>');
+End;
+
+Procedure GmlGeometry(Var B:TBuf;Var G:TGeom;Srs:String);
+Var
+ P:PPath;
+Begin
+ If G.First=Nil Then Exit;
+ P:=G.First;
+ Case G.Cls of
+  1:Begin
+   If G.Count=1Then Begin
+    BufText(B,'<gml:Point'+Srs+'>');GmlPath(B,P);BufText(B,'</gml:Point>');
+   End
+    Else
+   Begin
+    BufText(B,'<gml:MultiPoint'+Srs+'>');
+    While P<>Nil do Begin
+     BufText(B,'<gml:pointMember><gml:Point>');GmlPath(B,P);BufText(B,'</gml:Point></gml:pointMember>');
+     P:=P^.Next;
+    End;
+    BufText(B,'</gml:MultiPoint>');
+   End;
+  End;
+  2:Begin
+   If G.Count=1Then Begin
+    BufText(B,'<gml:LineString'+Srs+'>');GmlPath(B,P);BufText(B,'</gml:LineString>');
+   End
+    Else
+   Begin
+    BufText(B,'<gml:MultiLineString'+Srs+'>');
+    While P<>Nil do Begin
+     BufText(B,'<gml:lineStringMember><gml:LineString>');GmlPath(B,P);BufText(B,'</gml:LineString></gml:lineStringMember>');
+     P:=P^.Next;
+    End;
+    BufText(B,'</gml:MultiLineString>');
+   End;
+  End;
+  3:Begin
+   If G.NPoly=1Then GmlPolygon(B,P,Srs)
+    Else
+   Begin
+    BufText(B,'<gml:MultiPolygon'+Srs+'>');
+    While P<>Nil do Begin
+     BufText(B,'<gml:polygonMember>');
+     GmlPolygon(B,P,'');
+     BufText(B,'</gml:polygonMember>');
+    End;
+    BufText(B,'</gml:MultiPolygon>');
+   End;
+  End;
+ End;
+End;
+
+Procedure SaveGml(FileName:String;Root:PJ);
+Var
+ B:TBuf;
+ Feats,F,Pr,C:PJ;
+ G:TGeom;
+ Layer,Srs,V:String;
+ Crs,N:Integer;
+ P:PPath;
+ I:LongInt;
+ X1,Y1,X2,Y2:Real;
+ Have:Boolean;
+Begin
+ Feats:=JFind(Root,'features');
+ Layer:=XmlName(BaseNoExt(FileName));
+ Crs:=SoftCrs(Root);
+ If Crs=0Then Srs:='' Else Srs:=' srsName="EPSG:'+IntToStr(Crs)+'"';
+ Have:=False;X1:=0;Y1:=0;X2:=0;Y2:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  InitGeom(G);
+  Flatten(JFind(F,'geometry'),G);
+  P:=G.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    If Not Have Then Begin
+     X1:=P^.Pts^[I].X;X2:=X1;Y1:=P^.Pts^[I].Y;Y2:=Y1;Have:=True;
+    End
+     Else
+    Begin
+     If P^.Pts^[I].X<X1 Then X1:=P^.Pts^[I].X;
+     If P^.Pts^[I].X>X2 Then X2:=P^.Pts^[I].X;
+     If P^.Pts^[I].Y<Y1 Then Y1:=P^.Pts^[I].Y;
+     If P^.Pts^[I].Y>Y2 Then Y2:=P^.Pts^[I].Y;
+    End;
+   End;
+   P:=P^.Next;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ BufInit(B);
+ BufLn(B,'<?xml version="1.0" encoding="utf-8" ?>');
+ BufLn(B,'<ogr:FeatureCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ogr="http://ogr.maptools.org/" xmlns:gml="http://www.opengis.net/gml">');
+ If Have Then Begin
+  BufLn(B,'  <gml:boundedBy><gml:Box'+Srs+'><gml:coord><gml:X>'+NumStr(X1)+'</gml:X><gml:Y>'+NumStr(Y1)+
+   '</gml:Y></gml:coord><gml:coord><gml:X>'+NumStr(X2)+'</gml:X><gml:Y>'+NumStr(Y2)+'</gml:Y></gml:coord></gml:Box></gml:boundedBy>');
+ End;
+ N:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  BufText(B,'  <gml:featureMember><ogr:'+Layer+' fid="'+Layer+'.'+IntToStr(N)+'">');
+  Inc(N);
+  InitGeom(G);
+  Flatten(JFind(F,'geometry'),G);
+  If G.First<>Nil Then Begin
+   BufText(B,'<ogr:geometryProperty>');
+   GmlGeometry(B,G,Srs);
+   BufText(B,'</ogr:geometryProperty>');
+  End;
+  FreeGeom(G);
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    If(C^.Kind=1)or(C^.Kind=2)or(C^.Kind=3)Then Begin
+     V:=XmlName(JKey(C));
+     BufText(B,'<ogr:'+V+'>'+XmlEsc(PropValText(C))+'</ogr:'+V+'>');
+    End;
+    C:=C^.Next;
+   End;
+  End;
+  BufLn(B,'</ogr:'+Layer+'></gml:featureMember>');
+  F:=F^.Next;
+ End;
+ BufLn(B,'</ogr:FeatureCollection>');
+ BufSave(FileName,B);
+End;
+
+Procedure KmlPath(Var B:TBuf;P:PPath);
+Var
+ I:LongInt;
+Begin
+ BufText(B,'<coordinates>');
+ For I:=0 to P^.N-1do Begin
+  If I>0Then BufText(B,' ');
+  BufText(B,NumStr(P^.Pts^[I].X)+','+NumStr(P^.Pts^[I].Y));
+ End;
+ BufText(B,'</coordinates>');
+End;
+
+Procedure KmlPolygon(Var B:TBuf;Var P:PPath);
+Var
+ Poly:Integer;
+ First:Boolean;
+Begin
+ Poly:=P^.Poly;
+ BufText(B,'<Polygon>');
+ First:=True;
+ While(P<>Nil)and(P^.Poly=Poly)do Begin
+  If First Then BufText(B,'<outerBoundaryIs><LinearRing>')
+           Else BufText(B,'<innerBoundaryIs><LinearRing>');
+  KmlPath(B,P);
+  If First Then BufText(B,'</LinearRing></outerBoundaryIs>')
+           Else BufText(B,'</LinearRing></innerBoundaryIs>');
+  First:=False;
+  P:=P^.Next;
+ End;
+ BufText(B,'</Polygon>');
+End;
+
+Procedure KmlGeometry(Var B:TBuf;Var G:TGeom);
+Var
+ P:PPath;
+Begin
+ If G.First=Nil Then Exit;
+ P:=G.First;
+ If((G.Cls=1)or(G.Cls=2))and(G.Count=1)Then Begin
+  If G.Cls=1Then Begin BufText(B,'<Point>');KmlPath(B,P);BufText(B,'</Point>');End
+            Else Begin BufText(B,'<LineString>');KmlPath(B,P);BufText(B,'</LineString>');End;
+  Exit;
+ End;
+ If(G.Cls=3)and(G.NPoly=1)Then Begin KmlPolygon(B,P);Exit;End;
+ BufText(B,'<MultiGeometry>');
+ While P<>Nil do Begin
+  Case G.Cls of
+   1:Begin BufText(B,'<Point>');KmlPath(B,P);BufText(B,'</Point>');P:=P^.Next;End;
+   2:Begin BufText(B,'<LineString>');KmlPath(B,P);BufText(B,'</LineString>');P:=P^.Next;End;
+   3:KmlPolygon(B,P);
+   Else P:=P^.Next;
+  End;
+ End;
+ BufText(B,'</MultiGeometry>');
+End;
+
+{ Ecrit le KML dans un tampon }
+Procedure KmlBuild(FileName:String;Root:PJ;Var B:TBuf);
+Var
+ Feats,F,Pr,C,Gj:PJ;
+ G:TGeom;
+ Layer,K:String;
+ Crs:Integer;
+ HasExt:Boolean;
+Begin
+ Feats:=JFind(Root,'features');
+ Layer:=BaseNoExt(FileName);
+ Crs:=SoftCrs(Root);
+ If Crs=0Then Fail('Error: KML output needs a layer in EPSG:4326 or EPSG:3857');
+ BufInit(B);
+ BufLn(B,'<?xml version="1.0" encoding="utf-8" ?>');
+ BufLn(B,'<kml xmlns="http://www.opengis.net/kml/2.2">');
+ BufLn(B,'<Document id="root_doc">');
+ BufLn(B,'<Folder><name>'+XmlEsc(Layer)+'</name>');
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  BufText(B,'  <Placemark>');
+  Pr:=JFind(F,'properties');
+  HasExt:=False;
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    K:=LowerStr(JKey(C));
+    If(K='name')and(C^.Kind in[1,2,3])Then BufText(B,'<name>'+XmlEsc(PropValText(C))+'</name>') Else
+    If(K='description')and(C^.Kind in[1,2,3])Then BufText(B,'<description>'+XmlEsc(PropValText(C))+'</description>');
+    C:=C^.Next;
+   End;
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    K:=LowerStr(JKey(C));
+    If(K<>'name')and(K<>'description')and(C^.Kind in[1,2,3])Then Begin
+     If Not HasExt Then Begin BufText(B,'<ExtendedData>');HasExt:=True;End;
+     BufText(B,'<Data name="'+XmlEsc(JKey(C))+'"><value>'+XmlEsc(PropValText(C))+'</value></Data>');
+    End;
+    C:=C^.Next;
+   End;
+   If HasExt Then BufText(B,'</ExtendedData>');
+  End;
+  Gj:=JFind(F,'geometry');
+  If(Gj<>Nil)and(Gj^.Kind=5)Then Begin
+   If Crs=3857Then Begin
+    Gj:=JClone(Gj);
+    If JFind(Gj,'coordinates')<>Nil Then TransformCoords(JFind(Gj,'coordinates'),3857,4326);
+   End;
+   InitGeom(G);
+   Flatten(Gj,G);
+   KmlGeometry(B,G);
+   FreeGeom(G);
+  End;
+  BufLn(B,'</Placemark>');
+  F:=F^.Next;
+ End;
+ BufLn(B,'</Folder>');
+ BufLn(B,'</Document></kml>');
+End;
+
+Procedure SaveKml(FileName:String;Root:PJ;Zipped:Boolean);
+Var
+ B:TBuf;
+Begin
+ KmlBuild(FileName,Root,B);
+ If Zipped Then ZipSingle(FileName,'doc.kml',B)
+           Else BufSave(FileName,B);
+End;
+
+{ ------------------------------------------------------------------ }
+{ GeoPackage (SQLite) : lecture et ecriture                            }
+{ ------------------------------------------------------------------ }
+
+Var
+ DB:PBytes;
+ DBN,SqPS,SqUS:LongInt;
+ PayBuf:PBytes;
+ PayCap:LongInt;
+
+Function SqBE16(P:LongInt):LongInt;Begin
+ If(P<0)or(P+2>DBN)Then Fail('Error: corrupt GeoPackage file');
+ SqBE16:=(LongInt(DB^[P])shl 8)or DB^[P+1];
+End;
+
+Function SqBE32(P:LongInt):LongInt;Begin
+ If(P<0)or(P+4>DBN)Then Fail('Error: corrupt GeoPackage file');
+ SqBE32:=RdBE32(DB,P);
+End;
+
+Function SqVarint(B:PBytes;Var P:LongInt):Int64;
+Var
+ I:Integer;
+ V:Int64;
+ C:Byte;
+Begin
+ V:=0;
+ For I:=0 to 7do Begin
+  C:=B^[P];Inc(P);
+  V:=(V shl 7)or(C and $7F);
+  If C<128Then Begin SqVarint:=V;Exit;End;
+ End;
+ C:=B^[P];Inc(P);
+ V:=(V shl 8)or C;
+ SqVarint:=V;
+End;
+
+{ Enregistrement courant decode }
+Const
+ MaxRc=1024;
+Var
+ RcN:Integer;
+ RcTyp:Array[0..MaxRc-1]of LongInt;
+ RcPos:Array[0..MaxRc-1]of LongInt;
+ RcB:PBytes;
+ SqRow:Int64;
+ SqMode:Integer;
+
+Procedure RcDecode(B:PBytes;Len:LongInt);
+Var
+ P,HS,E,T:LongInt;
+ H:Int64;
+Begin
+ RcB:=B;
+ RcN:=0;
+ P:=0;
+ HS:=SqVarint(B,P);
+ If(HS<1)or(HS>Len)Then Fail('Error: corrupt GeoPackage record');
+ E:=HS;
+ While(P<HS)and(RcN<MaxRc)do Begin
+  T:=SqVarint(B,P);
+  RcTyp[RcN]:=T;
+  Inc(RcN);
+ End;
+ P:=E;
+ { positions des valeurs }
+ For T:=0 to RcN-1do Begin
+  RcPos[T]:=P;
+  Case RcTyp[T]of
+   1:Inc(P);
+   2:Inc(P,2);
+   3:Inc(P,3);
+   4:Inc(P,4);
+   5:Inc(P,6);
+   6,7:Inc(P,8);
+   Else If RcTyp[T]>=12Then Inc(P,(RcTyp[T]-12)div 2);
+  End;
+ End;
+ If P>Len Then Fail('Error: corrupt GeoPackage record');
+End;
+
+Function RcIsNull(I:Integer):Boolean;Begin
+ RcIsNull:=(I>=RcN)or(RcTyp[I]=0);
+End;
+
+Function RcGetReal(I:Integer):Real;
+Var
+ P:LongInt;
+ V:Int64;
+ K:Integer;
+ D:Double;
+ Bt:Array[0..7]of Byte absolute D;
+Begin
+ RcGetReal:=0;
+ If I>=RcN Then Exit;
+ P:=RcPos[I];
+ Case RcTyp[I]of
+  1:Begin If RcB^[P]>127Then RcGetReal:=RcB^[P]-256 Else RcGetReal:=RcB^[P];End;
+  2:Begin
+     V:=(LongInt(RcB^[P])shl 8)or RcB^[P+1];
+     If V>=32768Then V:=V-65536;
+     RcGetReal:=V;
+    End;
+  3:Begin
+     V:=(LongInt(RcB^[P])shl 16)or(LongInt(RcB^[P+1])shl 8)or RcB^[P+2];
+     If V>=8388608Then V:=V-16777216;
+     RcGetReal:=V;
+    End;
+  4:RcGetReal:=RdBE32(RcB,P);
+  5,6:Begin
+     V:=0;
+     If RcTyp[I]=5Then Begin
+      For K:=0 to 5do V:=(V shl 8)or RcB^[P+K];
+      If V>=140737488355328Then V:=V-281474976710656;
+     End
+      Else
+     Begin
+      For K:=0 to 7do V:=(V shl 8)or RcB^[P+K];
+     End;
+     RcGetReal:=V;
+    End;
+  7:Begin
+     For K:=0 to 7do Bt[7-K]:=RcB^[P+K];
+     RcGetReal:=D;
+    End;
+  8:RcGetReal:=0;
+  9:RcGetReal:=1;
+ End;
+End;
+
+Function RcIsNumber(I:Integer):Boolean;Begin
+ RcIsNumber:=(I<RcN)and((RcTyp[I]in[1..9]));
+End;
+
+Function RcIsText(I:Integer):Boolean;Begin
+ RcIsText:=(I<RcN)and(RcTyp[I]>=13)and(Odd(RcTyp[I]));
+End;
+
+Function RcIsBlob(I:Integer):Boolean;Begin
+ RcIsBlob:=(I<RcN)and(RcTyp[I]>=12)and Not Odd(RcTyp[I]);
+End;
+
+Function RcGetStr(I:Integer):String;
+Var
+ L,K:LongInt;
+ S:String;
+Begin
+ RcGetStr:='';
+ If Not RcIsText(I)Then Exit;
+ L:=(RcTyp[I]-13)div 2;
+ If L>255Then L:=255;
+ S:='';
+ For K:=0 to L-1do S:=S+Chr(RcB^[RcPos[I]+K]);
+ RcGetStr:=S;
+End;
+
+Function RcLen(I:Integer):LongInt;Begin
+ RcLen:=(RcTyp[I]-12)div 2;
+End;
+
+Function RcLenText(I:Integer):LongInt;Begin
+ RcLenText:=(RcTyp[I]-13)div 2;
+End;
+
+{ ---- parcours des b-arbres de tables ---- }
+
+Type
+ SchemaRec=Record
+  Kind,Name,Tbl:String[80];
+  Root:LongInt;
+  Sql:PBytes;
+  SqlLen:LongInt;
+ End;
+ ContRec=Record
+  Tbl,Typ,Ident:String[80];
+  Srs:LongInt;
+ End;
+
+Var
+ Sch:Array[1..200]of SchemaRec;
+ SchN:Integer;
+ Cont:Array[1..200]of ContRec;
+ ContN:Integer;
+ GcTbl,GcCol,GcType:Array[1..200]of String[80];
+ GcSrs:Array[1..200]of LongInt;
+ GcN:Integer;
+ FeatCol:PJ;
+ FeatNames:Array[0..MaxRc-1]of String[60];
+ FeatPk:Array[0..MaxRc-1]of Boolean;
+ FeatNCols,FeatGeomCol:Integer;
+
+Procedure SqRowFeature;
+Var
+ I:Integer;
+ Props,Geom:PJ;
+ P,Fl,Env,L:LongInt;
+ Blob:PBytes;
+Begin
+ Props:=NewJ(5);
+ Geom:=Nil;
+ For I:=0 to FeatNCols-1do Begin
+  If FeatPk[I]Then Continue;
+  If I=FeatGeomCol Then Begin
+   If RcIsBlob(I)Then Begin
+    L:=RcLen(I);
+    P:=RcPos[I];
+    If(L>=8)and(RcB^[P]=Ord('G'))and(RcB^[P+1]=Ord('P'))Then Begin
+     Fl:=RcB^[P+3];
+     Case(Fl shr 1)and 7of
+      1:Env:=32;
+      2,3:Env:=48;
+      4:Env:=64;
+      Else Env:=0;
+     End;
+     If(Fl and $10)=0Then Begin
+      If 8+Env<L Then Geom:=WkbToGeom(RcB,P+8+Env,P+L);
+     End;
+    End;
+   End;
+   Continue;
+  End;
+  If RcIsNull(I)Then JAddKV(Props,FeatNames[I],NewJ(0)) Else
+  If RcIsNumber(I)Then JAddKV(Props,FeatNames[I],JNum(RcGetReal(I))) Else
+  If RcIsText(I)Then JAddKV(Props,FeatNames[I],JTextEsc(RcGetStr(I)))
+                Else JAddKV(Props,FeatNames[I],NewJ(0));
+ End;
+ AddFeature(FeatCol,Props,Geom);
+End;
+
+Procedure SqCell(CellOff:LongInt);
+Var
+ P,Local,X,M,K,Rem,Ptr,Take,Pg,L2:LongInt;
+ Pay:Int64;
+ Rec:PBytes;
+ Q:PBytes;
+ I:Integer;
+ S:String;
+Begin
+ P:=CellOff;
+ Pay:=SqVarint(DB,P);
+ SqRow:=SqVarint(DB,P);
+ If(Pay<0)or(Pay>DBN)Then Fail('Error: corrupt GeoPackage file');
+ X:=SqUS-35;
+ If Pay<=X Then Begin
+  If P+Pay>DBN Then Fail('Error: corrupt GeoPackage file');
+  Rec:=@DB^[P];
+ End
+  Else
+ Begin
+  M:=((SqUS-12)*32 div 255)-23;
+  K:=M+((Pay-M)mod(SqUS-4));
+  If K<=X Then Local:=K Else Local:=M;
+  If PayCap<Pay+8Then Begin
+   If PayBuf<>Nil Then FreeMem(PayBuf,PayCap);
+   PayCap:=Pay+4096;
+   PayBuf:=AllocBlock(PayCap);
+  End;
+  If P+Local+4>DBN Then Fail('Error: corrupt GeoPackage file');
+  Move(DB^[P],PayBuf^,Local);
+  Ptr:=SqBE32(P+Local);
+  Rem:=Pay-Local;
+  K:=Local;
+  While(Rem>0)and(Ptr>0)do Begin
+   Pg:=(Ptr-1)*SqPS;
+   If(Pg<0)or(Pg+SqPS>DBN)Then Fail('Error: corrupt GeoPackage file');
+   Take:=SqUS-4;
+   If Take>Rem Then Take:=Rem;
+   Move(DB^[Pg+4],PayBuf^[K],Take);
+   Inc(K,Take);Dec(Rem,Take);
+   Ptr:=SqBE32(Pg);
+  End;
+  If Rem>0Then Fail('Error: corrupt GeoPackage overflow chain');
+  Rec:=PayBuf;
+ End;
+ RcDecode(Rec,Pay);
+ Case SqMode of
+  1:Begin
+   If(SchN<200)and(RcN>=5)Then Begin
+    Inc(SchN);
+    Sch[SchN].Kind:=RcGetStr(0);
+    Sch[SchN].Name:=RcGetStr(1);
+    Sch[SchN].Tbl:=RcGetStr(2);
+    Sch[SchN].Root:=Round(RcGetReal(3));
+    Sch[SchN].SqlLen:=0;
+    Sch[SchN].Sql:=Nil;
+    If RcIsText(4)Then Begin
+     L2:=RcLenText(4);
+     Sch[SchN].SqlLen:=L2;
+     Q:=AllocBlock(L2+1);
+     Move(RcB^[RcPos[4]],Q^,L2);
+     Sch[SchN].Sql:=Q;
+    End;
+   End;
+  End;
+  2:Begin
+   If(ContN<200)and(RcN>=10)Then Begin
+    Inc(ContN);
+    Cont[ContN].Tbl:=RcGetStr(0);
+    Cont[ContN].Typ:=RcGetStr(1);
+    Cont[ContN].Ident:=RcGetStr(2);
+    Cont[ContN].Srs:=Round(RcGetReal(9));
+   End;
+  End;
+  3:Begin
+   If(GcN<200)and(RcN>=4)Then Begin
+    Inc(GcN);
+    GcTbl[GcN]:=RcGetStr(0);
+    GcCol[GcN]:=RcGetStr(1);
+    GcType[GcN]:=RcGetStr(2);
+    GcSrs[GcN]:=Round(RcGetReal(3));
+   End;
+  End;
+  4:SqRowFeature;
+ End;
+End;
+
+Procedure SqWalk(PageNo:LongInt);
+Var
+ Off,Hp,Typ,NC,I:LongInt;
+Begin
+ If(PageNo<1)or(PageNo*SqPS>DBN)Then Fail('Error: corrupt GeoPackage file');
+ Off:=(PageNo-1)*SqPS;
+ Hp:=Off;
+ If PageNo=1Then Hp:=Off+100;
+ Typ:=DB^[Hp];
+ NC:=SqBE16(Hp+3);
+ If Typ=13Then Begin
+  For I:=0 to NC-1do SqCell(Off+SqBE16(Hp+8+2*I));
+ End Else
+ If Typ=5Then Begin
+  For I:=0 to NC-1do SqWalk(SqBE32(Off+SqBE16(Hp+12+2*I)));
+  SqWalk(SqBE32(Hp+8));
+ End
+  Else
+ Fail('Error: unsupported GeoPackage b-tree page type '+IntToStr(Typ));
+End;
+
+Function SqFindRoot(Const Name:String):LongInt;
+Var
+ I:Integer;
+Begin
+ SqFindRoot:=0;
+ For I:=1 to SchN do
+  If(Sch[I].Kind='table')and(LowerStr(Sch[I].Name)=Name)Then Begin SqFindRoot:=Sch[I].Root;Exit;End;
+End;
+
+{ Noms de colonnes d'une instruction CREATE TABLE }
+Procedure SqColumns(Sql:PBytes;Len:LongInt);
+Var
+ I,Depth,SegStart:LongInt;
+ Q:Integer;
+ Started:Boolean;
+
+ Procedure Segment(S,E:LongInt);
+ Var
+  J,K:LongInt;
+  Nm,Ty,Up:String;
+  C:Integer;
+  Close:Integer;
+ Begin
+  While(S<E)and(Sql^[S]in[9,10,13,32])do Inc(S);
+  If S>=E Then Exit;
+  Nm:='';
+  C:=Sql^[S];
+  If(C=34)or(C=96)or(C=91)Then Begin
+   If C=91Then Close:=93 Else Close:=C;
+   J:=S+1;
+   While(J<E)and(Sql^[J]<>Close)do Begin
+    If Length(Nm)<60Then Nm:=Nm+Chr(Sql^[J]);
+    Inc(J);
+   End;
+   Inc(J);
+  End
+   Else
+  Begin
+   J:=S;
+   While(J<E)and Not(Sql^[J]in[9,10,13,32,40,44])do Begin
+    If Length(Nm)<60Then Nm:=Nm+Chr(Sql^[J]);
+    Inc(J);
+   End;
+   Up:=StrUpper(Nm);
+   If(Up='PRIMARY')or(Up='UNIQUE')or(Up='CONSTRAINT')or(Up='FOREIGN')or(Up='CHECK')Then Exit;
+  End;
+  { type et contraintes }
+  Ty:='';
+  K:=J;
+  While K<E do Begin
+   If Length(Ty)<200Then Ty:=Ty+UpCase(Chr(Sql^[K]));
+   Inc(K);
+  End;
+  If FeatNCols<MaxRc Then Begin
+   FeatNames[FeatNCols]:=Nm;
+   FeatPk[FeatNCols]:=(Pos('INTEGER',Copy(Ty,1,12))>0)and(Pos('PRIMARY KEY',Ty)>0);
+   Inc(FeatNCols);
+  End;
+ End;
+
+Begin
+ FeatNCols:=0;
+ Depth:=0;Q:=0;Started:=False;SegStart:=0;
+ I:=0;
+ While I<Len do Begin
+  If Q<>0Then Begin
+   If Sql^[I]=Q Then Q:=0;
+  End
+   Else
+  Case Sql^[I]of
+   34,39,96:Q:=Sql^[I];
+   40:Begin
+     Inc(Depth);
+     If(Depth=1)and Not Started Then Begin Started:=True;SegStart:=I+1;End;
+    End;
+   41:Begin
+     Dec(Depth);
+     If(Depth=0)and Started Then Begin Segment(SegStart,I);Exit;End;
+    End;
+   44:If(Depth=1)and Started Then Begin Segment(SegStart,I);SegStart:=I+1;End;
+  End;
+  Inc(I);
+ End;
+End;
+
+Function LoadGpkg(FileName,LName:String):PJ;
+Var
+ B:PBytes;
+ N:LongInt;
+ I,Pick,GI:Integer;
+ Root:LongInt;
+ L:String;
+ Srs:LongInt;
+ C,Pr:PJ;
+Begin
+ B:=LoadFileBytes(FileName,N);
+ If B=Nil Then Fail('Error: unable to open input file '+FileName);
+ L:='';
+ For I:=0 to 14do If N>I Then L:=L+Chr(B^[I]);
+ If(N<100)or(StrUpper(L)<>'SQLITE FORMAT 3')Then Fail('Error: '+FileName+' is not a GeoPackage file');
+ DB:=B;DBN:=N;
+ SqPS:=SqBE16(16);
+ If SqPS=1Then SqPS:=65536;
+ SqUS:=SqPS-DB^[20];
+ If DB^[56+3]<>1Then Fail('Error: only UTF-8 GeoPackage files are supported');
+ If(DBN mod SqPS)<>0Then Fail('Error: corrupt GeoPackage file');
+ SchN:=0;ContN:=0;GcN:=0;
+ SqMode:=1;
+ SqWalk(1);
+ Root:=SqFindRoot('gpkg_contents');
+ If Root=0Then Fail('Error: '+FileName+' has no gpkg_contents table (not a GeoPackage)');
+ SqMode:=2;SqWalk(Root);
+ Root:=SqFindRoot('gpkg_geometry_columns');
+ If Root<>0Then Begin SqMode:=3;SqWalk(Root);End;
+ { choix de la table }
+ Pick:=0;
+ If LName<>''Then Begin
+  For I:=1 to ContN do
+   If(Pick=0)and((LowerStr(Cont[I].Tbl)=LowerStr(LName))or(LowerStr(Cont[I].Ident)=LowerStr(LName)))Then Pick:=I;
+  If Pick=0Then Fail('Error: layer "'+LName+'" not found in '+FileName);
+ End
+  Else
+ Begin
+  For I:=1 to ContN do If(Pick=0)and(Cont[I].Typ='features')Then Pick:=I;
+  For I:=1 to ContN do If(Pick=0)and(Cont[I].Typ='attributes')Then Pick:=I;
+  If Pick=0Then Fail('Error: no vector layer in '+FileName);
+ End;
+ L:=Cont[Pick].Tbl;
+ Root:=0;
+ For I:=1 to SchN do
+  If(Sch[I].Kind='table')and(Sch[I].Name=L)Then Begin
+   Root:=Sch[I].Root;
+   If Sch[I].Sql=Nil Then Fail('Error: table '+L+' has no schema');
+   SqColumns(Sch[I].Sql,Sch[I].SqlLen);
+  End;
+ If Root=0Then Fail('Error: table '+L+' not found in '+FileName);
+ FeatGeomCol:=-1;
+ Srs:=Cont[Pick].Srs;
+ For GI:=1 to GcN do
+  If GcTbl[GI]=L Then Begin
+   For I:=0 to FeatNCols-1do If FeatNames[I]=GcCol[GI]Then FeatGeomCol:=I;
+   Srs:=GcSrs[GI];
+  End;
+ FeatCol:=NewCollection;
+ SqMode:=4;
+ SqWalk(Root);
+ If Srs=3857Then SetLayerCrs(FeatCol,3857) Else
+ If(Srs<>4326)and(Srs>0)Then Begin
+  { systeme non gere : seul son nom est conserve }
+  C:=NewJ(5);
+  JAddKV(C,'type',JText('name'));
+  Pr:=NewJ(5);
+  JAddKV(Pr,'name',JText('EPSG:'+IntToStr(Srs)));
+  JAddKV(C,'properties',Pr);
+  JAddKV(FeatCol,'crs',C);
+ End;
+ LoadGpkg:=FeatCol;
+End;
+
+{ ---- GeoPackage : ecriture ---- }
+
+Var
+ SqB:TBuf;
+ RcT:Array[0..MaxRc-1]of LongInt;
+ WN:Integer;
+ WBody:TBuf;
+
+Procedure BufBE16(Var B:TBuf;V:LongInt);Begin
+ BufByte(B,V shr 8);BufByte(B,V);
+End;
+
+Procedure BufVarint(Var B:TBuf;V:Int64);
+Var
+ Tmp:Array[0..9]of Byte;
+ N,I:Integer;
+Begin
+ If(V<0)or(V>=72057594037927936)Then Begin
+  For I:=0 to 7do BufByte(B,((V shr(8+7*(7-I)))and $7F)or $80);
+  BufByte(B,V and $FF);
+  Exit;
+ End;
+ N:=0;
+ Repeat
+  Tmp[N]:=V and $7F;
+  V:=V shr 7;
+  Inc(N);
+ Until V=0;
+ For I:=N-1downto 0do Begin
+  If I>0Then BufByte(B,Tmp[I]or $80)
+        Else BufByte(B,Tmp[I]);
+ End;
+End;
+
+Function VarintLen(V:Int64):Integer;
+Var
+ T:TBuf;
+Begin
+ BufInit(T);
+ BufVarint(T,V);
+ VarintLen:=T.N;
+ FreeMem(T.P,T.Cap);
+End;
+
+Procedure WrClear;Begin
+ WN:=0;
+ WBody.N:=0;
+End;
+
+Procedure WrType(T:LongInt);Begin
+ If WN>=MaxRc Then Fail('Error: too many fields');
+ RcT[WN]:=T;
+ Inc(WN);
+End;
+
+Procedure WrNull;Begin WrType(0);End;
+
+Procedure WrInt(V:Int64);Begin
+ If V=0Then WrType(8) Else
+ If V=1Then WrType(9) Else
+ If(V>=-128)and(V<=127)Then Begin WrType(1);BufByte(WBody,V);End Else
+ If(V>=-32768)and(V<=32767)Then Begin WrType(2);BufBE16(WBody,V);End Else
+ If(V>=-2147483648)and(V<=2147483647)Then Begin WrType(4);BufBE32(WBody,V);End
+  Else
+ Begin
+  WrType(6);
+  BufBE32(WBody,V shr 32);
+  BufBE32(WBody,V and $FFFFFFFF);
+ End;
+End;
+
+Procedure WrReal(V:Real);
+Var
+ D:Double;
+ Bt:Array[0..7]of Byte absolute D;
+ I:Integer;
+Begin
+ D:=V;
+ WrType(7);
+ For I:=7downto 0do BufByte(WBody,Bt[I]);
+End;
+
+Procedure WrText(S:String);Begin
+ WrType(13+2*Length(S));
+ BufText(WBody,S);
+End;
+
+Procedure WrTextBuf(Var T:TBuf);Begin
+ WrType(13+2*T.N);
+ BufGrow(WBody,T.N);
+ Move(T.P^,WBody.P^[WBody.N],T.N);
+ Inc(WBody.N,T.N);
+End;
+
+Procedure WrBlobBuf(Var T:TBuf);Begin
+ WrType(12+2*T.N);
+ BufGrow(WBody,T.N);
+ Move(T.P^,WBody.P^[WBody.N],T.N);
+ Inc(WBody.N,T.N);
+End;
+
+{ Ajoute l'enregistrement courant a Dest }
+Procedure WrFinish(Var Dest:TBuf);
+Var
+ I,Tot:Integer;
+ H:LongInt;
+Begin
+ Tot:=0;
+ For I:=0 to WN-1do Inc(Tot,VarintLen(RcT[I]));
+ H:=Tot+1;
+ If H>127Then H:=Tot+2;
+ BufVarint(Dest,H);
+ For I:=0 to WN-1do BufVarint(Dest,RcT[I]);
+ BufGrow(Dest,WBody.N);
+ Move(WBody.P^,Dest.P^[Dest.N],WBody.N);
+ Inc(Dest.N,WBody.N);
+End;
+
+Function SqNewPage:LongInt;Begin
+ BufGrow(SqB,SqPS);
+ FillChar(SqB.P^[SqB.N],SqPS,0);
+ Inc(SqB.N,SqPS);
+ SqNewPage:=SqB.N div SqPS;
+End;
+
+Procedure PutBE16(Off,V:LongInt);Begin
+ SqB.P^[Off]:=(V shr 8)and 255;SqB.P^[Off+1]:=V and 255;
+End;
+
+Procedure PutBE32(Off,V:LongInt);Begin
+ SqB.P^[Off]:=(V shr 24)and 255;SqB.P^[Off+1]:=(V shr 16)and 255;
+ SqB.P^[Off+2]:=(V shr 8)and 255;SqB.P^[Off+3]:=V and 255;
+End;
+
+{ Construit le b-arbre d'une table : lignes dans Recs (offsets RowOff, longueurs RowLen) ; identifiants Ids (ou i+1) }
+Function SqBuildTable(Var Recs:TBuf;RowOff,RowLen:PLongs;Ids:PLongs;NRows:LongInt):LongInt;
+Var
+ Lv,LvMax:PLongs;
+ NLv:LongInt;
+ Pg,Off,CE,NC,I,K,Local,X,M,Pay,Cell,OvPg,Rem,Take,Src,Prev:LongInt;
+ CellB:TBuf;
+ Id:LongInt;
+ NextLv,NextMax:PLongs;
+ Cnt,G,NG,Gi,Start,Sz,J,Rt:LongInt;
+
+ Procedure FinishLeaf(MaxId:LongInt);Begin
+  SqB.P^[Off]:=13;
+  PutBE16(Off+3,NC);
+  PutBE16(Off+5,CE);
+  Lv^[NLv]:=Pg;LvMax^[NLv]:=MaxId;
+  Inc(NLv);
+ End;
+
+Begin
+ Lv:=AllocBlock((NRows+2)*SizeOf(LongInt));
+ LvMax:=AllocBlock((NRows+2)*SizeOf(LongInt));
+ NLv:=0;
+ Pg:=SqNewPage;Off:=(Pg-1)*SqPS;CE:=SqPS;NC:=0;
+ BufInit(CellB);
+ Prev:=0;
+ For I:=0 to NRows-1do Begin
+  If Ids<>Nil Then Id:=Ids^[I] Else Id:=I+1;
+  Pay:=RowLen^[I];
+  Src:=RowOff^[I];
+  CellB.N:=0;
+  X:=SqPS-35;
+  If Pay<=X Then Begin
+   BufVarint(CellB,Pay);BufVarint(CellB,Id);
+   BufGrow(CellB,Pay);
+   Move(Recs.P^[Src],CellB.P^[CellB.N],Pay);
+   Inc(CellB.N,Pay);
+  End
+   Else
+  Begin
+   M:=((SqPS-12)*32 div 255)-23;
+   K:=M+((Pay-M)mod(SqPS-4));
+   If K<=X Then Local:=K Else Local:=M;
+   BufVarint(CellB,Pay);BufVarint(CellB,Id);
+   BufGrow(CellB,Local);
+   Move(Recs.P^[Src],CellB.P^[CellB.N],Local);
+   Inc(CellB.N,Local);
+   { pages de debordement }
+   Rem:=Pay-Local;
+   Src:=Src+Local;
+   OvPg:=0;Prev:=0;
+   While Rem>0do Begin
+    K:=SqNewPage;
+    If OvPg=0Then OvPg:=K Else PutBE32((Prev-1)*SqPS,K);
+    Take:=SqPS-4;
+    If Take>Rem Then Take:=Rem;
+    Move(Recs.P^[Src],SqB.P^[(K-1)*SqPS+4],Take);
+    Inc(Src,Take);Dec(Rem,Take);
+    Prev:=K;
+   End;
+   BufBE32(CellB,OvPg);
+  End;
+  If(NC>0)and(8+2*(NC+1)+(SqPS-CE)+CellB.N>SqPS)Then Begin
+   If Ids<>Nil Then FinishLeaf(Ids^[I-1]) Else FinishLeaf(I);
+   Pg:=SqNewPage;Off:=(Pg-1)*SqPS;CE:=SqPS;NC:=0;
+  End;
+  CE:=CE-CellB.N;
+  Move(CellB.P^,SqB.P^[Off+CE],CellB.N);
+  PutBE16(Off+8+2*NC,CE);
+  Inc(NC);
+ End;
+ If Ids<>Nil Then Begin
+  If NRows>0Then FinishLeaf(Ids^[NRows-1])Else FinishLeaf(0);
+ End
+  Else
+ FinishLeaf(NRows);
+ FreeMem(CellB.P,CellB.Cap);
+ { niveaux interieurs }
+ While NLv>1do Begin
+  G:=300;
+  NG:=(NLv+G-1)div G;
+  NextLv:=AllocBlock((NG+2)*SizeOf(LongInt));
+  NextMax:=AllocBlock((NG+2)*SizeOf(LongInt));
+  Start:=0;
+  For Gi:=0 to NG-1do Begin
+   Sz:=NLv div NG;
+   If Gi<(NLv mod NG)Then Inc(Sz);
+   Pg:=SqNewPage;Off:=(Pg-1)*SqPS;
+   CE:=SqPS;NC:=0;
+   For J:=0 to Sz-2do Begin
+    CellB.P:=Nil;
+    BufInit(CellB);
+    BufBE32(CellB,Lv^[Start+J]);
+    BufVarint(CellB,LvMax^[Start+J]);
+    CE:=CE-CellB.N;
+    Move(CellB.P^,SqB.P^[Off+CE],CellB.N);
+    PutBE16(Off+12+2*NC,CE);
+    Inc(NC);
+    FreeMem(CellB.P,CellB.Cap);
+   End;
+   SqB.P^[Off]:=5;
+   PutBE16(Off+3,NC);
+   PutBE16(Off+5,CE);
+   PutBE32(Off+8,Lv^[Start+Sz-1]);
+   NextLv^[Gi]:=Pg;
+   NextMax^[Gi]:=LvMax^[Start+Sz-1];
+   Inc(Start,Sz);
+  End;
+  FreeMem(Lv,(NRows+2)*SizeOf(LongInt));
+  FreeMem(LvMax,(NRows+2)*SizeOf(LongInt));
+  Lv:=NextLv;LvMax:=NextMax;
+  NRows:=NG;
+  NLv:=NG;
+ End;
+ SqBuildTable:=Lv^[0];
+End;
+
+Procedure GpbPoints(Var B:TBuf;P:PPath;N:LongInt;Closed:Boolean);
+Var
+ I:LongInt;
+ Add:Integer;
+Begin
+ Add:=0;
+ If Closed and((P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y))Then Add:=1;
+ BufLE32(B,N+Add);
+ For I:=0 to N-1do Begin
+  BufDouble(B,P^.Pts^[I].X);BufDouble(B,P^.Pts^[I].Y);
+ End;
+ If Add=1Then Begin BufDouble(B,P^.Pts^[0].X);BufDouble(B,P^.Pts^[0].Y);End;
+End;
+
+Procedure WkbPolygon(Var B:TBuf;Var P:PPath);
+Var
+ Poly,Cnt:Integer;
+ Q:PPath;
+Begin
+ Poly:=P^.Poly;
+ Cnt:=0;
+ Q:=P;
+ While(Q<>Nil)and(Q^.Poly=Poly)do Begin Inc(Cnt);Q:=Q^.Next;End;
+ BufByte(B,1);BufLE32(B,3);BufLE32(B,Cnt);
+ While(P<>Nil)and(P^.Poly=Poly)do Begin
+  GpbPoints(B,P,P^.N,True);
+  P:=P^.Next;
+ End;
+End;
+
+Procedure WkbGeometry(Var B:TBuf;Var G:TGeom);
+Var
+ P:PPath;
+ Np:Integer;
+Begin
+ P:=G.First;
+ Case G.Cls of
+  1:Begin
+   If G.Count=1Then Begin
+    BufByte(B,1);BufLE32(B,1);BufDouble(B,P^.Pts^[0].X);BufDouble(B,P^.Pts^[0].Y);
+   End
+    Else
+   Begin
+    BufByte(B,1);BufLE32(B,4);BufLE32(B,G.Count);
+    While P<>Nil do Begin
+     BufByte(B,1);BufLE32(B,1);BufDouble(B,P^.Pts^[0].X);BufDouble(B,P^.Pts^[0].Y);
+     P:=P^.Next;
+    End;
+   End;
+  End;
+  2:Begin
+   If G.Count=1Then Begin
+    BufByte(B,1);BufLE32(B,2);GpbPoints(B,P,P^.N,False);
+   End
+    Else
+   Begin
+    BufByte(B,1);BufLE32(B,5);BufLE32(B,G.Count);
+    While P<>Nil do Begin
+     BufByte(B,1);BufLE32(B,2);GpbPoints(B,P,P^.N,False);
+     P:=P^.Next;
+    End;
+   End;
+  End;
+  3:Begin
+   If G.NPoly=1Then WkbPolygon(B,P)
+    Else
+   Begin
+    BufByte(B,1);BufLE32(B,6);BufLE32(B,G.NPoly);
+    While P<>Nil do WkbPolygon(B,P);
+   End;
+  End;
+ End;
+End;
+
+Procedure SaveGpkg(FileName,LName:String;Root:PJ);
+Const
+ MaxCols=300;
+Var
+ Feats,F,Pr,C,V:PJ;
+ Cols:Array[1..MaxCols]of String[60];
+ ColTyp:Array[1..MaxCols]of Byte;  { 1 entier, 2 reel, 3 texte, 4 booleen }
+ NC,J,Crs:Integer;
+ I,NF,K:LongInt;
+ G:TGeom;
+ P:PPath;
+ Recs,Sql,Geo,Tmp,Master:TBuf;
+ RowOff,RowLen:PLongs;
+ Found:Boolean;
+ GT,Tbl,Nm:String;
+ X1,Y1,X2,Y2,Fx1,Fy1,Fx2,Fy2:Real;
+ Have,FHave:Boolean;
+ Cls,Multi,ClsAll:Integer;
+ MultiAny,Mixed,AnyGeom:Boolean;
+ Pg,RootF,RootSeq,RootSrs,RootCont,RootGc:LongInt;
+ Y,Mo,D,Dw,H,Mi,S,S100:Word;
+ Fmt:String;
+ Ids:PLongs;
+ Sr:Real;
+ Rid:Array[1..4]of LongInt;
+ Wkt1,Wkt2:String;
+ MRows:Integer;
+ MOff,MLen:Array[1..8]of LongInt;
+ CE,Sz:LongInt;
+
+ Function TwoD(V:Integer):String;
+ Var S:String;
+ Begin
+  Str(V,S);
+  If Length(S)<2Then S:='0'+S;
+  TwoD:=S;
+ End;
+
+ Procedure MasterRow(Typ,Name,TblName:String;RootPg:LongInt;Var SqlB:TBuf);
+ Begin
+  WrClear;
+  WrText(Typ);WrText(Name);WrText(TblName);WrInt(RootPg);WrTextBuf(SqlB);
+  MOff[MRows+1]:=Master.N;
+  WrFinish(Master);
+  MLen[MRows+1]:=Master.N-MOff[MRows+1];
+  Inc(MRows);
+ End;
+
+ Procedure SqlSet(S:String);Begin
+  Sql.N:=0;
+  BufText(Sql,S);
+ End;
+
+Begin
+ Feats:=JFind(Root,'features');
+ Tbl:=LName;
+ If Tbl=''Then Tbl:=BaseNoExt(FileName);
+ If Tbl=''Then Tbl:='layer';
+ Crs:=SoftCrs(Root);
+ If Crs=0Then Crs:=-1;
+ { colonnes }
+ NC:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    I:=0;
+    For J:=1 to NC do If Cols[J]=JKey(C)Then I:=J;
+    If(I=0)and(C^.Kind in[1,2,3])Then Begin
+     If NC>=MaxCols Then Fail('Error: too many fields for GeoPackage output');
+     Inc(NC);Cols[NC]:=JKey(C);I:=NC;ColTyp[I]:=0;
+    End;
+    If I>0Then Begin
+     Case C^.Kind of
+      1:If ColTyp[I]=0Then ColTyp[I]:=4 Else If ColTyp[I]<>4Then ColTyp[I]:=3;
+      2:Begin
+         If Pos('.',JVal(C))+Pos('e',JVal(C))+Pos('E',JVal(C))>0Then Begin
+          If ColTyp[I]=0Then ColTyp[I]:=2 Else If ColTyp[I]=1Then ColTyp[I]:=2 Else If ColTyp[I]<>2Then ColTyp[I]:=3;
+         End
+          Else
+         Begin
+          If ColTyp[I]=0Then ColTyp[I]:=1 Else If(ColTyp[I]<>1)and(ColTyp[I]<>2)Then ColTyp[I]:=3;
+         End;
+        End;
+      3:ColTyp[I]:=3;
+     End;
+    End;
+    C:=C^.Next;
+   End;
+  End;
+  F:=F^.Next;
+ End;
+ For J:=1 to NC do If ColTyp[J]=0Then ColTyp[J]:=3;
+ { lignes }
+ BufInit(Recs);BufInit(WBody);BufInit(Geo);BufInit(Tmp);BufInit(Sql);
+ NF:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin Inc(NF);F:=F^.Next;End;
+ RowOff:=AllocBlock((NF+8)*SizeOf(LongInt));
+ RowLen:=AllocBlock((NF+8)*SizeOf(LongInt));
+ Have:=False;X1:=0;Y1:=0;X2:=0;Y2:=0;
+ ClsAll:=0;MultiAny:=False;Mixed:=False;AnyGeom:=False;
+ K:=0;
+ F:=Feats^.First;
+ While F<>Nil do Begin
+  InitGeom(G);
+  Flatten(JFind(F,'geometry'),G);
+  Geo.N:=0;
+  WrClear;
+  WrNull;                       { fid : alias de rowid }
+  If G.First<>Nil Then Begin
+   AnyGeom:=True;
+   If(ClsAll<>0)and(ClsAll<>G.Cls)Then Mixed:=True;
+   ClsAll:=G.Cls;
+   If((G.Cls=3)and(G.NPoly>1))or((G.Cls<3)and(G.Count>1))Then MultiAny:=True;
+   FHave:=False;Fx1:=0;Fy1:=0;Fx2:=0;Fy2:=0;
+   P:=G.First;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do Begin
+     If Not FHave Then Begin
+      Fx1:=P^.Pts^[I].X;Fx2:=Fx1;Fy1:=P^.Pts^[I].Y;Fy2:=Fy1;FHave:=True;
+     End
+      Else
+     Begin
+      If P^.Pts^[I].X<Fx1 Then Fx1:=P^.Pts^[I].X;
+      If P^.Pts^[I].X>Fx2 Then Fx2:=P^.Pts^[I].X;
+      If P^.Pts^[I].Y<Fy1 Then Fy1:=P^.Pts^[I].Y;
+      If P^.Pts^[I].Y>Fy2 Then Fy2:=P^.Pts^[I].Y;
+     End;
+    End;
+    P:=P^.Next;
+   End;
+   If Not Have Then Begin X1:=Fx1;Y1:=Fy1;X2:=Fx2;Y2:=Fy2;Have:=True;End
+   Else Begin
+    If Fx1<X1 Then X1:=Fx1;
+    If Fy1<Y1 Then Y1:=Fy1;
+    If Fx2>X2 Then X2:=Fx2;
+    If Fy2>Y2 Then Y2:=Fy2;
+   End;
+   BufByte(Geo,Ord('G'));BufByte(Geo,Ord('P'));BufByte(Geo,0);BufByte(Geo,3);
+   BufLE32(Geo,Crs);
+   BufDouble(Geo,Fx1);BufDouble(Geo,Fx2);BufDouble(Geo,Fy1);BufDouble(Geo,Fy2);
+   WkbGeometry(Geo,G);
+   WrBlobBuf(Geo);
+  End
+   Else
+  WrNull;
+  FreeGeom(G);
+  Pr:=JFind(F,'properties');
+  For J:=1 to NC do Begin
+   V:=Nil;
+   If Pr<>Nil Then V:=JFind(Pr,Cols[J]);
+   If(V=Nil)or Not(V^.Kind in[1,2,3])Then WrNull Else
+   Case ColTyp[J]of
+    1:Begin
+       Val(JVal(V),Sr,I);
+       If I=0Then WrInt(Round(Sr))Else WrNull;
+      End;
+    2:Begin
+       If V^.Kind=2Then Begin
+        Val(JVal(V),Sr,I);
+        If I=0Then WrReal(Sr)Else WrNull;
+       End
+        Else
+       WrNull;
+      End;
+    4:If JVal(V)='true'Then WrInt(1)Else WrInt(0);
+    Else Begin
+     Tmp.N:=0;
+     BufText(Tmp,PropValText(V));
+     WrTextBuf(Tmp);
+    End;
+   End;
+  End;
+  RowOff^[K]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[K]:=Recs.N-RowOff^[K];
+  Inc(K);
+  F:=F^.Next;
+ End;
+ { type de geometrie }
+ If Not AnyGeom Or Mixed Then GT:='GEOMETRY' Else
+ Case ClsAll of
+  1:If MultiAny Then GT:='MULTIPOINT' Else GT:='POINT';
+  2:If MultiAny Then GT:='MULTILINESTRING' Else GT:='LINESTRING';
+  Else If MultiAny Then GT:='MULTIPOLYGON' Else GT:='POLYGON';
+ End;
+ { fichier }
+ SqPS:=4096;
+ BufInit(SqB);
+ SqNewPage;                       { page 1 : sqlite_master }
+ RootF:=SqBuildTable(Recs,RowOff,RowLen,Nil,NF);
+ { sqlite_sequence }
+ Recs.N:=0;
+ WrClear;WrText(Tbl);WrInt(NF);
+ RowOff^[0]:=0;
+ WrFinish(Recs);
+ RowLen^[0]:=Recs.N;
+ RootSeq:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ { gpkg_spatial_ref_sys }
+ Recs.N:=0;
+ Ids:=AllocBlock(6*SizeOf(LongInt));
+ Ids^[0]:=-1;Ids^[1]:=0;Ids^[2]:=4326;
+ MRows:=3;
+ If Crs=3857Then Begin Ids^[3]:=3857;MRows:=4;End;
+ For J:=0 to MRows-1do Begin
+  WrClear;
+  Tmp.N:=0;
+  Case J of
+   0:Begin WrText('Undefined cartesian SRS');WrNull;WrText('NONE');WrInt(-1);WrText('undefined');WrText('undefined Cartesian coordinate reference system');End;
+   1:Begin WrText('Undefined geographic SRS');WrNull;WrText('NONE');WrInt(0);WrText('undefined');WrText('undefined geographic coordinate reference system');End;
+   2:Begin
+      WrText('WGS 84 geodetic');WrNull;WrText('EPSG');WrInt(4326);
+      Tmp.N:=0;
+      BufText(Tmp,'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],');
+      BufText(Tmp,'PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]');
+      WrTextBuf(Tmp);
+      WrText('longitude/latitude coordinates in decimal degrees on the WGS 84 spheroid');
+     End;
+   Else Begin
+      WrText('WGS 84 / Pseudo-Mercator');WrNull;WrText('EPSG');WrInt(3857);
+      Tmp.N:=0;
+      BufText(Tmp,'PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],');
+      BufText(Tmp,'PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],');
+      BufText(Tmp,'PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["scale_factor",1],PARAMETER["false_easting",0],PARAMETER["false_northing",0],');
+      BufText(Tmp,'UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","3857"]]');
+      WrTextBuf(Tmp);
+      WrText('Web Mercator');
+     End;
+  End;
+  RowOff^[J]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[J]:=Recs.N-RowOff^[J];
+ End;
+ RootSrs:=SqBuildTable(Recs,RowOff,RowLen,Ids,MRows);
+ { gpkg_contents }
+ Recs.N:=0;
+ GetDate(Y,Mo,D,Dw);GetTime(H,Mi,S,S100);
+ Fmt:=IntToStr(Y)+'-'+TwoD(Mo)+'-'+TwoD(D)+'T'+TwoD(H)+':'+TwoD(Mi)+':'+TwoD(S)+'.000Z';
+ WrClear;
+ WrText(Tbl);WrText('features');WrText(Tbl);WrText('');WrText(Fmt);
+ If Have Then Begin WrReal(X1);WrReal(Y1);WrReal(X2);WrReal(Y2);End
+         Else Begin WrNull;WrNull;WrNull;WrNull;End;
+ WrInt(Crs);
+ RowOff^[0]:=0;
+ WrFinish(Recs);
+ RowLen^[0]:=Recs.N;
+ RootCont:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ { gpkg_geometry_columns }
+ Recs.N:=0;
+ WrClear;
+ WrText(Tbl);WrText('geom');WrText(GT);WrInt(Crs);WrInt(0);WrInt(0);
+ RowOff^[0]:=0;
+ WrFinish(Recs);
+ RowLen^[0]:=Recs.N;
+ RootGc:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ { sqlite_master }
+ BufInit(Master);
+ MRows:=0;
+ Fmt:='CREATE TABLE gpkg_spatial_ref_sys (srs_name TEXT NOT NULL, srs_id INTEGER NOT NULL PRIMARY KEY, organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL, definition TEXT NOT NULL, description TEXT)';
+ SqlSet(Fmt);
+ MasterRow('table','gpkg_spatial_ref_sys','gpkg_spatial_ref_sys',RootSrs,Sql);
+ SqlSet('CREATE TABLE gpkg_contents (table_name TEXT NOT NULL, data_type TEXT NOT NULL, identifier TEXT, description TEXT DEFAULT '''', ');
+ BufText(Sql,'last_change DATETIME NOT NULL, min_x DOUBLE, min_y DOUBLE, max_x DOUBLE, max_y DOUBLE, srs_id INTEGER)');
+ MasterRow('table','gpkg_contents','gpkg_contents',RootCont,Sql);
+ SqlSet('CREATE TABLE gpkg_geometry_columns (table_name TEXT NOT NULL, column_name TEXT NOT NULL, geometry_type_name TEXT NOT NULL, srs_id INTEGER NOT NULL, z TINYINT NOT NULL, m TINYINT NOT NULL)');
+ MasterRow('table','gpkg_geometry_columns','gpkg_geometry_columns',RootGc,Sql);
+ Sql.N:=0;
+ BufText(Sql,'CREATE TABLE "'+Tbl+'" (fid INTEGER PRIMARY KEY AUTOINCREMENT, geom '+GT);
+ For J:=1 to NC do Begin
+  Nm:=Cols[J];
+  For I:=1 to Length(Nm)do If Nm[I]='"'Then Nm[I]:='_';
+  BufText(Sql,', "'+Nm+'" ');
+  Case ColTyp[J]of
+   1:BufText(Sql,'INTEGER');
+   2:BufText(Sql,'REAL');
+   4:BufText(Sql,'BOOLEAN');
+   Else BufText(Sql,'TEXT');
+  End;
+ End;
+ BufText(Sql,')');
+ MasterRow('table',Tbl,Tbl,RootF,Sql);
+ SqlSet('CREATE TABLE sqlite_sequence(name,seq)');
+ MasterRow('table','sqlite_sequence','sqlite_sequence',RootSeq,Sql);
+ { page 1 : feuille de sqlite_master }
+ CE:=SqPS;
+ Sz:=0;
+ For J:=1 to MRows do Inc(Sz,2+MLen[J]+2+2);
+ If 8+2*MRows+Sz>SqPS-100Then Fail('Error: GeoPackage schema too large');
+ For J:=1 to MRows do Begin
+  Tmp.N:=0;
+  BufVarint(Tmp,MLen[J]);BufVarint(Tmp,J);
+  BufGrow(Tmp,MLen[J]);
+  Move(Master.P^[MOff[J]],Tmp.P^[Tmp.N],MLen[J]);
+  Inc(Tmp.N,MLen[J]);
+  CE:=CE-Tmp.N;
+  Move(Tmp.P^,SqB.P^[CE],Tmp.N);
+  PutBE16(100+8+2*(J-1),CE);
+ End;
+ SqB.P^[100]:=13;
+ PutBE16(103,MRows);
+ PutBE16(105,CE);
+ Fmt:='SQLite format 3';
+ For J:=1 to 15do SqB.P^[J-1]:=Ord(Fmt[J]);
+ SqB.P^[15]:=0;
+ PutBE16(16,SqPS);
+ SqB.P^[18]:=1;SqB.P^[19]:=1;SqB.P^[20]:=0;SqB.P^[21]:=64;SqB.P^[22]:=32;SqB.P^[23]:=32;
+ PutBE32(24,1);
+ PutBE32(28,SqB.N div SqPS);
+ PutBE32(40,1);
+ PutBE32(44,4);
+ PutBE32(56,1);
+ PutBE32(60,10200);
+ PutBE32(68,$47504B47);
+ PutBE32(92,1);
+ PutBE32(96,3045000);
+ BufSave(FileName,SqB);
+End;
+
+{ ---- fichiers de projet QGIS (.qgs / .qgz) : nom de couche -> source ---- }
+
+Function ProjLayer(N:PX;Const Want:String):PX;
+Var
+ C,R:PX;
+Begin
+ ProjLayer:=Nil;
+ C:=N^.First;
+ While C<>Nil do Begin
+  If C^.Name^='MAPLAYER'Then Begin
+   If(XText(XKid(C,'LAYERNAME'))=Want)or(XText(XKid(C,'ID'))=Want)Then Begin
+    ProjLayer:=C;
+    Exit;
+   End;
+  End
+   Else
+  Begin
+   R:=ProjLayer(C,Want);
+   If R<>Nil Then Begin ProjLayer:=R;Exit;End;
+  End;
+  C:=C^.Next;
+ End;
+End;
+
+Function ResolveProject(Name:String):String;
+Var
+ Path,LN,Sub,Ds,Dir:String;
+ B:PBytes;
+ N,Sz,I:LongInt;
+ Root:PX;
+ M:PX;
+ Abs:Boolean;
+Begin
+ ResolveProject:=Name;
+ If ProjectPath=''Then Exit;
+ ParseUri(Name,Path,LN,Sub);
+ If FileExists(Path)Then Exit;
+ B:=LoadFileBytes(ProjectPath,N);
+ If B=Nil Then Fail('Error: unable to read project file '+ProjectPath);
+ If FileExt(ProjectPath)='.QGZ'Then Begin
+  B:=ZipExtract(B,N,'.QGS',Sz);
+  If B=Nil Then Fail('Error: no .qgs file in project '+ProjectPath);
+  N:=Sz;
+ End;
+ Root:=XParse(B,N);
+ M:=ProjLayer(Root,Path);
+ If M=Nil Then Exit;
+ Ds:=XText(XKid(M,'DATASOURCE'));
+ If Ds=''Then Exit;
+ Dir:='';
+ For I:=Length(ProjectPath)downto 1do
+  If ProjectPath[I]in['/',#92]Then Begin Dir:=Copy(ProjectPath,1,I);Break;End;
+ Abs:=(Ds[1]='/')or(Ds[1]=#92)or((Length(Ds)>1)and(Ds[2]=':'))or(Pos('://',Ds)>0)or(Pos('dbname=',Ds)>0);
+ If Not Abs Then Begin
+  If Copy(Ds,1,2)='./'Then Ds:=Copy(Ds,3,255);
+  Ds:=Dir+Ds;
+ End;
+ ResolveProject:=Ds;
+End;
+
+Function HexVal(C:Char):Integer;Begin
+ Case UpCase(C)of
+  '0'..'9':HexVal:=Ord(C)-48;
+  'A'..'F':HexVal:=Ord(UpCase(C))-55;
+  Else HexVal:=-1;
+ End;
+End;
+
+Function UrlDecode(S:String):String;
+Var
+ R:String;
+ I:Integer;
+Begin
+ R:='';
+ I:=1;
+ While I<=Length(S)do Begin
+  If(S[I]='%')and(I+2<=Length(S))and(HexVal(S[I+1])>=0)and(HexVal(S[I+2])>=0)Then Begin
+   R:=R+Chr(HexVal(S[I+1])*16+HexVal(S[I+2]));
+   Inc(I,3);
+  End
+   Else
+  Begin
+   If S[I]='+'Then R:=R+' ' Else R:=R+S[I];
+   Inc(I);
+  End;
+ End;
+ UrlDecode:=R;
+End;
+
+{ URI "delimited text" de QGIS : file:///chemin.csv?type=csv&delimiter=;&xField=x&yField=y&crs=EPSG:4326 }
+Function ParseDelimUri(Var Path:String):Boolean;
+Var
+ Q,E:Integer;
+ Opts,Part,K,V:String;
+Begin
+ ParseDelimUri:=False;
+ If Copy(LowerStr(Path),1,7)<>'file://'Then Exit;
+ Path:=Copy(Path,8,255);
+ If(Length(Path)>=3)and(Path[1]='/')and(Path[3]=':')Then Delete(Path,1,1);
+ Q:=Pos('?',Path);
+ Opts:='';
+ If Q>0Then Begin
+  Opts:=Copy(Path,Q+1,255);
+  Path:=Copy(Path,1,Q-1);
+ End;
+ While Opts<>''do Begin
+  E:=Pos('&',Opts);
+  If E=0Then Begin Part:=Opts;Opts:='';End
+        Else Begin Part:=Copy(Opts,1,E-1);Opts:=Copy(Opts,E+1,255);End;
+  Q:=Pos('=',Part);
+  If Q>0Then Begin
+   K:=LowerStr(Copy(Part,1,Q-1));
+   V:=UrlDecode(Copy(Part,Q+1,255));
+   If K='delimiter'Then Begin
+    If V=''Then Begin End Else
+    If V='\t'Then CsvDelim:=9
+             Else CsvDelim:=Ord(V[1]);
+   End Else
+   If K='xfield'Then CsvXName:=V Else
+   If K='yfield'Then CsvYName:=V Else
+   If K='wktfield'Then CsvWName:=V Else
+   If K='crs'Then Begin
+    If Pos('3857',V)>0Then CsvCrs:=3857;
+   End;
+  End;
+ End;
+ ParseDelimUri:=True;
+End;
+
+Function LoadWhole(Path:String;Var N:LongInt):PBytes;
+Var
+ B:PBytes;
+Begin
+ B:=LoadFileBytes(Path,N);
+ If B=Nil Then Fail('Error: unable to open input file '+Path);
+ LoadWhole:=B;
+End;
+
 { ---- aiguillage selon le format ---- }
 
 Function LoadLayer(FileName:String):PJ;
 Var
  Path,LName,Subset,Ext:String;
  Root:PJ;
+ B:PBytes;
+ N,Sz:LongInt;
 Begin
+ FileName:=ResolveProject(FileName);
  ParseUri(FileName,Path,LName,Subset);
  If(Pos('dbname=',Path)>0)or(Copy(StrUpper(Path),1,3)='PG:')or(Copy(StrUpper(Path),1,9)='POSTGRES:')Then
   Fail('Error: PostGIS connections are not available in this clone');
+ CsvDelim:=0;CsvXName:='';CsvYName:='';CsvWName:='';CsvCrs:=0;
+ ParseDelimUri(Path);
  Ext:=FileExt(Path);
  If Ext='.SHP'Then Root:=LoadShapefile(Path) Else
- If(Ext='.GEOJSON')or(Ext='.JSON')or(Ext='')Then Root:=LoadGeoJSON(Path)
+ If(Ext='.GEOJSON')or(Ext='.JSON')or(Ext='')Then Root:=LoadGeoJSON(Path) Else
+ If(Ext='.CSV')or(Ext='.TXT')or(Ext='.TSV')Then Begin
+  B:=LoadWhole(Path,N);
+  Root:=ReadCsv(B,N);
+ End Else
+ If(Ext='.GML')or(Ext='.XML')Then Begin
+  B:=LoadWhole(Path,N);
+  Root:=ReadGml(B,N);
+ End Else
+ If Ext='.KML'Then Begin
+  B:=LoadWhole(Path,N);
+  Root:=ReadKml(B,N);
+ End Else
+ If Ext='.KMZ'Then Begin
+  B:=LoadWhole(Path,N);
+  B:=ZipExtract(B,N,'.KML',Sz);
+  If B=Nil Then Fail('Error: no .kml file in '+Path);
+  Root:=ReadKml(B,Sz);
+ End Else
+ If Ext='.GPKG'Then Root:=LoadGpkg(Path,LName)
   Else
  Fail('Error: unsupported vector format "'+Ext+'" ('+Path+')');
  If Subset<>''Then ApplySubset(Root,Subset);
@@ -6071,13 +9461,19 @@ End;
 
 Procedure SaveLayer(FileName:String;Root:PJ);
 Var
- Ext:String;
+ Path,LName,Subset,Ext:String;
 Begin
- Ext:=FileExt(FileName);
- If Ext='.SHP'Then SaveShapefile(FileName,Root) Else
- If(Ext='.GEOJSON')or(Ext='.JSON')or(Ext='')Then SaveGeoJSON(FileName,Root)
+ ParseUri(FileName,Path,LName,Subset);
+ Ext:=FileExt(Path);
+ If Ext='.SHP'Then SaveShapefile(Path,Root) Else
+ If(Ext='.GEOJSON')or(Ext='.JSON')or(Ext='')Then SaveGeoJSON(Path,Root) Else
+ If(Ext='.CSV')or(Ext='.TXT')Then SaveCsv(Path,Root) Else
+ If(Ext='.GML')or(Ext='.XML')Then SaveGml(Path,Root) Else
+ If Ext='.KML'Then SaveKml(Path,Root,False) Else
+ If Ext='.KMZ'Then SaveKml(Path,Root,True) Else
+ If Ext='.GPKG'Then SaveGpkg(Path,LName,Root)
   Else
- Fail('Error: unsupported output vector format "'+Ext+'" (use .geojson, .json or .shp)');
+ Fail('Error: unsupported output vector format "'+Ext+'" (use .geojson, .shp, .gpkg, .csv, .gml, .kml or .kmz)');
 End;
 
 { ------------------------------------------------------------------ }
@@ -6917,312 +10313,6 @@ Begin
 End;
 
 { ------------------------------------------------------------------ }
-{ Decompression : Deflate (zlib), LZW TIFF, PackBits                  }
-{ ------------------------------------------------------------------ }
-
-Type
- THuff=Record
-  Cnt:Array[0..15]of Integer;
-  Sym:Array[0..319]of Integer;
- End;
- TLens=Array[0..319]of Integer;
-
-Const
- LBase:Array[0..28]of Integer=(3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258);
- LExt:Array[0..28]of Integer=(0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0);
- DBase:Array[0..29]of Integer=(1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577);
- DExt:Array[0..29]of Integer=(0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13);
- CodeOrder:Array[0..18]of Integer=(16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15);
-
-Var
- InP:PBytes;
- InN,InPos:LongInt;
- BitBuf:LongInt;
- BitCnt:Integer;
- OutP:PBytes;
- OutCap,OutPos:LongInt;
- HuffL,HuffD:THuff;
-
-Procedure BadData;Begin
- Fail('Error: corrupt compressed data');
-End;
-
-Function InBits(Need:Integer):LongInt;
-Var
- V:LongInt;
-Begin
- V:=BitBuf;
- While BitCnt<Need do Begin
-  If InPos>=InN Then BadData;
-  V:=V or(LongInt(InP^[InPos])shl BitCnt);
-  Inc(InPos);
-  Inc(BitCnt,8);
- End;
- BitBuf:=V shr Need;
- BitCnt:=BitCnt-Need;
- InBits:=V and((LongInt(1)shl Need)-1);
-End;
-
-Function BuildHuff(Var H:THuff;Var L:TLens;N:Integer):Integer;
-Var
- I,Len,Left:Integer;
- Offs:Array[0..15]of Integer;
-Begin
- For I:=0 to 15do H.Cnt[I]:=0;
- For I:=0 to N-1do Inc(H.Cnt[L[I]]);
- BuildHuff:=0;
- If H.Cnt[0]=N Then Exit;
- Left:=1;
- For Len:=1 to 15do Begin
-  Left:=Left*2-H.Cnt[Len];
-  If Left<0Then Begin BuildHuff:=Left;Exit;End;
- End;
- Offs[1]:=0;
- For Len:=1 to 14do Offs[Len+1]:=Offs[Len]+H.Cnt[Len];
- For I:=0 to N-1do If L[I]<>0Then Begin
-  H.Sym[Offs[L[I]]]:=I;
-  Inc(Offs[L[I]]);
- End;
- BuildHuff:=Left;
-End;
-
-Function HuffDecode(Var H:THuff):Integer;
-Var
- Len,Code,First,Index,Count:Integer;
-Begin
- Code:=0;First:=0;Index:=0;
- For Len:=1 to 15do Begin
-  Code:=Code or Integer(InBits(1));
-  Count:=H.Cnt[Len];
-  If Code-Count<First Then Begin
-   HuffDecode:=H.Sym[Index+(Code-First)];
-   Exit;
-  End;
-  Index:=Index+Count;
-  First:=(First+Count)shl 1;
-  Code:=Code shl 1;
- End;
- BadData;
- HuffDecode:=0;
-End;
-
-Procedure InflateCodes;
-Var
- Sym,Len,Dist:Integer;
-Begin
- Repeat
-  Sym:=HuffDecode(HuffL);
-  If Sym<256Then Begin
-   If OutPos>=OutCap Then BadData;
-   OutP^[OutPos]:=Sym;
-   Inc(OutPos);
-  End
-   Else
-  If Sym>256Then Begin
-   Dec(Sym,257);
-   If Sym>=29Then BadData;
-   Len:=LBase[Sym]+Integer(InBits(LExt[Sym]));
-   Sym:=HuffDecode(HuffD);
-   If Sym>=30Then BadData;
-   Dist:=DBase[Sym]+Integer(InBits(DExt[Sym]));
-   If(Dist>OutPos)or(OutPos+Len>OutCap)Then BadData;
-   While Len>0do Begin
-    OutP^[OutPos]:=OutP^[OutPos-Dist];
-    Inc(OutPos);
-    Dec(Len);
-   End;
-  End;
- Until Sym=256;
-End;
-
-Procedure InflateFixed;
-Var
- L:TLens;
- I:Integer;
-Begin
- For I:=0 to 143do L[I]:=8;
- For I:=144 to 255do L[I]:=9;
- For I:=256 to 279do L[I]:=7;
- For I:=280 to 287do L[I]:=8;
- BuildHuff(HuffL,L,288);
- For I:=0 to 29do L[I]:=5;
- BuildHuff(HuffD,L,30);
- InflateCodes;
-End;
-
-Procedure InflateDynamic;
-Var
- L:TLens;
- NLen,NDist,NCode,I,Sym,Rep,Prev:Integer;
-Begin
- NLen:=Integer(InBits(5))+257;
- NDist:=Integer(InBits(5))+1;
- NCode:=Integer(InBits(4))+4;
- If(NLen>286)or(NDist>30)Then BadData;
- For I:=0 to 18do L[I]:=0;
- For I:=0 to NCode-1do L[CodeOrder[I]]:=Integer(InBits(3));
- If BuildHuff(HuffL,L,19)<>0Then BadData;
- I:=0;
- While I<NLen+NDist do Begin
-  Sym:=HuffDecode(HuffL);
-  If Sym<16Then Begin L[I]:=Sym;Inc(I);End
-   Else
-  Begin
-   Prev:=0;
-   If Sym=16Then Begin
-    If I=0Then BadData;
-    Prev:=L[I-1];
-    Rep:=3+Integer(InBits(2));
-   End
-    Else
-   If Sym=17Then Rep:=3+Integer(InBits(3))
-            Else Rep:=11+Integer(InBits(7));
-   If I+Rep>NLen+NDist Then BadData;
-   While Rep>0do Begin L[I]:=Prev;Inc(I);Dec(Rep);End;
-  End;
- End;
- If L[256]=0Then BadData;
- Rep:=BuildHuff(HuffL,L,NLen);
- If(Rep<0)or((Rep>0)and(NLen-HuffL.Cnt[0]<>1))Then BadData;
- { les longueurs de distance sont decalees pour une table propre }
- For I:=0 to NDist-1do L[I]:=L[NLen+I];
- Rep:=BuildHuff(HuffD,L,NDist);
- If(Rep<0)or((Rep>0)and(NDist-HuffD.Cnt[0]<>1))Then BadData;
- InflateCodes;
-End;
-
-{ Inflate brut (Zlib=True : entete zlib de 2 octets ignore) ; retourne le nombre d'octets produits }
-Function Inflate(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt;Zlib:Boolean):LongInt;
-Var
- Last,Typ:Integer;
- Len,NLen,I:LongInt;
-Begin
- InP:=Src;InN:=SrcN;InPos:=0;BitBuf:=0;BitCnt:=0;
- OutP:=Dst;OutCap:=Cap;OutPos:=0;
- If Zlib Then Begin
-  If SrcN<2Then BadData;
-  InPos:=2;
- End;
- Repeat
-  Last:=Integer(InBits(1));
-  Typ:=Integer(InBits(2));
-  If Typ=0Then Begin
-   BitBuf:=0;BitCnt:=0;
-   If InPos+4>InN Then BadData;
-   Len:=LongInt(InP^[InPos])or(LongInt(InP^[InPos+1])shl 8);
-   NLen:=LongInt(InP^[InPos+2])or(LongInt(InP^[InPos+3])shl 8);
-   If Len<>(NLen xor $FFFF)Then BadData;
-   Inc(InPos,4);
-   If(InPos+Len>InN)or(OutPos+Len>OutCap)Then BadData;
-   For I:=0 to Len-1do Begin
-    OutP^[OutPos]:=InP^[InPos];
-    Inc(OutPos);Inc(InPos);
-   End;
-  End
-   Else
-  If Typ=1Then InflateFixed Else
-  If Typ=2Then InflateDynamic
-          Else BadData;
- Until Last=1;
- Inflate:=OutPos;
-End;
-
-Var
- LzPre:Array[0..4095]of Integer;
- LzSuf:Array[0..4095]of Byte;
- LzLen:Array[0..4095]of Integer;
- LzFst:Array[0..4095]of Byte;
-
-Function LzwDecode(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt):LongInt;
-Var
- Pos,Op:LongInt;
- Buf:LongInt;
- Cnt,Bits,Code,Old,Next,I,L:Integer;
- Fc:Byte;
-Procedure Emit(C:Integer);
-Var
- K,Q:LongInt;
-Begin
- L:=LzLen[C];
- If Op+L>Cap Then L:=Cap-Op;
- If L<=0Then Exit;
- { ecriture a rebours depuis la fin de la chaine complete }
- Q:=C;
- K:=LzLen[C];
- While K>0do Begin
-  If Op+K-1<Cap Then Dst^[Op+K-1]:=LzSuf[Q];
-  Q:=LzPre[Q];
-  Dec(K);
- End;
- Op:=Op+L;
-End;
-Begin
- For I:=0 to 255do Begin LzSuf[I]:=I;LzPre[I]:=-1;LzLen[I]:=1;LzFst[I]:=I;End;
- Pos:=0;Op:=0;Buf:=0;Cnt:=0;Bits:=9;Next:=258;Old:=-1;
- While Op<Cap do Begin
-  While Cnt<Bits do Begin
-   If Pos>=SrcN Then Begin LzwDecode:=Op;Exit;End;
-   Buf:=(Buf shl 8)or Src^[Pos];
-   Inc(Pos);Inc(Cnt,8);
-  End;
-  Code:=Integer((Buf shr(Cnt-Bits))and((1 shl Bits)-1));
-  Dec(Cnt,Bits);
-  Buf:=Buf and((LongInt(1)shl Cnt)-1);
-  If Code=257Then Break;
-  If Code=256Then Begin
-   Next:=258;Bits:=9;Old:=-1;
-  End
-   Else
-  If Old<0Then Begin
-   If Code>=256Then BadData;
-   Emit(Code);
-   Old:=Code;
-  End
-   Else
-  Begin
-   If Code>Next Then BadData;
-   If Code<Next Then Fc:=LzFst[Code]
-                Else Fc:=LzFst[Old];
-   If Next<4096Then Begin
-    LzPre[Next]:=Old;LzSuf[Next]:=Fc;LzLen[Next]:=LzLen[Old]+1;LzFst[Next]:=LzFst[Old];
-    Inc(Next);
-   End;
-   If Code>=Next Then BadData;
-   Emit(Code);
-   Old:=Code;
-   If Next>=2047Then Bits:=12 Else
-   If Next>=1023Then Bits:=11 Else
-   If Next>=511Then Bits:=10;
-  End;
- End;
- LzwDecode:=Op;
-End;
-
-Function PackBitsDecode(Src:PBytes;SrcN:LongInt;Dst:PBytes;Cap:LongInt):LongInt;
-Var
- P,Op,N,I:LongInt;
- C:Integer;
-Begin
- P:=0;Op:=0;
- While(P<SrcN)and(Op<Cap)do Begin
-  C:=Src^[P];Inc(P);
-  If C>127Then C:=C-256;
-  If C>=0Then Begin
-   N:=C+1;
-   For I:=1 to N do If(P<SrcN)and(Op<Cap)Then Begin Dst^[Op]:=Src^[P];Inc(Op);Inc(P);End;
-  End
-   Else
-  If C<>-128Then Begin
-   N:=1-C;
-   If P>=SrcN Then Break;
-   For I:=1 to N do If Op<Cap Then Begin Dst^[Op]:=Src^[P];Inc(Op);End;
-   Inc(P);
-  End;
- End;
- PackBitsDecode:=Op;
-End;
-
-{ ------------------------------------------------------------------ }
 { GeoTIFF                                                             }
 { ------------------------------------------------------------------ }
 
@@ -7809,6 +10899,7 @@ Procedure ReadRaster(FileName:String;Var R:TRaster);
 Var
  E:String;
 Begin
+ FileName:=ResolveProject(FileName);
  E:=FileExt(FileName);
  If(E='.TIF')or(E='.TIFF')or(E='.GTIFF')Then ReadTiff(FileName,R) Else
  If E='.ASC'Then ReadAsc(FileName,R) Else
@@ -8651,11 +11742,38 @@ Begin
  AddRes('OUTPUT',Out);
 End;
 
+{ Ecritures en flux : GeoJSON direct, sinon fichier temporaire converti ensuite }
+Function StreamTmp(Out:String):String;
+Var
+ Ext,Dir:String;
+Begin
+ Ext:=FileExt(Out);
+ If(Ext='.GEOJSON')or(Ext='.JSON')or(Ext='')Then Begin StreamTmp:=Out;Exit;End;
+ Dir:=TempDir;
+ If(Dir<>'')and(Dir[Length(Dir)]<>'/')and(Dir[Length(Dir)]<>#92)Then Dir:=Dir+'/';
+ StreamTmp:=Dir+'qgis_process_stream_'+IntToStr(Random(900000)+100000)+'.geojson';
+End;
+
+Procedure StreamDone(Final,Tmp:String);
+Var
+ Root:PJ;
+ F:File;
+Begin
+ If Final=Tmp Then Exit;
+ Root:=LoadGeoJSON(Tmp);
+ SaveLayer(Final,Root);
+ Assign(F,Tmp);
+ {$I-}
+ Erase(F);
+ {$I+}
+ If IOResult<>0Then Begin End;
+End;
+
 Procedure RunPixelsToPoints(A:Integer);
 Var
  R:TRaster;
  F:Text;
- Out,Fld:String;
+ Out,Fld,Final:String;
  I,J:LongInt;
  First:Boolean;
  V:Real;
@@ -8663,13 +11781,16 @@ Begin
  ReadRaster(NeedStr(A,'INPUT_RASTER'),R);
  { bande choisie dans RunAlgo }
  Fld:=NeedStr(A,'FIELD_NAME');
- Out:=NeedStr(A,'OUTPUT');
+ Final:=NeedStr(A,'OUTPUT');
+ Out:=StreamTmp(Final);
  {$I-}
  Assign(F,Out);
  Rewrite(F);
  {$I+}
  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
- WriteLn(F,'{"type":"FeatureCollection","features":[');
+ Write(F,'{"type":"FeatureCollection",');
+ If R.Epsg=3857Then Write(F,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}},');
+ WriteLn(F,'"features":[');
  First:=True;
  For I:=0 to R.NR-1do Begin
   For J:=0 to R.NC-1do Begin
@@ -8686,7 +11807,8 @@ Begin
  WriteLn(F);
  WriteLn(F,']}');
  Close(F);
- AddRes('OUTPUT',Out);
+ StreamDone(Final,Out);
+ AddRes('OUTPUT',Final);
 End;
 
 Procedure ParseExtent(S:String;Var X1,X2,Y1,Y2:Real);
@@ -9409,7 +12531,7 @@ Var
  Edges:PEdges;
  Used:PBools;
  RB:PPts;
- Fld,Out:String;
+ Fld,Out,Final:String;
  Eight:Boolean;
  N,K,I,J,Nl,Sp,L,Cur,Ne,Lo,Hi,Best,Q,RN,Pos,Cnt,Qq,Nr,Nc,Mid:LongInt;
  V,Ang,BestAng,Dx,Dy,Mx,My,Ar,Ox,Oy:Real;
@@ -9471,7 +12593,8 @@ Begin
  CheckBand(A);
  Fld:=NeedStr(A,'FIELD');
  Eight:=NeedBool(A,'EIGHT_CONNECTEDNESS');
- Out:=NeedStr(A,'OUTPUT');
+ Final:=NeedStr(A,'OUTPUT');
+ Out:=StreamTmp(Final);
  Nc:=R.NC;Nr:=R.NR;
  N:=Nc*Nr;
  Lab:=AllocBlock(N*SizeOf(LongInt));
@@ -9511,7 +12634,9 @@ Begin
  Rewrite(F);
  {$I+}
  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
- WriteLn(F,'{"type":"FeatureCollection","features":[');
+ Write(F,'{"type":"FeatureCollection",');
+ If R.Epsg=3857Then Write(F,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}},');
+ WriteLn(F,'"features":[');
  First:=True;
  Pos:=0;
  While Pos<Ne do Begin
@@ -9645,7 +12770,8 @@ Begin
  WriteLn(F);
  WriteLn(F,']}');
  Close(F);
- AddRes('OUTPUT',Out);
+ StreamDone(Final,Out);
+ AddRes('OUTPUT',Final);
 End;
 
 { Transformee de distance euclidienne exacte (Felzenszwalb) }
@@ -10624,6 +13750,7 @@ Var
 Begin
  ReadRaster(NeedStr(A,'INPUT'),R);
  Src:=ParseEpsg(NeedStr(A,'SOURCE_CRS'),'SOURCE_CRS');
+ If Not HasArg('SOURCE_CRS')and((R.Epsg=4326)or(R.Epsg=3857))Then Src:=R.Epsg;
  Dst:=ParseEpsg(NeedStr(A,'TARGET_CRS'),'TARGET_CRS');
  Resamp:=Round(NeedReal(A,'RESAMPLING'));
  If(Resamp<>0)and(Resamp<>1)Then Fail('Error: RESAMPLING must be 0 (nearest) or 1 (bilinear)');
@@ -10651,6 +13778,7 @@ Begin
  Res:=Sqrt(W*W+H*H)/Sqrt(Sqr(R.NC*1.0)+Sqr(R.NR*1.0));
  If Res<=0Then Fail('Error: invalid target resolution');
  O.NC:=RoundL(W/Res);
+ O.DType:=0;O.Epsg:=Dst;
  O.NR:=RoundL(H/Res);
  If O.NC<1Then O.NC:=1;
  If O.NR<1Then O.NR:=1;
