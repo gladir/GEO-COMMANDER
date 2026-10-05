@@ -1,7 +1,7 @@
 { @author: Sylvain Maltais (support@gladir.com)
   @created: 2022
   @website(https://www.gladir.com/geo-commander)
-  @abstract(Target: Turbo Pascal, Free Pascal)
+  @abstract(Target: Turbo Pascal 7, Free Pascal 3.2)
 }
 
 Program URL2CTRY;
@@ -569,7 +569,7 @@ Const
    LongDeg:       15;
    LongDirection: 'O';
    Superficie:    51100;
-   Capital:       'San Jos‚';
+   Capital:       'San Jos'+#130;
    Domain:        '.cr'
   ),
   (Country:       'Cote d''Ivoire';
@@ -844,7 +844,7 @@ Const
    LongDeg:       48;
    LongDirection: 'E';
    Superficie:    131940;
-   Capital:       'AthŠnes';
+   Capital:       'Ath'+#138+'nes';
    Domain:        '.gr'
   ),
   (Country:       'Grenade';
@@ -888,7 +888,7 @@ Const
    LongDeg:       47;
    LongDirection: 'E';
    Superficie:    549;
-   Capital:       'Hag†t¤a';
+   Capital:       'Hag'+#134+'t'+#164+'a';
    Domain:        '.gu'
   ),
   (Country:       'Guatemala';
@@ -1119,7 +1119,7 @@ Const
    LongDeg:       55;
    LongDirection: 'O';
    Superficie:    1399;
-   Capital:       'T¢rshavn';
+   Capital:       'T'+#162+'rshavn';
    Domain:        '.fo'
   ),
   (Country:       'Iles Malouines';
@@ -1251,7 +1251,7 @@ Const
    LongDeg:       40;
    LongDirection: 'E';
    Superficie:    1648000;
-   Capital:       'T‚h‚ran';
+   Capital:       'T'+#130+'h'+#130+'ran';
    Domain:        '.ir'
   ),
   (Country:       'Irlande';
@@ -1273,7 +1273,7 @@ Const
    LongDeg:       1;
    LongDirection: 'O';
    Superficie:    103000;
-   Capital:       'Reykjav¡k';
+   Capital:       'Reykjav'+#161+'k';
    Domain:        '.is'
   ),
   (Country:       'Israel';
@@ -1284,7 +1284,7 @@ Const
    LongDeg:       4;
    LongDirection: 'E';
    Superficie:    20770;
-   Capital:       'J‚rusalem';
+   Capital:       'J'+#130+'rusalem';
    Domain:        '.il'
   ),
   (Country:       'Italie';
@@ -1405,7 +1405,7 @@ Const
    LongDeg:       29;
    LongDirection: 'E';
    Superficie:    17820;
-   Capital:       'Kowe‹t';
+   Capital:       'Kowe'+#139+'t';
    Domain:        '.kw'
   ),
   (Country:       'Laos';
@@ -1570,7 +1570,7 @@ Const
    LongDeg:       9;
    LongDirection: 'E';
    Superficie:    300;
-   Capital:       'Mal‚';
+   Capital:       'Mal'+#130;
    Domain:        '.mv'
   ),
   (Country:       'Mali';
@@ -1845,7 +1845,7 @@ Const
    LongDeg:       50;
    LongDirection: 'E';
    Superficie:    19060;
-   Capital:       'Noum‚a';
+   Capital:       'Noum'+#130+'a';
    Domain:        '.nc'
   ),
   (Country:       'Nouvelle-Zelande';
@@ -1922,7 +1922,7 @@ Const
    LongDeg:       6;
    LongDirection: 'O';
    Superficie:    78200;
-   Capital:       'Panam ';
+   Capital:       'Panam'+#160;
    Domain:        '.pa'
   ),
   (Country:       'Papouasie-Nouvelle Guinee';
@@ -1944,7 +1944,7 @@ Const
    LongDeg:       27;
    LongDirection: 'O';
    Superficie:    406750;
-   Capital:       'Asunci¢n';
+   Capital:       'Asunci'+#162+'n';
    Domain:        '.py'
   ),
   (Country:       'Pays-Bas';
@@ -2076,7 +2076,7 @@ Const
    LongDeg:       49;
    LongDirection: 'E';
    Superficie:    56785;
-   Capital:       'Lom‚';
+   Capital:       'Lom'+#130;
    Domain:        '.tg'
   ),
   (Country:       'Reunion';
@@ -2142,7 +2142,7 @@ Const
    LongDeg:       53;
    LongDirection: 'O';
    Superficie:    266000;
-   Capital:       'Laƒyoune';
+   Capital:       'La'+#131+'youne';
    Domain:        '.eh'
   ),
   (Country:       'Saint-Barthelemy';
@@ -2274,7 +2274,7 @@ Const
    LongDeg:       58;
    LongDirection: 'E';
    Superficie:    1001;
-   Capital:       'Sao Tom‚';
+   Capital:       'Sao Tom'+#130;
    Domain:        '.st'
   ),
   (Country:       'Senegal';
@@ -2472,7 +2472,7 @@ Const
    LongDeg:       15;
    LongDirection: 'E';
    Superficie:    143100;
-   Capital:       'Douchanb‚';
+   Capital:       'Douchanb'+#130;
    Domain:        '.tj'
   ),
   (Country:       'Taiwan';
@@ -2527,7 +2527,7 @@ Const
    LongDeg:       53;
    LongDirection: 'E';
    Superficie:    7829;
-   Capital:       'Port-aux-Fran‡ais';
+   Capital:       'Port-aux-Fran'+#135+'ais';
    Domain:        ''
   ),
   (Country:       'Territoire britannique de l''ocean Indien';
@@ -2714,7 +2714,7 @@ Const
    LongDeg:       48;
    LongDirection: 'E';
    Superficie:    329560;
-   Capital:       'Hano‹';
+   Capital:       'Hano'+#139;
    Domain:        '.vn'
   ),
   (Country:       'Wallis-et-Futuna';
@@ -2781,7 +2781,7 @@ Function LastPos(Ch:Char;S:String):Integer;
 Var
  i:Integer;
 Begin
- LastPos := 0; { Si le caractŠre n'est pas trouv‚, retourner 0 }
+ LastPos := 0; { Si le caractere n'est pas trouve, retourner 0 }
  For i:=Length(S) downto 1 do If(S[i]=Ch)Then Begin
   LastPos := i;
   Break;
@@ -2793,7 +2793,7 @@ Var
  StartPos,EndPos:Integer;
  Domain:String;
 Begin
-  { Recherche de la position du d‚but du domaine aprŠs le "://" }
+  { Recherche de la position du debut du domaine apres le "://" }
  StartPos:=Pos('://', URL);
  If StartPos>0 Then Begin
   Delete(URL,1,StartPos+2); { Supprimer "http://", "https://",... }
@@ -2803,10 +2803,10 @@ Begin
  If EndPos>0 Then Begin
   URL[0]:=Char(EndPos-1); { Garder tout jusqu'au '/' }
  End;
-  { Recherche de la derniŠre position du point (.) pour obtenir l'extension }
+  { Recherche de la derniere position du point (.) pour obtenir l'extension }
  StartPos:=LastPos('.',URL);
  If StartPos>0 Then Domain:=Copy(URL,StartPos+1,Length(URL)-StartPos)
-               Else Domain:=''; { Si aucun point n'est trouv‚, pas d'extension }
+               Else Domain:=''; { Si aucun point n'est trouve, pas d'extension }
  GetDomainExtension:='.'+Domain; { Retourne l'extension }
 End;
 
@@ -2814,7 +2814,7 @@ BEGIN
   If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('URL2CTRY : Cette commande permet de retourner le nom ',
-                    'd''un pays associ‚ … un URL.');
+                    'd''un pays associ'+#130+' '+#133+' un URL.');
   WriteLn;
   WriteLn('Syntaxe : URL2CTRY url');
  End
