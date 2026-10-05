@@ -227,9 +227,10 @@ Procedure ShowHelp;Begin
  Writeln('--bbox <W,S,E,N> filtre les points dans une emprise geographique.');
  Writeln('--authority <nom> restreint a EPSG (seule autorite integree).');
  Writeln('--accuracy <metres> accepte les tolerances de 1 m ou plus.');
- Writeln('--only-best,');
- Writeln('--no-ballpark et --s_epoch/--t_epoch necessitent le moteur PROJ');
- Writeln('et sont refusees par cette implementation autonome.');
+ Writeln('--only-best[=yes|no] et --no-ballpark sont acceptes; le moteur');
+ Writeln('autonome ne dispose que de transformations explicites WGS84.');
+ Writeln('--s_epoch/--t_epoch acceptent une annee decimale identique;');
+ Writeln('les changements d''epoque exigent un moteur dynamique PROJ.');
 End;
 
 Procedure ShowList(Kind : String);
@@ -414,10 +415,19 @@ Begin
  ParseBBoxValue := True;
 End;
 
-Procedure ShowVerbose(Source, Dest : TProjDef);Begin
+Procedure ShowVerbose(Source, Dest : TProjDef; OnlyBest, NoBallpark,
+                      HasSourceEpoch, HasTargetEpoch : Boolean;
+                      SourceEpoch, TargetEpoch : Real);
+Begin
  Writeln('Source:      ', ProjectionName(Source));
  Writeln('Destination: ', ProjectionName(Dest));
  Writeln('Ellipsoide:  WGS84');
+ If OnlyBest Then Writeln('Only best:   oui')
+ Else Writeln('Only best:   non');
+ If NoBallpark Then Writeln('Ballpark:    refusees')
+ Else Writeln('Ballpark:    aucune operation approximative disponible');
+ If HasSourceEpoch Then Writeln('Epoque source: ', SourceEpoch:0:3);
+ If HasTargetEpoch Then Writeln('Epoque cible:  ', TargetEpoch:0:3);
 End;
 
 Var
@@ -431,9 +441,11 @@ Var
  AccuracyArg : String;
  Area, BBox : TAreaDef;
  RequestedAccuracy : Real;
+ SourceEpoch, TargetEpoch : Real;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
  DMSOutput, FixedDMS, Has3D, Failed, HasArea, HasBBox : Boolean;
- HasAuthority, HasAccuracy : Boolean;
+ HasAuthority, HasAccuracy, OnlyBest, NoBallpark : Boolean;
+ HasSourceEpoch, HasTargetEpoch : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -453,6 +465,10 @@ BEGIN
  HasBBox := False;
  HasAuthority := False;
  HasAccuracy := False;
+ OnlyBest := True;
+ NoBallpark := False;
+ HasSourceEpoch := False;
+ HasTargetEpoch := False;
  AreaName := '';
  BBoxArg := '';
  AuthorityName := '';
@@ -549,6 +565,47 @@ BEGIN
    End;
    HasAccuracy := True;
   End Else
+  If Arg = '--only-best' Then OnlyBest := True Else
+  If Copy(Arg, 1, 12) = '--only-best=' Then Begin
+   AccuracyArg := UpperString(Copy(Arg, 13, Length(Arg) - 12));
+   If AccuracyArg = 'YES' Then OnlyBest := True Else
+   If AccuracyArg = 'NO' Then OnlyBest := False Else Begin
+    Writeln('Erreur: --only-best accepte uniquement yes ou no.'); Halt(1);
+   End;
+  End Else
+  If Arg = '--no-ballpark' Then NoBallpark := True Else
+  If Arg = '--s_epoch' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --s_epoch.'); Halt(1);
+   End;
+   If Not TryValue(ParamStr(I), SourceEpoch) Then Begin
+    Writeln('Erreur: --s_epoch attend une annee decimale.'); Halt(1);
+   End;
+   HasSourceEpoch := True;
+  End Else
+  If Copy(Arg, 1, 10) = '--s_epoch=' Then Begin
+   If Not TryValue(Copy(Arg, 11, Length(Arg) - 10), SourceEpoch) Then Begin
+    Writeln('Erreur: --s_epoch attend une annee decimale.'); Halt(1);
+   End;
+   HasSourceEpoch := True;
+  End Else
+  If Arg = '--t_epoch' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --t_epoch.'); Halt(1);
+   End;
+   If Not TryValue(ParamStr(I), TargetEpoch) Then Begin
+    Writeln('Erreur: --t_epoch attend une annee decimale.'); Halt(1);
+   End;
+   HasTargetEpoch := True;
+  End Else
+  If Copy(Arg, 1, 10) = '--t_epoch=' Then Begin
+   If Not TryValue(Copy(Arg, 11, Length(Arg) - 10), TargetEpoch) Then Begin
+    Writeln('Erreur: --t_epoch attend une annee decimale.'); Halt(1);
+   End;
+   HasTargetEpoch := True;
+  End Else
   If Arg = '-f' Then Begin
    Inc(I);
    If I > ParamCount Then Begin Writeln('Erreur: format manquant apres -f.'); Halt(1); End;
@@ -578,15 +635,6 @@ BEGIN
   If (Err <> 0) Or (DMSPrecision < 0) Or (DMSPrecision > 10) Then Begin
     Writeln('Erreur: precision DMS invalide (0..10).'); Halt(1);
    End;
-  End Else
-    If (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
-     (Arg = '--no-ballpark') Or (Arg = '--s_epoch') Or
-     (Arg = '--t_epoch') Or (Copy(Arg, 1, 10) = '--s_epoch=') Or
-     (Copy(Arg, 1, 10) = '--t_epoch=') Then Begin
-   Writeln('Erreur: ', Arg,
-    ' exige le catalogue et le moteur de selection d''operations PROJ,');
-   Writeln('qui ne sont pas integres a cette version autonome de CS2CS.');
-   Halt(1);
   End;
   Inc(I);
  End;
@@ -637,7 +685,19 @@ BEGIN
   Writeln('Erreur: precision demandee trop stricte; resolution nominale: 1 m.');
   Halt(1);
  End;
- If Verbose Then ShowVerbose(SourceProj, DestProj);
+ If (HasSourceEpoch And (Not HasTargetEpoch)) Or
+   (HasTargetEpoch And (Not HasSourceEpoch)) Then Begin
+  Writeln('Erreur: --s_epoch et --t_epoch doivent etre fournis ensemble.');
+  Halt(1);
+ End;
+ If HasSourceEpoch And (Abs(SourceEpoch - TargetEpoch) > 0.000001) Then Begin
+  Writeln('Erreur: epoque source et cible differente; les transformations');
+  Writeln('dynamiques ne sont pas disponibles dans cette version autonome.');
+  Halt(1);
+ End;
+ If Verbose Then ShowVerbose(SourceProj, DestProj, OnlyBest, NoBallpark,
+                             HasSourceEpoch, HasTargetEpoch,
+                             SourceEpoch, TargetEpoch);
 
  While Not Eof(Input) Do Begin
   ReadLn(Line);
