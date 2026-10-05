@@ -4,6 +4,10 @@
   @abstract(Target: Turbo Pascal, Free Pascal)
   @description: Clone minimaliste de la commande qgis_process de QGIS
 
+  Moteur d'expressions (extractbyexpression, calculatrice de champs, sous-ensembles...) :
+  operateurs QGIS, CASE, tableaux, dictionnaires, dates et intervalles, expressions
+  regulieres, hachages, ~300 fonctions (texte, maths, geometrie, agregats, recouvrements,
+  variables @...). Limites : expressions et chaines de 255 caracteres maximum.
   Systemes de coordonnees : EPSG:4326/3857, UTM (WGS84, NAD83, NAD27, ETRS89, ED50),
   Lambert, Albers, LAEA, Mercator, projections polaires, MTM, Gauss-Kruger, Lambert-93,
   British National Grid... ou definition "+proj=..." ; option --ellipsoid (geodesie).
@@ -1255,11 +1259,21 @@ Type
  Epsg:LongInt;
  End;
  PGeom=^TGeom;
+ PValList=^TValList;
  TVal=Record
-  K:Byte;               { 0 nul, 1 nombre, 2 chaine, 3 booleen, 4 geometrie }
+  K:Byte;               { 0 nul, 1 nombre, 2 chaine, 3 booleen, 4 geometrie, 5 tableau, 6 dictionnaire,
+                          7 date-heure, 8 date, 9 heure, 10 intervalle, 11 entite }
   N:Real;
   S:String;
   G:PGeom;
+  L:PValList;           { elements (dictionnaire : cle, valeur, cle, valeur...) }
+  F:PJ;
+ End;
+ PValArr=^TValArr;
+ TValArr=Array[0..1000000]of TVal;
+ TValList=Record
+  Cnt,Cap:LongInt;
+  V:PValArr;
  End;
 
 Var
@@ -5066,8 +5080,11 @@ Begin
 End;
 
 { Predicats : 0 intersecte, 1 contient, 2 disjoint, 3 egal, 4 touche, 5 chevauche, 6 est a l'interieur, 7 croise }
+Procedure ClipToPolys(Var G,B:TGeom;Var R:TGeom);Forward;
+
 Function GeomPredicate(Pred:Integer;Var A,B:TGeom):Boolean;
 Var
+ LineG,InG,OutG:TGeom;
  Hit:Boolean;
  Ar,Ia,Aa,Ab:Real;
  P:PPath;
@@ -5131,17 +5148,15 @@ Begin
    If(A.Cls=2)and(B.Cls=2)Then GeomPredicate:=SegmentsMeet(A,B,True)
     Else
    If((A.Cls=2)and(B.Cls=3))or((A.Cls=3)and(B.Cls=2))Then Begin
-    If A.Cls=2Then Begin Buf:=B;P:=A.First;End Else Begin Buf:=A;P:=B.First;End;
-    AnyIn:=False;AnyOut:=False;
-    While P<>Nil do Begin
-     For I:=0 to P^.N-1do Begin
-      S:=PtInPolys(Buf,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12);
-      If S=1Then AnyIn:=True;
-      If S=0Then AnyOut:=True;
-     End;
-     P:=P^.Next;
-    End;
-    GeomPredicate:=AnyIn and AnyOut;
+    If A.Cls=2Then Begin Buf:=B;LineG:=A;End Else Begin Buf:=A;LineG:=B;End;
+    ClipOutside:=False;
+    ClipToPolys(LineG,Buf,InG);
+    ClipOutside:=True;
+    ClipToPolys(LineG,Buf,OutG);
+    Ar:=GeomLength(LineG);
+    GeomPredicate:=(GeomLength(InG)>1E-9*Ar)and(GeomLength(OutG)>1E-9*Ar);
+    FreeGeom(InG);FreeGeom(OutG);
+    ClipOutside:=False;
    End;
   End;
  End;
@@ -10432,6 +10447,11 @@ Begin
  ParseDelimUri:=True;
 End;
 
+Var
+ BandSel:Integer;
+ ExprLayer:PJ;          { couche courante pour les expressions (derniere couche chargee) }
+ ExprLayerName:String;
+
 Function LoadWhole(Path:String;Var N:LongInt):PBytes;
 Var
  B:PBytes;
@@ -10481,6 +10501,8 @@ Begin
   Else
  Fail('Error: unsupported vector format "'+Ext+'" ('+Path+')');
  If Subset<>''Then ApplySubset(Root,Subset);
+ ExprLayer:=Root;
+ ExprLayerName:=BaseNoExt(Path);
  LoadLayer:=Root;
 End;
 
@@ -10502,84 +10524,27 @@ Begin
 End;
 
 { ------------------------------------------------------------------ }
-{ Expressions (native:extractbyexpression)                            }
+{ Moteur d'expressions                                                }
 { ------------------------------------------------------------------ }
+
+Procedure ReadRaster(FileName:String;Var R:TRaster);Forward;
 
 Var
  ExprS:String;
  ExprP:Integer;
  ExprProps:PJ;
+ ExprFeat:PJ;
  ExprGeom:TGeom;
  ExprId:LongInt;
+ ExprDepth:Integer;
+ ExprParent:PJ;
 
 Procedure EFail(Msg:String);Begin
  Fail('Error: invalid expression ('+Msg+') near position '+IntToStr(ExprP));
 End;
 
-Function VNull:TVal;
-Var V:TVal;
-Begin V.K:=0;V.N:=0;V.G:=Nil;V.S:='';VNull:=V;End;
-
-Function VNum(R:Real):TVal;
-Var V:TVal;
-Begin V.K:=1;V.N:=R;V.G:=Nil;V.S:='';VNum:=V;End;
-
-Function VStr(S:String):TVal;
-Var V:TVal;
-Begin V.K:=2;V.N:=0;V.G:=Nil;V.S:=S;VStr:=V;End;
-
-Function VBool(B:Boolean):TVal;
-Var V:TVal;
-Begin
- V.K:=3;V.S:='';V.G:=Nil;
- If B Then V.N:=1 Else V.N:=0;
- VBool:=V;
-End;
-
-Function ToNum(V:TVal;Var R:Real):Boolean;
-Var
- E:Integer;
-Begin
- ToNum:=False;
- Case V.K of
-  1,3:Begin R:=V.N;ToNum:=True;End;
-  2:Begin
-   Val(V.S,R,E);
-   ToNum:=(E=0)and(V.S<>'');
-  End;
- End;
-End;
-
-Function ToStr(V:TVal):String;Begin
- Case V.K of
-  1:ToStr:=NumStr(V.N);
-  2:ToStr:=V.S;
-  3:If V.N<>0Then ToStr:='true' Else ToStr:='false';
-  Else ToStr:='';
- End;
-End;
-
-Function PropVal(Name:String):TVal;
-Var
- N:PJ;
- R:Real;
- E:Integer;
-Begin
- PropVal:=VNull;
- N:=JFind(ExprProps,Name);
- If N=Nil Then Exit;
- Case N^.Kind of
-  1:PropVal:=VBool(JVal(N)='true');
-  2:Begin
-   Val(JVal(N),R,E);
-   If E=0Then PropVal:=VNum(R);
-  End;
-  3:PropVal:=VStr(Unesc(JVal(N)));
- End;
-End;
-
 Procedure ESkip;Begin
- While(ExprP<=Length(ExprS))and(ExprS[ExprP]in[' ',#9])do Inc(ExprP);
+ While(ExprP<=Length(ExprS))and(ExprS[ExprP]in[' ',#9,#10,#13])do Inc(ExprP);
 End;
 
 Function EKw(Kw:String):Boolean;
@@ -10605,9 +10570,3842 @@ Function EOp(Op:String):Boolean;Begin
  End;
 End;
 
+Function NewV(K:Byte):TVal;
+Var V:TVal;
+Begin
+ V.K:=K;V.N:=0;V.S:='';V.G:=Nil;V.L:=Nil;V.F:=Nil;
+ NewV:=V;
+End;
+
+Function VNull:TVal;Begin VNull:=NewV(0);End;
+
+Function VNum(R:Real):TVal;
+Var V:TVal;
+Begin V:=NewV(1);V.N:=R;VNum:=V;End;
+
+Function VStr(S:String):TVal;
+Var V:TVal;
+Begin V:=NewV(2);V.S:=S;VStr:=V;End;
+
+Function VBool(B:Boolean):TVal;
+Var V:TVal;
+Begin
+ V:=NewV(3);
+ If B Then V.N:=1;
+ VBool:=V;
+End;
+
+{ Types dates : 7 date-heure, 8 date, 9 heure, 10 intervalle ; N en secondes depuis 1970 }
+Function VTime(K:Byte;Secs:Real):TVal;
+Var V:TVal;
+Begin V:=NewV(K);V.N:=Secs;VTime:=V;End;
+
+Function LNew:PValList;
+Var L:PValList;
+Begin
+ New(L);
+ L^.Cnt:=0;L^.Cap:=8;
+ L^.V:=AllocBlock(8*SizeOf(TVal));
+ LNew:=L;
+End;
+
+Procedure LAdd(L:PValList;Const V:TVal);
+Var
+ Q:PValArr;
+Begin
+ If L^.Cnt>=L^.Cap Then Begin
+  Q:=AllocBlock(L^.Cap*2*SizeOf(TVal));
+  Move(L^.V^,Q^,L^.Cnt*SizeOf(TVal));
+  FreeMem(L^.V,L^.Cap*SizeOf(TVal));
+  L^.V:=Q;L^.Cap:=L^.Cap*2;
+ End;
+ L^.V^[L^.Cnt]:=V;
+ Inc(L^.Cnt);
+End;
+
+Function VList(L:PValList):TVal;
+Var V:TVal;
+Begin V:=NewV(5);V.L:=L;VList:=V;End;
+
+Function VMapOf(L:PValList):TVal;
+Var V:TVal;
+Begin V:=NewV(6);V.L:=L;VMapOf:=V;End;
+
+Function VFeat(F:PJ):TVal;
+Var V:TVal;
+Begin V:=NewV(11);V.F:=F;VFeat:=V;End;
+
+Function IsNumKind(K:Byte):Boolean;Begin
+ IsNumKind:=(K=1)or(K=3);
+End;
+
+Function IsTimeKind(K:Byte):Boolean;Begin
+ IsTimeKind:=K in[7..10];
+End;
+
+{ ---- dates ---- }
+
+Function DaysFromCivil(Y,M,D:LongInt):LongInt;
+Var
+ Era,Yoe,Doy,Doe:LongInt;
+Begin
+ If M<=2Then Y:=Y-1;
+ If Y>=0Then Era:=Y div 400 Else Era:=(Y-399)div 400;
+ Yoe:=Y-Era*400;
+ If M>2Then Doy:=(153*(M-3)+2)div 5+D-1
+       Else Doy:=(153*(M+9)+2)div 5+D-1;
+ Doe:=Yoe*365+Yoe div 4-Yoe div 100+Doy;
+ DaysFromCivil:=Era*146097+Doe-719468;
+End;
+
+Procedure CivilFromDays(Z:LongInt;Var Y,M,D:LongInt);
+Var
+ Era,Doe,Yoe,Doy,Mp:LongInt;
+Begin
+ Z:=Z+719468;
+ If Z>=0Then Era:=Z div 146097 Else Era:=(Z-146096)div 146097;
+ Doe:=Z-Era*146097;
+ Yoe:=(Doe-Doe div 1460+Doe div 36524-Doe div 146096)div 365;
+ Y:=Yoe+Era*400;
+ Doy:=Doe-(365*Yoe+Yoe div 4-Yoe div 100);
+ Mp:=(5*Doy+2)div 153;
+ D:=Doy-(153*Mp+2)div 5+1;
+ If Mp<10Then M:=Mp+3 Else M:=Mp-9;
+ If M<=2Then Inc(Y);
+End;
+
+Function FloorDiv(A,B:Real):Real;Begin
+ FloorDiv:=Int(A/B);
+ If(A/B<0)and(Frac(A/B)<>0)Then FloorDiv:=Int(A/B)-1;
+End;
+
+Procedure SplitTime(T:Real;Var Y,Mo,D,H,Mi:LongInt;Var S:Real);
+Var
+ Days:Real;
+ Z:LongInt;
+ Rest:Real;
+Begin
+ Days:=FloorDiv(T,86400);
+ Rest:=T-Days*86400;
+ Z:=Round(Days);
+ CivilFromDays(Z,Y,Mo,D);
+ H:=Trunc(Rest/3600);
+ Rest:=Rest-H*3600;
+ Mi:=Trunc(Rest/60);
+ S:=Rest-Mi*60;
+End;
+
+Function MakeTime(Y,Mo,D,H,Mi:LongInt;S:Real):Real;
+Var
+ T:Real;
+Begin
+ T:=DaysFromCivil(Y,Mo,D);
+ T:=T*86400;
+ T:=T+(H*3600+Mi*60);
+ MakeTime:=T+S;
+End;
+
+Function DayOfWeek0(T:Real):Integer;
+Var
+ Days:LongInt;
+Begin
+ Days:=Round(FloorDiv(T,86400));
+ DayOfWeek0:=((Days+4)mod 7+7)mod 7;
+End;
+
+Function IsoWeek(T:Real):Integer;
+Var
+ Y,Mo,D,H,Mi,Y2,Mo2,D2:LongInt;
+ S:Real;
+ Days,Wd,Th:LongInt;
+Begin
+ SplitTime(T,Y,Mo,D,H,Mi,S);
+ Days:=DaysFromCivil(Y,Mo,D);
+ Wd:=((Days+3)mod 7+7)mod 7;         { 0 = lundi }
+ Th:=Days-Wd+3;                      { jeudi de la semaine }
+ CivilFromDays(Th,Y2,Mo2,D2);
+ IsoWeek:=(Th-DaysFromCivil(Y2,1,1))div 7+1;
+End;
+
+Function Num2(V:LongInt):String;
+Var S:String;
+Begin
+ Str(V,S);
+ If Length(S)<2Then S:='0'+S;
+ Num2:=S;
+End;
+
+Function Num4(V:LongInt):String;
+Var S:String;
+Begin
+ Str(V,S);
+ While Length(S)<4do S:='0'+S;
+ Num4:=S;
+End;
+
+Const
+ MonthNames:Array[1..12]of String[9]=('January','February','March','April','May','June','July','August','September','October','November','December');
+ DayNames:Array[0..6]of String[9]=('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+
+Function FormatTime(T:Real;Fmt:String):String;
+Var
+ Y,Mo,D,H,Mi:LongInt;
+ S:Real;
+ R,Tk:String;
+ I,J:Integer;
+ H12:LongInt;
+
+ Function Run(C:Char):Integer;
+ Var K:Integer;
+ Begin
+  K:=0;
+  While(I+K<=Length(Fmt))and(Fmt[I+K]=C)do Inc(K);
+  Run:=K;
+ End;
+
+Begin
+ SplitTime(T,Y,Mo,D,H,Mi,S);
+ R:='';
+ I:=1;
+ H12:=H mod 12;
+ If H12=0Then H12:=12;
+ While I<=Length(Fmt)do Begin
+  Case Fmt[I]of
+   'y':Begin
+    J:=Run('y');
+    If J>=4Then R:=R+Num4(Y) Else R:=R+Num2(Y mod 100);
+    Inc(I,J);
+   End;
+   'M':Begin
+    J:=Run('M');
+    If J=1Then R:=R+IntToStr(Mo) Else
+    If J=2Then R:=R+Num2(Mo) Else
+    If J=3Then R:=R+Copy(MonthNames[Mo],1,3)
+          Else R:=R+MonthNames[Mo];
+    Inc(I,J);
+   End;
+   'd':Begin
+    J:=Run('d');
+    If J=1Then R:=R+IntToStr(D) Else
+    If J=2Then R:=R+Num2(D) Else
+    If J=3Then R:=R+Copy(DayNames[DayOfWeek0(T)],1,3)
+          Else R:=R+DayNames[DayOfWeek0(T)];
+    Inc(I,J);
+   End;
+   'H':Begin J:=Run('H');If J=1Then R:=R+IntToStr(H) Else R:=R+Num2(H);Inc(I,J);End;
+   'h':Begin J:=Run('h');If J=1Then R:=R+IntToStr(H12) Else R:=R+Num2(H12);Inc(I,J);End;
+   'm':Begin J:=Run('m');If J=1Then R:=R+IntToStr(Mi) Else R:=R+Num2(Mi);Inc(I,J);End;
+   's':Begin J:=Run('s');If J=1Then R:=R+IntToStr(Trunc(S)) Else R:=R+Num2(Trunc(S));Inc(I,J);End;
+   'z':Begin
+    J:=Run('z');
+    Tk:=IntToStr(Round((S-Int(S))*1000));
+    While Length(Tk)<3do Tk:='0'+Tk;
+    If J=1Then R:=R+IntToStr(Round((S-Int(S))*1000)) Else R:=R+Tk;
+    Inc(I,J);
+   End;
+   'A':Begin
+    J:=Run('A');
+    If H<12Then R:=R+'AM' Else R:=R+'PM';
+    Inc(I,J);
+   End;
+   'a':Begin
+    J:=Run('a');
+    If H<12Then R:=R+'am' Else R:=R+'pm';
+    Inc(I,J);
+   End;
+   '''':Begin
+    Inc(I);
+    While(I<=Length(Fmt))and(Fmt[I]<>'''')do Begin R:=R+Fmt[I];Inc(I);End;
+    Inc(I);
+   End;
+   Else Begin R:=R+Fmt[I];Inc(I);End;
+  End;
+ End;
+ FormatTime:=R;
+End;
+
+Function TimeToText(K:Byte;T:Real):String;
+Var
+ Y,Mo,D,H,Mi:LongInt;
+ S:Real;
+ St:String;
+Begin
+ SplitTime(T,Y,Mo,D,H,Mi,S);
+ St:=Num2(Trunc(S));
+ If Frac(S)>0.0005Then Begin
+  St:=St+'.'+Copy(IntToStr(1000+Round(Frac(S)*1000)),2,3);
+ End;
+ Case K of
+  8:TimeToText:=Num4(Y)+'-'+Num2(Mo)+'-'+Num2(D);
+  9:TimeToText:=Num2(H)+':'+Num2(Mi)+':'+St;
+  Else TimeToText:=Num4(Y)+'-'+Num2(Mo)+'-'+Num2(D)+'T'+Num2(H)+':'+Num2(Mi)+':'+St;
+ End;
+End;
+
+{ Lit "AAAA-MM-JJ", "AAAA-MM-JJ HH:MM:SS(.fff)", "HH:MM:SS" ; Kind recoit 7, 8 ou 9 }
+Function ParseTime(S:String;Var T:Real;Var Kind:Byte):Boolean;
+Var
+ P,Err:Integer;
+ Y,Mo,D,H,Mi:LongInt;
+ Sc:Real;
+ A,B:String;
+ HaveD,HaveT:Boolean;
+
+ Function Part(Var Src:String;Sep:Char;Var V:LongInt):Boolean;
+ Var
+  Q,E:Integer;
+  Tk:String;
+ Begin
+  Q:=Pos(Sep,Src);
+  If Q=0Then Begin Tk:=Src;Src:='';End
+        Else Begin Tk:=Copy(Src,1,Q-1);Src:=Copy(Src,Q+1,255);End;
+  Val(Tk,V,E);
+  Part:=(E=0)and(Tk<>'');
+ End;
+
+Begin
+ ParseTime:=False;
+ While(S<>'')and(S[1]=' ')do Delete(S,1,1);
+ While(S<>'')and(S[Length(S)]=' ')do Delete(S,Length(S),1);
+ If S=''Then Exit;
+ HaveD:=False;HaveT:=False;
+ Y:=1970;Mo:=1;D:=1;H:=0;Mi:=0;Sc:=0;
+ P:=Pos('T',S);
+ If P=0Then P:=Pos(' ',S);
+ If P>0Then Begin A:=Copy(S,1,P-1);B:=Copy(S,P+1,255);End
+  Else If Pos(':',S)>0Then Begin A:='';B:=S;End
+  Else Begin A:=S;B:='';End;
+ If A<>''Then Begin
+  For P:=1 to Length(A)do If A[P]='/'Then A[P]:='-';
+  If Not Part(A,'-',Y)Then Exit;
+  If Not Part(A,'-',Mo)Then Exit;
+  If Not Part(A,'-',D)Then Exit;
+  If(Mo<1)or(Mo>12)or(D<1)or(D>31)Then Exit;
+  HaveD:=True;
+ End;
+ If B<>''Then Begin
+  P:=Pos('Z',B);If P>0Then B:=Copy(B,1,P-1);
+  P:=Pos('+',B);If P>0Then B:=Copy(B,1,P-1);
+  If Not Part(B,':',H)Then Exit;
+  If B<>''Then Begin
+   If Not Part(B,':',Mi)Then Exit;
+   If B<>''Then Begin
+    Val(B,Sc,Err);
+    If Err<>0Then Exit;
+   End;
+  End;
+  If(H<0)or(H>23)or(Mi<0)or(Mi>59)Then Exit;
+  HaveT:=True;
+ End;
+ If HaveD and HaveT Then Kind:=7 Else
+ If HaveD Then Kind:=8 Else
+ If HaveT Then Kind:=9
+          Else Exit;
+ T:=MakeTime(Y,Mo,D,H,Mi,Sc);
+ ParseTime:=True;
+End;
+
+{ Lit un texte selon un format (yyyy MM dd HH mm ss zzz MMM MMMM AP) }
+Function ParseTimeFormat(S,Fmt:String;Var T:Real;Var Kind:Byte):Boolean;
+Var
+ I,J,P,K,Run:Integer;
+ Y,Mo,D,H,Mi,Ms:LongInt;
+ Sc:Real;
+ HaveD,HaveT,Pm,HasAp:Boolean;
+ C:Char;
+ Num:String;
+ Found:Boolean;
+
+ Function ReadNum(MaxLen:Integer;Var V:LongInt):Boolean;
+ Var
+  E:Integer;
+ Begin
+  Num:='';
+  While(P<=Length(S))and(S[P]in['0'..'9'])and(Length(Num)<MaxLen)do Begin Num:=Num+S[P];Inc(P);End;
+  Val(Num,V,E);
+  ReadNum:=(Num<>'')and(E=0);
+ End;
+
+Begin
+ ParseTimeFormat:=False;
+ Y:=1970;Mo:=1;D:=1;H:=0;Mi:=0;Sc:=0;Ms:=0;
+ HaveD:=False;HaveT:=False;Pm:=False;HasAp:=False;
+ I:=1;P:=1;
+ While I<=Length(Fmt)do Begin
+  C:=Fmt[I];
+  Run:=0;
+  While(I+Run<=Length(Fmt))and(Fmt[I+Run]=C)do Inc(Run);
+  Case C of
+   'y':Begin
+    If Run>=4Then Begin If Not ReadNum(4,Y)Then Exit;End
+     Else Begin If Not ReadNum(2,Y)Then Exit;If Y<70Then Y:=Y+2000 Else Y:=Y+1900;End;
+    HaveD:=True;
+   End;
+   'M':Begin
+    If Run>=3Then Begin
+     Found:=False;
+     For K:=1 to 12do
+      If(Run=3)and(StrUpper(Copy(S,P,3))=StrUpper(Copy(MonthNames[K],1,3)))Then Begin Mo:=K;Inc(P,3);Found:=True;Break;End Else
+      If(Run>3)and(StrUpper(Copy(S,P,Length(MonthNames[K])))=StrUpper(MonthNames[K]))Then Begin Mo:=K;Inc(P,Length(MonthNames[K]));Found:=True;Break;End;
+     If Not Found Then Exit;
+    End
+     Else If Not ReadNum(2,Mo)Then Exit;
+    HaveD:=True;
+   End;
+   'd':Begin
+    If Run>=3Then Begin
+     While(P<=Length(S))and(UpCase(S[P])in['A'..'Z'])do Inc(P);
+    End
+     Else Begin If Not ReadNum(2,D)Then Exit;HaveD:=True;End;
+   End;
+   'H','h':Begin If Not ReadNum(2,H)Then Exit;HaveT:=True;End;
+   'm':Begin If Not ReadNum(2,Mi)Then Exit;HaveT:=True;End;
+   's':Begin If Not ReadNum(2,Ms)Then Exit;Sc:=Ms;HaveT:=True;End;
+   'z':Begin If Not ReadNum(3,Ms)Then Exit;Sc:=Sc+Ms/1000;End;
+   'A','a':Begin
+    HasAp:=True;
+    If StrUpper(Copy(S,P,2))='PM'Then Pm:=True Else If StrUpper(Copy(S,P,2))<>'AM'Then Exit;
+    Inc(P,2);
+    Run:=1;
+    If(I<Length(Fmt))and(UpCase(Fmt[I+1])='P')Then Run:=2;
+   End;
+   '''':Begin
+    J:=I+1;
+    While(J<=Length(Fmt))and(Fmt[J]<>'''')do Begin
+     If(P>Length(S))or(S[P]<>Fmt[J])Then Exit;
+     Inc(P);Inc(J);
+    End;
+    Run:=J-I+1;
+   End;
+   Else Begin
+    If(P>Length(S))or(S[P]<>C)Then Exit;
+    Inc(P);
+   End;
+  End;
+  If C in['y','M','d','H','h','m','s','z','A','a','''']Then Inc(I,Run) Else Inc(I);
+ End;
+ If HasAp Then Begin
+  If(H=12)and Not Pm Then H:=0 Else If(H<12)and Pm Then H:=H+12;
+ End;
+ If(Mo<1)or(Mo>12)or(D<1)or(D>31)or(H>23)or(Mi>59)Then Exit;
+ If HaveD and HaveT Then Kind:=7 Else If HaveD Then Kind:=8 Else If HaveT Then Kind:=9 Else Exit;
+ T:=MakeTime(Y,Mo,D,H,Mi,Sc);
+ ParseTimeFormat:=True;
+End;
+
+Function NowSecs:Real;
+Var
+ Y,Mo,D,Dw,H,Mi,S,S1:Word;
+Begin
+ GetDate(Y,Mo,D,Dw);
+ GetTime(H,Mi,S,S1);
+ NowSecs:=MakeTime(Y,Mo,D,H,Mi,S+S1/100);
+End;
+
+{ Intervalle depuis "1 day 2 hours" / "3 weeks" }
+Function ParseInterval(S:String;Var T:Real):Boolean;
+Var
+ Rest,W,U:String;
+ V:Real;
+ Err:Integer;
+ Any:Boolean;
+Begin
+ ParseInterval:=False;
+ T:=0;Any:=False;
+ Rest:=S;
+ While Rest<>''do Begin
+  W:=NextWord(Rest);
+  If W=''Then Continue;
+  Val(W,V,Err);
+  If Err<>0Then Exit;
+  U:=LowerStr(NextWord(Rest));
+  If(U='year')or(U='years')Then T:=T+V*365.25*86400 Else
+  If(U='month')or(U='months')Then T:=T+V*30*86400 Else
+  If(U='week')or(U='weeks')Then T:=T+V*7*86400 Else
+  If(U='day')or(U='days')Then T:=T+V*86400 Else
+  If(U='hour')or(U='hours')Then T:=T+V*3600 Else
+  If(U='minute')or(U='minutes')or(U='min')Then T:=T+V*60 Else
+  If(U='second')or(U='seconds')or(U='sec')Then T:=T+V
+   Else Exit;
+  Any:=True;
+ End;
+ ParseInterval:=Any;
+End;
+
+{ ---- conversions ---- }
+
+Function ValJson(V:TVal):String;Forward;
+
+Function ToNum(V:TVal;Var R:Real):Boolean;
+Var
+ E:Integer;
+Begin
+ ToNum:=False;
+ Case V.K of
+  1,3,7,8,9,10:Begin R:=V.N;ToNum:=True;End;
+  2:Begin
+   Val(V.S,R,E);
+   ToNum:=(E=0)and(V.S<>'');
+  End;
+ End;
+End;
+
+Function ToStr(V:TVal):String;Begin
+ Case V.K of
+  1:ToStr:=NumStr(V.N);
+  2:ToStr:=V.S;
+  3:If V.N<>0Then ToStr:='true' Else ToStr:='false';
+  5,6:ToStr:=ValJson(V);
+  7,8,9:ToStr:=TimeToText(V.K,V.N);
+  10:ToStr:=NumStr(V.N);
+  Else ToStr:='';
+ End;
+End;
+
+Function JsonQuote(S:String):String;
+Var
+ I:Integer;
+ R:String;
+Begin
+ R:='"';
+ For I:=1 to Length(S)do Begin
+  If Length(R)>=250Then Break;
+  Case S[I]of
+   '"':R:=R+'\"';
+   '\':R:=R+'\\';
+   #10:R:=R+'\n';
+   #13:R:=R+'\r';
+   #9:R:=R+'\t';
+   Else If S[I]>=' 'Then R:=R+S[I];
+  End;
+ End;
+ JsonQuote:=R+'"';
+End;
+
+Function ValJson(V:TVal):String;
+Var
+ I:LongInt;
+ R:String;
+Begin
+ Case V.K of
+  0:ValJson:='null';
+  1:ValJson:=NumStr(V.N);
+  2:ValJson:=JsonQuote(V.S);
+  3:If V.N<>0Then ValJson:='true' Else ValJson:='false';
+  5:Begin
+   R:='[';
+   For I:=0 to V.L^.Cnt-1do Begin
+    If I>0Then R:=R+',';
+    If Length(R)<230Then R:=R+ValJson(V.L^.V^[I]);
+   End;
+   ValJson:=R+']';
+  End;
+  6:Begin
+   R:='{';
+   I:=0;
+   While I+1<V.L^.Cnt do Begin
+    If I>0Then R:=R+',';
+    If Length(R)<230Then R:=R+JsonQuote(ToStr(V.L^.V^[I]))+':'+ValJson(V.L^.V^[I+1]);
+    Inc(I,2);
+   End;
+   ValJson:=R+'}';
+  End;
+  7,8,9:ValJson:=JsonQuote(TimeToText(V.K,V.N));
+  10:ValJson:=NumStr(V.N);
+  Else ValJson:='null';
+ End;
+End;
+
+{ Ordre de deux valeurs (nombres avant le texte) }
+Function CmpVal(A,B:TVal):Integer;
+Var
+ Ra,Rb:Real;
+ Sa,Sb:String;
+Begin
+ If(A.K=0)and(B.K=0)Then Begin CmpVal:=0;Exit;End;
+ If A.K=0Then Begin CmpVal:=-1;Exit;End;
+ If B.K=0Then Begin CmpVal:=1;Exit;End;
+ If(A.K<>2)and(B.K<>2)and ToNum(A,Ra)and ToNum(B,Rb)Then Begin CmpVal:=CmpR(Ra,Rb);Exit;End;
+ If(A.K=2)and(B.K=2)Then Begin
+  If A.S<B.S Then CmpVal:=-1 Else If A.S>B.S Then CmpVal:=1 Else CmpVal:=0;
+  Exit;
+ End;
+ If ToNum(A,Ra)and ToNum(B,Rb)Then Begin CmpVal:=CmpR(Ra,Rb);Exit;End;
+ Sa:=ToStr(A);Sb:=ToStr(B);
+ If Sa<Sb Then CmpVal:=-1 Else If Sa>Sb Then CmpVal:=1 Else CmpVal:=0;
+End;
+
+Function ValEq(A,B:TVal):Boolean;
+Var
+ I:LongInt;
+Begin
+ ValEq:=False;
+ If(A.K=5)and(B.K=5)Then Begin
+  If A.L^.Cnt<>B.L^.Cnt Then Exit;
+  For I:=0 to A.L^.Cnt-1do If Not ValEq(A.L^.V^[I],B.L^.V^[I])Then Exit;
+  ValEq:=True;
+  Exit;
+ End;
+ If(A.K=0)or(B.K=0)Then Begin ValEq:=(A.K=0)and(B.K=0);Exit;End;
+ ValEq:=CmpVal(A,B)=0;
+End;
+
+{ ---- expressions regulieres (retour arriere) ---- }
+
+Function LowerCase1(C:Char):Char;Begin
+ If C in['A'..'Z']Then LowerCase1:=Chr(Ord(C)+32) Else LowerCase1:=C;
+End;
+
+
+
+Const
+ MaxRx=300;
+
+Type
+ TByteSet=Set of Byte;
+ TRxNode=Record
+  Typ:Byte;       { 0 nop, 1 car, 2 tout, 3 classe, 4 debut, 5 fin, 6 ouvre, 7 ferme, 8 alternative,
+                    9 repetition simple, 10 fin de repetition, 11 limite de mot, 12 non limite, 13 succes,
+                    14 repetition de groupe }
+  Ch:Byte;
+  SetI:Integer;
+  Next:Integer;
+  A,B:Integer;
+  Min,Max:Integer;
+  Lazy:Boolean;
+  Grp:Integer;
+ End;
+
+Var
+ Rx:Array[0..MaxRx]of TRxNode;
+ RxN:Integer;
+ RxSets:Array[0..39]of TByteSet;
+ RxSetN:Integer;
+ RxPat:String;
+ RxPos:Integer;
+ RxGroups:Integer;
+ RxCapS,RxCapE:Array[0..9]of Integer;
+ RxSub:String;
+ RxStart:Integer;
+ RxCnt,RxLast:Array[0..MaxRx]of Integer;
+ RxCache:String;
+ RxSteps:LongInt;
+
+Procedure RxFail;Begin
+ Fail('Error: invalid regular expression "'+RxPat+'"');
+End;
+
+Function RxNew(Typ:Byte):Integer;Begin
+ If RxN>=MaxRx Then RxFail;
+ Inc(RxN);
+ FillChar(Rx[RxN],SizeOf(TRxNode),0);
+ Rx[RxN].Typ:=Typ;
+ Rx[RxN].Next:=0;
+ RxNew:=RxN;
+End;
+
+Procedure RxAddEsc(Var S:TByteSet;C:Char);
+Var
+ I:Integer;
+Begin
+ Case C of
+  'd':For I:=48 to 57do Include(S,I);
+  'w':Begin
+   For I:=48 to 57do Include(S,I);
+   For I:=65 to 90do Include(S,I);
+   For I:=97 to 122do Include(S,I);
+   Include(S,95);
+  End;
+  's':Begin Include(S,32);Include(S,9);Include(S,10);Include(S,13);Include(S,11);Include(S,12);End;
+ End;
+End;
+
+Function RxEscChar(C:Char):Byte;Begin
+ Case C of
+  'n':RxEscChar:=10;
+  't':RxEscChar:=9;
+  'r':RxEscChar:=13;
+  Else RxEscChar:=Ord(C);
+ End;
+End;
+
+Procedure RxAlt(Var S,T:Integer);Forward;
+
+Procedure RxAtom(Var S,T:Integer);
+Var
+ C:Char;
+ N,I:Integer;
+ Neg:Boolean;
+ Cur:TByteSet;
+ Lo,Hi:Integer;
+ Tmp:TByteSet;
+ G,S2,T2,O,Cl:Integer;
+ K:Integer;
+ Mn,Mx:Integer;
+ Lazy:Boolean;
+ R,E:Integer;
+ Err:Integer;
+ Num:String;
+Begin
+ C:=RxPat[RxPos];
+ Inc(RxPos);
+ Case C of
+  '.':Begin N:=RxNew(2);S:=N;T:=N;End;
+  '^':Begin N:=RxNew(4);S:=N;T:=N;End;
+  '$':Begin N:=RxNew(5);S:=N;T:=N;End;
+  '(':Begin
+   G:=-1;
+   If(RxPos+1<=Length(RxPat))and(RxPat[RxPos]='?')and(RxPat[RxPos+1]=':')Then Inc(RxPos,2)
+    Else Begin
+     Inc(RxGroups);
+     If RxGroups>9Then RxFail;
+     G:=RxGroups;
+    End;
+   RxAlt(S2,T2);
+   If(RxPos>Length(RxPat))or(RxPat[RxPos]<>')')Then RxFail;
+   Inc(RxPos);
+   If G>=0Then Begin
+    O:=RxNew(6);Cl:=RxNew(7);
+    Rx[O].Grp:=G;Rx[Cl].Grp:=G;
+    Rx[O].Next:=S2;Rx[T2].Next:=Cl;
+    S:=O;T:=Cl;
+   End
+    Else Begin S:=S2;T:=T2;End;
+  End;
+  '[':Begin
+   Cur:=[];
+   Neg:=False;
+   If(RxPos<=Length(RxPat))and(RxPat[RxPos]='^')Then Begin Neg:=True;Inc(RxPos);End;
+   K:=0;
+   While True do Begin
+    If RxPos>Length(RxPat)Then RxFail;
+    C:=RxPat[RxPos];
+    If(C=']')and(K>0)Then Begin Inc(RxPos);Break;End;
+    Inc(K);
+    Inc(RxPos);
+    If C='\'Then Begin
+     If RxPos>Length(RxPat)Then RxFail;
+     C:=RxPat[RxPos];Inc(RxPos);
+     If C in['d','w','s']Then Begin RxAddEsc(Cur,C);Continue;End;
+     If C in['D','W','S']Then Begin
+      Tmp:=[];
+      RxAddEsc(Tmp,LowerCase1(C));
+      For I:=0 to 255do If Not(I in Tmp)Then Include(Cur,I);
+      Continue;
+     End;
+     Lo:=RxEscChar(C);
+    End
+     Else Lo:=Ord(C);
+    Hi:=Lo;
+    If(RxPos+1<=Length(RxPat))and(RxPat[RxPos]='-')and(RxPat[RxPos+1]<>']')Then Begin
+     Inc(RxPos);
+     C:=RxPat[RxPos];Inc(RxPos);
+     If C='\'Then Begin C:=RxPat[RxPos];Inc(RxPos);Hi:=RxEscChar(C);End
+             Else Hi:=Ord(C);
+    End;
+    For I:=Lo to Hi do Include(Cur,I);
+   End;
+   If Neg Then Begin
+    Tmp:=Cur;Cur:=[];
+    For I:=0 to 255do If Not(I in Tmp)Then Include(Cur,I);
+   End;
+   If RxSetN>=39Then RxFail;
+   Inc(RxSetN);
+   RxSets[RxSetN]:=Cur;
+   N:=RxNew(3);Rx[N].SetI:=RxSetN;S:=N;T:=N;
+  End;
+  '\':Begin
+   If RxPos>Length(RxPat)Then RxFail;
+   C:=RxPat[RxPos];Inc(RxPos);
+   If C in['d','w','s','D','W','S']Then Begin
+    Cur:=[];
+    If C in['d','w','s']Then RxAddEsc(Cur,C)
+     Else Begin
+      Tmp:=[];
+      RxAddEsc(Tmp,LowerCase1(C));
+      For I:=0 to 255do If Not(I in Tmp)Then Include(Cur,I);
+     End;
+    If RxSetN>=39Then RxFail;
+    Inc(RxSetN);
+    RxSets[RxSetN]:=Cur;
+    N:=RxNew(3);Rx[N].SetI:=RxSetN;
+   End Else
+   If C='b'Then N:=RxNew(11) Else
+   If C='B'Then N:=RxNew(12)
+    Else Begin N:=RxNew(1);Rx[N].Ch:=RxEscChar(C);End;
+   S:=N;T:=N;
+  End;
+  '*','+','?':RxFail;
+  Else Begin N:=RxNew(1);Rx[N].Ch:=Ord(C);S:=N;T:=N;End;
+ End;
+ { quantificateur }
+ If RxPos<=Length(RxPat)Then Begin
+  C:=RxPat[RxPos];
+  Mn:=-1;Mx:=-1;
+  If C='*'Then Begin Mn:=0;Mx:=32000;Inc(RxPos);End Else
+  If C='+'Then Begin Mn:=1;Mx:=32000;Inc(RxPos);End Else
+  If C='?'Then Begin Mn:=0;Mx:=1;Inc(RxPos);End Else
+  If C='{'Then Begin
+   K:=RxPos+1;
+   Num:='';
+   While(K<=Length(RxPat))and(RxPat[K]in['0'..'9'])do Begin Num:=Num+RxPat[K];Inc(K);End;
+   If(Num<>'')and(K<=Length(RxPat))Then Begin
+    Val(Num,Mn,Err);
+    If RxPat[K]='}'Then Begin Mx:=Mn;RxPos:=K+1;End Else
+    If RxPat[K]=','Then Begin
+     Inc(K);Num:='';
+     While(K<=Length(RxPat))and(RxPat[K]in['0'..'9'])do Begin Num:=Num+RxPat[K];Inc(K);End;
+     If(K<=Length(RxPat))and(RxPat[K]='}')Then Begin
+      If Num=''Then Mx:=32000 Else Val(Num,Mx,Err);
+      RxPos:=K+1;
+     End
+      Else Mn:=-1;
+    End
+     Else Mn:=-1;
+   End;
+  End;
+  If Mn>=0Then Begin
+   Lazy:=False;
+   If(RxPos<=Length(RxPat))and(RxPat[RxPos]='?')Then Begin Lazy:=True;Inc(RxPos);End;
+   If Rx[S].Typ in[1,2,3]Then Begin
+    If S<>T Then RxFail;
+    R:=RxNew(9);
+    Rx[R].A:=S;Rx[R].Min:=Mn;Rx[R].Max:=Mx;Rx[R].Lazy:=Lazy;
+    S:=R;T:=R;
+   End
+    Else
+   Begin
+    R:=RxNew(14);E:=RxNew(10);
+    Rx[R].A:=S;Rx[R].Min:=Mn;Rx[R].Max:=Mx;Rx[R].Lazy:=Lazy;
+    Rx[E].A:=R;
+    Rx[T].Next:=E;
+    S:=R;T:=R;
+   End;
+  End;
+ End;
+End;
+
+Procedure RxSeq(Var S,T:Integer);
+Var
+ S1,T1:Integer;
+ First:Boolean;
+Begin
+ First:=True;
+ S:=RxNew(0);T:=S;
+ While(RxPos<=Length(RxPat))and(RxPat[RxPos]<>'|')and(RxPat[RxPos]<>')')do Begin
+  RxAtom(S1,T1);
+  Rx[T].Next:=S1;
+  T:=T1;
+ End;
+End;
+
+Procedure RxAlt(Var S,T:Integer);
+Var
+ S1,T1,J,A1,Prev:Integer;
+ Starts:Array[1..16]of Integer;
+ Tails:Array[1..16]of Integer;
+ N,I:Integer;
+Begin
+ N:=0;
+ Repeat
+  RxSeq(S1,T1);
+  Inc(N);
+  If N>16Then RxFail;
+  Starts[N]:=S1;Tails[N]:=T1;
+  If(RxPos<=Length(RxPat))and(RxPat[RxPos]='|')Then Begin Inc(RxPos);End
+   Else Break;
+ Until False;
+ If N=1Then Begin S:=Starts[1];T:=Tails[1];Exit;End;
+ J:=RxNew(0);
+ For I:=1 to N do Rx[Tails[I]].Next:=J;
+ Prev:=Starts[N];
+ For I:=N-1downto 1do Begin
+  A1:=RxNew(8);
+  Rx[A1].A:=Starts[I];Rx[A1].B:=Prev;
+  Prev:=A1;
+ End;
+ S:=Prev;T:=J;
+End;
+
+Function RxWord(P:Integer):Boolean;Begin
+ RxWord:=(P>=1)and(P<=Length(RxSub))and(RxSub[P]in['0'..'9','A'..'Z','a'..'z','_']);
+End;
+
+Function RxM(N:Integer;P:Integer):Boolean;Forward;
+
+Function RxTest(R:Integer;P:Integer):Boolean;
+Var
+ C,Old:Integer;
+Begin
+ C:=RxCnt[R];
+ If C<Rx[R].Min Then Begin RxTest:=RxM(Rx[R].A,P);Exit;End;
+ If C>=Rx[R].Max Then Begin RxTest:=RxM(Rx[R].Next,P);Exit;End;
+ Old:=RxLast[R];
+ If Rx[R].Lazy Then Begin
+  If RxM(Rx[R].Next,P)Then Begin RxTest:=True;Exit;End;
+  If P=Old Then Begin RxTest:=False;Exit;End;
+  RxLast[R]:=P;
+  RxTest:=RxM(Rx[R].A,P);
+  RxLast[R]:=Old;
+ End
+  Else
+ Begin
+  If P<>Old Then Begin
+   RxLast[R]:=P;
+   If RxM(Rx[R].A,P)Then Begin RxLast[R]:=Old;RxTest:=True;Exit;End;
+   RxLast[R]:=Old;
+  End;
+  RxTest:=RxM(Rx[R].Next,P);
+ End;
+End;
+
+Function RxOne(N:Integer;P:Integer):Boolean;Begin
+ RxOne:=False;
+ If P>Length(RxSub)Then Exit;
+ Case Rx[N].Typ of
+  1:RxOne:=Ord(RxSub[P])=Rx[N].Ch;
+  2:RxOne:=RxSub[P]<>#10;
+  3:RxOne:=Ord(RxSub[P])in RxSets[Rx[N].SetI];
+ End;
+End;
+
+Function RxM(N:Integer;P:Integer):Boolean;
+Var
+ K,J,Mx,OldC,OldL,Old:Integer;
+ Res:Boolean;
+Begin
+ RxM:=False;
+ Inc(RxSteps);
+ If RxSteps>2000000Then Begin RxM:=False;Exit;End;
+ While True do Begin
+  If N=0Then Begin RxM:=False;Exit;End;
+  Case Rx[N].Typ of
+   0:N:=Rx[N].Next;
+   13:Begin RxCapE[0]:=P;RxM:=True;Exit;End;
+   1,2,3:Begin
+    If Not RxOne(N,P)Then Exit;
+    Inc(P);N:=Rx[N].Next;
+   End;
+   4:Begin If P<>1Then Exit;N:=Rx[N].Next;End;
+   5:Begin If P<>Length(RxSub)+1Then Exit;N:=Rx[N].Next;End;
+   11:Begin
+    If RxWord(P-1)=RxWord(P)Then Exit;
+    N:=Rx[N].Next;
+   End;
+   12:Begin
+    If RxWord(P-1)<>RxWord(P)Then Exit;
+    N:=Rx[N].Next;
+   End;
+   6:Begin
+    Old:=RxCapS[Rx[N].Grp];
+    RxCapS[Rx[N].Grp]:=P;
+    If RxM(Rx[N].Next,P)Then Begin RxM:=True;Exit;End;
+    RxCapS[Rx[N].Grp]:=Old;
+    Exit;
+   End;
+   7:Begin
+    Old:=RxCapE[Rx[N].Grp];
+    RxCapE[Rx[N].Grp]:=P;
+    If RxM(Rx[N].Next,P)Then Begin RxM:=True;Exit;End;
+    RxCapE[Rx[N].Grp]:=Old;
+    Exit;
+   End;
+   8:Begin
+    If RxM(Rx[N].A,P)Then Begin RxM:=True;Exit;End;
+    N:=Rx[N].B;
+   End;
+   9:Begin
+    Mx:=0;
+    While(Mx<Rx[N].Max)and RxOne(Rx[N].A,P+Mx)do Inc(Mx);
+    If Mx<Rx[N].Min Then Exit;
+    If Rx[N].Lazy Then Begin
+     For J:=Rx[N].Min to Mx do If RxM(Rx[N].Next,P+J)Then Begin RxM:=True;Exit;End;
+    End
+     Else
+    For J:=Mx downto Rx[N].Min do If RxM(Rx[N].Next,P+J)Then Begin RxM:=True;Exit;End;
+    Exit;
+   End;
+   14:Begin
+    OldC:=RxCnt[N];OldL:=RxLast[N];
+    RxCnt[N]:=0;RxLast[N]:=-1;
+    Res:=RxTest(N,P);
+    RxCnt[N]:=OldC;RxLast[N]:=OldL;
+    RxM:=Res;
+    Exit;
+   End;
+   10:Begin
+    K:=Rx[N].A;
+    Inc(RxCnt[K]);
+    Res:=RxTest(K,P);
+    If Not Res Then Dec(RxCnt[K]);
+    RxM:=Res;
+    Exit;
+   End;
+   Else Exit;
+  End;
+ End;
+End;
+
+{ Compile Pat ; le noeud 1 est le debut du motif }
+Procedure RxCompile(Pat:String);
+Var
+ S,T,Fin:Integer;
+Begin
+ If(Pat=RxCache)and(RxN>0)Then Exit;
+ RxPat:=Pat;
+ RxPos:=1;RxN:=0;RxSetN:=0;RxGroups:=0;
+ RxAlt(S,T);
+ If RxPos<=Length(Pat)Then RxFail;
+ Fin:=RxNew(13);
+ Rx[T].Next:=Fin;
+ Rx[0].Next:=S;
+ RxCache:=Pat;
+End;
+
+{ Cherche a partir de From (base 1) ; RxCapS/E[0..RxGroups] sont renseignes }
+Function RxFind(Const Subj:String;From:Integer):Boolean;
+Var
+ P,I:Integer;
+Begin
+ RxFind:=False;
+ RxSub:=Subj;
+ RxSteps:=0;
+ For P:=From to Length(Subj)+1do Begin
+  For I:=0 to 9do Begin RxCapS[I]:=0;RxCapE[I]:=0;End;
+  RxCapS[0]:=P;
+  If RxM(Rx[0].Next,P)Then Begin RxFind:=True;Exit;End;
+ End;
+End;
+
+Function RxGroupText(K:Integer):String;Begin
+ If(RxCapS[K]>0)and(RxCapE[K]>=RxCapS[K])Then RxGroupText:=Copy(RxSub,RxCapS[K],RxCapE[K]-RxCapS[K])
+                                         Else RxGroupText:='';
+End;
+
+{ ---- utilitaires pour les fonctions ---- }
+
+Function Trim1(S:String):String;Begin
+ While(S<>'')and(S[1]in[' ',#9,#10,#13])do Delete(S,1,1);
+ While(S<>'')and(S[Length(S)]in[' ',#9,#10,#13])do Delete(S,Length(S),1);
+ Trim1:=S;
+End;
+
+Function Acos(X:Real):Real;Begin
+ Acos:=Atan2(Sqrt(MaxR(0,1-X*X)),X);
+End;
+
+Function RoundHalf(R:Real):Real;Begin
+ If R>=0Then RoundHalf:=FloorR(R+0.5) Else RoundHalf:=-FloorR(-R+0.5);
+End;
+
+{ Longueur et extraction en caracteres UTF-8 }
+Function U8Len(Const S:String):Integer;
+Var
+ I,N:Integer;
+Begin
+ N:=0;
+ For I:=1 to Length(S)do If(Ord(S[I])and $C0)<>$80Then Inc(N);
+ U8Len:=N;
+End;
+
+{ Octet de debut du I-eme caractere (base 1) ; Length(S)+1 si au dela }
+Function U8Pos(Const S:String;I:LongInt):Integer;
+Var
+ K,N:Integer;
+Begin
+ N:=0;
+ For K:=1 to Length(S)do Begin
+  If(Ord(S[K])and $C0)<>$80Then Begin
+   Inc(N);
+   If N=I Then Begin U8Pos:=K;Exit;End;
+  End;
+ End;
+ U8Pos:=Length(S)+1;
+End;
+
+Function U8Copy(Const S:String;Start,Len:LongInt):String;
+Var
+ A,B:Integer;
+Begin
+ If Start<1Then Start:=1;
+ If Len<=0Then Begin U8Copy:='';Exit;End;
+ A:=U8Pos(S,Start);
+ B:=U8Pos(S,Start+Len);
+ U8Copy:=Copy(S,A,B-A);
+End;
+
+Function U8Chr(V:LongInt):String;Begin
+ If V<128Then U8Chr:=Chr(V) Else
+ If V<2048Then U8Chr:=Chr(192+(V shr 6))+Chr(128+(V and 63)) Else
+ If V<65536Then U8Chr:=Chr(224+(V shr 12))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63))
+ Else U8Chr:=Chr(240+(V shr 18))+Chr(128+((V shr 12)and 63))+Chr(128+((V shr 6)and 63))+Chr(128+(V and 63));
+End;
+
+Function U8Upper(S:String;Up:Boolean):String;
+Var
+ I:Integer;
+ R:String;
+Begin
+ R:='';
+ I:=1;
+ While I<=Length(S)do Begin
+  If(S[I]=#$C3)and(I<Length(S))Then Begin
+   If Up and(Ord(S[I+1])>=$A0)and(Ord(S[I+1])<=$BE)and(Ord(S[I+1])<>$B7)Then R:=R+#$C3+Chr(Ord(S[I+1])-$20) Else
+   If(Not Up)and(Ord(S[I+1])>=$80)and(Ord(S[I+1])<=$9E)and(Ord(S[I+1])<>$97)Then R:=R+#$C3+Chr(Ord(S[I+1])+$20)
+   Else R:=R+S[I]+S[I+1];
+   Inc(I,2);
+  End
+   Else
+  Begin
+   If Up and(S[I]in['a'..'z'])Then R:=R+Chr(Ord(S[I])-32) Else
+   If(Not Up)and(S[I]in['A'..'Z'])Then R:=R+Chr(Ord(S[I])+32)
+   Else R:=R+S[I];
+   Inc(I);
+  End;
+ End;
+ U8Upper:=R;
+End;
+
+Function Levenshtein(Const A,B:String):Integer;
+Var
+ D:Array[0..255]of Integer;
+ I,J,Prev,Cur,Tmp:Integer;
+Begin
+ For J:=0 to Length(B)do D[J]:=J;
+ For I:=1 to Length(A)do Begin
+  Prev:=D[0];
+  D[0]:=I;
+  For J:=1 to Length(B)do Begin
+   Tmp:=D[J];
+   If A[I]=B[J]Then Cur:=Prev Else Cur:=Prev+1;
+   If D[J]+1<Cur Then Cur:=D[J]+1;
+   If D[J-1]+1<Cur Then Cur:=D[J-1]+1;
+   D[J]:=Cur;
+   Prev:=Tmp;
+  End;
+ End;
+ Levenshtein:=D[Length(B)];
+End;
+
+Function Soundex(S:String):String;
+Var
+ R:String;
+ I:Integer;
+ C,Last,Cd:Char;
+
+ Function Code(Ch:Char):Char;Begin
+  Case Ch of
+   'B','F','P','V':Code:='1';
+   'C','G','J','K','Q','S','X','Z':Code:='2';
+   'D','T':Code:='3';
+   'L':Code:='4';
+   'M','N':Code:='5';
+   'R':Code:='6';
+   Else Code:='0';
+  End;
+ End;
+
+Begin
+ R:='';
+ Last:='0';
+ For I:=1 to Length(S)do Begin
+  C:=UpCase(S[I]);
+  If Not(C in['A'..'Z'])Then Continue;
+  If R=''Then Begin R:=C;Last:=Code(C);End
+   Else
+  Begin
+   Cd:=Code(C);
+   If(Cd<>'0')and(Cd<>Last)Then R:=R+Cd;
+   If Not(C in['H','W'])Then Last:=Cd;
+  End;
+  If Length(R)=4Then Break;
+ End;
+ If R=''Then Begin Soundex:='';Exit;End;
+ While Length(R)<4do R:=R+'0';
+ Soundex:=R;
+End;
+
+{ ---- hachages ---- }
+
+Type
+ TWords=Array[0..79]of LongWord;
+
+Function Rol(X:LongWord;N:Integer):LongWord;Begin
+ Rol:=(X shl N)or(X shr(32-N));
+End;
+
+Function Ror(X:LongWord;N:Integer):LongWord;Begin
+ Ror:=(X shr N)or(X shl(32-N));
+End;
+
+Function HexOf(W:LongWord):String;
+Const
+ Hx:String[16]='0123456789abcdef';
+Var
+ I:Integer;
+ R:String;
+Begin
+ R:='';
+ For I:=7downto 0do R:=R+Hx[((W shr(I*4))and 15)+1];
+ HexOf:=R;
+End;
+
+Function HexLE(W:LongWord):String;
+Const
+ Hx:String[16]='0123456789abcdef';
+Var
+ I:Integer;
+ R:String;
+ B:Integer;
+Begin
+ R:='';
+ For I:=0 to 3do Begin
+  B:=(W shr(I*8))and 255;
+  R:=R+Hx[(B shr 4)+1]+Hx[(B and 15)+1];
+ End;
+ HexLE:=R;
+End;
+
+{ Message complete avec bourrage (grand ou petit boutiste) }
+Procedure PadMessage(Const S:String;Big:Boolean;Var Blocks:PBytes;Var NBlocks:LongInt);
+Var
+ Total,I:LongInt;
+ Bits:Int64;
+Begin
+ Total:=((Length(S)+8)div 64+1)*64;
+ Blocks:=AllocBlock(Total);
+ FillChar(Blocks^,Total,0);
+ For I:=1 to Length(S)do Blocks^[I-1]:=Ord(S[I]);
+ Blocks^[Length(S)]:=$80;
+ Bits:=Int64(Length(S))*8;
+ For I:=0 to 7do Begin
+  If Big Then Blocks^[Total-1-I]:=(Bits shr(8*I))and 255
+         Else Blocks^[Total-8+I]:=(Bits shr(8*I))and 255;
+ End;
+ NBlocks:=Total div 64;
+End;
+
+Function Md5Hex(Const S:String):String;
+Const
+ Sh:Array[0..63]of Byte=(7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+  4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21);
+Var
+ K:Array[0..63]of LongWord;
+ M:PBytes;
+ NB,B,I:LongInt;
+ A0,B0,C0,D0,A,Bb,C,D,F,Tmp:LongWord;
+ G:Integer;
+ W:Array[0..15]of LongWord;
+Begin
+ For I:=0 to 63do K[I]:=LongWord(Trunc(Abs(Sin(I+1))*4294967296.0));
+ PadMessage(S,False,M,NB);
+ A0:=$67452301;B0:=$EFCDAB89;C0:=$98BADCFE;D0:=$10325476;
+ For B:=0 to NB-1do Begin
+  For I:=0 to 15do
+   W[I]:=LongWord(M^[B*64+I*4])or(LongWord(M^[B*64+I*4+1])shl 8)or(LongWord(M^[B*64+I*4+2])shl 16)or(LongWord(M^[B*64+I*4+3])shl 24);
+  A:=A0;Bb:=B0;C:=C0;D:=D0;
+  For I:=0 to 63do Begin
+   If I<16Then Begin F:=(Bb and C)or((Not Bb)and D);G:=I;End Else
+   If I<32Then Begin F:=(D and Bb)or((Not D)and C);G:=(5*I+1)mod 16;End Else
+   If I<48Then Begin F:=Bb xor C xor D;G:=(3*I+5)mod 16;End
+          Else Begin F:=C xor(Bb or(Not D));G:=(7*I)mod 16;End;
+   Tmp:=D;D:=C;C:=Bb;
+   Bb:=Bb+Rol(A+F+K[I]+W[G],Sh[I]);
+   A:=Tmp;
+  End;
+  A0:=A0+A;B0:=B0+Bb;C0:=C0+C;D0:=D0+D;
+ End;
+ Md5Hex:=HexLE(A0)+HexLE(B0)+HexLE(C0)+HexLE(D0);
+End;
+
+Function Sha1Hex(Const S:String):String;
+Var
+ M:PBytes;
+ NB,B,I:LongInt;
+ H0,H1,H2,H3,H4,A,Bb,C,D,E,F,K,Tmp:LongWord;
+ W:TWords;
+Begin
+ PadMessage(S,True,M,NB);
+ H0:=$67452301;H1:=$EFCDAB89;H2:=$98BADCFE;H3:=$10325476;H4:=$C3D2E1F0;
+ For B:=0 to NB-1do Begin
+  For I:=0 to 15do
+   W[I]:=(LongWord(M^[B*64+I*4])shl 24)or(LongWord(M^[B*64+I*4+1])shl 16)or(LongWord(M^[B*64+I*4+2])shl 8)or LongWord(M^[B*64+I*4+3]);
+  For I:=16 to 79do W[I]:=Rol(W[I-3]xor W[I-8]xor W[I-14]xor W[I-16],1);
+  A:=H0;Bb:=H1;C:=H2;D:=H3;E:=H4;
+  For I:=0 to 79do Begin
+   If I<20Then Begin F:=(Bb and C)or((Not Bb)and D);K:=$5A827999;End Else
+   If I<40Then Begin F:=Bb xor C xor D;K:=$6ED9EBA1;End Else
+   If I<60Then Begin F:=(Bb and C)or(Bb and D)or(C and D);K:=$8F1BBCDC;End
+          Else Begin F:=Bb xor C xor D;K:=$CA62C1D6;End;
+   Tmp:=Rol(A,5)+F+E+K+W[I];
+   E:=D;D:=C;C:=Rol(Bb,30);Bb:=A;A:=Tmp;
+  End;
+  H0:=H0+A;H1:=H1+Bb;H2:=H2+C;H3:=H3+D;H4:=H4+E;
+ End;
+ Sha1Hex:=HexOf(H0)+HexOf(H1)+HexOf(H2)+HexOf(H3)+HexOf(H4);
+End;
+
+Function Sha256Hex(Const S:String):String;
+Var
+ K:Array[0..63]of LongWord;
+ M:PBytes;
+ NB,B,I,N,Cnt:LongInt;
+ H:Array[0..7]of LongWord;
+ A,Bb,C,D,E,F,G,Hh,T1,T2,S0,S1:LongWord;
+ W:TWords;
+ P:LongInt;
+ IsP:Boolean;
+ J:LongInt;
+ X:Real;
+Begin
+ { constantes : racines cubiques / carrees des premiers nombres premiers }
+ Cnt:=0;P:=2;
+ While Cnt<64do Begin
+  IsP:=True;
+  For J:=2 to P-1do If(J*J<=P)and(P mod J=0)Then IsP:=False;
+  If IsP Then Begin
+   X:=Exp(Ln(P)/3);
+   K[Cnt]:=LongWord(Trunc((X-Int(X))*4294967296.0));
+   If Cnt<8Then Begin X:=Sqrt(P);H[Cnt]:=LongWord(Trunc((X-Int(X))*4294967296.0));End;
+   Inc(Cnt);
+  End;
+  Inc(P);
+ End;
+ PadMessage(S,True,M,NB);
+ For B:=0 to NB-1do Begin
+  For I:=0 to 15do
+   W[I]:=(LongWord(M^[B*64+I*4])shl 24)or(LongWord(M^[B*64+I*4+1])shl 16)or(LongWord(M^[B*64+I*4+2])shl 8)or LongWord(M^[B*64+I*4+3]);
+  For I:=16 to 63do Begin
+   S0:=Ror(W[I-15],7)xor Ror(W[I-15],18)xor(W[I-15]shr 3);
+   S1:=Ror(W[I-2],17)xor Ror(W[I-2],19)xor(W[I-2]shr 10);
+   W[I]:=W[I-16]+S0+W[I-7]+S1;
+  End;
+  A:=H[0];Bb:=H[1];C:=H[2];D:=H[3];E:=H[4];F:=H[5];G:=H[6];Hh:=H[7];
+  For I:=0 to 63do Begin
+   S1:=Ror(E,6)xor Ror(E,11)xor Ror(E,25);
+   T1:=Hh+S1+((E and F)xor((Not E)and G))+K[I]+W[I];
+   S0:=Ror(A,2)xor Ror(A,13)xor Ror(A,22);
+   T2:=S0+((A and Bb)xor(A and C)xor(Bb and C));
+   Hh:=G;G:=F;F:=E;E:=D+T1;D:=C;C:=Bb;Bb:=A;A:=T1+T2;
+  End;
+  H[0]:=H[0]+A;H[1]:=H[1]+Bb;H[2]:=H[2]+C;H[3]:=H[3]+D;H[4]:=H[4]+E;H[5]:=H[5]+F;H[6]:=H[6]+G;H[7]:=H[7]+Hh;
+ End;
+ N:=0;
+ Sha256Hex:=HexOf(H[0])+HexOf(H[1])+HexOf(H[2])+HexOf(H[3])+HexOf(H[4])+HexOf(H[5])+HexOf(H[6])+HexOf(H[7]);
+End;
+
+{ ---- JSON -> valeurs ---- }
+
+Var
+ JsS:String;
+ JsP:Integer;
+
+Procedure JsSkip;Begin
+ While(JsP<=Length(JsS))and(JsS[JsP]in[' ',#9,#10,#13])do Inc(JsP);
+End;
+
+Function JsParse(Depth:Integer):TVal;
+Var
+ V:TVal;
+ L:PValList;
+ K,S,Num:String;
+ R:Real;
+ E,Er:Integer;
+ Key:TVal;
+Begin
+ JsParse:=VNull;
+ If Depth>20Then Exit;
+ JsSkip;
+ If JsP>Length(JsS)Then Exit;
+ Case JsS[JsP]of
+  '[':Begin
+   Inc(JsP);
+   L:=LNew;
+   JsSkip;
+   If(JsP<=Length(JsS))and(JsS[JsP]=']')Then Inc(JsP)
+    Else
+   Repeat
+    LAdd(L,JsParse(Depth+1));
+    JsSkip;
+    If(JsP<=Length(JsS))and(JsS[JsP]=',')Then Begin Inc(JsP);Continue;End;
+    If(JsP<=Length(JsS))and(JsS[JsP]=']')Then Inc(JsP);
+    Break;
+   Until False;
+   JsParse:=VList(L);
+  End;
+  '{':Begin
+   Inc(JsP);
+   L:=LNew;
+   JsSkip;
+   If(JsP<=Length(JsS))and(JsS[JsP]='}')Then Inc(JsP)
+    Else
+   Repeat
+    Key:=JsParse(Depth+1);
+    JsSkip;
+    If(JsP<=Length(JsS))and(JsS[JsP]=':')Then Inc(JsP);
+    LAdd(L,Key);
+    LAdd(L,JsParse(Depth+1));
+    JsSkip;
+    If(JsP<=Length(JsS))and(JsS[JsP]=',')Then Begin Inc(JsP);Continue;End;
+    If(JsP<=Length(JsS))and(JsS[JsP]='}')Then Inc(JsP);
+    Break;
+   Until False;
+   JsParse:=VMapOf(L);
+  End;
+  '"':Begin
+   Inc(JsP);
+   S:='';
+   While(JsP<=Length(JsS))and(JsS[JsP]<>'"')do Begin
+    If(JsS[JsP]='\')and(JsP<Length(JsS))Then Begin
+     Inc(JsP);
+     Case JsS[JsP]of
+      'n':S:=S+#10;
+      't':S:=S+#9;
+      'r':S:=S+#13;
+      'u':Begin
+       Val('$'+Copy(JsS,JsP+1,4),E,Er);
+       If Er=0Then S:=S+U8Chr(E);
+       Inc(JsP,4);
+      End;
+      Else S:=S+JsS[JsP];
+     End;
+    End
+     Else S:=S+JsS[JsP];
+    Inc(JsP);
+   End;
+   Inc(JsP);
+   JsParse:=VStr(S);
+  End;
+  Else Begin
+   Num:='';
+   While(JsP<=Length(JsS))and Not(JsS[JsP]in[',',']','}',' '])do Begin Num:=Num+JsS[JsP];Inc(JsP);End;
+   If Num='true'Then JsParse:=VBool(True) Else
+   If Num='false'Then JsParse:=VBool(False) Else
+   If Num='null'Then JsParse:=VNull
+    Else Begin
+     Val(Num,R,E);
+     If E=0Then JsParse:=VNum(R);
+    End;
+  End;
+ End;
+End;
+
+Function ValFromJson(S:String):TVal;Begin
+ JsS:=S;JsP:=1;
+ ValFromJson:=JsParse(0);
+End;
+
+{ ---- fonctions : mathematiques, chaines, dates, conversions ---- }
+
+Var
+ FnOk:Boolean;
+
+Procedure NeedArgs(Const Nm:String;N,Min:Integer);Begin
+ If N<Min Then EFail('function '+Nm+' needs at least '+IntToStr(Min)+' argument(s)');
+End;
+
+Function NumArg(Var A:Array of TVal;I:Integer;Var R:Real):Boolean;Begin
+ NumArg:=False;
+ If(I<=High(A))and(A[I].K<>0)and(A[I].K<>4)and(A[I].K<>5)and(A[I].K<>6)Then NumArg:=ToNum(A[I],R);
+End;
+
+Function ListOf(Const V:TVal):PValList;Begin
+ If V.K=5Then ListOf:=V.L Else ListOf:=Nil;
+End;
+
+Function FnMath(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2,R3,R4,R5,W:Real;
+ I,J:Integer;
+ Ok:Boolean;
+ L:PValList;
+ Cnt:Integer;
+ Best:TVal;
+Begin
+ FnMath:=VNull;
+ FnOk:=True;
+ If Nm='ABS'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(Abs(R));End Else
+ If Nm='SQRT'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(R>=0)Then FnMath:=VNum(Sqrt(R));End Else
+ If Nm='SIN'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(Sin(R));End Else
+ If Nm='COS'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(Cos(R));End Else
+ If Nm='TAN'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(Cos(R)<>0)Then FnMath:=VNum(Sin(R)/Cos(R));End Else
+ If Nm='ASIN'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(Abs(R)<=1)Then FnMath:=VNum(ArcSin(R));End Else
+ If Nm='ACOS'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(Abs(R)<=1)Then FnMath:=VNum(Acos(R));End Else
+ If Nm='ATAN'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(ArcTan(R));End Else
+ If Nm='ATAN2'Then Begin NeedArgs(Nm,N,2);If NumArg(A,0,R)and NumArg(A,1,R2)Then FnMath:=VNum(Atan2(R,R2));End Else
+ If Nm='EXP'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(R<700)Then FnMath:=VNum(Exp(R));End Else
+ If Nm='LN'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(R>0)Then FnMath:=VNum(Ln(R));End Else
+ If Nm='LOG10'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)and(R>0)Then FnMath:=VNum(Ln(R)/Ln(10));End Else
+ If Nm='LOG'Then Begin
+  NeedArgs(Nm,N,1);
+  If N=1Then Begin If NumArg(A,0,R)and(R>0)Then FnMath:=VNum(Ln(R));End
+   Else
+  If NumArg(A,0,R)and NumArg(A,1,R2)and(R>0)and(R<>1)and(R2>0)Then FnMath:=VNum(Ln(R2)/Ln(R));
+ End Else
+ If Nm='PI'Then FnMath:=VNum(Pi) Else
+ If Nm='DEGREES'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(R*180/Pi);End Else
+ If Nm='RADIANS'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(R*Pi/180);End Else
+ If Nm='FLOOR'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(FloorR(R));End Else
+ If Nm='CEIL'Then Begin NeedArgs(Nm,N,1);If NumArg(A,0,R)Then FnMath:=VNum(-FloorR(-R));End Else
+ If Nm='ROUND'Then Begin
+  NeedArgs(Nm,N,1);
+  If NumArg(A,0,R)Then Begin
+   If NumArg(A,1,R2)Then Begin
+    W:=1;
+    For I:=1 to Abs(Round(R2))do W:=W*10;
+    If R2>=0Then FnMath:=VNum(RoundHalf(R*W)/W)
+            Else FnMath:=VNum(RoundHalf(R/W)*W);
+   End
+    Else
+   FnMath:=VNum(RoundHalf(R));
+  End;
+ End Else
+ If Nm='POWER'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
+   If R>0Then FnMath:=VNum(Exp(R2*Ln(R))) Else
+   If(R=0)and(R2>0)Then FnMath:=VNum(0) Else
+   If(R<0)and(R2=Int(R2))Then Begin
+    W:=Exp(R2*Ln(-R));
+    If Odd(Round(Abs(R2)))Then W:=-W;
+    FnMath:=VNum(W);
+   End Else
+   If R2=0Then FnMath:=VNum(1);
+  End;
+ End Else
+ If Nm='CLAMP'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)Then Begin
+   If R2<R Then R2:=R;
+   If R2>R3 Then R2:=R3;
+   FnMath:=VNum(R2);
+  End;
+ End Else
+ If Nm='SCALE_LINEAR'Then Begin
+  NeedArgs(Nm,N,5);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)and NumArg(A,3,R4)and NumArg(A,4,R5)and(R3<>R2)Then Begin
+   If R<=R2 Then FnMath:=VNum(R4) Else
+   If R>=R3 Then FnMath:=VNum(R5)
+   Else FnMath:=VNum(R4+(R-R2)*(R5-R4)/(R3-R2));
+  End;
+ End Else
+ If Nm='SCALE_EXP'Then Begin
+  NeedArgs(Nm,N,6);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)and NumArg(A,3,R4)and NumArg(A,4,R5)and NumArg(A,5,W)and(R3<>R2)Then Begin
+   If R<=R2 Then FnMath:=VNum(R4) Else
+   If R>=R3 Then FnMath:=VNum(R5)
+   Else FnMath:=VNum(R4+Exp(W*Ln((R-R2)/(R3-R2)))*(R5-R4));
+  End;
+ End Else
+ If Nm='RAND'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and(R2>=R)Then FnMath:=VNum(Round(R)+Random(Round(R2)-Round(R)+1));
+ End Else
+ If Nm='RANDF'Then Begin
+  If(N>=2)and NumArg(A,0,R)and NumArg(A,1,R2)Then FnMath:=VNum(R+Random*(R2-R))
+   Else FnMath:=VNum(Random);
+ End Else
+ If(Nm='BITWISE_AND')or(Nm='BITWISE_OR')or(Nm='BITWISE_XOR')or(Nm='BITWISE_SHIFT_LEFT')or(Nm='BITWISE_SHIFT_RIGHT')Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
+   If Nm='BITWISE_AND'Then FnMath:=VNum(Round(R)and Round(R2)) Else
+   If Nm='BITWISE_OR'Then FnMath:=VNum(Round(R)or Round(R2)) Else
+   If Nm='BITWISE_XOR'Then FnMath:=VNum(Round(R)xor Round(R2)) Else
+   If Nm='BITWISE_SHIFT_LEFT'Then FnMath:=VNum(Round(R)shl Round(R2))
+                             Else FnMath:=VNum(Round(R)shr Round(R2));
+  End;
+ End Else
+ If(Nm='MIN')or(Nm='MAX')Then Begin
+  Cnt:=0;
+  Best:=VNull;
+  For I:=0 to N-1do Begin
+   If A[I].K=5Then Begin
+    L:=A[I].L;
+    For J:=0 to L^.Cnt-1do
+     If L^.V^[J].K<>0Then Begin
+      If(Cnt=0)or((Nm='MIN')and(CmpVal(L^.V^[J],Best)<0))or((Nm='MAX')and(CmpVal(L^.V^[J],Best)>0))Then Best:=L^.V^[J];
+      Inc(Cnt);
+     End;
+   End
+    Else
+   If(A[I].K<>0)and(A[I].K<>4)Then Begin
+    If(Cnt=0)or((Nm='MIN')and(CmpVal(A[I],Best)<0))or((Nm='MAX')and(CmpVal(A[I],Best)>0))Then Best:=A[I];
+    Inc(Cnt);
+   End;
+  End;
+  If Cnt>0Then FnMath:=Best;
+ End
+  Else
+ FnOk:=False;
+End;
+
+{ ---- chaines ---- }
+
+Function ReplaceAll(S,T,U:String):String;
+Var
+ Out:String;
+ I:Integer;
+Begin
+ If T=''Then Begin ReplaceAll:=S;Exit;End;
+ Out:='';
+ I:=1;
+ While I<=Length(S)do Begin
+  If Copy(S,I,Length(T))=T Then Begin
+   Out:=Out+U;
+   Inc(I,Length(T));
+  End
+   Else
+  Begin
+   Out:=Out+S[I];
+   Inc(I);
+  End;
+ End;
+ ReplaceAll:=Out;
+End;
+
+Function FormatThousands(R:Real;Places:Integer):String;
+Var
+ S,Ip,Fp,Out:String;
+ Neg:Boolean;
+ I,P:Integer;
+Begin
+ Neg:=R<0;
+ If Neg Then R:=-R;
+ Str(R:0:Places,S);
+ P:=Pos('.',S);
+ If P>0Then Begin Ip:=Copy(S,1,P-1);Fp:=Copy(S,P,255);End
+       Else Begin Ip:=S;Fp:='';End;
+ Out:='';
+ For I:=1 to Length(Ip)do Begin
+  Out:=Out+Ip[I];
+  If((Length(Ip)-I)mod 3=0)and(I<Length(Ip))Then Out:=Out+',';
+ End;
+ If Neg Then Out:='-'+Out;
+ FormatThousands:=Out+Fp;
+End;
+
+Function FnString(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2:Real;
+ S,T,U,Out:String;
+ I,P,K,Cnt:Integer;
+ L:LongInt;
+ Lst:PValList;
+ V:TVal;
+ Best,Cur:Integer;
+ Subj:String;
+Begin
+ FnString:=VNull;
+ FnOk:=True;
+ If(Nm='LOWER')or(Nm='UPPER')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then FnString:=VStr(U8Upper(ToStr(A[0]),Nm='UPPER'));
+ End Else
+ If Nm='TITLE'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then Begin
+   S:=U8Upper(ToStr(A[0]),False);
+   Out:='';
+   K:=1;
+   For I:=1 to Length(S)do Begin
+    If K=1Then Out:=Out+U8Upper(S[I],True) Else Out:=Out+S[I];
+    If S[I]in[' ',#9,#10]Then K:=1 Else K:=0;
+   End;
+   FnString:=VStr(Out);
+  End;
+ End Else
+ If(Nm='LENGTH')or(Nm='LEN')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=5Then FnString:=VNum(A[0].L^.Cnt) Else
+  If A[0].K<>0Then Begin
+   If A[0].K=4Then FnString:=VNum(GeomLength(A[0].G^))
+              Else FnString:=VNum(U8Len(ToStr(A[0])));
+  End;
+ End Else
+ If Nm='CONCAT'Then Begin
+  S:='';
+  For I:=0 to N-1do If A[I].K<>0Then S:=S+ToStr(A[I]);
+  FnString:=VStr(S);
+ End Else
+ If Nm='SUBSTR'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and NumArg(A,1,R)Then Begin
+   S:=ToStr(A[0]);
+   P:=Round(R);
+   If P<0Then P:=U8Len(S)+P+1;
+   If P<1Then P:=1;
+   L:=100000;
+   If NumArg(A,2,R2)Then L:=Round(R2);
+   FnString:=VStr(U8Copy(S,P,L));
+  End;
+ End Else
+ If(Nm='LEFT')or(Nm='RIGHT')Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and NumArg(A,1,R)Then Begin
+   S:=ToStr(A[0]);
+   L:=Round(R);
+   If L<0Then L:=0;
+   If Nm='LEFT'Then FnString:=VStr(U8Copy(S,1,L))
+    Else Begin
+     If L>U8Len(S)Then L:=U8Len(S);
+     FnString:=VStr(U8Copy(S,U8Len(S)-L+1,L));
+    End;
+  End;
+ End Else
+ If Nm='REPLACE'Then Begin
+  NeedArgs(Nm,N,2);
+  If A[0].K=5Then Begin
+   Lst:=LNew;
+   For I:=0 to A[0].L^.Cnt-1do Begin
+    V:=A[0].L^.V^[I];
+    If A[1].K=5Then Begin
+     For K:=0 to A[1].L^.Cnt-1do
+      If ValEq(V,A[1].L^.V^[K])Then Begin
+       If(N>2)and(A[2].K=5)and(K<A[2].L^.Cnt)Then V:=A[2].L^.V^[K]
+        Else If(N>2)and(A[2].K<>5)Then V:=A[2];
+       Break;
+      End;
+    End;
+    LAdd(Lst,V);
+   End;
+   FnString:=VList(Lst);
+  End Else
+  If A[0].K<>0Then Begin
+   S:=ToStr(A[0]);
+   If A[1].K=6Then Begin
+    I:=0;
+    While I+1<A[1].L^.Cnt do Begin
+     S:=ReplaceAll(S,ToStr(A[1].L^.V^[I]),ToStr(A[1].L^.V^[I+1]));
+     Inc(I,2);
+    End;
+   End Else
+   If A[1].K=5Then Begin
+    For I:=0 to A[1].L^.Cnt-1do Begin
+     If(N>2)and(A[2].K=5)Then Begin
+      If I<A[2].L^.Cnt Then U:=ToStr(A[2].L^.V^[I]) Else U:='';
+     End
+      Else If N>2Then U:=ToStr(A[2]) Else U:='';
+     S:=ReplaceAll(S,ToStr(A[1].L^.V^[I]),U);
+    End;
+   End
+    Else If N>=3Then S:=ReplaceAll(S,ToStr(A[1]),ToStr(A[2]));
+   FnString:=VStr(S);
+  End;
+ End Else
+ If(Nm='TRIM')or(Nm='LTRIM')or(Nm='RTRIM')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then Begin
+   S:=ToStr(A[0]);
+   If Nm<>'RTRIM'Then While(S<>'')and(S[1]in[' ',#9,#10,#13])do Delete(S,1,1);
+   If Nm<>'LTRIM'Then While(S<>'')and(S[Length(S)]in[' ',#9,#10,#13])do Delete(S,Length(S),1);
+   FnString:=VStr(S);
+  End;
+ End Else
+ If(Nm='LPAD')or(Nm='RPAD')Then Begin
+  NeedArgs(Nm,N,3);
+  If(A[0].K<>0)and NumArg(A,1,R)Then Begin
+   S:=ToStr(A[0]);
+   T:=ToStr(A[2]);
+   L:=Round(R);
+   If U8Len(S)>=L Then FnString:=VStr(U8Copy(S,1,L))
+    Else Begin
+     If T=''Then Begin FnString:=VStr(S);Exit;End;
+     Out:='';
+     K:=L-U8Len(S);
+     While U8Len(Out)<K do Out:=Out+T;
+     Out:=U8Copy(Out,1,K);
+     If Nm='LPAD'Then FnString:=VStr(Out+S) Else FnString:=VStr(S+Out);
+    End;
+  End;
+ End Else
+ If Nm='REPEAT'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and NumArg(A,1,R)Then Begin
+   S:=ToStr(A[0]);Out:='';
+   For I:=1 to Round(R)do If Length(Out)+Length(S)<=255Then Out:=Out+S;
+   FnString:=VStr(Out);
+  End;
+ End Else
+ If((Nm='REVERSE')and(A[0].K<>4))or(Nm='ARRAY_REVERSE')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=5Then Begin
+   Lst:=LNew;
+   For I:=A[0].L^.Cnt-1downto 0do LAdd(Lst,A[0].L^.V^[I]);
+   FnString:=VList(Lst);
+  End Else
+  If A[0].K<>0Then Begin
+   S:=ToStr(A[0]);Out:='';
+   P:=U8Len(S);
+   For I:=P downto 1do Out:=Out+U8Copy(S,I,1);
+   FnString:=VStr(Out);
+  End;
+ End Else
+ If Nm='STRPOS'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   S:=ToStr(A[0]);T:=ToStr(A[1]);
+   P:=Pos(T,S);
+   If P=0Then FnString:=VNum(0)
+         Else FnString:=VNum(U8Len(Copy(S,1,P-1))+1);
+  End;
+ End Else
+ If Nm='CHAR'Then Begin
+  NeedArgs(Nm,N,1);
+  If NumArg(A,0,R)and(R>=0)Then FnString:=VStr(U8Chr(Round(R)));
+ End Else
+ If Nm='UNICODE'Then Begin
+  NeedArgs(Nm,N,1);
+  If(A[0].K<>0)and(ToStr(A[0])<>'')Then Begin
+   S:=ToStr(A[0]);
+   K:=Ord(S[1]);
+   If(K>=$C0)and(Length(S)>=2)Then K:=((K and $1F)shl 6)or(Ord(S[2])and $3F);
+   FnString:=VNum(K);
+  End;
+ End Else
+ If Nm='WORDWRAP'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and NumArg(A,1,R)Then Begin
+   S:=ToStr(A[0]);
+   If N>2Then U:=ToStr(A[2]) Else U:=#10;
+   L:=Abs(Round(R));
+   Out:='';Cur:=0;
+   Subj:=S;
+   While Subj<>''do Begin
+    P:=Pos(' ',Subj);
+    If P=0Then Begin T:=Subj;Subj:='';End
+          Else Begin T:=Copy(Subj,1,P-1);Subj:=Copy(Subj,P+1,255);End;
+    If(Cur>0)and(Cur+1+U8Len(T)>L)Then Begin Out:=Out+U;Cur:=0;End
+     Else If Cur>0Then Begin Out:=Out+' ';Inc(Cur);End;
+    Out:=Out+T;Inc(Cur,U8Len(T));
+   End;
+   FnString:=VStr(Out);
+  End;
+ End Else
+ If Nm='FORMAT'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then Begin
+   S:=ToStr(A[0]);
+   For I:=N-1downto 1do S:=ReplaceAll(S,'%'+IntToStr(I),ToStr(A[I]));
+   FnString:=VStr(S);
+  End;
+ End Else
+ If Nm='FORMAT_NUMBER'Then Begin
+  NeedArgs(Nm,N,1);
+  If NumArg(A,0,R)Then Begin
+   K:=0;
+   If NumArg(A,1,R2)Then K:=Round(R2);
+   FnString:=VStr(FormatThousands(R,K));
+  End;
+ End Else
+ If Nm='LEVENSHTEIN'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then FnString:=VNum(Levenshtein(ToStr(A[0]),ToStr(A[1])));
+ End Else
+ If Nm='HAMMING_DISTANCE'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   S:=ToStr(A[0]);T:=ToStr(A[1]);
+   If Length(S)=Length(T)Then Begin
+    K:=0;
+    For I:=1 to Length(S)do If S[I]<>T[I]Then Inc(K);
+    FnString:=VNum(K);
+   End;
+  End;
+ End Else
+ If Nm='LONGEST_COMMON_SUBSTRING'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   S:=ToStr(A[0]);T:=ToStr(A[1]);
+   Best:=0;P:=0;
+   For I:=1 to Length(S)do
+    For K:=1 to Length(T)do Begin
+     L:=0;
+     While(I+L<=Length(S))and(K+L<=Length(T))and(S[I+L]=T[K+L])do Inc(L);
+     If L>Best Then Begin Best:=L;P:=I;End;
+    End;
+   FnString:=VStr(Copy(S,P,Best));
+  End;
+ End Else
+ If Nm='SOUNDEX'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then FnString:=VStr(Soundex(ToStr(A[0])));
+ End Else
+ If Nm='MD5'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then FnString:=VStr(Md5Hex(ToStr(A[0])));
+ End Else
+ If Nm='SHA256'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then FnString:=VStr(Sha256Hex(ToStr(A[0])));
+ End Else
+ If Nm='HASH'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   T:=LowerStr(ToStr(A[1]));
+   If T='md5'Then FnString:=VStr(Md5Hex(ToStr(A[0]))) Else
+   If T='sha1'Then FnString:=VStr(Sha1Hex(ToStr(A[0]))) Else
+   If T='sha256'Then FnString:=VStr(Sha256Hex(ToStr(A[0])))
+    Else EFail('unsupported hash method '+T);
+  End;
+ End Else
+ If Nm='UUID'Then Begin
+  S:='';
+  For I:=1 to 32do Begin
+   K:=Random(16);
+   If I=13Then K:=4;
+   If I=17Then K:=8+Random(4);
+   S:=S+Copy('0123456789abcdef',K+1,1);
+   If(I=8)or(I=12)or(I=16)or(I=20)Then S:=S+'-';
+  End;
+  FnString:=VStr('{'+S+'}');
+ End Else
+ If Nm='REGEXP_MATCH'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   RxCompile(ToStr(A[1]));
+   If RxFind(ToStr(A[0]),1)Then FnString:=VNum(U8Len(Copy(RxSub,1,RxCapS[0]-1))+1)
+                           Else FnString:=VNum(0);
+  End;
+ End Else
+ If Nm='REGEXP_MATCHES'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   RxCompile(ToStr(A[1]));
+   If RxFind(ToStr(A[0]),1)Then Begin
+    Lst:=LNew;
+    For I:=1 to RxGroups do LAdd(Lst,VStr(RxGroupText(I)));
+    FnString:=VList(Lst);
+   End
+    Else FnString:=VList(LNew);
+  End;
+ End Else
+ If Nm='REGEXP_SUBSTR'Then Begin
+  NeedArgs(Nm,N,2);
+  If(A[0].K<>0)and(A[1].K<>0)Then Begin
+   RxCompile(ToStr(A[1]));
+   If RxFind(ToStr(A[0]),1)Then Begin
+    If RxGroups>0Then FnString:=VStr(RxGroupText(1))
+                 Else FnString:=VStr(RxGroupText(0));
+   End
+    Else FnString:=VStr('');
+  End;
+ End Else
+ If Nm='REGEXP_REPLACE'Then Begin
+  NeedArgs(Nm,N,3);
+  If(A[0].K<>0)and(A[1].K<>0)and(A[2].K<>0)Then Begin
+   RxCompile(ToStr(A[1]));
+   S:=ToStr(A[0]);U:=ToStr(A[2]);
+   Out:='';P:=1;
+   While(P<=Length(S)+1)and RxFind(S,P)do Begin
+    Out:=Out+Copy(S,P,RxCapS[0]-P);
+    K:=1;
+    While K<=Length(U)do Begin
+     If(U[K]='\')and(K<Length(U))and(U[K+1]in['0'..'9'])Then Begin
+      Out:=Out+RxGroupText(Ord(U[K+1])-48);
+      Inc(K,2);
+     End
+      Else Begin Out:=Out+U[K];Inc(K);End;
+    End;
+    If RxCapE[0]=RxCapS[0]Then Begin
+     If RxCapS[0]<=Length(S)Then Out:=Out+S[RxCapS[0]];
+     P:=RxCapS[0]+1;
+    End
+     Else P:=RxCapE[0];
+   End;
+   If P<=Length(S)Then Out:=Out+Copy(S,P,255);
+   FnString:=VStr(Out);
+  End;
+ End Else
+ If Nm='STRING_TO_ARRAY'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then Begin
+   S:=ToStr(A[0]);
+   If N>1Then T:=ToStr(A[1]) Else T:=',';
+   Lst:=LNew;
+   If T=''Then Begin
+    For I:=1 to U8Len(S)do LAdd(Lst,VStr(U8Copy(S,I,1)));
+   End
+    Else
+   Begin
+    Repeat
+     P:=Pos(T,S);
+     If P=0Then Begin LAdd(Lst,VStr(S));Break;End;
+     LAdd(Lst,VStr(Copy(S,1,P-1)));
+     S:=Copy(S,P+Length(T),255);
+    Until False;
+   End;
+   FnString:=VList(Lst);
+  End;
+ End
+  Else
+ FnOk:=False;
+End;
+
+{ ---- dates ---- }
+
+Function ToTimeVal(Const V:TVal;Var Out:TVal):Boolean;Forward;
+Function ToTimeValFmt(Const V:TVal;Const Fmt:String;Var Out:TVal):Boolean;
+Var
+ T:Real;
+ K:Byte;
+Begin
+ ToTimeValFmt:=False;
+ If V.K=2Then Begin
+  If ParseTimeFormat(V.S,Fmt,T,K)Then Begin Out:=VTime(K,T);ToTimeValFmt:=True;End;
+ End
+  Else
+ ToTimeValFmt:=ToTimeVal(V,Out);
+End;
+
+Function ToTimeVal(Const V:TVal;Var Out:TVal):Boolean;
+Var
+ T:Real;
+ K:Byte;
+Begin
+ ToTimeVal:=False;
+ If IsTimeKind(V.K)Then Begin Out:=V;ToTimeVal:=True;Exit;End;
+ If V.K=2Then Begin
+  If ParseTime(V.S,T,K)Then Begin Out:=VTime(K,T);ToTimeVal:=True;End;
+ End;
+End;
+
+Function FnDate(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2,R3,R4,R5,R6,R7,T:Real;
+ Y,Mo,D,H,Mi:LongInt;
+ S:Real;
+ K:Byte;
+ V,Z2:TVal;
+ Ok:Boolean;
+Begin
+ FnDate:=VNull;
+ FnOk:=True;
+ If Nm='NOW'Then FnDate:=VTime(7,NowSecs) Else
+ If(Nm='TO_DATE')or(Nm='TO_DATETIME')or(Nm='TO_TIME')Then Begin
+  NeedArgs(Nm,N,1);
+  Ok:=False;
+  If(N>1)and(A[1].K=2)Then Ok:=ToTimeValFmt(A[0],A[1].S,V) Else Ok:=ToTimeVal(A[0],V);
+  If Ok Then Begin
+   T:=V.N;
+   If Nm='TO_DATE'Then Begin
+    If V.K=9Then Exit;
+    FnDate:=VTime(8,Int(FloorDiv(T,86400))*86400);
+   End Else
+   If Nm='TO_DATETIME'Then Begin
+    If V.K=9Then Exit;
+    FnDate:=VTime(7,T);
+   End
+    Else
+   Begin
+    If V.K=8Then FnDate:=VTime(9,0)
+            Else FnDate:=VTime(9,T-Int(FloorDiv(T,86400))*86400);
+   End;
+  End;
+ End Else
+ If Nm='TO_INTERVAL'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=10Then FnDate:=A[0] Else
+  If A[0].K=2Then Begin
+   If ParseInterval(A[0].S,T)Then FnDate:=VTime(10,T);
+  End;
+ End Else
+ If(Nm='YEAR')or(Nm='MONTH')or(Nm='DAY')or(Nm='HOUR')or(Nm='MINUTE')or(Nm='SECOND')or(Nm='WEEK')Then Begin
+  NeedArgs(Nm,N,1);
+  If ToTimeVal(A[0],V)Then Begin
+   If V.K=10Then Begin
+    If Nm='YEAR'Then FnDate:=VNum(V.N/(365.25*86400)) Else
+    If Nm='MONTH'Then FnDate:=VNum(V.N/(30*86400)) Else
+    If Nm='WEEK'Then FnDate:=VNum(V.N/(7*86400)) Else
+    If Nm='DAY'Then FnDate:=VNum(V.N/86400) Else
+    If Nm='HOUR'Then FnDate:=VNum(V.N/3600) Else
+    If Nm='MINUTE'Then FnDate:=VNum(V.N/60)
+                  Else FnDate:=VNum(V.N);
+   End
+    Else
+   Begin
+    SplitTime(V.N,Y,Mo,D,H,Mi,S);
+    If Nm='YEAR'Then FnDate:=VNum(Y) Else
+    If Nm='MONTH'Then FnDate:=VNum(Mo) Else
+    If Nm='DAY'Then FnDate:=VNum(D) Else
+    If Nm='HOUR'Then FnDate:=VNum(H) Else
+    If Nm='MINUTE'Then FnDate:=VNum(Mi) Else
+    If Nm='SECOND'Then FnDate:=VNum(S)
+                  Else FnDate:=VNum(IsoWeek(V.N));
+   End;
+  End;
+ End Else
+ If Nm='DAY_OF_WEEK'Then Begin
+  NeedArgs(Nm,N,1);
+  If ToTimeVal(A[0],V)and(V.K<>9)and(V.K<>10)Then FnDate:=VNum(DayOfWeek0(V.N));
+ End Else
+ If Nm='EPOCH'Then Begin
+  NeedArgs(Nm,N,1);
+  If ToTimeVal(A[0],V)Then FnDate:=VNum(V.N*1000);
+ End Else
+ If Nm='DATETIME_FROM_EPOCH'Then Begin
+  NeedArgs(Nm,N,1);
+  If NumArg(A,0,R)Then FnDate:=VTime(7,R/1000);
+ End Else
+ If Nm='AGE'Then Begin
+  NeedArgs(Nm,N,2);
+  If ToTimeVal(A[0],V)and ToTimeVal(A[1],Z2)Then FnDate:=VTime(10,V.N-Z2.N);
+ End Else
+ If Nm='MAKE_DATE'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)Then
+   FnDate:=VTime(8,MakeTime(Round(R),Round(R2),Round(R3),0,0,0));
+ End Else
+ If Nm='MAKE_TIME'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)Then FnDate:=VTime(9,R*3600+R2*60+R3);
+ End Else
+ If Nm='MAKE_DATETIME'Then Begin
+  NeedArgs(Nm,N,6);
+  If NumArg(A,0,R)and NumArg(A,1,R2)and NumArg(A,2,R3)and NumArg(A,3,R4)and NumArg(A,4,R5)and NumArg(A,5,R6)Then
+   FnDate:=VTime(7,MakeTime(Round(R),Round(R2),Round(R3),Round(R4),Round(R5),R6));
+ End Else
+ If Nm='MAKE_INTERVAL'Then Begin
+  R:=0;R2:=0;R3:=0;R4:=0;R5:=0;R6:=0;R7:=0;
+  If N>0Then NumArg(A,0,R);
+  If N>1Then NumArg(A,1,R2);
+  If N>2Then NumArg(A,2,R3);
+  If N>3Then NumArg(A,3,R4);
+  If N>4Then NumArg(A,4,R5);
+  If N>5Then NumArg(A,5,R6);
+  If N>6Then NumArg(A,6,R7);
+  FnDate:=VTime(10,R*365.25*86400+R2*30*86400+R3*7*86400+R4*86400+R5*3600+R6*60+R7);
+ End Else
+ If Nm='FORMAT_DATE'Then Begin
+  NeedArgs(Nm,N,2);
+  If ToTimeVal(A[0],V)and(A[1].K<>0)Then FnDate:=VStr(FormatTime(V.N,ToStr(A[1])));
+ End
+  Else
+ FnOk:=False;
+End;
+
+{ ---- tableaux, dictionnaires, conversions ---- }
+
+Procedure SortVals(V:PValArr;N:LongInt;Asc:Boolean);
+Var
+ I,J:LongInt;
+ T:TVal;
+Begin
+ For I:=1 to N-1do Begin
+  T:=V^[I];
+  J:=I-1;
+  While(J>=0)and((Asc and(CmpVal(V^[J],T)>0))or((Not Asc)and(CmpVal(V^[J],T)<0)))do Begin
+   V^[J+1]:=V^[J];
+   Dec(J);
+  End;
+  V^[J+1]:=T;
+ End;
+End;
+
+Function ArrIndex(Cnt:LongInt;R:Real;Var I:LongInt):Boolean;Begin
+ I:=Round(R);
+ If I<0Then I:=Cnt+I;
+ ArrIndex:=(I>=0)and(I<Cnt);
+End;
+
+Function MapFind(L:PValList;Const Key:String):LongInt;
+Var
+ I:LongInt;
+Begin
+ MapFind:=-1;
+ I:=0;
+ While I+1<L^.Cnt do Begin
+  If ToStr(L^.V^[I])=Key Then Begin MapFind:=I;Exit;End;
+  Inc(I,2);
+ End;
+End;
+
+Function FnArray(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2,R3:Real;
+ I,K:LongInt;
+ L,L2,Lst:PValList;
+ V,Best:TVal;
+ S,T:String;
+ Sum:Real;
+ Cnt:LongInt;
+ Ok:Boolean;
+ Mx:LongInt;
+ Seen:Boolean;
+
+ Function ListArg(Idx:Integer):PValList;Begin
+  If(Idx<N)and(A[Idx].K=5)Then ListArg:=A[Idx].L Else ListArg:=Nil;
+ End;
+
+Begin
+ FnArray:=VNull;
+ FnOk:=True;
+ If Nm='ARRAY'Then Begin
+  Lst:=LNew;
+  For I:=0 to N-1do LAdd(Lst,A[I]);
+  FnArray:=VList(Lst);
+ End Else
+ If Nm='ARRAY_LENGTH'Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If L<>Nil Then FnArray:=VNum(L^.Cnt);
+ End Else
+ If(Nm='ARRAY_APPEND')or(Nm='ARRAY_PREPEND')Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   If Nm='ARRAY_PREPEND'Then LAdd(Lst,A[1]);
+   For I:=0 to L^.Cnt-1do LAdd(Lst,L^.V^[I]);
+   If Nm='ARRAY_APPEND'Then LAdd(Lst,A[1]);
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_CAT'Then Begin
+  Lst:=LNew;
+  For K:=0 to N-1do Begin
+   L:=ListArg(K);
+   If L=Nil Then Exit;
+   For I:=0 to L^.Cnt-1do LAdd(Lst,L^.V^[I]);
+  End;
+  FnArray:=VList(Lst);
+ End Else
+ If(Nm='ARRAY_CONTAINS')or(Nm='ARRAY_FIND')or(Nm='ARRAY_COUNT')Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Cnt:=0;K:=-1;
+   For I:=0 to L^.Cnt-1do If ValEq(L^.V^[I],A[1])Then Begin
+    Inc(Cnt);
+    If K<0Then K:=I;
+   End;
+   If Nm='ARRAY_CONTAINS'Then FnArray:=VBool(Cnt>0) Else
+   If Nm='ARRAY_FIND'Then FnArray:=VNum(K)
+                     Else FnArray:=VNum(Cnt);
+  End;
+ End Else
+ If(Nm='ARRAY_CONTAINS_ALL')or(Nm='ARRAY_CONTAINS_ANY')Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);L2:=ListArg(1);
+  If(L<>Nil)and(L2<>Nil)Then Begin
+   Ok:=Nm='ARRAY_CONTAINS_ALL';
+   For I:=0 to L2^.Cnt-1do Begin
+    Seen:=False;
+    For K:=0 to L^.Cnt-1do If ValEq(L^.V^[K],L2^.V^[I])Then Seen:=True;
+    If Nm='ARRAY_CONTAINS_ALL'Then Begin If Not Seen Then Ok:=False;End
+                              Else Begin If Seen Then Ok:=True;End;
+   End;
+   If(Nm='ARRAY_CONTAINS_ANY')and(L2^.Cnt=0)Then Ok:=False;
+   FnArray:=VBool(Ok);
+  End;
+ End Else
+ If Nm='ARRAY_DISTINCT'Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do Begin
+    Seen:=False;
+    For K:=0 to Lst^.Cnt-1do If ValEq(Lst^.V^[K],L^.V^[I])Then Seen:=True;
+    If Not Seen Then LAdd(Lst,L^.V^[I]);
+   End;
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If(Nm='ARRAY_FIRST')or(Nm='ARRAY_LAST')Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If(L<>Nil)and(L^.Cnt>0)Then Begin
+   If Nm='ARRAY_FIRST'Then FnArray:=L^.V^[0] Else FnArray:=L^.V^[L^.Cnt-1];
+  End;
+ End Else
+ If Nm='ARRAY_GET'Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);
+  If(L<>Nil)and NumArg(A,1,R)and ArrIndex(L^.Cnt,R,K)Then FnArray:=L^.V^[K];
+ End Else
+ If Nm='ARRAY_INSERT'Then Begin
+  NeedArgs(Nm,N,3);
+  L:=ListArg(0);
+  If(L<>Nil)and NumArg(A,1,R)Then Begin
+   K:=Round(R);
+   If K<0Then K:=L^.Cnt+K;
+   If(K>=0)and(K<=L^.Cnt)Then Begin
+    Lst:=LNew;
+    For I:=0 to L^.Cnt-1do Begin
+     If I=K Then LAdd(Lst,A[2]);
+     LAdd(Lst,L^.V^[I]);
+    End;
+    If K=L^.Cnt Then LAdd(Lst,A[2]);
+    FnArray:=VList(Lst);
+   End;
+  End;
+ End Else
+ If Nm='ARRAY_INTERSECT'Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);L2:=ListArg(1);
+  If(L<>Nil)and(L2<>Nil)Then Begin
+   Ok:=False;
+   For I:=0 to L^.Cnt-1do
+    For K:=0 to L2^.Cnt-1do If ValEq(L^.V^[I],L2^.V^[K])Then Ok:=True;
+   FnArray:=VBool(Ok);
+  End;
+ End Else
+ If(Nm='ARRAY_SUM')or(Nm='ARRAY_MEAN')or(Nm='ARRAY_MEDIAN')or(Nm='ARRAY_MIN')or(Nm='ARRAY_MAX')or
+   (Nm='ARRAY_MAJORITY')or(Nm='ARRAY_MINORITY')Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do If L^.V^[I].K<>0Then LAdd(Lst,L^.V^[I]);
+   If Lst^.Cnt=0Then Exit;
+   If(Nm='ARRAY_MIN')or(Nm='ARRAY_MAX')Then Begin
+    Best:=Lst^.V^[0];
+    For I:=1 to Lst^.Cnt-1do
+     If((Nm='ARRAY_MIN')and(CmpVal(Lst^.V^[I],Best)<0))or((Nm='ARRAY_MAX')and(CmpVal(Lst^.V^[I],Best)>0))Then Best:=Lst^.V^[I];
+    FnArray:=Best;
+   End Else
+   If(Nm='ARRAY_MAJORITY')or(Nm='ARRAY_MINORITY')Then Begin
+    Mx:=-1;
+    For I:=0 to Lst^.Cnt-1do Begin
+     Cnt:=0;
+     For K:=0 to Lst^.Cnt-1do If ValEq(Lst^.V^[I],Lst^.V^[K])Then Inc(Cnt);
+     If(Mx<0)or((Nm='ARRAY_MAJORITY')and(Cnt>Mx))or((Nm='ARRAY_MINORITY')and(Cnt<Mx))Then Begin Mx:=Cnt;Best:=Lst^.V^[I];End;
+    End;
+    FnArray:=Best;
+   End
+    Else
+   Begin
+    Sum:=0;
+    For I:=0 to Lst^.Cnt-1do Begin
+     If Not ToNum(Lst^.V^[I],R)Then Exit;
+     Sum:=Sum+R;
+    End;
+    If Nm='ARRAY_SUM'Then FnArray:=VNum(Sum) Else
+    If Nm='ARRAY_MEAN'Then FnArray:=VNum(Sum/Lst^.Cnt)
+     Else Begin
+      SortVals(Lst^.V,Lst^.Cnt,True);
+      If Odd(Lst^.Cnt)Then ToNum(Lst^.V^[Lst^.Cnt div 2],R)
+       Else Begin ToNum(Lst^.V^[Lst^.Cnt div 2-1],R);ToNum(Lst^.V^[Lst^.Cnt div 2],R2);R:=(R+R2)/2;End;
+      FnArray:=VNum(R);
+     End;
+   End;
+  End;
+ End Else
+ If Nm='ARRAY_REMOVE_ALL'Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do If Not ValEq(L^.V^[I],A[1])Then LAdd(Lst,L^.V^[I]);
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_REMOVE_AT'Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);
+  If(L<>Nil)and NumArg(A,1,R)Then Begin
+   K:=Round(R);
+   If K<0Then K:=L^.Cnt+K;
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do If I<>K Then LAdd(Lst,L^.V^[I]);
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_REPLACE'Then Begin
+  NeedArgs(Nm,N,3);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do Begin
+    If ValEq(L^.V^[I],A[1])Then LAdd(Lst,A[2]) Else LAdd(Lst,L^.V^[I]);
+   End;
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_SLICE'Then Begin
+  NeedArgs(Nm,N,3);
+  L:=ListArg(0);
+  If(L<>Nil)and NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+   K:=Round(R);Mx:=Round(R2);
+   If K<0Then K:=L^.Cnt+K;
+   If Mx<0Then Mx:=L^.Cnt+Mx;
+   If K<0Then K:=0;
+   If Mx>=L^.Cnt Then Mx:=L^.Cnt-1;
+   Lst:=LNew;
+   For I:=K to Mx do LAdd(Lst,L^.V^[I]);
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_SORT'Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   Lst:=LNew;
+   For I:=0 to L^.Cnt-1do LAdd(Lst,L^.V^[I]);
+   Ok:=True;
+   If(N>1)and(A[1].K<>0)Then Ok:=A[1].N<>0;
+   SortVals(Lst^.V,Lst^.Cnt,Ok);
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_PRIORITIZE'Then Begin
+  NeedArgs(Nm,N,2);
+  L:=ListArg(0);L2:=ListArg(1);
+  If(L<>Nil)and(L2<>Nil)Then Begin
+   Lst:=LNew;
+   For K:=0 to L2^.Cnt-1do
+    For I:=0 to L^.Cnt-1do If ValEq(L^.V^[I],L2^.V^[K])Then LAdd(Lst,L^.V^[I]);
+   For I:=0 to L^.Cnt-1do Begin
+    Seen:=False;
+    For K:=0 to L2^.Cnt-1do If ValEq(L^.V^[I],L2^.V^[K])Then Seen:=True;
+    If Not Seen Then LAdd(Lst,L^.V^[I]);
+   End;
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='ARRAY_TO_STRING'Then Begin
+  NeedArgs(Nm,N,1);
+  L:=ListArg(0);
+  If L<>Nil Then Begin
+   If N>1Then T:=ToStr(A[1]) Else T:=',';
+   S:='';
+   K:=0;
+   For I:=0 to L^.Cnt-1do Begin
+    If L^.V^[I].K=0Then Begin
+     If N>2Then Begin If K>0Then S:=S+T;S:=S+ToStr(A[2]);Inc(K);End;
+    End
+     Else Begin If K>0Then S:=S+T;S:=S+ToStr(L^.V^[I]);Inc(K);End;
+   End;
+   FnArray:=VStr(S);
+  End;
+ End Else
+ If Nm='GENERATE_SERIES'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
+   R3:=1;
+   If N>2Then NumArg(A,2,R3);
+   If R3=0Then Exit;
+   Lst:=LNew;
+   Cnt:=0;
+   If R3>0Then Begin
+    While(R<=R2+1E-12)and(Cnt<10000)do Begin LAdd(Lst,VNum(R));R:=R+R3;Inc(Cnt);End;
+   End
+    Else
+   While(R>=R2-1E-12)and(Cnt<10000)do Begin LAdd(Lst,VNum(R));R:=R+R3;Inc(Cnt);End;
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ { dictionnaires }
+ If Nm='MAP'Then Begin
+  Lst:=LNew;
+  I:=0;
+  While I+1<N do Begin
+   LAdd(Lst,VStr(ToStr(A[I])));
+   LAdd(Lst,A[I+1]);
+   Inc(I,2);
+  End;
+  FnArray:=VMapOf(Lst);
+ End Else
+ If(Nm='MAP_AKEYS')or(Nm='MAP_AVALS')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=6Then Begin
+   Lst:=LNew;
+   I:=0;
+   If Nm='MAP_AVALS'Then Inc(I);
+   While I<A[0].L^.Cnt do Begin LAdd(Lst,A[0].L^.V^[I]);Inc(I,2);End;
+   FnArray:=VList(Lst);
+  End;
+ End Else
+ If Nm='MAP_CONCAT'Then Begin
+  Lst:=LNew;
+  For K:=0 to N-1do Begin
+   If A[K].K<>6Then Exit;
+   I:=0;
+   While I+1<A[K].L^.Cnt do Begin
+    Mx:=MapFind(Lst,ToStr(A[K].L^.V^[I]));
+    If Mx>=0Then Lst^.V^[Mx+1]:=A[K].L^.V^[I+1]
+     Else Begin LAdd(Lst,A[K].L^.V^[I]);LAdd(Lst,A[K].L^.V^[I+1]);End;
+    Inc(I,2);
+   End;
+  End;
+  FnArray:=VMapOf(Lst);
+ End Else
+ If Nm='MAP_DELETE'Then Begin
+  NeedArgs(Nm,N,2);
+  If A[0].K=6Then Begin
+   Lst:=LNew;
+   S:=ToStr(A[1]);
+   I:=0;
+   While I+1<A[0].L^.Cnt do Begin
+    If ToStr(A[0].L^.V^[I])<>S Then Begin LAdd(Lst,A[0].L^.V^[I]);LAdd(Lst,A[0].L^.V^[I+1]);End;
+    Inc(I,2);
+   End;
+   FnArray:=VMapOf(Lst);
+  End;
+ End Else
+ If Nm='MAP_EXIST'Then Begin
+  NeedArgs(Nm,N,2);
+  If A[0].K=6Then FnArray:=VBool(MapFind(A[0].L,ToStr(A[1]))>=0);
+ End Else
+ If Nm='MAP_GET'Then Begin
+  NeedArgs(Nm,N,2);
+  If A[0].K=6Then Begin
+   K:=MapFind(A[0].L,ToStr(A[1]));
+   If K>=0Then FnArray:=A[0].L^.V^[K+1];
+  End;
+ End Else
+ If Nm='MAP_INSERT'Then Begin
+  NeedArgs(Nm,N,3);
+  If A[0].K=6Then Begin
+   Lst:=LNew;
+   For I:=0 to A[0].L^.Cnt-1do LAdd(Lst,A[0].L^.V^[I]);
+   K:=MapFind(Lst,ToStr(A[1]));
+   If K>=0Then Lst^.V^[K+1]:=A[2]
+    Else Begin LAdd(Lst,VStr(ToStr(A[1])));LAdd(Lst,A[2]);End;
+   FnArray:=VMapOf(Lst);
+  End;
+ End Else
+ If(Nm='FROM_JSON')or(Nm='JSON_TO_MAP')Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=2Then FnArray:=ValFromJson(A[0].S);
+ End Else
+ If Nm='TO_JSON'Then Begin
+  NeedArgs(Nm,N,1);
+  FnArray:=VStr(ValJson(A[0]));
+ End
+  Else
+ FnOk:=False;
+End;
+
+Function ToBoolVal(Const V:TVal;Var B:Boolean):Boolean;
+Var
+ S:String;
+Begin
+ ToBoolVal:=True;
+ Case V.K of
+  1,3:B:=V.N<>0;
+  2:Begin
+   S:=LowerStr(V.S);
+   If(S='true')or(S='t')or(S='yes')or(S='y')or(S='1')Then B:=True Else
+   If(S='false')or(S='f')or(S='no')or(S='n')or(S='0')or(S='')Then B:=False
+    Else ToBoolVal:=False;
+  End;
+  Else ToBoolVal:=False;
+ End;
+End;
+
+Function FnMisc(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R:Real;
+ I:Integer;
+ B:Boolean;
+ S:String;
+Begin
+ FnMisc:=VNull;
+ FnOk:=True;
+ If Nm='TO_STRING'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K<>0Then FnMisc:=VStr(ToStr(A[0]));
+ End Else
+ If(Nm='TO_REAL')or(Nm='TO_INT')Then Begin
+  NeedArgs(Nm,N,1);
+  If(A[0].K<>0)and(A[0].K<>4)and(A[0].K<>5)and(A[0].K<>6)and ToNum(A[0],R)Then Begin
+   If Nm='TO_INT'Then R:=Int(R);
+   FnMisc:=VNum(R);
+  End;
+ End Else
+ If Nm='TO_BOOL'Then Begin
+  NeedArgs(Nm,N,1);
+  If ToBoolVal(A[0],B)Then FnMisc:=VBool(B);
+ End Else
+ If Nm='COALESCE'Then Begin
+  For I:=0 to N-1do If A[I].K<>0Then Begin FnMisc:=A[I];Exit;End;
+ End Else
+ If Nm='NULLIF'Then Begin
+  NeedArgs(Nm,N,2);
+  If ValEq(A[0],A[1])Then FnMisc:=VNull Else FnMisc:=A[0];
+ End Else
+ If Nm='IF'Then Begin
+  NeedArgs(Nm,N,3);
+  If A[0].K<>0Then Begin
+   If A[0].N<>0Then FnMisc:=A[1] Else FnMisc:=A[2];
+  End
+   Else FnMisc:=A[2];
+ End Else
+ If Nm='ENV'Then Begin
+  NeedArgs(Nm,N,1);
+  S:=GetEnv(ToStr(A[0]));
+  If S<>''Then FnMisc:=VStr(S);
+ End
+  Else
+ FnOk:=False;
+End;
+
+{ ---- fonctions de geometrie ---- }
+
+Function VGeom(Var G:TGeom):TVal;
+Var
+ V:TVal;
+Begin
+ V:=NewV(4);
+ New(V.G);
+ GeomCopy(G,V.G^);
+ VGeom:=V;
+End;
+
+{ Resultat geometrique (nul si vide), libere G }
+Function GRes(Var G:TGeom):TVal;Begin
+ If G.First=Nil Then GRes:=VNull
+                Else GRes:=VGeom(G);
+ FreeGeom(G);
+End;
+
+Function FirstPt(Var G:TGeom;Var X,Y:Real):Boolean;Begin
+ FirstPt:=False;
+ If(G.First=Nil)or(G.First^.N<1)Then Exit;
+ X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;
+ FirstPt:=True;
+End;
+
+Function GeomVertexCount(Var G:TGeom):LongInt;
+Var
+ P:PPath;
+ N:LongInt;
+Begin
+ N:=0;
+ P:=G.First;
+ While P<>Nil do Begin Inc(N,P^.N);P:=P^.Next;End;
+ GeomVertexCount:=N;
+End;
+
+Function VertexAt(Var G:TGeom;K:LongInt;Var X,Y:Real):Boolean;
+Var
+ P:PPath;
+Begin
+ VertexAt:=False;
+ P:=G.First;
+ While P<>Nil do Begin
+  If K<P^.N Then Begin
+   X:=P^.Pts^[K].X;Y:=P^.Pts^[K].Y;
+   VertexAt:=True;
+   Exit;
+  End;
+  Dec(K,P^.N);
+  P:=P^.Next;
+ End;
+End;
+
+Function PartCount(Var G:TGeom):LongInt;Begin
+ If G.Cls=3Then PartCount:=G.NPoly Else PartCount:=G.Count;
+End;
+
+{ Union / intersection / difference / difference symetrique de deux geometries }
+Procedure GeomSetOp(Mode:Integer;Var A,B:TGeom;Var R:TGeom);
+Var
+ T1,T2,Empty:TGeom;
+Begin
+ InitGeom(R);
+ If A.First=Nil Then Begin
+  If(Mode=0)or(Mode=3)Then GeomCopy(B,R);
+  Exit;
+ End;
+ If B.First=Nil Then Begin
+  If Mode<>1Then GeomCopy(A,R);
+  Exit;
+ End;
+ If(A.Cls=3)and(B.Cls=3)Then Begin
+  If Mode=3Then Begin
+   Overlay(2,A,B,T1);
+   Overlay(2,B,A,T2);
+   If T1.First=Nil Then GeomCopy(T2,R) Else
+   If T2.First=Nil Then GeomCopy(T1,R)
+    Else Begin
+     GeomAppend(T1,T2);
+     InitGeom(Empty);
+     Overlay(0,T1,Empty,R);
+    End;
+   FreeGeom(T1);FreeGeom(T2);
+  End Else
+  If Mode=0Then Begin
+   GeomCopy(A,T1);
+   GeomAppend(T1,B);
+   InitGeom(Empty);
+   Overlay(0,T1,Empty,R);
+   FreeGeom(T1);
+  End
+   Else
+  Overlay(Mode,A,B,R);
+  Exit;
+ End;
+ Case Mode of
+  0:If A.Cls=B.Cls Then Begin GeomCopy(A,R);GeomAppend(R,B);End;
+  1:If B.Cls=3Then Begin ClipOutside:=False;ClipToPolys(A,B,R);End Else
+    If A.Cls=3Then Begin ClipOutside:=False;ClipToPolys(B,A,R);End;
+  2:If B.Cls=3Then Begin ClipOutside:=True;ClipToPolys(A,B,R);End
+     Else GeomCopy(A,R);
+  3:If A.Cls=B.Cls Then Begin GeomCopy(A,R);GeomAppend(R,B);End;
+ End;
+End;
+
+Const
+ GeomFnNames1=',AREA,PERIMETER,LENGTH,NUM_POINTS,NUM_GEOMETRIES,NUM_INTERIOR_RINGS,NUM_RINGS,GEOMETRY_TYPE,IS_EMPTY,IS_CLOSED,IS_VALID,X,Y,X_MIN,X_MAX,Y_MIN,Y_MAX,';
+ GeomFnNames2='BOUNDS_WIDTH,BOUNDS_HEIGHT,ENVELOPE,BOUNDS,ORIENTED_BBOX,CENTROID,POINT_ON_SURFACE,CONVEX_HULL,START_POINT,END_POINT,POINT_N,NODES_TO_POINTS,SEGMENTS_TO_LINES,';
+ GeomFnNames3='EXTERIOR_RING,INTERIOR_RING_N,GEOMETRY_N,BOUNDARY,REVERSE,TRANSLATE,ROTATE,SCALE,AFFINE_TRANSFORM,BUFFER,SIMPLIFY,SIMPLIFY_VW,SMOOTH,DENSIFY_BY_COUNT,OFFSET_CURVE,EXTEND,';
+ GeomFnNames4='LINE_INTERPOLATE_POINT,LINE_INTERPOLATE_ANGLE,LINE_SUBSTRING,LINE_LOCATE_POINT,STRAIGHT_DISTANCE_2D,SINUOSITY,PROJECT,AZIMUTH,ANGLE_AT_VERTEX,DISTANCE,CLOSEST_POINT,SHORTEST_LINE,';
+ GeomFnNames5='INTERSECTS,CONTAINS,WITHIN,TOUCHES,CROSSES,OVERLAPS,DISJOINT,EQUALS,INTERSECTION,DIFFERENCE,COMBINE,SYM_DIFFERENCE,UNION,TRANSFORM,GEOM_TO_WKT,';
+
+Function IsGeomFn(Const Nm:String):Boolean;
+Var
+ K:String;
+Begin
+ K:=','+Nm+',';
+ IsGeomFn:=(Pos(K,GeomFnNames1)>0)or(Pos(K,','+GeomFnNames2)>0)or(Pos(K,','+GeomFnNames3)>0)or(Pos(K,','+GeomFnNames4)>0)or(Pos(K,','+GeomFnNames5)>0);
+End;
+
+Function FnGeom(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2,R3,R4,R5,R6,Cx,Cy,X1,Y1,X2,Y2,Ang,D,L:Real;
+ I,K,Cnt:LongInt;
+ Res,Tmp:TGeom;
+ P,Q,Px:PPath;
+ Ok:Boolean;
+ S:String;
+ B:TBuf;
+ Pjs:PJ;
+ Sr,Ds:LongInt;
+ Gp:PGeom;
+ M:Array[1..6]of Real;
+ Poly:Integer;
+
+ Function G0:PGeom;Begin
+  If(N>0)and(A[0].K=4)Then G0:=A[0].G Else G0:=Nil;
+ End;
+
+ Function G1:PGeom;Begin
+  If(N>1)and(A[1].K=4)Then G1:=A[1].G Else G1:=Nil;
+ End;
+
+Begin
+ FnGeom:=VNull;
+ FnOk:=True;
+ { constructeurs (sans geometrie en entree) }
+ If Nm='MAKE_POINT'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin PointGeom(Res,R,R2);FnGeom:=GRes(Res);End;
+  Exit;
+ End;
+ If Nm='GEOM_FROM_WKT'Then Begin
+  NeedArgs(Nm,N,1);
+  If A[0].K=2Then Begin
+   S:=A[0].S;
+   If S<>''Then Begin
+    Pjs:=WktToGeom(@S[1],0,Length(S));
+    If Pjs<>Nil Then Begin Flatten(Pjs,Res);FnGeom:=GRes(Res);End;
+   End;
+  End;
+  Exit;
+ End;
+ If Nm='GEOM_FROM_GEOJSON'Then Begin
+  NeedArgs(Nm,N,1);
+  Exit;
+ End;
+ If Nm='MAKE_CIRCLE'Then Begin
+  NeedArgs(Nm,N,2);
+  If(G0<>Nil)and FirstPt(G0^,Cx,Cy)and NumArg(A,1,R)Then Begin
+   K:=9;
+   If NumArg(A,2,R2)Then K:=Round(R2)div 4;
+   If K<1Then K:=1;
+   InitGeom(Res);Res.Cls:=3;Res.NPoly:=1;
+   AddCircle(Res,Cx,Cy,R,K,0);
+   FnGeom:=GRes(Res);
+  End;
+  Exit;
+ End;
+ If(Nm='MAKE_LINE')or(Nm='MAKE_POLYGON')Then Begin
+  NeedArgs(Nm,N,1);
+  If Nm='MAKE_LINE'Then Begin
+   TpClear;
+   For I:=0 to N-1do Begin
+    If A[I].K=4Then Begin
+     P:=A[I].G^.First;
+     While P<>Nil do Begin
+      For K:=0 to P^.N-1do TpAdd(P^.Pts^[K].X,P^.Pts^[K].Y);
+      P:=P^.Next;
+     End;
+    End Else
+    If A[I].K=5Then Begin
+     For K:=0 to A[I].L^.Cnt-1do
+      If A[I].L^.V^[K].K=4Then Begin
+       P:=A[I].L^.V^[K].G^.First;
+       While P<>Nil do Begin
+        For Cnt:=0 to P^.N-1do TpAdd(P^.Pts^[Cnt].X,P^.Pts^[Cnt].Y);
+        P:=P^.Next;
+       End;
+      End;
+    End;
+   End;
+   If TpN>=2Then Begin
+    InitGeom(Res);Res.Cls:=2;
+    P:=NewPath(Res,TpN,0);
+    Move(TpP^,P^.Pts^,TpN*SizeOf(TPt));
+    FnGeom:=GRes(Res);
+   End;
+  End
+   Else
+  Begin
+   InitGeom(Res);Res.Cls:=3;Res.NPoly:=1;
+   For I:=0 to N-1do Begin
+    If(A[I].K=4)and(A[I].G^.First<>Nil)Then Begin
+     P:=A[I].G^.First;
+     K:=P^.N;
+     If K>=3Then Begin
+      Px:=NewPath(Res,K+1,0);
+      Move(P^.Pts^,Px^.Pts^,K*SizeOf(TPt));
+      If(P^.Pts^[0].X<>P^.Pts^[K-1].X)or(P^.Pts^[0].Y<>P^.Pts^[K-1].Y)Then Begin
+       Px^.Pts^[K]:=P^.Pts^[0];Px^.N:=K+1;
+      End
+       Else Px^.N:=K;
+     End;
+    End;
+   End;
+   If(Res.First<>Nil)and(Res.First^.N>=4)Then Begin
+    OrientPolygons(Res);
+    FnGeom:=GRes(Res);
+   End
+    Else FreeGeom(Res);
+  End;
+  Exit;
+ End;
+ If Nm='COLLECT_GEOMETRIES'Then Begin
+  InitGeom(Res);
+  For I:=0 to N-1do Begin
+   If A[I].K=4Then Begin
+    If Res.Cls=0Then Begin GeomCopy(A[I].G^,Res);End
+     Else If Res.Cls=A[I].G^.Cls Then GeomAppend(Res,A[I].G^);
+   End Else
+   If A[I].K=5Then
+    For K:=0 to A[I].L^.Cnt-1do
+     If A[I].L^.V^[K].K=4Then Begin
+      If Res.Cls=0Then GeomCopy(A[I].L^.V^[K].G^,Res)
+       Else If Res.Cls=A[I].L^.V^[K].G^.Cls Then GeomAppend(Res,A[I].L^.V^[K].G^);
+     End;
+  End;
+  FnGeom:=GRes(Res);
+  Exit;
+ End;
+ If(N=0)or(A[0].K<>4)Then Begin
+  FnOk:=(N>0)and(A[0].K=0)and IsGeomFn(Nm);
+  Exit;
+ End;
+ Gp:=A[0].G;
+ { fonctions de mesure }
+ If Nm='AREA'Then FnGeom:=VNum(GeomArea(Gp^)) Else
+ If(Nm='PERIMETER')Then FnGeom:=VNum(GeomLength(Gp^)) Else
+ If Nm='LENGTH'Then FnGeom:=VNum(GeomLength(Gp^)) Else
+ If Nm='NUM_POINTS'Then FnGeom:=VNum(GeomVertexCount(Gp^)) Else
+ If Nm='NUM_GEOMETRIES'Then FnGeom:=VNum(PartCount(Gp^)) Else
+ If Nm='NUM_INTERIOR_RINGS'Then Begin
+  If Gp^.Cls=3Then Begin
+   Cnt:=0;P:=Gp^.First;
+   While P<>Nil do Begin Inc(Cnt);P:=P^.Next;End;
+   FnGeom:=VNum(Cnt-Gp^.NPoly);
+  End;
+ End Else
+ If Nm='NUM_RINGS'Then Begin
+  If Gp^.Cls=3Then FnGeom:=VNum(Gp^.Count);
+ End Else
+ If Nm='GEOMETRY_TYPE'Then Begin
+  Case Gp^.Cls of
+   1:FnGeom:=VStr('Point');
+   2:FnGeom:=VStr('Line');
+   3:FnGeom:=VStr('Polygon');
+  End;
+ End Else
+ If Nm='IS_EMPTY'Then FnGeom:=VBool(Gp^.First=Nil) Else
+ If Nm='IS_CLOSED'Then Begin
+  If Gp^.Cls=2Then Begin
+   Ok:=True;P:=Gp^.First;
+   While P<>Nil do Begin
+    If(P^.N<2)or(P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y)Then Ok:=False;
+    P:=P^.Next;
+   End;
+   FnGeom:=VBool(Ok);
+  End Else If Gp^.Cls=3Then FnGeom:=VBool(True);
+ End Else
+ If Nm='IS_VALID'Then Begin
+  Ok:=True;
+  P:=Gp^.First;
+  While P<>Nil do Begin
+   If Gp^.Cls=3Then Begin
+    If(P^.N<4)or(P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y)Then Ok:=False;
+   End Else
+   If(Gp^.Cls=2)and(P^.N<2)Then Ok:=False;
+   P:=P^.Next;
+  End;
+  FnGeom:=VBool(Ok);
+ End Else
+ If(Nm='X')or(Nm='Y')Then Begin
+  CentroidGeom(Gp^,Cx,Cy,Ok);
+  If Ok Then Begin If Nm='X'Then FnGeom:=VNum(Cx) Else FnGeom:=VNum(Cy);End;
+ End Else
+ If(Nm='X_MIN')or(Nm='X_MAX')or(Nm='Y_MIN')or(Nm='Y_MAX')Then Begin
+  If GeomBBox(Gp^,X1,Y1,X2,Y2)Then Begin
+   If Nm='X_MIN'Then FnGeom:=VNum(X1) Else If Nm='X_MAX'Then FnGeom:=VNum(X2) Else
+   If Nm='Y_MIN'Then FnGeom:=VNum(Y1) Else FnGeom:=VNum(Y2);
+  End;
+ End Else
+ If(Nm='BOUNDS_WIDTH')or(Nm='BOUNDS_HEIGHT')Then Begin
+  If GeomBBox(Gp^,X1,Y1,X2,Y2)Then Begin
+   If Nm='BOUNDS_WIDTH'Then FnGeom:=VNum(X2-X1) Else FnGeom:=VNum(Y2-Y1);
+  End;
+ End Else
+ If(Nm='ENVELOPE')or(Nm='BOUNDS')Then Begin
+  If GeomBBox(Gp^,X1,Y1,X2,Y2)Then Begin
+   InitGeom(Res);Res.Cls:=3;Res.NPoly:=1;
+   P:=NewPath(Res,5,0);
+   P^.Pts^[0].X:=X1;P^.Pts^[0].Y:=Y1;P^.Pts^[1].X:=X2;P^.Pts^[1].Y:=Y1;
+   P^.Pts^[2].X:=X2;P^.Pts^[2].Y:=Y2;P^.Pts^[3].X:=X1;P^.Pts^[3].Y:=Y2;
+   P^.Pts^[4]:=P^.Pts^[0];
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='ORIENTED_BBOX'Then Begin
+  MinOrientedBox(Gp^,Res,D,Ang,R,R2);
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='CENTROID'Then Begin
+  CentroidGeom(Gp^,Cx,Cy,Ok);
+  If Ok Then Begin PointGeom(Res,Cx,Cy);FnGeom:=GRes(Res);End;
+ End Else
+ If Nm='POINT_ON_SURFACE'Then Begin
+  If Gp^.First<>Nil Then Begin
+   PointOnSurface(Gp^,Cx,Cy);
+   PointGeom(Res,Cx,Cy);FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='CONVEX_HULL'Then Begin
+  HullGeom(Gp^,Res);
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='START_POINT'Then Begin
+  If FirstPt(Gp^,Cx,Cy)Then Begin PointGeom(Res,Cx,Cy);FnGeom:=GRes(Res);End;
+ End Else
+ If Nm='END_POINT'Then Begin
+  If Gp^.Last<>Nil Then Begin
+   P:=Gp^.Last;
+   PointGeom(Res,P^.Pts^[P^.N-1].X,P^.Pts^[P^.N-1].Y);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='POINT_N'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   K:=Round(R);
+   If K<0Then K:=GeomVertexCount(Gp^)+K+1;
+   If(K>=1)and VertexAt(Gp^,K-1,Cx,Cy)Then Begin PointGeom(Res,Cx,Cy);FnGeom:=GRes(Res);End;
+  End;
+ End Else
+ If Nm='NODES_TO_POINTS'Then Begin
+  InitGeom(Res);Res.Cls:=1;
+  P:=Gp^.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    If(Gp^.Cls<>3)or(I<P^.N-1)Then Begin
+     Px:=NewPath(Res,1,0);
+     Px^.Pts^[0]:=P^.Pts^[I];
+    End;
+   End;
+   P:=P^.Next;
+  End;
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='SEGMENTS_TO_LINES'Then Begin
+  InitGeom(Res);Res.Cls:=2;
+  P:=Gp^.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-2do Begin
+    Px:=NewPath(Res,2,0);
+    Px^.Pts^[0]:=P^.Pts^[I];Px^.Pts^[1]:=P^.Pts^[I+1];
+   End;
+   P:=P^.Next;
+  End;
+  FnGeom:=GRes(Res);
+ End Else
+ If(Nm='EXTERIOR_RING')or(Nm='INTERIOR_RING_N')or(Nm='GEOMETRY_N')Then Begin
+  If Nm='EXTERIOR_RING'Then Begin K:=1;End Else Begin
+   NeedArgs(Nm,N,2);
+   If Not NumArg(A,1,R)Then Exit;
+   K:=Round(R);
+  End;
+  If Nm='GEOMETRY_N'Then Begin
+   If K<1Then Exit;
+   InitGeom(Res);Res.Cls:=Gp^.Cls;
+   If Gp^.Cls=3Then Begin
+    P:=Gp^.First;Cnt:=0;Poly:=-1;
+    While P<>Nil do Begin
+     If P^.Poly<>Poly Then Begin Inc(Cnt);Poly:=P^.Poly;End;
+     If Cnt=K Then CopyPath(Res,P,0);
+     P:=P^.Next;
+    End;
+    Res.NPoly:=1;
+   End
+    Else
+   Begin
+    P:=Gp^.First;Cnt:=0;
+    While P<>Nil do Begin
+     Inc(Cnt);
+     If Cnt=K Then CopyPath(Res,P,0);
+     P:=P^.Next;
+    End;
+   End;
+   FnGeom:=GRes(Res);
+  End
+   Else
+  If Gp^.Cls=3Then Begin
+   P:=Gp^.First;Cnt:=0;
+   While(P<>Nil)and(P^.Poly=Gp^.First^.Poly)do Begin
+    If((Nm='EXTERIOR_RING')and(Cnt=0))or((Nm='INTERIOR_RING_N')and(Cnt=K)and(K>=1))Then Begin
+     InitGeom(Res);Res.Cls:=2;
+     CopyPath(Res,P,0);
+     FnGeom:=GRes(Res);
+     Exit;
+    End;
+    Inc(Cnt);
+    P:=P^.Next;
+   End;
+  End;
+ End Else
+ If Nm='BOUNDARY'Then Begin
+  InitGeom(Res);
+  If Gp^.Cls=3Then Begin
+   Res.Cls:=2;
+   P:=Gp^.First;
+   While P<>Nil do Begin CopyPath(Res,P,0);P:=P^.Next;End;
+  End Else
+  If Gp^.Cls=2Then Begin
+   Res.Cls:=1;
+   P:=Gp^.First;
+   While P<>Nil do Begin
+    Px:=NewPath(Res,1,0);Px^.Pts^[0]:=P^.Pts^[0];
+    Px:=NewPath(Res,1,0);Px^.Pts^[0]:=P^.Pts^[P^.N-1];
+    P:=P^.Next;
+   End;
+  End;
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='REVERSE'Then Begin
+  GeomCopy(Gp^,Res);
+  P:=Res.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N div 2-1do Begin
+    Cx:=P^.Pts^[I].X;Cy:=P^.Pts^[I].Y;
+    P^.Pts^[I]:=P^.Pts^[P^.N-1-I];
+    P^.Pts^[P^.N-1-I].X:=Cx;P^.Pts^[P^.N-1-I].Y:=Cy;
+   End;
+   P:=P^.Next;
+  End;
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='TRANSLATE'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+   GeomCopy(Gp^,Res);
+   AffineGeom(Res,1,0,0,1,R,R2);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='ROTATE'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   If(G1<>Nil)and FirstPt(G1^,Cx,Cy)Then Begin End
+    Else Begin
+     If Not GeomBBox(Gp^,X1,Y1,X2,Y2)Then Exit;
+     Cx:=(X1+X2)/2;Cy:=(Y1+Y2)/2;
+    End;
+   If(N>2)and(A[2].K=4)and FirstPt(A[2].G^,Cx,Cy)Then Begin End;
+   R:=R*Pi/180;
+   GeomCopy(Gp^,Res);
+   AffineGeom(Res,Cos(R),Sin(R),-Sin(R),Cos(R),Cx-Cx*Cos(R)-Cy*Sin(R),Cy+Cx*Sin(R)-Cy*Cos(R));
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='SCALE'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+   If(N>3)and(A[3].K=4)and FirstPt(A[3].G^,Cx,Cy)Then Begin End
+    Else Begin
+     If Not GeomBBox(Gp^,X1,Y1,X2,Y2)Then Exit;
+     Cx:=(X1+X2)/2;Cy:=(Y1+Y2)/2;
+    End;
+   GeomCopy(Gp^,Res);
+   AffineGeom(Res,R,0,0,R2,Cx-Cx*R,Cy-Cy*R2);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='AFFINE_TRANSFORM'Then Begin
+  NeedArgs(Nm,N,6);
+  If NumArg(A,1,R)and NumArg(A,2,R2)and NumArg(A,3,R3)and NumArg(A,4,R4)and NumArg(A,5,R5)Then Begin
+   GeomCopy(Gp^,Res);
+   R3:=R3*Pi/180;
+   AffineGeom(Res,R4*Cos(R3),R5*Sin(R3),-R4*Sin(R3),R5*Cos(R3),R,R2);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='BUFFER'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   K:=5;
+   If NumArg(A,2,R2)Then K:=Round(R2);
+   BufferGeom(Gp^,R,K,Res);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If(Nm='SIMPLIFY')or(Nm='SIMPLIFY_VW')Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   InitGeom(Res);Res.Cls:=Gp^.Cls;
+   P:=Gp^.First;
+   While P<>Nil do Begin
+    If Gp^.Cls=1Then CopyPath(Res,P,0)
+     Else If Nm='SIMPLIFY'Then Ok:=SimplifyDP(P,R,Gp^.Cls=3,Res,P^.Poly)
+     Else Ok:=SimplifyVW(P,R,Gp^.Cls=3,Res,P^.Poly);
+    P:=P^.Next;
+   End;
+   Res.NPoly:=Gp^.NPoly;
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='SMOOTH'Then Begin
+  NeedArgs(Nm,N,1);
+  K:=1;R2:=0.25;R3:=180;
+  If NumArg(A,1,R)Then K:=Round(R);
+  If NumArg(A,2,R)Then R2:=R;
+  If NumArg(A,4,R)Then R3:=R;
+  InitGeom(Res);Res.Cls:=Gp^.Cls;
+  P:=Gp^.First;
+  While P<>Nil do Begin
+   If Gp^.Cls=1Then CopyPath(Res,P,0)
+    Else SmoothPath(P,K,R2,R3,Gp^.Cls=3,Res,P^.Poly);
+   P:=P^.Next;
+  End;
+  Res.NPoly:=Gp^.NPoly;
+  FnGeom:=GRes(Res);
+ End Else
+ If Nm='DENSIFY_BY_COUNT'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   InitGeom(Res);Res.Cls:=Gp^.Cls;
+   P:=Gp^.First;
+   While P<>Nil do Begin
+    If Gp^.Cls=1Then CopyPath(Res,P,0) Else DensifyPath(P,Round(R),Res,P^.Poly);
+    P:=P^.Next;
+   End;
+   Res.NPoly:=Gp^.NPoly;
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='OFFSET_CURVE'Then Begin
+  NeedArgs(Nm,N,2);
+  If(Gp^.Cls=2)and NumArg(A,1,R)Then Begin
+   K:=8;
+   If NumArg(A,2,R2)Then K:=Round(R2);
+   InitGeom(Res);Res.Cls:=2;
+   P:=Gp^.First;
+   While P<>Nil do Begin OffsetCurve(Res,P,R,K);P:=P^.Next;End;
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='EXTEND'Then Begin
+  NeedArgs(Nm,N,3);
+  If(Gp^.Cls=2)and NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+   GeomCopy(Gp^,Res);
+   P:=Res.First;
+   While P<>Nil do Begin
+    If P^.N>=2Then Begin
+     L:=Sqrt(Sqr(P^.Pts^[1].X-P^.Pts^[0].X)+Sqr(P^.Pts^[1].Y-P^.Pts^[0].Y));
+     If L>0Then Begin
+      P^.Pts^[0].X:=P^.Pts^[0].X-R*(P^.Pts^[1].X-P^.Pts^[0].X)/L;
+      P^.Pts^[0].Y:=P^.Pts^[0].Y-R*(P^.Pts^[1].Y-P^.Pts^[0].Y)/L;
+     End;
+     K:=P^.N-1;
+     L:=Sqrt(Sqr(P^.Pts^[K].X-P^.Pts^[K-1].X)+Sqr(P^.Pts^[K].Y-P^.Pts^[K-1].Y));
+     If L>0Then Begin
+      P^.Pts^[K].X:=P^.Pts^[K].X+R2*(P^.Pts^[K].X-P^.Pts^[K-1].X)/L;
+      P^.Pts^[K].Y:=P^.Pts^[K].Y+R2*(P^.Pts^[K].Y-P^.Pts^[K-1].Y)/L;
+     End;
+    End;
+    P:=P^.Next;
+   End;
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='LINE_INTERPOLATE_POINT'Then Begin
+  NeedArgs(Nm,N,2);
+  If(Gp^.Cls=2)and NumArg(A,1,R)and(Gp^.First<>Nil)Then
+   If PointAlong(Gp^.First,R,Cx,Cy,Ang)Then Begin PointGeom(Res,Cx,Cy);FnGeom:=GRes(Res);End;
+ End Else
+ If Nm='LINE_INTERPOLATE_ANGLE'Then Begin
+  NeedArgs(Nm,N,2);
+  If(Gp^.Cls=2)and NumArg(A,1,R)and(Gp^.First<>Nil)Then
+   If PointAlong(Gp^.First,R,Cx,Cy,Ang)Then FnGeom:=VNum(Ang);
+ End Else
+ If Nm='LINE_SUBSTRING'Then Begin
+  NeedArgs(Nm,N,3);
+  If(Gp^.Cls=2)and NumArg(A,1,R)and NumArg(A,2,R2)and(Gp^.First<>Nil)Then Begin
+   InitGeom(Res);Res.Cls:=2;
+   If SubLine(Gp^.First,R,R2,Res,0)Then FnGeom:=GRes(Res) Else FreeGeom(Res);
+  End;
+ End Else
+ If Nm='LINE_LOCATE_POINT'Then Begin
+  NeedArgs(Nm,N,2);
+  If(Gp^.Cls=2)and(G1<>Nil)and FirstPt(G1^,Cx,Cy)and(Gp^.First<>Nil)Then Begin
+   P:=Gp^.First;
+   D:=1E300;L:=0;Ang:=0;
+   For I:=0 to P^.N-2do Begin
+    ClosestOnSeg(Cx,Cy,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y,X1,Y1);
+    R:=Sqrt(Sqr(X1-Cx)+Sqr(Y1-Cy));
+    If R<D Then Begin
+     D:=R;
+     Ang:=L+Sqrt(Sqr(X1-P^.Pts^[I].X)+Sqr(Y1-P^.Pts^[I].Y));
+    End;
+    L:=L+Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+   End;
+   FnGeom:=VNum(Ang);
+  End;
+ End Else
+ If Nm='STRAIGHT_DISTANCE_2D'Then Begin
+  If(Gp^.Cls=2)and(Gp^.First<>Nil)Then Begin
+   P:=Gp^.First;Q:=Gp^.Last;
+   FnGeom:=VNum(Sqrt(Sqr(P^.Pts^[0].X-Q^.Pts^[Q^.N-1].X)+Sqr(P^.Pts^[0].Y-Q^.Pts^[Q^.N-1].Y)));
+  End;
+ End Else
+ If Nm='SINUOSITY'Then Begin
+  If(Gp^.Cls=2)and(Gp^.First<>Nil)Then Begin
+   P:=Gp^.First;Q:=Gp^.Last;
+   D:=Sqrt(Sqr(P^.Pts^[0].X-Q^.Pts^[Q^.N-1].X)+Sqr(P^.Pts^[0].Y-Q^.Pts^[Q^.N-1].Y));
+   If D>0Then FnGeom:=VNum(GeomLength(Gp^)/D);
+  End;
+ End Else
+ If Nm='PROJECT'Then Begin
+  NeedArgs(Nm,N,3);
+  If FirstPt(Gp^,Cx,Cy)and NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+   PointGeom(Res,Cx+R*Sin(R2),Cy+R*Cos(R2));
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='AZIMUTH'Then Begin
+  NeedArgs(Nm,N,2);
+  If(G1<>Nil)and FirstPt(Gp^,Cx,Cy)and FirstPt(G1^,X2,Y2)Then Begin
+   Ang:=Atan2(X2-Cx,Y2-Cy);
+   If Ang<0Then Ang:=Ang+2*Pi;
+   FnGeom:=VNum(Ang);
+  End;
+ End Else
+ If Nm='ANGLE_AT_VERTEX'Then Begin
+  NeedArgs(Nm,N,2);
+  If NumArg(A,1,R)Then Begin
+   K:=Round(R);
+   Cnt:=GeomVertexCount(Gp^);
+   If(K>=0)and(K<Cnt)and VertexAt(Gp^,K,Cx,Cy)Then Begin
+    Ok:=VertexAt(Gp^,K-1,X1,Y1)and(K>0);
+    If VertexAt(Gp^,K+1,X2,Y2)and(K+1<Cnt)Then Begin
+     If Ok Then Begin
+      R2:=Atan2(Cx-X1,Cy-Y1);R3:=Atan2(X2-Cx,Y2-Cy);
+      R4:=R3-R2;
+      While R4>Pi do R4:=R4-2*Pi;
+      While R4<-Pi do R4:=R4+2*Pi;
+      Ang:=R2+R4/2;
+     End
+      Else Ang:=Atan2(X2-Cx,Y2-Cy);
+    End
+     Else If Ok Then Ang:=Atan2(Cx-X1,Cy-Y1) Else Exit;
+    Ang:=NormDeg(Rad2Deg(Ang));
+    FnGeom:=VNum(Ang);
+   End;
+  End;
+ End Else
+ If(Nm='DISTANCE')or(Nm='CLOSEST_POINT')or(Nm='SHORTEST_LINE')Then Begin
+  NeedArgs(Nm,N,2);
+  If(G1<>Nil)and(Gp^.First<>Nil)and(G1^.First<>Nil)Then Begin
+   D:=NearestPoints(Gp^,G1^,X1,Y1,X2,Y2);
+   If Nm='DISTANCE'Then FnGeom:=VNum(D) Else
+   If Nm='CLOSEST_POINT'Then Begin PointGeom(Res,X1,Y1);FnGeom:=GRes(Res);End
+    Else Begin
+     InitGeom(Res);Res.Cls:=2;
+     P:=NewPath(Res,2,0);
+     P^.Pts^[0].X:=X1;P^.Pts^[0].Y:=Y1;P^.Pts^[1].X:=X2;P^.Pts^[1].Y:=Y2;
+     FnGeom:=GRes(Res);
+    End;
+  End;
+ End Else
+ If(Nm='INTERSECTS')or(Nm='CONTAINS')or(Nm='WITHIN')or(Nm='TOUCHES')or(Nm='CROSSES')or(Nm='OVERLAPS')or(Nm='DISJOINT')or(Nm='EQUALS')Then Begin
+  NeedArgs(Nm,N,2);
+  If(G1<>Nil)Then Begin
+   If Nm='INTERSECTS'Then K:=0 Else If Nm='CONTAINS'Then K:=1 Else If Nm='DISJOINT'Then K:=2 Else
+   If Nm='EQUALS'Then K:=3 Else If Nm='TOUCHES'Then K:=4 Else If Nm='OVERLAPS'Then K:=5 Else
+   If Nm='WITHIN'Then K:=6 Else K:=7;
+   If(Gp^.First=Nil)or(G1^.First=Nil)Then FnGeom:=VBool(Nm='DISJOINT')
+    Else FnGeom:=VBool(GeomPredicate(K,Gp^,G1^));
+  End;
+ End Else
+ If(Nm='INTERSECTION')or(Nm='DIFFERENCE')or(Nm='COMBINE')or(Nm='SYM_DIFFERENCE')or(Nm='UNION')Then Begin
+  NeedArgs(Nm,N,2);
+  If G1<>Nil Then Begin
+   If Nm='INTERSECTION'Then K:=1 Else If Nm='DIFFERENCE'Then K:=2 Else
+   If Nm='SYM_DIFFERENCE'Then K:=3 Else K:=0;
+   GeomSetOp(K,Gp^,G1^,Res);
+   FnGeom:=GRes(Res);
+  End;
+ End Else
+ If Nm='TRANSFORM'Then Begin
+  NeedArgs(Nm,N,3);
+  If ParseCrsName(ToStr(A[1]),Sr)and ParseCrsName(ToStr(A[2]),Ds)Then Begin
+   GeomCopy(Gp^,Res);
+   P:=Res.First;Ok:=True;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do Begin
+     Cx:=P^.Pts^[I].X;Cy:=P^.Pts^[I].Y;
+     If TryTransform(Sr,Ds,Cx,Cy)Then Begin P^.Pts^[I].X:=Cx;P^.Pts^[I].Y:=Cy;End
+                                  Else Ok:=False;
+    End;
+    P:=P^.Next;
+   End;
+   If Ok Then FnGeom:=GRes(Res) Else FreeGeom(Res);
+  End
+   Else EFail('unknown coordinate reference system');
+ End Else
+ If Nm='GEOM_TO_WKT'Then Begin
+  BufInit(B);
+  BufWkt(B,Gp^);
+  S:='';
+  For I:=0 to B.N-1do If Length(S)<255Then S:=S+Chr(B.P^[I]);
+  FnGeom:=VStr(S);
+  FreeMem(B.P,B.Cap);
+ End
+  Else
+ FnOk:=False;
+End;
+
+{ ---- contexte d'evaluation, variables, couches, agregats ---- }
+
+Function EvalOr:TVal;Forward;
+
+Type
+ TCtx=Record
+  S:String;
+  P:Integer;
+  Props,Feat,Parent:PJ;
+  G:TGeom;
+  Id:LongInt;
+ End;
+ TVarRec=Record
+  Name:String[40];
+  V:TVal;
+ End;
+
+Var
+ VarStack:Array[1..32]of TVarRec;
+ VarN:Integer;
+ LayerCache:Array[1..8]of PJ;
+ LayerCacheName:Array[1..8]of String[100];
+ LayerCacheN:Integer;
+
+Procedure SaveCtx(Var C:TCtx);Begin
+ C.S:=ExprS;C.P:=ExprP;C.Props:=ExprProps;C.Feat:=ExprFeat;C.Parent:=ExprParent;C.G:=ExprGeom;C.Id:=ExprId;
+End;
+
+Procedure RestoreCtx(Var C:TCtx);Begin
+ ExprS:=C.S;ExprP:=C.P;ExprProps:=C.Props;ExprFeat:=C.Feat;ExprParent:=C.Parent;ExprGeom:=C.G;ExprId:=C.Id;
+End;
+
+{ Evalue un texte dans le contexte courant }
+Function EvalSub(Const Expr:String):TVal;
+Var
+ C:TCtx;
+ V:TVal;
+Begin
+ SaveCtx(C);
+ Inc(ExprDepth);
+ If ExprDepth>40Then EFail('expression nesting too deep');
+ ExprS:=Expr;ExprP:=1;
+ V:=EvalOr;
+ ESkip;
+ If ExprP<=Length(ExprS)Then EFail('unexpected token');
+ Dec(ExprDepth);
+ RestoreCtx(C);
+ EvalSub:=V;
+End;
+
+{ Evalue un texte sur une autre entite (la courante devient @parent) }
+Function EvalSubFeat(Const Expr:String;F:PJ;Id:LongInt):TVal;
+Var
+ C:TCtx;
+ V:TVal;
+Begin
+ SaveCtx(C);
+ Inc(ExprDepth);
+ If ExprDepth>40Then EFail('expression nesting too deep');
+ ExprParent:=ExprFeat;
+ ExprFeat:=F;
+ ExprProps:=JFind(F,'properties');
+ InitGeom(ExprGeom);
+ Flatten(JFind(F,'geometry'),ExprGeom);
+ ExprId:=Id;
+ ExprS:=Expr;ExprP:=1;
+ V:=EvalOr;
+ ESkip;
+ If ExprP<=Length(ExprS)Then EFail('unexpected token');
+ Dec(ExprDepth);
+ FreeGeom(ExprGeom);
+ RestoreCtx(C);
+ EvalSubFeat:=V;
+End;
+
+Procedure PushVar(Const Name:String;Const V:TVal);Begin
+ If VarN>=32Then EFail('too many nested variables');
+ Inc(VarN);
+ VarStack[VarN].Name:=StrUpper(Name);
+ VarStack[VarN].V:=V;
+End;
+
+Function JToVal(N:PJ):TVal;
+Var
+ R:Real;
+ E:Integer;
+ L:PValList;
+ C:PJ;
+Begin
+ JToVal:=VNull;
+ If N=Nil Then Exit;
+ Case N^.Kind of
+  1:JToVal:=VBool(JVal(N)='true');
+  2:Begin
+   Val(JVal(N),R,E);
+   If E=0Then JToVal:=VNum(R);
+  End;
+  3:JToVal:=VStr(Unesc(JVal(N)));
+  4:Begin
+   L:=LNew;
+   C:=N^.First;
+   While C<>Nil do Begin LAdd(L,JToVal(C));C:=C^.Next;End;
+   JToVal:=VList(L);
+  End;
+  5:Begin
+   L:=LNew;
+   C:=N^.First;
+   While C<>Nil do Begin LAdd(L,VStr(JKey(C)));LAdd(L,JToVal(C));C:=C^.Next;End;
+   JToVal:=VMapOf(L);
+  End;
+ End;
+End;
+
+Function FeatProp(F:PJ;Const Name:String):TVal;Begin
+ FeatProp:=VNull;
+ If F=Nil Then Exit;
+ FeatProp:=JToVal(JFind(JFind(F,'properties'),Name));
+End;
+
+Function FeatGeom(F:PJ):TVal;
+Var
+ G:TGeom;
+Begin
+ FeatGeom:=VNull;
+ If F=Nil Then Exit;
+ InitGeom(G);
+ Flatten(JFind(F,'geometry'),G);
+ If G.First<>Nil Then FeatGeom:=VGeom(G);
+ FreeGeom(G);
+End;
+
+Function ProjectBase:String;
+Var
+ I:Integer;
+ S:String;
+Begin
+ S:=ProjectPath;
+ For I:=Length(S)downto 1do If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+ ProjectBase:=S;
+End;
+
+Function ProjectDir:String;
+Var
+ I:Integer;
+Begin
+ ProjectDir:='';
+ For I:=Length(ProjectPath)downto 1do If ProjectPath[I]in['/',#92]Then Begin ProjectDir:=Copy(ProjectPath,1,I-1);Exit;End;
+End;
+
+Function ExprVar(Const Nm:String):TVal;
+Var
+ I:LongInt;
+ S:String;
+ F:PJ;
+Begin
+ ExprVar:=VNull;
+ For I:=VarN downto 1do If VarStack[I].Name=Nm Then Begin ExprVar:=VarStack[I].V;Exit;End;
+ If Nm='FEATURE'Then ExprVar:=VFeat(ExprFeat) Else
+ If Nm='PARENT'Then Begin If ExprParent<>Nil Then ExprVar:=VFeat(ExprParent);End Else
+ If Nm='ID'Then ExprVar:=VNum(ExprId) Else
+ If Nm='ROW_NUMBER'Then ExprVar:=VNum(ExprId+1) Else
+ If Nm='GEOMETRY'Then Begin If ExprGeom.First<>Nil Then ExprVar:=VGeom(ExprGeom);End Else
+ If Nm='LAYER_NAME'Then Begin If ExprLayerName<>''Then ExprVar:=VStr(ExprLayerName);End Else
+ If Nm='LAYER_ID'Then Begin If ExprLayerName<>''Then ExprVar:=VStr(ExprLayerName);End Else
+ If Nm='QGIS_VERSION'Then ExprVar:=VStr('3.34.0-Prizren') Else
+ If Nm='QGIS_VERSION_NO'Then ExprVar:=VNum(33400) Else
+ If Nm='PROJECT_PATH'Then Begin If ProjectPath<>''Then ExprVar:=VStr(ProjectPath);End Else
+ If Nm='PROJECT_FOLDER'Then Begin If ProjectPath<>''Then ExprVar:=VStr(ProjectDir);End Else
+ If Nm='PROJECT_FILENAME'Then Begin If ProjectPath<>''Then ExprVar:=VStr(ProjectBase);End Else
+ If(Nm='PROJECT_BASENAME')or(Nm='PROJECT_TITLE')Then Begin
+  If ProjectPath<>''Then ExprVar:=VStr(BaseNoExt(ProjectPath));
+ End Else
+ If(Nm='USER_ACCOUNT_NAME')or(Nm='USER_FULL_NAME')Then Begin
+  S:=GetEnv('USER');
+  If S=''Then S:=GetEnv('USERNAME');
+  If Nm='USER_ACCOUNT_NAME'Then ExprVar:=VStr(S) Else ExprVar:=VStr('');
+ End Else
+ If Nm='QGIS_OS_NAME'Then ExprVar:=VStr('linux') Else
+ If Nm='QGIS_PLATFORM'Then ExprVar:=VStr('desktop') Else
+ If Nm='LAYER_FEATURE_COUNT'Then Begin
+  If ExprLayer<>Nil Then Begin
+   I:=0;
+   F:=JFind(ExprLayer,'features')^.First;
+   While F<>Nil do Begin Inc(I);F:=F^.Next;End;
+   ExprVar:=VNum(I);
+  End;
+ End;
+End;
+
+{ Couche designee dans une expression (nom, chemin ou couche courante) }
+Function ExprGetLayer(Const Name:String):PJ;
+Var
+ I:Integer;
+ Sv,Ly:PJ;
+ Sn:String;
+Begin
+ If(Name='')or(Name=ExprLayerName)Then Begin
+  If ExprLayer=Nil Then EFail('no current layer');
+  ExprGetLayer:=ExprLayer;
+  Exit;
+ End;
+ For I:=1 to LayerCacheN do
+  If LayerCacheName[I]=Name Then Begin ExprGetLayer:=LayerCache[I];Exit;End;
+ Sv:=ExprLayer;Sn:=ExprLayerName;
+ Ly:=LoadLayer(Name);
+ ExprLayer:=Sv;ExprLayerName:=Sn;
+ If LayerCacheN<8Then Begin
+  Inc(LayerCacheN);
+  LayerCacheName[LayerCacheN]:=Name;
+  LayerCache[LayerCacheN]:=Ly;
+ End;
+ ExprGetLayer:=Ly;
+End;
+
+{ ---- agregats ---- }
+
+Function Quartile(V:PValArr;N:LongInt;Upper:Boolean):Real;
+Var
+ Half,Lo:LongInt;
+ A,B:Real;
+
+ Function MedOf(S,Cnt:LongInt):Real;
+ Var X,Y:Real;
+ Begin
+  ToNum(V^[S+Cnt div 2],X);
+  If Odd(Cnt)Then MedOf:=X
+   Else Begin ToNum(V^[S+Cnt div 2-1],Y);MedOf:=(X+Y)/2;End;
+ End;
+
+Begin
+ If N=1Then Begin ToNum(V^[0],A);Quartile:=A;Exit;End;
+ Half:=N div 2;
+ If Upper Then Lo:=N-Half Else Lo:=0;
+ Quartile:=MedOf(Lo,Half);
+End;
+
+Function AggregateVals(Const Kind:String;L:PValList;Const Concat:String):TVal;
+Var
+ I,K,Cnt,Mx:LongInt;
+ Sum,R,R2,Mean,Sd:Real;
+ Nums:PValList;
+ S:String;
+ Seen:Boolean;
+ Best:TVal;
+ G:TGeom;
+ Res:TGeom;
+ T:TGeom;
+Begin
+ AggregateVals:=VNull;
+ If Kind='COUNT'Then Begin
+  Cnt:=0;
+  For I:=0 to L^.Cnt-1do If L^.V^[I].K<>0Then Inc(Cnt);
+  AggregateVals:=VNum(Cnt);
+  Exit;
+ End;
+ If Kind='COUNT_MISSING'Then Begin
+  Cnt:=0;
+  For I:=0 to L^.Cnt-1do If(L^.V^[I].K=0)or((L^.V^[I].K=2)and(L^.V^[I].S=''))Then Inc(Cnt);
+  AggregateVals:=VNum(Cnt);
+  Exit;
+ End;
+ If Kind='COUNT_DISTINCT'Then Begin
+  Nums:=LNew;
+  For I:=0 to L^.Cnt-1do Begin
+   If L^.V^[I].K=0Then Continue;
+   Seen:=False;
+   For K:=0 to Nums^.Cnt-1do If ValEq(Nums^.V^[K],L^.V^[I])Then Seen:=True;
+   If Not Seen Then LAdd(Nums,L^.V^[I]);
+  End;
+  AggregateVals:=VNum(Nums^.Cnt);
+  Exit;
+ End;
+ If Kind='ARRAY_AGG'Then Begin AggregateVals:=VList(L);Exit;End;
+ If(Kind='CONCATENATE')or(Kind='CONCATENATE_UNIQUE')Then Begin
+  S:='';
+  Nums:=LNew;
+  For I:=0 to L^.Cnt-1do Begin
+   If L^.V^[I].K=0Then Continue;
+   If Kind='CONCATENATE_UNIQUE'Then Begin
+    Seen:=False;
+    For K:=0 to Nums^.Cnt-1do If ValEq(Nums^.V^[K],L^.V^[I])Then Seen:=True;
+    If Seen Then Continue;
+    LAdd(Nums,L^.V^[I]);
+   End;
+   If S<>''Then S:=S+Concat;
+   S:=S+ToStr(L^.V^[I]);
+  End;
+  AggregateVals:=VStr(S);
+  Exit;
+ End;
+ If Kind='COLLECT'Then Begin
+  InitGeom(Res);
+  For I:=0 to L^.Cnt-1do
+   If L^.V^[I].K=4Then Begin
+    If Res.Cls=0Then GeomCopy(L^.V^[I].G^,Res)
+     Else If Res.Cls=L^.V^[I].G^.Cls Then GeomAppend(Res,L^.V^[I].G^);
+   End;
+  AggregateVals:=GRes(Res);
+  Exit;
+ End;
+ If(Kind='MIN_LENGTH')or(Kind='MAX_LENGTH')Then Begin
+  Cnt:=0;Mx:=0;
+  For I:=0 to L^.Cnt-1do If L^.V^[I].K<>0Then Begin
+   K:=U8Len(ToStr(L^.V^[I]));
+   If(Cnt=0)or((Kind='MIN_LENGTH')and(K<Mx))or((Kind='MAX_LENGTH')and(K>Mx))Then Mx:=K;
+   Inc(Cnt);
+  End;
+  If Cnt>0Then AggregateVals:=VNum(Mx);
+  Exit;
+ End;
+ If(Kind='FIRST_VALUE')Then Begin
+  If L^.Cnt>0Then AggregateVals:=L^.V^[0];
+  Exit;
+ End;
+ If(Kind='LAST_VALUE')Then Begin
+  If L^.Cnt>0Then AggregateVals:=L^.V^[L^.Cnt-1];
+  Exit;
+ End;
+ { agregats numeriques ou ordonnes }
+ Nums:=LNew;
+ For I:=0 to L^.Cnt-1do If L^.V^[I].K<>0Then LAdd(Nums,L^.V^[I]);
+ If Nums^.Cnt=0Then Exit;
+ If(Kind='MIN')or(Kind='MINIMUM')or(Kind='MAX')or(Kind='MAXIMUM')Then Begin
+  Best:=Nums^.V^[0];
+  For I:=1 to Nums^.Cnt-1do
+   If(((Kind='MIN')or(Kind='MINIMUM'))and(CmpVal(Nums^.V^[I],Best)<0))or(((Kind='MAX')or(Kind='MAXIMUM'))and(CmpVal(Nums^.V^[I],Best)>0))Then Best:=Nums^.V^[I];
+  AggregateVals:=Best;
+  Exit;
+ End;
+ If(Kind='MAJORITY')or(Kind='MINORITY')Then Begin
+  Mx:=-1;
+  For I:=0 to Nums^.Cnt-1do Begin
+   Cnt:=0;
+   For K:=0 to Nums^.Cnt-1do If ValEq(Nums^.V^[I],Nums^.V^[K])Then Inc(Cnt);
+   If(Mx<0)or((Kind='MAJORITY')and(Cnt>Mx))or((Kind='MINORITY')and(Cnt<Mx))Then Begin Mx:=Cnt;Best:=Nums^.V^[I];End;
+  End;
+  AggregateVals:=Best;
+  Exit;
+ End;
+ Sum:=0;
+ For I:=0 to Nums^.Cnt-1do Begin
+  If Not ToNum(Nums^.V^[I],R)Then Exit;
+  Sum:=Sum+R;
+ End;
+ Mean:=Sum/Nums^.Cnt;
+ If Kind='SUM'Then AggregateVals:=VNum(Sum) Else
+ If Kind='MEAN'Then AggregateVals:=VNum(Mean) Else
+ If(Kind='STDEV')or(Kind='STDEVSAMPLE')Then Begin
+  R2:=0;
+  For I:=0 to Nums^.Cnt-1do Begin ToNum(Nums^.V^[I],R);R2:=R2+Sqr(R-Mean);End;
+  If Kind='STDEV'Then AggregateVals:=VNum(Sqrt(R2/Nums^.Cnt))
+   Else If Nums^.Cnt>1Then AggregateVals:=VNum(Sqrt(R2/(Nums^.Cnt-1)));
+ End
+  Else
+ Begin
+  SortVals(Nums^.V,Nums^.Cnt,True);
+  If Kind='RANGE'Then Begin
+   ToNum(Nums^.V^[0],R);ToNum(Nums^.V^[Nums^.Cnt-1],R2);
+   AggregateVals:=VNum(R2-R);
+  End Else
+  If Kind='MEDIAN'Then Begin
+   ToNum(Nums^.V^[Nums^.Cnt div 2],R);
+   If Not Odd(Nums^.Cnt)Then Begin ToNum(Nums^.V^[Nums^.Cnt div 2-1],R2);R:=(R+R2)/2;End;
+   AggregateVals:=VNum(R);
+  End Else
+  If Kind='Q1'Then AggregateVals:=VNum(Quartile(Nums^.V,Nums^.Cnt,False)) Else
+  If Kind='Q3'Then AggregateVals:=VNum(Quartile(Nums^.V,Nums^.Cnt,True)) Else
+  If Kind='IQR'Then AggregateVals:=VNum(Quartile(Nums^.V,Nums^.Cnt,True)-Quartile(Nums^.V,Nums^.Cnt,False))
+   Else EFail('unknown aggregate '+Kind);
+ End;
+End;
+
+Function IsAggName(Const Nm:String):Boolean;Begin
+ IsAggName:=(Nm='COUNT')or(Nm='SUM')or(Nm='MEAN')or(Nm='MEDIAN')or(Nm='MINIMUM')or(Nm='MAXIMUM')or
+  (Nm='COUNT_DISTINCT')or(Nm='COUNT_MISSING')or(Nm='STDEV')or(Nm='RANGE')or(Nm='MINORITY')or(Nm='MAJORITY')or
+  (Nm='Q1')or(Nm='Q3')or(Nm='IQR')or(Nm='CONCATENATE')or(Nm='CONCATENATE_UNIQUE')or(Nm='COLLECT')or
+  (Nm='ARRAY_AGG')or(Nm='MIN_LENGTH')or(Nm='MAX_LENGTH');
+End;
+
+{ Agregat d'une expression sur les entites de la couche Lyr ;
+  GroupText : ne garder que les entites de meme groupe que l'entite courante }
+Function ExprAggregate(Const Kind:String;Lyr:PJ;Const ExprT,FilterT,GroupT,Concat:String):TVal;
+Var
+ Arr,F:PJ;
+ L:PValList;
+ I:LongInt;
+ Gv,V:TVal;
+ HaveGroup:Boolean;
+Begin
+ Arr:=JFind(Lyr,'features');
+ L:=LNew;
+ HaveGroup:=GroupT<>'';
+ If HaveGroup Then Gv:=EvalSub(GroupT);
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  V:=VBool(True);
+  If FilterT<>''Then V:=EvalSubFeat(FilterT,F,I);
+  If(V.K<>0)and(V.N<>0)Then Begin
+   If HaveGroup Then Begin
+    V:=EvalSubFeat(GroupT,F,I);
+    If Not ValEq(V,Gv)Then V:=VBool(False) Else V:=VBool(True);
+   End;
+   If V.N<>0Then LAdd(L,EvalSubFeat(ExprT,F,I));
+  End;
+  Inc(I);
+  F:=F^.Next;
+ End;
+ ExprAggregate:=AggregateVals(Kind,L,Concat);
+End;
+
+{ Fonctions de recouvrement : Pred 0 intersecte, 1 contient, 2 disjoint, 3 egal, 4 touche, 5 chevauche, 6 est dans, 7 croise, 8 plus proche }
+Function ExprOverlay(Pred:Integer;Lyr:PJ;Const ExprT,FilterT:String;Limit:Integer;MaxDist:Real):TVal;
+Var
+ Arr,F:PJ;
+ L:PValList;
+ I:LongInt;
+ Gf:TGeom;
+ V:TVal;
+ Hit,Any:Boolean;
+ Cur:TGeom;
+ Dists:PReals;
+ N,K:LongInt;
+ D,X1,Y1,X2,Y2:Real;
+ Idx:PLongs;
+ Tmp:LongInt;
+ Fa:PJArr;
+Begin
+ Arr:=JFind(Lyr,'features');
+ L:=LNew;
+ Any:=False;
+ If ExprGeom.First=Nil Then Begin
+  If ExprT=''Then ExprOverlay:=VNull Else ExprOverlay:=VList(L);
+  Exit;
+ End;
+ If Pred=8Then Begin
+  Fa:=FeatureArray(Arr,N);
+  Dists:=AllocBlock((N+1)*SizeOf(Real));
+  Idx:=AllocBlock((N+1)*SizeOf(LongInt));
+  K:=0;
+  For I:=0 to N-1do Begin
+   V:=VBool(True);
+   If FilterT<>''Then V:=EvalSubFeat(FilterT,Fa^[I],I);
+   If(V.K=0)or(V.N=0)Then Continue;
+   InitGeom(Gf);
+   Flatten(JFind(Fa^[I],'geometry'),Gf);
+   If Gf.First<>Nil Then Begin
+    D:=NearestPoints(ExprGeom,Gf,X1,Y1,X2,Y2);
+    If(MaxDist<=0)or(D<=MaxDist)Then Begin Dists^[K]:=D;Idx^[K]:=I;Inc(K);End;
+   End;
+   FreeGeom(Gf);
+  End;
+  For I:=1 to K-1do Begin
+   D:=Dists^[I];Tmp:=Idx^[I];
+   N:=I-1;
+   While(N>=0)and(Dists^[N]>D)do Begin Dists^[N+1]:=Dists^[N];Idx^[N+1]:=Idx^[N];Dec(N);End;
+   Dists^[N+1]:=D;Idx^[N+1]:=Tmp;
+  End;
+  If K>Limit Then K:=Limit;
+  For I:=0 to K-1do Begin
+   If ExprT=''Then LAdd(L,VFeat(Fa^[Idx^[I]]))
+    Else LAdd(L,EvalSubFeat(ExprT,Fa^[Idx^[I]],Idx^[I]));
+  End;
+  ExprOverlay:=VList(L);
+  Exit;
+ End;
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  If(Limit>0)and(L^.Cnt>=Limit)Then Break;
+  V:=VBool(True);
+  If FilterT<>''Then V:=EvalSubFeat(FilterT,F,I);
+  If(V.K<>0)and(V.N<>0)Then Begin
+   InitGeom(Gf);
+   Flatten(JFind(F,'geometry'),Gf);
+   Hit:=False;
+   If Gf.First<>Nil Then Begin
+    Case Pred of
+     0:Hit:=GeomPredicate(0,ExprGeom,Gf);
+     1:Hit:=GeomPredicate(1,ExprGeom,Gf);
+     2:Hit:=GeomPredicate(2,ExprGeom,Gf);
+     3:Hit:=GeomPredicate(3,ExprGeom,Gf);
+     4:Hit:=GeomPredicate(4,ExprGeom,Gf);
+     5:Hit:=GeomPredicate(5,ExprGeom,Gf);
+     6:Hit:=GeomPredicate(6,ExprGeom,Gf);
+     7:Hit:=GeomPredicate(7,ExprGeom,Gf);
+    End;
+   End;
+   FreeGeom(Gf);
+   If Hit Then Begin
+    Any:=True;
+    If ExprT=''Then Begin
+     If Limit>0Then LAdd(L,VBool(True));
+    End
+     Else LAdd(L,EvalSubFeat(ExprT,F,I));
+    If(ExprT='')and(Limit=0)Then Break;
+   End;
+  End;
+  Inc(I);
+  F:=F^.Next;
+ End;
+ If ExprT=''Then ExprOverlay:=VBool(Any)
+            Else ExprOverlay:=VList(L);
+End;
+
+{ ---- analyseur / evaluateur ---- }
+
+Function PropVal(Const Name:String):TVal;Begin
+ PropVal:=JToVal(JFind(ExprProps,Name));
+End;
+
 Function LikeMatch(Const S,Pat:String;I,J:Integer):Boolean;
 Begin
  If J>Length(Pat)Then LikeMatch:=I>Length(S)
+  Else
+ If(Pat[J]='\')and(J<Length(Pat))Then Begin
+  If I>Length(S)Then LikeMatch:=False
+   Else If S[I]=Pat[J+1]Then LikeMatch:=LikeMatch(S,Pat,I+1,J+2)
+   Else LikeMatch:=False;
+ End
   Else
  If Pat[J]='%'Then Begin
   LikeMatch:=True;
@@ -10631,6 +14429,12 @@ Var
  Sa,Sb:String;
 Begin
  If(A.K=0)or(B.K=0)Then Begin DoCompare:=VNull;Exit;End;
+ If(A.K=5)or(B.K=5)or(A.K=6)or(B.K=6)Then Begin
+  If Op=1Then DoCompare:=VBool(ValEq(A,B)) Else
+  If Op=2Then DoCompare:=VBool(Not ValEq(A,B))
+         Else DoCompare:=VNull;
+  Exit;
+ End;
  If ToNum(A,Ra)and ToNum(B,Rb)and Not((A.K=2)and(B.K=2))Then C:=CmpR(Ra,Rb)
   Else
  Begin
@@ -10647,248 +14451,367 @@ Begin
  End;
 End;
 
-Function EvalOr:TVal;Forward;
 
-Function VGeom(Var G:TGeom):TVal;
 Var
- V:TVal;
+ RasCache:TRaster;
+ RasName:String;
+ RasBand:Integer;
+ RasLoaded:Boolean;
+
+Function ExprRaster(Const Name:String;Band:Integer):Boolean;
+Var
+ Sv:Integer;
 Begin
- V.K:=4;V.N:=0;V.S:='';
- New(V.G);
- GeomCopy(G,V.G^);
- VGeom:=V;
+ If RasLoaded and(RasName=Name)and(RasBand=Band)Then Begin ExprRaster:=True;Exit;End;
+ Sv:=BandSel;
+ BandSel:=Band;
+ ReadRaster(Name,RasCache);
+ BandSel:=Sv;
+ RasName:=Name;RasBand:=Band;RasLoaded:=True;
+ ExprRaster:=True;
 End;
 
-Function NumArg(Var A:Array of TVal;I:Integer;Var R:Real):Boolean;Begin
- NumArg:=False;
- If(I<=High(A))and(A[I].K<>0)and(A[I].K<>4)Then NumArg:=ToNum(A[I],R);
+Function RasNoData(V:Real):Boolean;Begin
+ RasNoData:=Abs(V-RasCache.NoData)<=1E-9*MaxR(1,Abs(RasCache.NoData));
 End;
 
-Function CallFunc(Name:String;Var A:Array of TVal;N:Integer):TVal;
+Function FnRaster(Const Nm:String;Var A:Array of TVal;N:Integer):TVal;
 Var
- R,R2,Cx,Cy,W:Real;
- S,T,Out:String;
- I,P,L:Integer;
- Res:TGeom;
+ R,X,Y,V,Sum,Sq,Mn,Mx:Real;
+ Band,Col,Row:LongInt;
+ I,Cnt:LongInt;
+ Cx,Cy:Real;
  Ok:Boolean;
- Px:PPath;
+ St:String;
 Begin
- CallFunc:=VNull;
- If(Name='LOWER')or(Name='UPPER')Then Begin
-  If A[0].K=0Then Exit;
-  S:=ToStr(A[0]);
-  If Name='UPPER'Then S:=StrUpper(S)
-   Else
-  For I:=1 to Length(S)do If S[I]in['A'..'Z']Then S[I]:=Chr(Ord(S[I])+32);
-  CallFunc:=VStr(S);
- End Else
- If(Name='LENGTH')or(Name='LEN')Then Begin
-  If A[0].K=0Then Exit;
-  If A[0].K=4Then CallFunc:=VNum(GeomLength(A[0].G^))
-             Else CallFunc:=VNum(Length(ToStr(A[0])));
- End Else
- If Name='CONCAT'Then Begin
-  S:='';
-  For I:=0 to N-1do If A[I].K<>0Then S:=S+ToStr(A[I]);
-  CallFunc:=VStr(S);
- End Else
- If Name='SUBSTR'Then Begin
-  If(A[0].K=0)or Not NumArg(A,1,R)Then Exit;
-  S:=ToStr(A[0]);
-  P:=Round(R);
-  If P<1Then P:=1;
-  L:=255;
-  If NumArg(A,2,R2)Then L:=Round(R2);
-  CallFunc:=VStr(Copy(S,P,L));
- End Else
- If Name='REPLACE'Then Begin
-  If(A[0].K=0)or(N<3)Then Exit;
-  S:=ToStr(A[0]);T:=ToStr(A[1]);
-  Out:='';
-  I:=1;
-  While I<=Length(S)do Begin
-   If(T<>'')and(Copy(S,I,Length(T))=T)Then Begin
-    Out:=Out+ToStr(A[2]);
-    Inc(I,Length(T));
-   End
-    Else
-   Begin
-    Out:=Out+S[I];
-    Inc(I);
-   End;
-  End;
-  CallFunc:=VStr(Out);
- End Else
- If Name='TRIM'Then Begin
-  If A[0].K=0Then Exit;
-  S:=ToStr(A[0]);
-  While(S<>'')and(S[1]=' ')do S:=Copy(S,2,255);
-  While(S<>'')and(S[Length(S)]=' ')do S:=Copy(S,1,Length(S)-1);
-  CallFunc:=VStr(S);
- End Else
- If(Name='LEFT')or(Name='RIGHT')Then Begin
-  If(A[0].K=0)or Not NumArg(A,1,R)Then Exit;
-  S:=ToStr(A[0]);
-  L:=Round(R);
-  If L<0Then L:=0;
-  If L>Length(S)Then L:=Length(S);
-  If Name='LEFT'Then CallFunc:=VStr(Copy(S,1,L))
-                Else CallFunc:=VStr(Copy(S,Length(S)-L+1,L));
- End Else
- If Name='TO_STRING'Then Begin
-  If A[0].K<>0Then CallFunc:=VStr(ToStr(A[0]));
- End Else
- If(Name='TO_REAL')or(Name='TO_INT')Then Begin
-  If(A[0].K<>0)and(A[0].K<>4)and ToNum(A[0],R)Then Begin
-   If Name='TO_INT'Then R:=Int(R);
-   CallFunc:=VNum(R);
-  End;
- End Else
- If Name='ABS'Then Begin
-  If NumArg(A,0,R)Then CallFunc:=VNum(Abs(R));
- End Else
- If Name='SQRT'Then Begin
-  If NumArg(A,0,R)and(R>=0)Then CallFunc:=VNum(Sqrt(R));
- End Else
- If Name='ROUND'Then Begin
-  If NumArg(A,0,R)Then Begin
-   If NumArg(A,1,R2)Then Begin
-    W:=1;
-    For I:=1 to Round(R2)do W:=W*10;
-    CallFunc:=VNum(FloorR(R*W+0.5)/W);
-   End
-    Else
-   CallFunc:=VNum(FloorR(R+0.5));
-  End;
- End Else
- If Name='FLOOR'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(FloorR(R));End Else
- If Name='CEIL'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(-FloorR(-R));End Else
- If Name='SIN'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(Sin(R));End Else
- If Name='COS'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(Cos(R));End Else
- If Name='TAN'Then Begin If NumArg(A,0,R)and(Cos(R)<>0)Then CallFunc:=VNum(Sin(R)/Cos(R));End Else
- If Name='ATAN'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(ArcTan(R));End Else
- If Name='EXP'Then Begin If NumArg(A,0,R)and(R<700)Then CallFunc:=VNum(Exp(R));End Else
- If(Name='LN')or(Name='LOG')Then Begin If NumArg(A,0,R)and(R>0)Then CallFunc:=VNum(Ln(R));End Else
- If Name='LOG10'Then Begin If NumArg(A,0,R)and(R>0)Then CallFunc:=VNum(Ln(R)/Ln(10));End Else
- If Name='PI'Then CallFunc:=VNum(Pi) Else
- If Name='POWER'Then Begin
-  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
-   If R>0Then CallFunc:=VNum(Exp(R2*Ln(R))) Else
-   If(R=0)and(R2>0)Then CallFunc:=VNum(0);
-  End;
- End Else
- If(Name='MIN')or(Name='MAX')Then Begin
-  Ok:=False;R:=0;
-  For I:=0 to N-1do
-   If NumArg(A,I,R2)Then Begin
-    If Not Ok or((Name='MIN')and(R2<R))or((Name='MAX')and(R2>R))Then R:=R2;
-    Ok:=True;
-   End;
-  If Ok Then CallFunc:=VNum(R);
- End Else
- If Name='COALESCE'Then Begin
-  For I:=0 to N-1do
-   If A[I].K<>0Then Begin CallFunc:=A[I];Exit;End;
- End Else
- If Name='IF'Then Begin
-  If(N>=3)and(A[0].K<>0)Then
-   If A[0].N<>0Then CallFunc:=A[1] Else CallFunc:=A[2];
- End Else
- If Name='MAKE_POINT'Then Begin
-  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
-   PointGeom(Res,R,R2);
-   CallFunc:=VGeom(Res);
-   FreeGeom(Res);
-  End;
- End Else
- If A[0].K=4Then Begin
-  { fonctions de geometrie }
-  If Name='AREA'Then CallFunc:=VNum(GeomArea(A[0].G^)) Else
-  If Name='PERIMETER'Then CallFunc:=VNum(GeomLength(A[0].G^)) Else
-  If Name='NUM_POINTS'Then Begin
-   R:=0;
-   Px:=A[0].G^.First;
-   While Px<>Nil do Begin R:=R+Px^.N;Px:=Px^.Next;End;
-   CallFunc:=VNum(R);
-  End Else
-  If(Name='X')or(Name='Y')Then Begin
-   CentroidGeom(A[0].G^,Cx,Cy,Ok);
-   If Ok Then Begin
-    If Name='X'Then CallFunc:=VNum(Cx) Else CallFunc:=VNum(Cy);
-   End;
-  End Else
-  If Name='CENTROID'Then Begin
-   CentroidGeom(A[0].G^,Cx,Cy,Ok);
-   If Ok Then Begin PointGeom(Res,Cx,Cy);CallFunc:=VGeom(Res);FreeGeom(Res);End;
-  End Else
-  If Name='POINT_ON_SURFACE'Then Begin
-   PointOnSurface(A[0].G^,Cx,Cy);
-   PointGeom(Res,Cx,Cy);CallFunc:=VGeom(Res);FreeGeom(Res);
-  End Else
-  If Name='CONVEX_HULL'Then Begin
-   HullGeom(A[0].G^,Res);
-   If Res.Cls<>0Then CallFunc:=VGeom(Res);
-   FreeGeom(Res);
-  End Else
-  If Name='ENVELOPE'Then Begin
-   If GeomBBox(A[0].G^,Cx,Cy,R,R2)Then Begin
-    InitGeom(Res);Res.Cls:=3;Res.NPoly:=1;
-    Px:=NewPath(Res,5,0);
-    Px^.Pts^[0].X:=Cx;Px^.Pts^[0].Y:=Cy;Px^.Pts^[1].X:=R;Px^.Pts^[1].Y:=Cy;
-    Px^.Pts^[2].X:=R;Px^.Pts^[2].Y:=R2;Px^.Pts^[3].X:=Cx;Px^.Pts^[3].Y:=R2;
-    Px^.Pts^[4]:=Px^.Pts^[0];
-    CallFunc:=VGeom(Res);FreeGeom(Res);
-   End;
-  End Else
-  If Name='TRANSLATE'Then Begin
-   If NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
-    GeomCopy(A[0].G^,Res);
-    AffineGeom(Res,1,0,0,1,R,R2);
-    CallFunc:=VGeom(Res);FreeGeom(Res);
-   End;
-  End Else
-  If Name='BUFFER'Then Begin
-   If NumArg(A,1,R)Then Begin
-    L:=5;
-    If NumArg(A,2,R2)Then L:=Round(R2);
-    BufferGeom(A[0].G^,R,L,Res);
-    If Res.First<>Nil Then CallFunc:=VGeom(Res);
-    FreeGeom(Res);
-   End;
-  End Else
-  If Name='SIMPLIFY'Then Begin
-   If NumArg(A,1,R)Then Begin
-    InitGeom(Res);Res.Cls:=A[0].G^.Cls;
-    Px:=A[0].G^.First;
-    While Px<>Nil do Begin
-     If A[0].G^.Cls=1Then CopyPath(Res,Px,0)
-      Else
-     Ok:=SimplifyDP(Px,R,A[0].G^.Cls=3,Res,Px^.Poly);
-     Px:=Px^.Next;
+ FnRaster:=VNull;
+ FnOk:=True;
+ If Nm='RASTER_VALUE'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,1,R)and(A[2].K=4)Then Begin
+   ExprRaster(ToStr(A[0]),Round(R));
+   If FirstPt(A[2].G^,X,Y)Then Begin
+    Col:=Trunc(FloorR((X-RasCache.XLL)/RasCache.Cell));
+    Row:=Trunc(FloorR((RasCache.YLL+RasCache.NR*RasCache.Cell-Y)/RasCache.Cell));
+    If(Col>=0)and(Col<RasCache.NC)and(Row>=0)and(Row<RasCache.NR)Then Begin
+     V:=RasCache.Data^[Row*RasCache.NC+Col];
+     If Not RasNoData(V)Then FnRaster:=VNum(V);
     End;
-    Res.NPoly:=A[0].G^.NPoly;
-    If Res.First<>Nil Then CallFunc:=VGeom(Res);
-    FreeGeom(Res);
+   End;
+  End;
+ End Else
+ If Nm='RASTER_STATISTIC'Then Begin
+  NeedArgs(Nm,N,3);
+  If NumArg(A,1,R)Then Begin
+   ExprRaster(ToStr(A[0]),Round(R));
+   St:=LowerStr(ToStr(A[2]));
+   Cnt:=0;Sum:=0;Sq:=0;Mn:=0;Mx:=0;
+   For I:=0 to RasCache.NC*RasCache.NR-1do Begin
+    V:=RasCache.Data^[I];
+    If Not RasNoData(V)Then Begin
+     If Cnt=0Then Begin Mn:=V;Mx:=V;End;
+     If V<Mn Then Mn:=V;
+     If V>Mx Then Mx:=V;
+     Sum:=Sum+V;Sq:=Sq+V*V;Inc(Cnt);
+    End;
+   End;
+   If Cnt>0Then Begin
+    If St='min'Then FnRaster:=VNum(Mn) Else
+    If St='max'Then FnRaster:=VNum(Mx) Else
+    If St='range'Then FnRaster:=VNum(Mx-Mn) Else
+    If St='sum'Then FnRaster:=VNum(Sum) Else
+    If St='count'Then FnRaster:=VNum(Cnt) Else
+    If St='mean'Then FnRaster:=VNum(Sum/Cnt) Else
+    If St='stddev'Then FnRaster:=VNum(Sqrt(MaxR(0,Sq/Cnt-Sqr(Sum/Cnt))))
+     Else EFail('unknown raster statistic '+St);
    End;
   End;
  End
   Else
+ FnOk:=False;
+End;
+
+Function CallFunc(Name:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ V:TVal;
+ R:Real;
+ L:PValList;
+ Idx:LongInt;
+ F:PJ;
+ Arr:PJ;
+ I:LongInt;
+Begin
+ { fonctions liees a l'entite ou aux couches (arguments deja evalues) }
+ If Name='ATTRIBUTE'Then Begin
+  If(N>=2)and(A[0].K=11)Then CallFunc:=FeatProp(A[0].F,ToStr(A[1])) Else
+  If N=1Then CallFunc:=FeatProp(ExprFeat,ToStr(A[0]))
+   Else CallFunc:=VNull;
+  Exit;
+ End;
+ If Name='ATTRIBUTES'Then Begin
+  If N>=1Then F:=A[0].F Else F:=ExprFeat;
+  If(F<>Nil)and(A[0].K=11)or(N=0)Then CallFunc:=JToVal(JFind(F,'properties'));
+  Exit;
+ End;
+ If Name='GEOMETRY'Then Begin
+  If N=0Then CallFunc:=FeatGeom(ExprFeat) Else
+  If A[0].K=11Then CallFunc:=FeatGeom(A[0].F) Else
+  If A[0].K=4Then CallFunc:=A[0];
+  Exit;
+ End;
+ If Name='GET_FEATURE'Then Begin
+  NeedArgs(Name,N,3);
+  Arr:=JFind(ExprGetLayer(ToStr(A[0])),'features');
+  F:=Arr^.First;
+  CallFunc:=VNull;
+  While F<>Nil do Begin
+   If ValEq(FeatProp(F,ToStr(A[1])),A[2])Then Begin CallFunc:=VFeat(F);Exit;End;
+   F:=F^.Next;
+  End;
+  Exit;
+ End;
+ If Name='GET_FEATURE_BY_ID'Then Begin
+  NeedArgs(Name,N,2);
+  Arr:=JFind(ExprGetLayer(ToStr(A[0])),'features');
+  CallFunc:=VNull;
+  If NumArg(A,1,R)Then Begin
+   I:=0;
+   F:=Arr^.First;
+   While F<>Nil do Begin
+    If I=Round(R)Then Begin CallFunc:=VFeat(F);Exit;End;
+    Inc(I);F:=F^.Next;
+   End;
+  End;
+  Exit;
+ End;
+ If Name='VAR'Then Begin
+  NeedArgs(Name,N,1);
+  CallFunc:=ExprVar(StrUpper(ToStr(A[0])));
+  Exit;
+ End;
+ If Name='EVAL'Then Begin
+  NeedArgs(Name,N,1);
+  If A[0].K=2Then CallFunc:=EvalSub(A[0].S) Else CallFunc:=VNull;
+  Exit;
+ End;
+ If Name='IS_FEATURE'Then Begin CallFunc:=VBool((N>0)and(A[0].K=11));Exit;End;
+ V:=FnGeom(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnMath(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnString(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnDate(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnArray(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnMisc(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
+ V:=FnRaster(Name,A,N);
+ If FnOk Then Begin CallFunc:=V;Exit;End;
  EFail('unknown function '+Name);
 End;
 
-Function EvalPrimary:TVal;
+{ Positions des arguments d'un appel ; ExprP est place apres la parenthese fermante }
+Procedure ScanArgs(Var Sp,Ep:Array of Integer;Var Cnt:Integer);
 Var
- V:TVal;
+ Depth:Integer;
+ Q:Char;
+ Start:Integer;
+Begin
+ Cnt:=0;
+ Depth:=0;
+ Q:=#0;
+ Start:=ExprP;
+ While ExprP<=Length(ExprS)do Begin
+  If Q<>#0Then Begin
+   If ExprS[ExprP]=Q Then Begin
+    If(Q='''')and(ExprP<Length(ExprS))and(ExprS[ExprP+1]='''')Then Inc(ExprP)
+     Else Q:=#0;
+   End;
+  End
+   Else
+  Case ExprS[ExprP]of
+   '''','"':Q:=ExprS[ExprP];
+   '(','[':Inc(Depth);
+   ')',']':Begin
+    If(Depth=0)and(ExprS[ExprP]=')')Then Begin
+     If(Cnt>0)or(Trim1(Copy(ExprS,Start,ExprP-Start))<>'')Then Begin
+      If Cnt>High(Sp)Then EFail('too many arguments');
+      Sp[Cnt]:=Start;Ep[Cnt]:=ExprP;Inc(Cnt);
+     End;
+     Inc(ExprP);
+     Exit;
+    End;
+    Dec(Depth);
+   End;
+   ',':If Depth=0Then Begin
+    If Cnt>High(Sp)Then EFail('too many arguments');
+    Sp[Cnt]:=Start;Ep[Cnt]:=ExprP;Inc(Cnt);
+    Start:=ExprP+1;
+   End;
+  End;
+  Inc(ExprP);
+ End;
+ EFail('")" expected');
+End;
+
+Function EvalNamedArg(Const Txt:String;Var Nm:String):String;
+Var
+ P:Integer;
+ S:String;
+Begin
+ { argument nomme "nom:=valeur" }
+ S:=Trim1(Txt);
+ Nm:='';
+ P:=Pos(':=',S);
+ If(P>1)and(Pos('''',Copy(S,1,P))=0)and(Pos('(',Copy(S,1,P))=0)Then Begin
+  Nm:=StrUpper(Trim1(Copy(S,1,P-1)));
+  S:=Trim1(Copy(S,P+2,255));
+ End;
+ EvalNamedArg:=S;
+End;
+
+Function EvalLazy(Name:String;Var Done:Boolean):TVal;
+Var
+ Sp,Ep:Array[0..11]of Integer;
+ Txt:Array[0..11]of String;
+ Nm:Array[0..11]of String;
+ Cnt,I,Save:Integer;
+ V,W,El:TVal;
+ L,Lo:PValList;
+ K:LongInt;
+ Lay:PJ;
+ Kind,Concat,GroupT,FilterT,ExprT,Lname:String;
+ Lim:Integer;
+ MaxD:Real;
+ Pred:Integer;
+ R:Real;
+ Ok:Boolean;
+Begin
+ Done:=True;
+ EvalLazy:=VNull;
+ If(Name='WITH_VARIABLE')or(Name='ARRAY_FOREACH')or(Name='ARRAY_FILTER')or(Name='TRY')or(Name='AGGREGATE')or IsAggName(Name)or
+   (Name='OVERLAY_INTERSECTS')or(Name='OVERLAY_CONTAINS')or(Name='OVERLAY_WITHIN')or(Name='OVERLAY_TOUCHES')or
+   (Name='OVERLAY_CROSSES')or(Name='OVERLAY_EQUALS')or(Name='OVERLAY_DISJOINT')or(Name='OVERLAY_OVERLAPS')or(Name='OVERLAY_NEAREST')Then Begin End
+  Else Begin Done:=False;Exit;End;
+ Save:=ExprP;
+ ScanArgs(Sp,Ep,Cnt);
+ For I:=0 to Cnt-1do Txt[I]:=EvalNamedArg(Copy(ExprS,Sp[I],Ep[I]-Sp[I]),Nm[I]);
+ If Name='TRY'Then Begin
+  If Cnt<1Then EFail('function TRY needs an argument');
+  EvalLazy:=EvalSub(Txt[0]);
+ End Else
+ If Name='WITH_VARIABLE'Then Begin
+  If Cnt<3Then EFail('function WITH_VARIABLE needs 3 arguments');
+  V:=EvalSub(Txt[0]);
+  W:=EvalSub(Txt[1]);
+  PushVar(ToStr(V),W);
+  EvalLazy:=EvalSub(Txt[2]);
+  Dec(VarN);
+ End Else
+ If(Name='ARRAY_FOREACH')or(Name='ARRAY_FILTER')Then Begin
+  If Cnt<2Then EFail('function '+Name+' needs 2 arguments');
+  V:=EvalSub(Txt[0]);
+  If V.K<>5Then Exit;
+  L:=LNew;
+  For K:=0 to V.L^.Cnt-1do Begin
+   PushVar('ELEMENT',V.L^.V^[K]);
+   PushVar('COUNTER',VNum(K));
+   W:=EvalSub(Txt[1]);
+   Dec(VarN,2);
+   If Name='ARRAY_FOREACH'Then LAdd(L,W)
+    Else If(W.K<>0)and(W.N<>0)Then LAdd(L,V.L^.V^[K]);
+  End;
+  EvalLazy:=VList(L);
+ End Else
+ If Name='AGGREGATE'Then Begin
+  If Cnt<3Then EFail('function AGGREGATE needs at least 3 arguments');
+  Lname:='';Kind:='';ExprT:='';FilterT:='';Concat:='';
+  For I:=0 to Cnt-1do Begin
+   If Nm[I]=''Then Begin
+    Case I of
+     0:Lname:=ToStr(EvalSub(Txt[I]));
+     1:Kind:=StrUpper(ToStr(EvalSub(Txt[I])));
+     2:ExprT:=Txt[I];
+     3:FilterT:=Txt[I];
+     4:Concat:=ToStr(EvalSub(Txt[I]));
+    End;
+   End Else
+   If Nm[I]='LAYER'Then Lname:=ToStr(EvalSub(Txt[I])) Else
+   If Nm[I]='AGGREGATE'Then Kind:=StrUpper(ToStr(EvalSub(Txt[I]))) Else
+   If Nm[I]='EXPRESSION'Then ExprT:=Txt[I] Else
+   If Nm[I]='FILTER'Then FilterT:=Txt[I] Else
+   If Nm[I]='CONCATENATOR'Then Concat:=ToStr(EvalSub(Txt[I]));
+  End;
+  EvalLazy:=ExprAggregate(Kind,ExprGetLayer(Lname),ExprT,FilterT,'',Concat);
+ End Else
+ If IsAggName(Name)Then Begin
+  If Cnt<1Then EFail('function '+Name+' needs an expression');
+  ExprT:=Txt[0];GroupT:='';FilterT:='';Concat:=',';
+  For I:=1 to Cnt-1do Begin
+   If Nm[I]='GROUP_BY'Then GroupT:=Txt[I] Else
+   If Nm[I]='FILTER'Then FilterT:=Txt[I] Else
+   If Nm[I]='CONCATENATOR'Then Concat:=ToStr(EvalSub(Txt[I])) Else
+   If Nm[I]=''Then Begin
+    If I=1Then GroupT:=Txt[I] Else
+    If I=2Then FilterT:=Txt[I] Else
+    If I=3Then Concat:=ToStr(EvalSub(Txt[I]));
+   End;
+  End;
+  If StrUpper(GroupT)='NULL'Then GroupT:='';
+  If StrUpper(FilterT)='NULL'Then FilterT:='';
+  Kind:=Name;
+  If ExprLayer=Nil Then EFail('no current layer for '+Name);
+  EvalLazy:=ExprAggregate(Kind,ExprLayer,ExprT,FilterT,GroupT,Concat);
+ End
+  Else
+ Begin
+  { overlay_xxx(couche, expression, filtre, limite, distance max) }
+  If Cnt<1Then EFail('function '+Name+' needs a layer');
+  Lname:='';ExprT:='';FilterT:='';Lim:=0;MaxD:=0;
+  For I:=0 to Cnt-1do Begin
+   If(Nm[I]='')and(I=0)or(Nm[I]='LAYER')Then Lname:=ToStr(EvalSub(Txt[I])) Else
+   If(Nm[I]='')and(I=1)or(Nm[I]='EXPRESSION')Then ExprT:=Txt[I] Else
+   If(Nm[I]='')and(I=2)or(Nm[I]='FILTER')Then FilterT:=Txt[I] Else
+   If(Nm[I]='')and(I=3)or(Nm[I]='LIMIT')Then Begin
+    V:=EvalSub(Txt[I]);
+    If ToNum(V,R)Then Lim:=Round(R);
+   End Else
+   If(Nm[I]='')and(I=4)or(Nm[I]='MAX_DISTANCE')Then Begin
+    V:=EvalSub(Txt[I]);
+    If ToNum(V,R)Then MaxD:=R;
+   End;
+  End;
+  If StrUpper(ExprT)='NULL'Then ExprT:='';
+  If StrUpper(FilterT)='NULL'Then FilterT:='';
+  If Name='OVERLAY_INTERSECTS'Then Pred:=0 Else If Name='OVERLAY_CONTAINS'Then Pred:=1 Else
+  If Name='OVERLAY_DISJOINT'Then Pred:=2 Else If Name='OVERLAY_EQUALS'Then Pred:=3 Else
+  If Name='OVERLAY_TOUCHES'Then Pred:=4 Else If Name='OVERLAY_OVERLAPS'Then Pred:=5 Else
+  If Name='OVERLAY_WITHIN'Then Pred:=6 Else If Name='OVERLAY_CROSSES'Then Pred:=7 Else Pred:=8;
+  If(Pred=8)and(Lim<=0)Then Lim:=1;
+  EvalLazy:=ExprOverlay(Pred,ExprGetLayer(Lname),ExprT,FilterT,Lim,MaxD);
+  If(ExprT<>'')and(Pred<>8)and(Lim=0)Then Begin End;
+ End;
+End;
+
+Function EvalAtom:TVal;
+Var
+ V,Idx:TVal;
  S,Name:String;
  C:Char;
  R:Real;
- E:Integer;
+ E,Err:Integer;
  Start,NA:Integer;
- Args:Array[0..5]of TVal;
+ Args:Array[0..15]of TVal;
  Cx,Cy:Real;
- Ok:Boolean;
+ Ok,Done,Chosen:Boolean;
+ L:PValList;
+ K:LongInt;
+ Cond,Res:TVal;
+ Tmp:TGeom;
 Begin
- EvalPrimary:=VNull;
+ EvalAtom:=VNull;
  ESkip;
  If ExprP>Length(ExprS)Then EFail('unexpected end of expression');
  C:=ExprS[ExprP];
@@ -10896,7 +14819,21 @@ Begin
   Inc(ExprP);
   V:=EvalOr;
   If Not EOp(')')Then EFail('")" expected');
-  EvalPrimary:=V;
+  EvalAtom:=V;
+ End
+  Else
+ If C='['Then Begin
+  Inc(ExprP);
+  L:=LNew;
+  ESkip;
+  If(ExprP<=Length(ExprS))and(ExprS[ExprP]=']')Then Inc(ExprP)
+   Else Begin
+    Repeat
+     LAdd(L,EvalOr);
+    Until Not EOp(',');
+    If Not EOp(']')Then EFail('"]" expected');
+   End;
+  EvalAtom:=VList(L);
  End
   Else
  If C in['0'..'9','.']Then Begin
@@ -10909,7 +14846,7 @@ Begin
   End;
   Val(Copy(ExprS,Start,ExprP-Start),R,E);
   If E<>0Then EFail('invalid number');
-  EvalPrimary:=VNum(R);
+  EvalAtom:=VNum(R);
  End
   Else
  If C=''''Then Begin
@@ -10929,12 +14866,22 @@ Begin
     End;
    End
     Else
+   If(ExprS[ExprP]='\')and(ExprP<Length(ExprS))and(ExprS[ExprP+1]in['n','t','r','\'])Then Begin
+    Case ExprS[ExprP+1]of
+     'n':S:=S+#10;
+     't':S:=S+#9;
+     'r':S:=S+#13;
+     Else S:=S+'\';
+    End;
+    Inc(ExprP,2);
+   End
+    Else
    Begin
     S:=S+ExprS[ExprP];
     Inc(ExprP);
    End;
   End;
-  EvalPrimary:=VStr(S);
+  EvalAtom:=VStr(S);
  End
   Else
  If C='"'Then Begin
@@ -10944,7 +14891,14 @@ Begin
   If ExprP>Length(ExprS)Then EFail('unterminated field name');
   Name:=Copy(ExprS,Start,ExprP-Start);
   Inc(ExprP);
-  EvalPrimary:=PropVal(Name);
+  EvalAtom:=PropVal(Name);
+ End
+  Else
+ If C='@'Then Begin
+  Inc(ExprP);
+  Start:=ExprP;
+  While(ExprP<=Length(ExprS))and(UpCase(ExprS[ExprP])in['A'..'Z','0'..'9','_'])do Inc(ExprP);
+  EvalAtom:=ExprVar(StrUpper(Copy(ExprS,Start,ExprP-Start)));
  End
   Else
  If C='$'Then Begin
@@ -10953,23 +14907,24 @@ Begin
   While(ExprP<=Length(ExprS))and(UpCase(ExprS[ExprP])in['A'..'Z','0'..'9','_'])do Inc(ExprP);
   Name:=StrUpper(Copy(ExprS,Start,ExprP-Start));
   If Name='GEOMETRY'Then Begin
-   If ExprGeom.First=Nil Then EvalPrimary:=VNull Else EvalPrimary:=VGeom(ExprGeom);
+   If ExprGeom.First=Nil Then EvalAtom:=VNull Else EvalAtom:=VGeom(ExprGeom);
   End Else
-  If Name='AREA'Then EvalPrimary:=VNum(GeomArea(ExprGeom)) Else
+  If Name='CURRENTFEATURE'Then EvalAtom:=VFeat(ExprFeat) Else
+  If Name='AREA'Then EvalAtom:=VNum(GeomArea(ExprGeom)) Else
   If Name='LENGTH'Then Begin
-   If ExprGeom.Cls=2Then EvalPrimary:=VNum(GeomLength(ExprGeom)) Else EvalPrimary:=VNull;
+   If ExprGeom.Cls=2Then EvalAtom:=VNum(GeomLength(ExprGeom)) Else EvalAtom:=VNull;
   End Else
   If Name='PERIMETER'Then Begin
-   If ExprGeom.Cls=3Then EvalPrimary:=VNum(GeomLength(ExprGeom)) Else EvalPrimary:=VNull;
+   If ExprGeom.Cls=3Then EvalAtom:=VNum(GeomLength(ExprGeom)) Else EvalAtom:=VNull;
   End Else
-  If Name='ID'Then EvalPrimary:=VNum(ExprId) Else
+  If Name='ID'Then EvalAtom:=VNum(ExprId) Else
   If(Name='X')or(Name='Y')Then Begin
    CentroidGeom(ExprGeom,Cx,Cy,Ok);
    If Ok Then Begin
-    If Name='X'Then EvalPrimary:=VNum(Cx) Else EvalPrimary:=VNum(Cy);
+    If Name='X'Then EvalAtom:=VNum(Cx) Else EvalAtom:=VNum(Cy);
    End
     Else
-   EvalPrimary:=VNull;
+   EvalAtom:=VNull;
   End
    Else
   EFail('unknown variable $'+Name);
@@ -10979,66 +14934,201 @@ Begin
   Start:=ExprP;
   While(ExprP<=Length(ExprS))and(UpCase(ExprS[ExprP])in['A'..'Z','0'..'9','_'])do Inc(ExprP);
   Name:=Copy(ExprS,Start,ExprP-Start);
-  If StrUpper(Name)='TRUE'Then EvalPrimary:=VBool(True) Else
-  If StrUpper(Name)='FALSE'Then EvalPrimary:=VBool(False) Else
-  If StrUpper(Name)='NULL'Then EvalPrimary:=VNull
+  If StrUpper(Name)='TRUE'Then EvalAtom:=VBool(True) Else
+  If StrUpper(Name)='FALSE'Then EvalAtom:=VBool(False) Else
+  If StrUpper(Name)='NULL'Then EvalAtom:=VNull Else
+  If StrUpper(Name)='CASE'Then Begin
+   Chosen:=False;
+   Res:=VNull;
+   While EKw('WHEN')do Begin
+    Cond:=EvalOr;
+    If Not EKw('THEN')Then EFail('THEN expected');
+    V:=EvalOr;
+    If(Not Chosen)and(Cond.K<>0)and(Cond.N<>0)Then Begin Res:=V;Chosen:=True;End;
+   End;
+   If EKw('ELSE')Then Begin
+    V:=EvalOr;
+    If Not Chosen Then Res:=V;
+   End;
+   If Not EKw('END')Then EFail('END expected');
+   EvalAtom:=Res;
+  End
    Else
   Begin
    ESkip;
    If(ExprP<=Length(ExprS))and(ExprS[ExprP]='(')Then Begin
     Inc(ExprP);
-    NA:=0;
-    Args[0]:=VNull;
-    ESkip;
-    If(ExprP<=Length(ExprS))and(ExprS[ExprP]=')')Then Inc(ExprP)
+    Done:=False;
+    V:=EvalLazy(StrUpper(Name),Done);
+    If Done Then EvalAtom:=V
      Else
     Begin
-     Repeat
-      If NA>5Then EFail('too many arguments');
-      Args[NA]:=EvalOr;
-      Inc(NA);
-     Until Not EOp(',');
-     If Not EOp(')')Then EFail('")" expected');
+     NA:=0;
+     Args[0]:=VNull;
+     ESkip;
+     If(ExprP<=Length(ExprS))and(ExprS[ExprP]=')')Then Inc(ExprP)
+      Else
+     Begin
+      Repeat
+       If NA>15Then EFail('too many arguments');
+       Args[NA]:=EvalOr;
+       Inc(NA);
+      Until Not EOp(',');
+      If Not EOp(')')Then EFail('")" expected');
+     End;
+     EvalAtom:=CallFunc(StrUpper(Name),Args,NA);
     End;
-    EvalPrimary:=CallFunc(StrUpper(Name),Args,NA);
    End
     Else
-   EvalPrimary:=PropVal(Name);
+   EvalAtom:=PropVal(Name);
   End;
  End
   Else
  EFail('unexpected character "'+C+'"');
+ { acces par indice : tableau[i], dictionnaire['cle'] }
+End;
+
+Function EvalPrimary:TVal;
+Var
+ V,Idx,Res:TVal;
+ R:Real;
+ K:LongInt;
+Begin
+ V:=EvalAtom;
+ While(ExprP<=Length(ExprS))and(ExprS[ExprP]='[')do Begin
+  Inc(ExprP);
+  Idx:=EvalOr;
+  If Not EOp(']')Then EFail('"]" expected');
+  Res:=VNull;
+  If(V.K=5)and ToNum(Idx,R)and(Idx.K<>2)Then Begin
+   K:=Round(R);
+   If K<0Then K:=V.L^.Cnt+K;
+   If(K>=0)and(K<V.L^.Cnt)Then Res:=V.L^.V^[K];
+  End Else
+  If V.K=6Then Begin
+   K:=MapFind(V.L,ToStr(Idx));
+   If K>=0Then Res:=V.L^.V^[K+1];
+  End;
+  V:=Res;
+ End;
+ EvalPrimary:=V;
+End;
+
+
+Function PowVals(A,B:Real;Var R:Real):Boolean;Begin
+ PowVals:=True;
+ If A>0Then R:=Exp(B*Ln(A)) Else
+ If(A=0)and(B>0)Then R:=0 Else
+ If B=0Then R:=1 Else
+ If(A<0)and(B=Int(B))Then Begin
+  R:=Exp(B*Ln(-A));
+  If Odd(Round(Abs(B)))Then R:=-R;
+ End
+  Else PowVals:=False;
 End;
 
 Function EvalUnary:TVal;
 Var
  V:TVal;
  R:Real;
+ Neg,Any:Boolean;
 Begin
- EvalUnary:=VNull;
- If EOp('-')Then Begin
-  V:=EvalUnary;
-  If ToNum(V,R)and(V.K<>0)Then EvalUnary:=VNum(-R) Else EvalUnary:=VNull;
+ Neg:=False;Any:=False;
+ While True do Begin
+  If EOp('-')Then Begin Neg:=Not Neg;Any:=True;End Else
+  If EOp('+')Then Any:=True
+   Else Break;
+ End;
+ V:=EvalPrimary;
+ If Any and Neg Then Begin
+  If V.K=10Then V:=VTime(10,-V.N) Else
+  If(V.K in[1,2,3])and ToNum(V,R)Then V:=VNum(-R)
+   Else V:=VNull;
  End
   Else
- EvalUnary:=EvalPrimary;
+ If Any and(V.K=2)Then Begin
+  If ToNum(V,R)Then V:=VNum(R) Else V:=VNull;
+ End;
+ EvalUnary:=V;
+End;
+
+Function EvalPow:TVal;
+Var
+ Ops:Array[1..8]of TVal;
+ N,I:Integer;
+ A,B,R:Real;
+ V:TVal;
+Begin
+ N:=1;
+ Ops[1]:=EvalUnary;
+ While EOp('^')do Begin
+  If N>=8Then EFail('too many chained powers');
+  Inc(N);
+  Ops[N]:=EvalUnary;
+ End;
+ V:=Ops[N];
+ For I:=N-1downto 1do Begin
+  If ToNum(Ops[I],A)and ToNum(V,B)and(Ops[I].K in[1,2,3])and(V.K in[1,2,3])and PowVals(A,B,R)Then V:=VNum(R)
+   Else V:=VNull;
+ End;
+ EvalPow:=V;
+End;
+
+Function EvalConcat:TVal;
+Var
+ V,W:TVal;
+ Lc:PValList;
+ Ix:LongInt;
+Begin
+ V:=EvalPow;
+ While EOp('||')do Begin
+  W:=EvalPow;
+  If V.K=5Then Begin
+   { concatenation de tableaux }
+   If W.K=5Then Begin
+    Lc:=LNew;
+    For Ix:=0 to V.L^.Cnt-1do LAdd(Lc,V.L^.V^[Ix]);
+    For Ix:=0 to W.L^.Cnt-1do LAdd(Lc,W.L^.V^[Ix]);
+    V:=VList(Lc);
+   End
+    Else V:=VNull;
+  End
+   Else
+  If(V.K=0)or(W.K=0)Then V:=VNull Else V:=VStr(ToStr(V)+ToStr(W));
+ End;
+ EvalConcat:=V;
 End;
 
 Function EvalMul:TVal;
 Var
  V,W:TVal;
  A,B:Real;
- Op:Char;
+ Op:Integer;
 Begin
- V:=EvalUnary;
- While(EOp('*')or EOp('/')or EOp('%'))do Begin
-  Op:=ExprS[ExprP-1];
-  W:=EvalUnary;
-  If ToNum(V,A)and ToNum(W,B)and(V.K<>0)and(W.K<>0)Then Begin
-   If Op='*'Then V:=VNum(A*B) Else
-   If B=0Then V:=VNull Else
-   If Op='/'Then V:=VNum(A/B)
-            Else V:=VNum(A-B*Int(A/B));
+ V:=EvalConcat;
+ While True do Begin
+  Op:=0;
+  ESkip;
+  If EOp('//')Then Op:=4 Else
+  If EOp('*')Then Op:=1 Else
+  If EOp('/')Then Op:=2 Else
+  If EOp('%')Then Op:=3;
+  If Op=0Then Break;
+  W:=EvalConcat;
+  If(V.K=10)and(W.K<>10)and(W.K<>0)and(W.K<7)and ToNum(W,B)Then Begin
+   If Op=1Then V:=VTime(10,V.N*B) Else
+   If(Op=2)and(B<>0)Then V:=VTime(10,V.N/B)
+    Else V:=VNull;
+  End Else
+  If(W.K=10)and(V.K<>10)and(V.K<>0)and(V.K<7)and ToNum(V,A)and(Op=1)Then V:=VTime(10,W.N*A) Else
+  If(V.K=10)and(W.K=10)and(Op=2)and(W.N<>0)Then V:=VNum(V.N/W.N) Else
+  If ToNum(V,A)and ToNum(W,B)and(V.K<>0)and(W.K<>0)and(V.K<7)and(W.K<7)and(V.K<>4)and(W.K<>4)Then Begin
+   Case Op of
+    1:V:=VNum(A*B);
+    2:If B=0Then V:=VNull Else V:=VNum(A/B);
+    3:If B=0Then V:=VNull Else V:=VNum(A-B*FloorR(A/B));
+    4:If B=0Then V:=VNull Else V:=VNum(FloorR(A/B));
+   End;
   End
    Else
   V:=VNull;
@@ -11051,23 +15141,37 @@ Var
  V,W:TVal;
  A,B:Real;
  Op:Char;
+ K:Byte;
 Begin
  V:=EvalMul;
  Repeat
   ESkip;
-  If EOp('||')Then Begin
+  If(ExprP<=Length(ExprS))and((ExprS[ExprP]='+')or(ExprS[ExprP]='-'))Then Begin
+   Op:=ExprS[ExprP];
+   Inc(ExprP);
    W:=EvalMul;
-   If(V.K=0)or(W.K=0)Then V:=VNull Else V:=VStr(ToStr(V)+ToStr(W));
-  End
-   Else
-  If EOp('+')or EOp('-')Then Begin
-   Op:=ExprS[ExprP-1];
-   W:=EvalMul;
-   If ToNum(V,A)and ToNum(W,B)and(V.K<>0)and(W.K<>0)Then Begin
+   If(V.K=0)or(W.K=0)Then V:=VNull Else
+   If IsTimeKind(V.K)or IsTimeKind(W.K)Then Begin
+    { arithmetique sur les dates et intervalles }
+    If(V.K=10)and(W.K=10)Then Begin
+     If Op='+'Then V:=VTime(10,V.N+W.N) Else V:=VTime(10,V.N-W.N);
+    End Else
+    If(V.K in[7,8,9])and(W.K=10)Then Begin
+     If Op='+'Then V:=VTime(V.K,V.N+W.N) Else V:=VTime(V.K,V.N-W.N);
+    End Else
+    If(V.K=10)and(W.K in[7,8,9])and(Op='+')Then V:=VTime(W.K,W.N+V.N) Else
+    If(V.K=W.K)and(V.K in[7,8,9])and(Op='-')Then V:=VTime(10,V.N-W.N) Else
+    If(V.K in[7,8])and(W.K in[7,8])and(Op='-')Then V:=VTime(10,V.N-W.N)
+     Else V:=VNull;
+   End Else
+   If V.K=5Then Begin
+    V:=VNull;
+   End Else
+   If(Op='+')and(V.K=2)and(W.K=2)and Not(IsPlainNumber(V.S)and IsPlainNumber(W.S))Then V:=VStr(V.S+W.S) Else
+   If ToNum(V,A)and ToNum(W,B)and(V.K in[1,2,3])and(W.K in[1,2,3])Then Begin
     If Op='+'Then V:=VNum(A+B) Else V:=VNum(A-B);
    End
-    Else
-   V:=VNull;
+    Else V:=VNull;
   End
    Else
   Break;
@@ -11080,6 +15184,7 @@ Var
  V,W,X:TVal;
  Op:Integer;
  Neg,Found:Boolean;
+ Pat,Sv:String;
 Begin
  V:=EvalAdd;
  ESkip;
@@ -11095,44 +15200,60 @@ Begin
   V:=DoCompare(Op,V,W);
  End
   Else
- If EKw('IS')Then Begin
-  Neg:=EKw('NOT');
-  If Not EKw('NULL')Then EFail('NULL expected');
-  V:=VBool((V.K=0)<>Neg);
- End
-  Else
- If EKw('LIKE')Then Begin
-  W:=EvalAdd;
-  If(V.K=0)or(W.K=0)Then V:=VNull Else V:=VBool(LikeMatch(ToStr(V),ToStr(W),1,1));
- End
-  Else
- If EKw('ILIKE')Then Begin
+ If EOp('~')Then Begin
   W:=EvalAdd;
   If(V.K=0)or(W.K=0)Then V:=VNull
-                    Else V:=VBool(LikeMatch(StrUpper(ToStr(V)),StrUpper(ToStr(W)),1,1));
+   Else Begin
+    RxCompile(ToStr(W));
+    V:=VBool(RxFind(ToStr(V),1));
+   End;
+ End
+  Else
+ If EKw('IS')Then Begin
+  Neg:=EKw('NOT');
+  If EKw('NULL')Then V:=VBool((V.K=0)<>Neg)
+   Else Begin
+    W:=EvalAdd;
+    If(V.K=0)or(W.K=0)Then Found:=(V.K=0)and(W.K=0) Else Found:=ValEq(V,W);
+    V:=VBool(Found<>Neg);
+   End;
  End
   Else
  Begin
   Neg:=False;
-  Found:=False;
-  If EKw('NOT')Then Begin
-   Neg:=True;
-   If Not EKw('IN')Then EFail('IN expected');
-   Found:=True;
-  End
-   Else
-  If EKw('IN')Then Found:=True;
-  If Found Then Begin
+  If EKw('NOT')Then Neg:=True;
+  If EKw('LIKE')Then Begin
+   W:=EvalAdd;
+   If(V.K=0)or(W.K=0)Then V:=VNull Else V:=VBool(LikeMatch(ToStr(V),ToStr(W),1,1)<>Neg);
+  End Else
+  If EKw('ILIKE')Then Begin
+   W:=EvalAdd;
+   If(V.K=0)or(W.K=0)Then V:=VNull
+                     Else V:=VBool(LikeMatch(U8Upper(ToStr(V),True),U8Upper(ToStr(W),True),1,1)<>Neg);
+  End Else
+  If EKw('IN')Then Begin
    If Not EOp('(')Then EFail('"(" expected');
    Found:=False;
    Repeat
     W:=EvalAdd;
-    X:=DoCompare(1,V,W);
-    If(X.K=3)and(X.N<>0)Then Found:=True;
+    If W.K=5Then Begin
+     { IN (tableau) }
+     For Op:=0 to W.L^.Cnt-1do Begin
+      X:=DoCompare(1,V,W.L^.V^[Op]);
+      If(X.K=3)and(X.N<>0)Then Found:=True;
+     End;
+    End
+     Else
+    Begin
+     X:=DoCompare(1,V,W);
+     If(X.K=3)and(X.N<>0)Then Found:=True;
+    End;
    Until Not EOp(',');
    If Not EOp(')')Then EFail('")" expected');
    If V.K=0Then V:=VNull Else V:=VBool(Found<>Neg);
-  End;
+  End
+   Else
+  If Neg Then EFail('IN, LIKE or ILIKE expected');
  End;
  EvalCompare:=V;
 End;
@@ -11180,6 +15301,26 @@ Begin
  EvalOr:=V;
 End;
 
+{ Evalue une expression sur une entite }
+Function EvalOn(Expr:String;F:PJ;Id:LongInt):TVal;
+Var
+ V:TVal;
+Begin
+ FreeGeom(ExprGeom);
+ Flatten(JFind(F,'geometry'),ExprGeom);
+ ExprFeat:=F;
+ ExprParent:=Nil;
+ ExprId:=Id;
+ ExprS:=Expr;
+ ExprP:=1;
+ ExprProps:=JFind(F,'properties');
+ ExprDepth:=0;VarN:=0;
+ V:=EvalOr;
+ ESkip;
+ If ExprP<=Length(ExprS)Then EFail('unexpected token');
+ EvalOn:=V;
+End;
+
 Function EvalFeature(Expr:String;Props:PJ):Boolean;
 Var
  V:TVal;
@@ -11187,6 +15328,7 @@ Begin
  ExprS:=Expr;
  ExprP:=1;
  ExprProps:=Props;
+ ExprDepth:=0;VarN:=0;
  V:=EvalOr;
  ESkip;
  If ExprP<=Length(ExprS)Then EFail('unexpected token');
@@ -11202,7 +15344,6 @@ Var
  RBuf:Array[0..16383]of Char;
  RTok:String;
  RasterHeaderOnly:Boolean;
- BandSel:Integer;
  LastEpsg:LongInt;
  RasterBands:Integer;
 
@@ -12791,13 +16932,16 @@ End;
 
 Procedure RunExtract(A:Integer);
 Var
- Root,Arr,F,Nx,FailArr:PJ;
+ Root,Arr,F,FailArr:PJ;
  Expr,Out,OutFail:String;
  WantFail:Boolean;
  FailRoot:PJ;
- Props:PJ;
  Keep:Boolean;
  C:PJ;
+ FA:PJArr;
+ NFe,I:LongInt;
+ KeepA:PBools;
+ V:TVal;
 Begin
  Root:=LoadLayer(NeedStr(A,'INPUT'));
  Expr:=NeedStr(A,'EXPRESSION');
@@ -12814,16 +16958,20 @@ Begin
   JAddKV(FailRoot,'features',FailArr);
  End;
  Arr:=LayerFeatures(Root);
- F:=Arr^.First;
+ FA:=FeatureArray(Arr,NFe);
+ KeepA:=AllocBlock((NFe+1)*SizeOf(Boolean));
+ For I:=0 to NFe-1do Begin
+  V:=EvalOn(Expr,FA^[I],I);
+  KeepA^[I]:=(V.K in[1,3])and(V.N<>0);
+ End;
  Arr^.First:=Nil;Arr^.Last:=Nil;
- While F<>Nil do Begin
-  Nx:=F^.Next;
-  Props:=JFind(F,'properties');
-  Keep:=EvalFeature(Expr,Props);
+ For I:=0 to NFe-1do Begin
+  F:=FA^[I];
+  F^.Next:=Nil;
+  Keep:=KeepA^[I];
   If Keep Then JAdd(Arr,F)
    Else
   If WantFail Then JAdd(FailArr,F);
-  F:=Nx;
  End;
  SaveLayer(Out,Root);
  AddRes('OUTPUT',Out);
@@ -15154,30 +19302,33 @@ Begin
  End;
 End;
 
-Function ValToJ(V:TVal):PJ;Begin
+Function ValToJ(V:TVal):PJ;
+Var
+ N:PJ;
+ I:LongInt;
+Begin
  Case V.K of
   1:ValToJ:=JNum(V.N);
   2:ValToJ:=JTextEsc(V.S);
   3:ValToJ:=JBool(V.N<>0);
+  5:Begin
+   N:=NewJ(4);
+   For I:=0 to V.L^.Cnt-1do JAdd(N,ValToJ(V.L^.V^[I]));
+   ValToJ:=N;
+  End;
+  6:Begin
+   N:=NewJ(5);
+   I:=0;
+   While I+1<V.L^.Cnt do Begin
+    JAddKV(N,ToStr(V.L^.V^[I]),ValToJ(V.L^.V^[I+1]));
+    Inc(I,2);
+   End;
+   ValToJ:=N;
+  End;
+  7,8,9:ValToJ:=JTextEsc(ToStr(V));
+  10:ValToJ:=JNum(V.N);
   Else ValToJ:=NewJ(0);
  End;
-End;
-
-{ Evalue une expression sur une entite }
-Function EvalOn(Expr:String;F:PJ;Id:LongInt):TVal;
-Var
- V:TVal;
-Begin
- FreeGeom(ExprGeom);
- Flatten(JFind(F,'geometry'),ExprGeom);
- ExprId:=Id;
- ExprS:=Expr;
- ExprP:=1;
- ExprProps:=JFind(F,'properties');
- V:=EvalOr;
- ESkip;
- If ExprP<=Length(ExprS)Then EFail('unexpected token');
- EvalOn:=V;
 End;
 
 { Remet les entites dans Arr selon l'ordre Ord }
@@ -15501,7 +19652,11 @@ Var
  R:Real;
 Begin
  CastValue:=NewJ(0);
- If(V.K=0)or(V.K=4)Then Exit;
+ If(V.K=0)or(V.K=4)or(V.K=11)Then Exit;
+ If(V.K=5)or(V.K=6)Then Begin
+  If Typ=2Then CastValue:=ValToJ(V);
+  Exit;
+ End;
  Case Typ of
   0:If ToNum(V,R)Then CastValue:=JNum(R);
   1:If ToNum(V,R)Then CastValue:=JNum(Int(R));
