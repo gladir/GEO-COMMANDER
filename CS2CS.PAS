@@ -23,6 +23,9 @@ Type
   Zone       : Integer;
   South      : Boolean;
  End;
+ TAreaDef = Record
+  West, South, East, North : Real;
+ End;
 
 Var
  SourceProj : TProjDef;
@@ -148,6 +151,50 @@ Begin
  Longitude := RadToDeg(Longitude);
 End;
 
+Function UpperString(S : String) : String;
+Var I : Integer;
+Begin
+ For I := 1 To Length(S) Do S[I] := UpCase(S[I]);
+ UpperString := S;
+End;
+
+Function ResolveArea(Name : String; Var Area : TAreaDef) : Boolean;
+Var S : String;
+Begin
+ S := UpperString(Name);
+ ResolveArea := True;
+ If (S = 'WORLD') Or (S = 'GLOBAL') Or (S = 'WORLDWIDE') Or
+   (S = '001') Then Begin
+  Area.West := -180.0; Area.South := -90.0;
+  Area.East := 180.0; Area.North := 90.0;
+ End Else
+ If (S = 'NORTH AMERICA') Or (S = 'NORTH-AMERICA') Or
+    (S = 'NA') Or (S = '003') Then Begin
+  Area.West := -170.0; Area.South := 5.0;
+  Area.East := -50.0; Area.North := 84.0;
+ End Else
+ If (S = 'EUROPE') Or (S = 'EU') Or (S = 'EUR') Then Begin
+  Area.West := -25.0; Area.South := 34.0;
+  Area.East := 45.0; Area.North := 72.0;
+ End Else
+ If (S = 'CANADA') Or (S = 'CA') Then Begin
+  Area.West := -141.0; Area.South := 41.0;
+  Area.East := -52.0; Area.North := 84.0;
+ End Else
+ If (S = 'UNITED STATES') Or (S = 'UNITED-STATES') Or
+    (S = 'USA') Or (S = 'US') Or (S = 'US-48') Then Begin
+  Area.West := -125.0; Area.South := 24.0;
+  Area.East := -66.0; Area.North := 50.0;
+ End Else ResolveArea := False;
+End;
+
+Function IsInsideArea(Longitude, Latitude : Real;
+                      Area : TAreaDef) : Boolean;
+Begin
+ IsInsideArea := (Latitude >= Area.South) And (Latitude <= Area.North) And
+  (Longitude >= Area.West) And (Longitude <= Area.East);
+End;
+
 Procedure ShowHelp;Begin
  Writeln('CS2CS - Cette commande permet de transformer des coordonn',#130,
          'es (longlat WGS84 / UTM WGS84).');
@@ -167,7 +214,10 @@ Procedure ShowHelp;Begin
  WriteLn;
  Writeln('Les projections implementes sont +proj=longlat et +proj=utm.');
  Writeln('--3d conserve une coordonnee Z fournie (sans promotion de CRS).');
- Writeln('--area, --bbox, --authority, --accuracy, --only-best,');
+ Writeln('--area <nom/code> filtre les points par zone geographique reconnue.');
+ Writeln('Zones: world (001), North America (003), Europe (EUR), Canada (CA),');
+ Writeln('United States (US/USA/US-48). Limites = enveloppes, non frontieres.');
+ Writeln('--bbox, --authority, --accuracy, --only-best,');
  Writeln('--no-ballpark et --s_epoch/--t_epoch necessitent le moteur PROJ');
  Writeln('et sont refusees par cette implementation autonome.');
 End;
@@ -330,12 +380,14 @@ End;
 Var
  I, ToPosition, Decimals, DMSPrecision, Err : Integer;
  Longitude, Latitude, X, Y, OutX, OutY, Z : Real;
+ AreaLongitude, AreaLatitude : Real;
  TempReal : Real;
  TempProj : TProjDef;
  Line, WorkLine, TokenX, TokenY, TokenZ, FormatString : String;
- ErrorText, CommentMark, Arg : String;
+ ErrorText, CommentMark, Arg, AreaName : String;
+ Area : TAreaDef;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
- DMSOutput, FixedDMS, Has3D, Failed : Boolean;
+ DMSOutput, FixedDMS, Has3D, Failed, HasArea : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -351,6 +403,8 @@ BEGIN
  DMSOutput := False;
  FixedDMS := False;
  Has3D := False;
+ HasArea := False;
+ AreaName := '';
 
  I := 1;
  While I <= ParamCount Do Begin
@@ -375,6 +429,21 @@ BEGIN
    Val(ParamStr(I), Decimals, Err);
    If (Err <> 0) Or (Decimals < 0) Or (Decimals > 15) Then Begin
     Writeln('Erreur: precision -d invalide (0..15).'); Halt(1);
+   End;
+  End Else
+  If Arg = '--area' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --area.'); Halt(1);
+   End;
+   AreaName := ParamStr(I);
+   HasArea := True;
+  End Else
+  If Copy(Arg, 1, 7) = '--area=' Then Begin
+   AreaName := Copy(Arg, 8, Length(Arg) - 7);
+   HasArea := True;
+   If AreaName = '' Then Begin
+    Writeln('Erreur: valeur manquante apres --area.'); Halt(1);
    End;
   End Else
   If Arg = '-f' Then Begin
@@ -407,9 +476,9 @@ BEGIN
     Writeln('Erreur: precision DMS invalide (0..10).'); Halt(1);
    End;
   End Else
-  If (Arg = '--area') Or (Arg = '--bbox') Or (Arg = '--authority') Or
-     (Arg = '--accuracy') Or (Copy(Arg, 1, 7) = '--area=') Or
-     (Copy(Arg, 1, 7) = '--bbox=') Or (Copy(Arg, 1, 12) = '--authority=') Or
+    If (Arg = '--bbox') Or (Arg = '--authority') Or
+      (Arg = '--accuracy') Or (Copy(Arg, 1, 7) = '--bbox=') Or
+      (Copy(Arg, 1, 12) = '--authority=') Or
      (Copy(Arg, 1, 11) = '--accuracy=') Or
     (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
      (Arg = '--no-ballpark') Or (Arg = '--s_epoch') Or
@@ -428,6 +497,12 @@ BEGIN
   If ParamStr(I) = '+to' Then ToPosition := I;
  If ToPosition = 0 Then Begin
   Writeln('Erreur: parametre +to manquant.');
+  Halt(1);
+ End;
+ If HasArea And (Not ResolveArea(AreaName, Area)) Then Begin
+  Writeln('Erreur: zone --area inconnue: ', AreaName);
+  Writeln('Utilisez world/001, North America/003, Europe/EUR, Canada/CA,');
+  Writeln('United States/US/USA ou US-48.');
   Halt(1);
  End;
  ParseProjection(1, ToPosition - 1, SourceProj);
@@ -475,8 +550,7 @@ BEGIN
       If Not TryValue(TokenZ, Z) Then Failed := True;
     End;
    End;
-   If Failed Then Writeln(ErrorText)
-   Else Begin
+  If Not Failed Then Begin
     If SwapInput Then Begin
      Longitude := Y;
      Latitude := X;
@@ -484,6 +558,19 @@ BEGIN
      Longitude := X;
      Latitude := Y;
     End;
+   If HasArea Then Begin
+    If SourceProj.Projection = prjUTM Then
+    UTMToLatLon(Longitude, Latitude, SourceProj.Zone,
+                  SourceProj.South, AreaLatitude, AreaLongitude)
+    Else Begin
+      AreaLatitude := Latitude;
+      AreaLongitude := Longitude;
+    End;
+     If Not IsInsideArea(AreaLongitude, AreaLatitude, Area) Then Failed := True;
+   End;
+  End;
+  If Failed Then Writeln(ErrorText)
+  Else Begin
     If SourceProj.Projection = prjLongLat Then Begin
      If DestProj.Projection = prjLongLat Then Begin
       OutX := Longitude; OutY := Latitude;
