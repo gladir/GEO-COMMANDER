@@ -22,7 +22,11 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>COUNTRY.PAS</b></td>
-      <td>Cette commande permet de retourner les informations d'un pays.</td>
+      <td>Cette commande permet de retourner les informations d'un pays.</td>  
+  </tr>
+  <tr>
+	  <td><b>CS2CS.PAS</b></td>
+	  <td>Cette commande permet de transformer des coordonnées (longlat WGS84 / UTM WGS84).</td>
   </tr>
   <tr>
       <td><b>CSV2GEO.PAS</b></td>
