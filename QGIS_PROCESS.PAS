@@ -489,9 +489,9 @@ Const
   (A:7;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:7;Name:'DISTANCE';Typ:'number';Desc:'Buffer distance in layer units (negative erodes polygons)';Def:''),
   (A:7;Name:'SEGMENTS';Typ:'number';Desc:'Segments used to approximate a quarter circle';Def:'5'),
-  (A:7;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style (only round is supported)';Def:'0'),
-  (A:7;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
-  (A:7;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:7;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style: 0 round, 1 flat, 2 square';Def:'0'),
+  (A:7;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style: 0 round, 1 miter, 2 bevel';Def:'0'),
+  (A:7;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (ratio of the miter length to the distance)';Def:'2'),
   (A:7;Name:'DISSOLVE';Typ:'boolean';Desc:'Dissolve the result into one feature';Def:'false'),
   (A:7;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:8;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
@@ -783,15 +783,15 @@ Const
   (A:74;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:74;Name:'DISTANCE';Typ:'number';Desc:'Offset distance';Def:'10'),
   (A:74;Name:'SEGMENTS';Typ:'number';Desc:'Segments per quarter circle';Def:'8'),
-  (A:74;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
-  (A:74;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:74;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style: 0 round, 1 miter, 2 bevel';Def:'0'),
+  (A:74;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (ratio of the miter length to the distance)';Def:'2'),
   (A:74;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:75;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:75;Name:'COUNT';Typ:'number';Desc:'Number of lines to create';Def:'10'),
   (A:75;Name:'OFFSET';Typ:'number';Desc:'Offset between lines';Def:'1'),
   (A:75;Name:'SEGMENTS';Typ:'number';Desc:'Segments per quarter circle';Def:'8'),
-  (A:75;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
-  (A:75;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:75;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style: 0 round, 1 miter, 2 bevel';Def:'0'),
+  (A:75;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (ratio of the miter length to the distance)';Def:'2'),
   (A:75;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:76;Name:'LAYERS';Typ:'vector';Desc:'Input GeoJSON files separated by ;';Def:''),
   (A:76;Name:'CRS';Typ:'crs';Desc:'Destination CRS (default: first layer)';Def:'*'),
@@ -874,9 +874,9 @@ Const
   (A:95;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:95;Name:'DISTANCE';Typ:'number';Desc:'Buffer distance in layer units (negative erodes polygons)';Def:''),
   (A:95;Name:'SEGMENTS';Typ:'number';Desc:'Segments used to approximate a quarter circle';Def:'5'),
-  (A:95;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style (only round is supported)';Def:'0'),
-  (A:95;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
-  (A:95;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:95;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style: 0 round, 1 flat, 2 square';Def:'0'),
+  (A:95;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style: 0 round, 1 miter, 2 bevel';Def:'0'),
+  (A:95;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (ratio of the miter length to the distance)';Def:'2'),
   (A:95;Name:'DISSOLVE';Typ:'boolean';Desc:'Dissolve the result into one feature';Def:'false'),
   (A:95;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:96;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
@@ -3712,10 +3712,15 @@ End;
 
 { Points du joint, au sommet V, de la courbe decalee a droite de A->V->B.
   Trick : en virage interieur sans croisement, la courbe passe par le sommet. }
+Var
+ BufCap,BufJoin:Integer;     { extremites : 0 ronde, 1 plate, 2 carree ; jointures : 0 ronde, 1 mitre, 2 biseau }
+ BufMiter:Real;
+
 Procedure RightJoin(Ax,Ay,Vx,Vy,Bx,By,D:Real;Seg:Integer;Trick:Boolean;Out:PPts;Var ON:LongInt);
 Var
  K,Mm:LongInt;
- L0,L1,D0x,D0y,D1x,D1y,N0x,N0y,N1x,N1y,Cr,Dt,A0,A1,Sw,Ix,Iy:Real;
+ L0,L1,D0x,D0y,D1x,D1y,N0x,N0y,N1x,N1y,Cr,Dt,A0,A1,Sw,Ix,Iy,Sx,Sy,Ls,Ch,Ux,Uy,H,S0,S1:Real;
+ Turn:Boolean;
 
  Procedure Emit(X,Y:Real);Begin
   Out^[ON].X:=X;Out^[ON].Y:=Y;
@@ -3732,21 +3737,63 @@ Begin
  Cr:=D0x*D1y-D0y*D1x;
  Dt:=D0x*D1x+D0y*D1y;
  If(Cr>1E-12)or((Cr>=-1E-12)and(Dt<0))Then Begin
-  { virage exterieur (ou demi-tour) : arc de cercle autour du sommet }
-  A0:=Atan2(N0y,N0x);
-  A1:=Atan2(N1y,N1x);
-  Sw:=A1-A0;
-  While Sw<0do Sw:=Sw+2*Pi;
-  While Sw>=2*Pi do Sw:=Sw-2*Pi;
-  If(Abs(Cr)<=1E-12)and(Dt<0)Then Sw:=Pi;
-  Mm:=Trunc(Sw/(Pi/2)*Seg+0.999999);
-  If Mm<1Then Mm:=1;
-  Emit(Vx+N0x,Vy+N0y);
-  For K:=1 to Mm-1do
-   Emit(Vx+D*Cos(A0+Sw*K/Mm),Vy+D*Sin(A0+Sw*K/Mm));
-  Emit(Vx+N1x,Vy+N1y);
+  Turn:=(Abs(Cr)<=1E-12)and(Dt<0);
+  If Turn and(BufCap=1)Then Begin
+   { extremite plate }
+   Emit(Vx+N0x,Vy+N0y);
+   Emit(Vx+N1x,Vy+N1y);
+  End Else
+  If Turn and(BufCap=2)Then Begin
+   { extremite carree }
+   Emit(Vx+N0x+D0x*D,Vy+N0y+D0y*D);
+   Emit(Vx+N1x+D0x*D,Vy+N1y+D0y*D);
+  End Else
+  If(Not Turn)and(BufJoin=2)Then Begin
+   { biseau }
+   Emit(Vx+N0x,Vy+N0y);
+   Emit(Vx+N1x,Vy+N1y);
+  End Else
+  If(Not Turn)and(BufJoin=1)Then Begin
+   { mitre, limitee par BufMiter }
+   Sx:=N0x+N1x;Sy:=N0y+N1y;
+   Ls:=Sqrt(Sx*Sx+Sy*Sy);
+   Ch:=Ls/(2*D);
+   If(Ls<1E-12)or(Ch<1E-9)Then Begin
+    Emit(Vx+N0x,Vy+N0y);
+    Emit(Vx+N1x,Vy+N1y);
+   End
+    Else
+   If 1/Ch<=BufMiter Then Emit(Vx+Sx*D/(Ls*Ch),Vy+Sy*D/(Ls*Ch))
+    Else
+   Begin
+    Ux:=Sx/Ls;Uy:=Sy/Ls;
+    H:=BufMiter*D;
+    S0:=(H-(N0x*Ux+N0y*Uy))/(D0x*Ux+D0y*Uy);
+    S1:=((N1x*Ux+N1y*Uy)-H)/(D1x*Ux+D1y*Uy);
+    Emit(Vx+N0x,Vy+N0y);
+    Emit(Vx+N0x+S0*D0x,Vy+N0y+S0*D0y);
+    Emit(Vx+N1x-S1*D1x,Vy+N1y-S1*D1y);
+    Emit(Vx+N1x,Vy+N1y);
+   End;
+  End
+   Else
+  Begin
+   { arc de cercle autour du sommet }
+   A0:=Atan2(N0y,N0x);
+   A1:=Atan2(N1y,N1x);
+   Sw:=A1-A0;
+   While Sw<0do Sw:=Sw+2*Pi;
+   While Sw>=2*Pi do Sw:=Sw-2*Pi;
+   If Turn Then Sw:=Pi;
+   Mm:=Trunc(Sw/(Pi/2)*Seg+0.999999);
+   If Mm<1Then Mm:=1;
+   Emit(Vx+N0x,Vy+N0y);
+   For K:=1 to Mm-1do
+    Emit(Vx+D*Cos(A0+Sw*K/Mm),Vy+D*Sin(A0+Sw*K/Mm));
+   Emit(Vx+N1x,Vy+N1y);
+  End;
  End
-  Else
+ Else
  If Cr<-1E-12Then Begin
   { virage interieur : les decalages se croisent }
   If SegCross(Ax+N0x,Ay+N0y,Vx+N0x,Vy+N0y,Vx+N1x,Vy+N1y,Bx+N1x,By+N1y,Ix,Iy)Then
@@ -3795,13 +3842,48 @@ End;
 Procedure OffsetPath(Var G:TGeom;P:PPath;D:Real;Seg:Integer;Poly:Integer);
 Var
  Q,Cyc,Out:PPts;
- M,I,K,CN,ON:LongInt;
+ M,I,K,CN,ON,Pass:LongInt;
  Pa:PPath;
+ Closed:Boolean;
 Begin
  If D<=0Then Exit;
  Q:=UniquePts(P,M);
  If M=1Then Begin
-  AddCircle(G,Q^[0].X,Q^[0].Y,D,Seg,Poly);
+  If BufCap=0Then AddCircle(G,Q^[0].X,Q^[0].Y,D,Seg,Poly) Else
+  If BufCap=2Then Begin
+   Pa:=NewPath(G,5,Poly);
+   Pa^.Pts^[0].X:=Q^[0].X-D;Pa^.Pts^[0].Y:=Q^[0].Y-D;
+   Pa^.Pts^[1].X:=Q^[0].X+D;Pa^.Pts^[1].Y:=Q^[0].Y-D;
+   Pa^.Pts^[2].X:=Q^[0].X+D;Pa^.Pts^[2].Y:=Q^[0].Y+D;
+   Pa^.Pts^[3].X:=Q^[0].X-D;Pa^.Pts^[3].Y:=Q^[0].Y+D;
+   Pa^.Pts^[4]:=Pa^.Pts^[0];
+  End;
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ Closed:=(M>=4)and(Q^[0].X=Q^[M-1].X)and(Q^[0].Y=Q^[M-1].Y);
+ If Closed Then Begin
+  { anneau ferme : deux contours fermes (cote droit, puis cote gauche) }
+  Dec(M);
+  CN:=M;
+  Cyc:=AllocBlock(CN*SizeOf(TPt));
+  Out:=AllocBlock((CN*(4*Seg+6)+2)*SizeOf(TPt));
+  For Pass:=0 to 1do Begin
+   If Pass=0Then For I:=0 to M-1do Cyc^[I]:=Q^[I]
+            Else For I:=0 to M-1do Cyc^[I]:=Q^[M-1-I];
+   ON:=0;
+   For I:=0 to CN-1do Begin
+    K:=(I+CN-1)mod CN;
+    RightJoin(Cyc^[K].X,Cyc^[K].Y,Cyc^[I].X,Cyc^[I].Y,Cyc^[(I+1)mod CN].X,Cyc^[(I+1)mod CN].Y,
+              D,Seg,True,Out,ON);
+   End;
+   Pa:=NewPath(G,ON+1,Poly);
+   Move(Out^,Pa^.Pts^,ON*SizeOf(TPt));
+   Pa^.Pts^[ON]:=Pa^.Pts^[0];
+   Pa^.N:=ON+1;
+  End;
+  FreeMem(Out,(CN*(4*Seg+6)+2)*SizeOf(TPt));
+  FreeMem(Cyc,CN*SizeOf(TPt));
   FreeMem(Q,P^.N*SizeOf(TPt));
   Exit;
  End;
@@ -3809,7 +3891,7 @@ Begin
  Cyc:=AllocBlock(CN*SizeOf(TPt));
  For I:=0 to M-1do Cyc^[I]:=Q^[I];
  For I:=1 to M-2do Cyc^[M-1+I]:=Q^[M-1-I];
- Out:=AllocBlock((CN*(4*Seg+4)+2)*SizeOf(TPt));
+ Out:=AllocBlock((CN*(4*Seg+6)+2)*SizeOf(TPt));
  ON:=0;
  For I:=0 to CN-1do Begin
   K:=(I+CN-1)mod CN;
@@ -3820,7 +3902,7 @@ Begin
  Move(Out^,Pa^.Pts^,ON*SizeOf(TPt));
  Pa^.Pts^[ON]:=Pa^.Pts^[0];
  Pa^.N:=ON+1;
- FreeMem(Out,(CN*(4*Seg+4)+2)*SizeOf(TPt));
+ FreeMem(Out,(CN*(4*Seg+6)+2)*SizeOf(TPt));
  FreeMem(Cyc,CN*SizeOf(TPt));
  FreeMem(Q,P^.N*SizeOf(TPt));
 End;
@@ -3943,7 +4025,7 @@ Begin
   1:If Dist>0Then Begin
    P:=G.First;
    While P<>Nil do Begin
-    AddCircle(A,P^.Pts^[0].X,P^.Pts^[0].Y,Dist,Seg,K);
+    OffsetPath(A,P,Dist,Seg,K);
     Inc(K);
     P:=P^.Next;
    End;
@@ -13837,7 +13919,18 @@ Begin
   If NumArg(A,1,R)Then Begin
    K:=5;
    If NumArg(A,2,R2)Then K:=Round(R2);
+   BufCap:=0;BufJoin:=0;BufMiter:=2;
+   If(N>3)and(A[3].K=2)Then Begin
+    S:=LowerStr(A[3].S);
+    If S='flat'Then BufCap:=1 Else If S='square'Then BufCap:=2 Else If S<>'round'Then EFail('end cap must be round, flat or square');
+   End;
+   If(N>4)and(A[4].K=2)Then Begin
+    S:=LowerStr(A[4].S);
+    If S='miter'Then BufJoin:=1 Else If S='bevel'Then BufJoin:=2 Else If S<>'round'Then EFail('join must be round, miter or bevel');
+   End;
+   If NumArg(A,5,R3)Then BufMiter:=R3;
    BufferGeom(Gp^,R,K,Res);
+   BufCap:=0;BufJoin:=0;BufMiter:=2;
    FnGeom:=GRes(Res);
   End;
  End Else
@@ -16984,6 +17077,12 @@ Begin
  Seg:=Round(NeedReal(A,'SEGMENTS'));
  If(Seg<1)or(Seg>64)Then Fail('Error: SEGMENTS must be between 1 and 64');
  Out:=NeedStr(A,'OUTPUT');
+ BufCap:=Round(NeedReal(A,'END_CAP_STYLE'));
+ BufJoin:=Round(NeedReal(A,'JOIN_STYLE'));
+ BufMiter:=NeedReal(A,'MITER_LIMIT');
+ If(BufCap<0)or(BufCap>2)Then Fail('Error: END_CAP_STYLE must be 0 (round), 1 (flat) or 2 (square)');
+ If(BufJoin<0)or(BufJoin>2)Then Fail('Error: JOIN_STYLE must be 0 (round), 1 (miter) or 2 (bevel)');
+ If BufMiter<1Then Fail('Error: MITER_LIMIT must be at least 1');
  Arr:=LayerFeatures(Root);
  F:=Arr^.First;
  While F<>Nil do Begin
@@ -17001,6 +17100,7 @@ Begin
   FreeGeom(G);
   F:=F^.Next;
  End;
+ BufCap:=0;BufJoin:=0;BufMiter:=2;
  If ParamExists(A,'DISSOLVE')Then
   If NeedBool(A,'DISSOLVE')Then DissolveAllInto(Root);
  SaveLayer(Out,Root);
@@ -24042,6 +24142,7 @@ Var
  N:Integer;
 Begin
  JsonMode:=False;Verbose:=False;StdinMode:=False;HelpFlag:=False;SkipPlugins:=False;
+ BufMiter:=2;
  DistUnits:='';AreaUnits:='';Ellipsoid:='';ProjectPath:='';Pos3:='';
  DistFactor:=0;AreaFactor:=0;
  Cmd:='';AlgoId:='';
