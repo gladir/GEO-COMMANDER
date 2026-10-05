@@ -18,9 +18,9 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=94;
- MaxParam=402;
- MaxOut=114;
+ MaxAlgo=111;
+ MaxParam=495;
+ MaxOut=131;
  MaxArg=30;
  MaxCells=40000000;
 
@@ -33,9 +33,9 @@ Type
  End;
  ParamRec=Record
   A:Byte;
-  Name:String[20];
+  Name:String[23];
   Typ:String[18];
-  Desc:String[105];
+  Desc:String[146];
   Def:String[12];    { '' = obligatoire, '*' = facultatif }
  End;
  OutRec=Record
@@ -67,7 +67,7 @@ Const
    Descr:'Computes the center and size of a bounding box.'),
   (Id:'native:buffer';Title:'Buffer';
    Group:'Vector geometry';
-   Descr:'Buffers the features by a distance in layer units (round caps/joins, dissolved result).'),
+   Descr:'Buffers the features by a distance in layer units (round caps/joins).'),
   (Id:'native:centroids';Title:'Centroids';
    Group:'Vector geometry';
    Descr:'Creates a point layer with the centroid of each feature.'),
@@ -328,7 +328,58 @@ Const
    Descr:'Adds the azimuth of the nearest line segment of a reference layer.'),
   (Id:'native:shortestline';Title:'Shortest line between features';
    Group:'Vector analysis';
-   Descr:'Creates the shortest line from each source feature to its nearest destination feature(s).')
+   Descr:'Creates the shortest line from each source feature to its nearest destination feature(s).'),
+  (Id:'native:distancebuffer';Title:'Buffer';
+   Group:'Vector geometry';
+   Descr:'Buffers the features by a distance in layer units (alias of native:buffer).'),
+  (Id:'native:intersection';Title:'Intersection';
+   Group:'Vector overlay';
+   Descr:'Extracts the overlapping portions of the layers, with the attributes of both.'),
+  (Id:'native:union';Title:'Union';
+   Group:'Vector overlay';
+   Descr:'Union of two polygon layers (intersections and the parts of each layer outside the other).'),
+  (Id:'native:symmetricaldifference';Title:'Symmetrical difference';
+   Group:'Vector overlay';
+   Descr:'Parts of each layer that are not covered by the other layer.'),
+  (Id:'native:difference';Title:'Difference';
+   Group:'Vector overlay';
+   Descr:'Removes the parts of the input features covered by the overlay polygons.'),
+  (Id:'native:dissolve';Title:'Dissolve';
+   Group:'Vector geometry';
+   Descr:'Merges the geometries sharing field values (polygons are dissolved).'),
+  (Id:'native:aggregate';Title:'Aggregate';
+   Group:'Vector geometry';
+   Descr:'Groups the features (GROUP_BY expression) and computes aggregates: field:function:name;...'),
+  (Id:'native:splitwithlines';Title:'Split with lines';
+   Group:'Vector overlay';
+   Descr:'Splits the lines or polygons with the lines of another layer.'),
+  (Id:'native:polygonize';Title:'Polygonize';
+   Group:'Vector geometry';
+   Descr:'Creates polygons from a network of lines.'),
+  (Id:'native:countpointsinpolygon';Title:'Count points in polygon';
+   Group:'Vector analysis';
+   Descr:'Counts (or sums a weight of) the points inside each polygon.'),
+  (Id:'native:extractbylocation';Title:'Extract by location';
+   Group:'Vector selection';
+   Descr:'Extracts the features that satisfy a spatial predicate with another layer.'),
+  (Id:'native:joinattributesbylocation';Title:'Join attributes by location';
+   Group:'Vector general';
+   Descr:'Copies the attributes of the features that satisfy a spatial predicate.'),
+  (Id:'native:joinbylocationsummary';Title:'Join attributes by location (summary)';
+   Group:'Vector general';
+   Descr:'Summarizes the attributes of the matching features (count, sum, mean...).'),
+  (Id:'native:joinattributestable';Title:'Join attributes by field value';
+   Group:'Vector general';
+   Descr:'Joins the attributes of a table (GeoJSON or CSV) by a common field.'),
+  (Id:'native:lineintersections';Title:'Line intersections';
+   Group:'Vector overlay';
+   Descr:'Creates points where lines of two layers intersect.'),
+  (Id:'native:calculatevectoroverlaps';Title:'Overlap analysis';
+   Group:'Vector analysis';
+   Descr:'Adds, for each overlay layer, the overlapping area (<layer>_area) and percentage (<layer>_pc).'),
+  (Id:'native:sumlinelengths';Title:'Sum line lengths';
+   Group:'Vector analysis';
+   Descr:'Sums the length (and counts) of the lines inside each polygon.')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -356,6 +407,10 @@ Const
   (A:7;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:7;Name:'DISTANCE';Typ:'number';Desc:'Buffer distance in layer units (negative erodes polygons)';Def:''),
   (A:7;Name:'SEGMENTS';Typ:'number';Desc:'Segments used to approximate a quarter circle';Def:'5'),
+  (A:7;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style (only round is supported)';Def:'0'),
+  (A:7;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
+  (A:7;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:7;Name:'DISSOLVE';Typ:'boolean';Desc:'Dissolve the result into one feature';Def:'false'),
   (A:7;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:8;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:8;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
@@ -733,7 +788,96 @@ Const
   (A:94;Name:'METHOD';Typ:'enum';Desc:'0 nearest feature, 1 k nearest';Def:'0'),
   (A:94;Name:'NEIGHBORS';Typ:'number';Desc:'Number of neighbors (method 1)';Def:'1'),
   (A:94;Name:'DISTANCE';Typ:'number';Desc:'Maximum distance';Def:'*'),
-  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
+  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:95;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:95;Name:'DISTANCE';Typ:'number';Desc:'Buffer distance in layer units (negative erodes polygons)';Def:''),
+  (A:95;Name:'SEGMENTS';Typ:'number';Desc:'Segments used to approximate a quarter circle';Def:'5'),
+  (A:95;Name:'END_CAP_STYLE';Typ:'enum';Desc:'End cap style (only round is supported)';Def:'0'),
+  (A:95;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
+  (A:95;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:95;Name:'DISSOLVE';Typ:'boolean';Desc:'Dissolve the result into one feature';Def:'false'),
+  (A:95;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:96;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:96;Name:'OVERLAY';Typ:'vector';Desc:'Overlay GeoJSON file (polygons)';Def:''),
+  (A:96;Name:'INPUT_FIELDS';Typ:'string';Desc:'Input fields to keep (all)';Def:'*'),
+  (A:96;Name:'OVERLAY_FIELDS';Typ:'string';Desc:'Overlay fields to keep (all)';Def:'*'),
+  (A:96;Name:'OVERLAY_FIELDS_PREFIX';Typ:'string';Desc:'Prefix added to the overlay fields';Def:'*'),
+  (A:96;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:97;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:97;Name:'OVERLAY';Typ:'vector';Desc:'Overlay GeoJSON file (polygons)';Def:''),
+  (A:97;Name:'OVERLAY_FIELDS_PREFIX';Typ:'string';Desc:'Prefix added to the overlay fields';Def:'*'),
+  (A:97;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:98;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:98;Name:'OVERLAY';Typ:'vector';Desc:'Overlay GeoJSON file (polygons)';Def:''),
+  (A:98;Name:'OVERLAY_FIELDS_PREFIX';Typ:'string';Desc:'Prefix added to the overlay fields';Def:'*'),
+  (A:98;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:99;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:99;Name:'OVERLAY';Typ:'vector';Desc:'Overlay GeoJSON file (polygons)';Def:''),
+  (A:99;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:100;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:100;Name:'FIELD';Typ:'string';Desc:'Dissolve field(s), separated by commas';Def:'*'),
+  (A:100;Name:'SEPARATE_DISJOINT';Typ:'boolean';Desc:'Keep disjoint parts as separate features';Def:'false'),
+  (A:100;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:101;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:101;Name:'GROUP_BY';Typ:'expression';Desc:'Group expression or field (NULL = all)';Def:'NULL'),
+  (A:101;Name:'AGGREGATES';Typ:'string';Desc:'field:function:name;... (sum,mean,min,max,count,count_distinct,median,stdev,first_value,last_value,concatenate)';Def:'*'),
+  (A:101;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:102;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:102;Name:'LINES';Typ:'vector';Desc:'Splitting lines GeoJSON file';Def:''),
+  (A:102;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:103;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:103;Name:'KEEP_FIELDS';Typ:'boolean';Desc:'Keep the line fields (unused)';Def:'false'),
+  (A:103;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:104;Name:'POLYGONS';Typ:'vector';Desc:'Polygon GeoJSON file';Def:''),
+  (A:104;Name:'POINTS';Typ:'vector';Desc:'Point GeoJSON file';Def:''),
+  (A:104;Name:'WEIGHT';Typ:'string';Desc:'Weight field';Def:'*'),
+  (A:104;Name:'CLASSFIELD';Typ:'string';Desc:'Class field (distinct values are counted)';Def:'*'),
+  (A:104;Name:'FIELD';Typ:'string';Desc:'Count field name';Def:'NUMPOINTS'),
+  (A:104;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:105;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:105;Name:'PREDICATE';Typ:'string';Desc:'0 intersect, 1 contain, 2 disjoint, 3 equal, 4 touch, 5 overlap, 6 within, 7 cross (comma list)';Def:'0'),
+  (A:105;Name:'INTERSECT';Typ:'vector';Desc:'Comparison GeoJSON file';Def:''),
+  (A:105;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:106;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:106;Name:'PREDICATE';Typ:'string';Desc:'0 intersect, 1 contain, 2 disjoint, 3 equal, 4 touch, 5 overlap, 6 within, 7 cross (comma list)';Def:'0'),
+  (A:106;Name:'JOIN';Typ:'vector';Desc:'Join GeoJSON file';Def:''),
+  (A:106;Name:'JOIN_FIELDS';Typ:'string';Desc:'Fields to copy, separated by commas (all)';Def:'*'),
+  (A:106;Name:'METHOD';Typ:'enum';Desc:'0 one-to-many, 1 first match, 2 largest overlap';Def:'0'),
+  (A:106;Name:'DISCARD_NONMATCHING';Typ:'boolean';Desc:'Discard the unmatched features';Def:'false'),
+  (A:106;Name:'PREFIX';Typ:'string';Desc:'Prefix of the joined fields';Def:'*'),
+  (A:106;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:107;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:107;Name:'PREDICATE';Typ:'string';Desc:'0 intersect, 1 contain, 2 disjoint, 3 equal, 4 touch, 5 overlap, 6 within, 7 cross (comma list)';Def:'0'),
+  (A:107;Name:'JOIN';Typ:'vector';Desc:'Join GeoJSON file';Def:''),
+  (A:107;Name:'JOIN_FIELDS';Typ:'string';Desc:'Fields to summarize (all)';Def:'*'),
+  (A:107;Name:'SUMMARIES';Typ:'string';Desc:'0 count,1 unique,2 min,3 max,4 range,5 sum,6 mean,7 median,8 stdev,9 minority,10 majority,11 q1,12 q3,13 iqr,14 empty,15 filled,16-18 length stats';Def:'0'),
+  (A:107;Name:'DISCARD_NONMATCHING';Typ:'boolean';Desc:'Discard the unmatched features';Def:'false'),
+  (A:107;Name:'PREFIX';Typ:'string';Desc:'Prefix of the new fields';Def:'*'),
+  (A:107;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:108;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:108;Name:'FIELD';Typ:'string';Desc:'Field of the input layer';Def:''),
+  (A:108;Name:'INPUT_2';Typ:'vector';Desc:'Table GeoJSON or CSV file';Def:''),
+  (A:108;Name:'FIELD_2';Typ:'string';Desc:'Field of the table';Def:''),
+  (A:108;Name:'FIELDS_TO_COPY';Typ:'string';Desc:'Fields to copy (all)';Def:'*'),
+  (A:108;Name:'METHOD';Typ:'enum';Desc:'0 one-to-many, 1 first match';Def:'1'),
+  (A:108;Name:'DISCARD_NONMATCHING';Typ:'boolean';Desc:'Discard the unmatched features';Def:'false'),
+  (A:108;Name:'PREFIX';Typ:'string';Desc:'Prefix of the joined fields';Def:'*'),
+  (A:108;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:109;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:109;Name:'INTERSECT';Typ:'vector';Desc:'Intersect GeoJSON file (lines)';Def:''),
+  (A:109;Name:'INPUT_FIELDS';Typ:'string';Desc:'Input fields (all)';Def:'*'),
+  (A:109;Name:'INTERSECT_FIELDS';Typ:'string';Desc:'Intersect fields (all)';Def:'*'),
+  (A:109;Name:'INPUT_FIELDS_PREFIX';Typ:'string';Desc:'Input fields prefix (unused)';Def:'*'),
+  (A:109;Name:'INTERSECT_FIELDS_PREFIX';Typ:'string';Desc:'Prefix added to the intersect fields';Def:'*'),
+  (A:109;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:110;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:110;Name:'LAYERS';Typ:'vector';Desc:'Overlay polygon GeoJSON files separated by ;';Def:''),
+  (A:110;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:111;Name:'POLYGONS';Typ:'vector';Desc:'Polygon GeoJSON file';Def:''),
+  (A:111;Name:'LINES';Typ:'vector';Desc:'Line GeoJSON file';Def:''),
+  (A:111;Name:'LEN_FIELD';Typ:'string';Desc:'Length field name';Def:'LENGTH'),
+  (A:111;Name:'COUNT_FIELD';Typ:'string';Desc:'Count field name';Def:'COUNT'),
+  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -755,7 +899,7 @@ Const
   (A:6;Name:'CENTER_Y';Typ:'number';Desc:'Center Y'),
   (A:6;Name:'WIDTH';Typ:'number';Desc:'Width of the extent'),
   (A:6;Name:'HEIGHT';Typ:'number';Desc:'Height of the extent'),
-  (A:7;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Buffered layer'),
+  (A:7;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:8;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Centroids layer'),
   (A:9;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Clipped layer'),
   (A:10;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Convex hulls layer'),
@@ -850,7 +994,24 @@ Const
   (A:92;Name:'Z_SCORE';Typ:'number';Desc:'Z-score'),
   (A:92;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Text report'),
   (A:93;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
-  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
+  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:95;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:96;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:97;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:98;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:99;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:100;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:101;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:102;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:103;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:104;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:105;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:106;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:107;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:108;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:109;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:110;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
  );
 
 Type
@@ -1954,6 +2115,7 @@ Var
  OvSp:PSplitArr;
  OvTot:LongInt;
  KeepOrient:Boolean;   { Vrai : conserve le sens des anneaux fournis }
+ ClipOutside:Boolean;  { Vrai : ClipLines/ClipToPolys gardent l'exterieur }
  SlabN:LongInt;
  SlabMin,SlabH:Real;
  SlabStart,SlabEdge:PLongs;
@@ -2160,6 +2322,48 @@ Begin
   If(T>1E-12)and(T<1-1E-12)Then AddSplit(I,T,Px,Py);
   If(U>1E-12)and(U<1-1E-12)Then AddSplit(J,U,Px,Py);
  End;
+End;
+
+{ Supprime les sommets alignes d'un anneau ferme (Tol : ecart maximal a la droite) }
+Procedure CleanRing(P:PPath;Tol:Real);
+Var
+ Q:PPts;
+ I,N,M:LongInt;
+ Ax,Ay,Bx,By,Cx,Cy,L,Cr:Real;
+ Again:Boolean;
+
+ Function Redundant(Ia,Ib,Ic:LongInt):Boolean;Begin
+  Ax:=Q^[Ia].X;Ay:=Q^[Ia].Y;Bx:=Q^[Ib].X;By:=Q^[Ib].Y;Cx:=Q^[Ic].X;Cy:=Q^[Ic].Y;
+  L:=Sqrt(Sqr(Cx-Ax)+Sqr(Cy-Ay));
+  If L<=0Then Redundant:=False
+   Else
+  Begin
+   Cr:=Abs((Bx-Ax)*(Cy-Ay)-(By-Ay)*(Cx-Ax))/L;
+   Redundant:=(Cr<=Tol)and((Bx-Ax)*(Cx-Bx)+(By-Ay)*(Cy-By)>0);
+  End;
+ End;
+
+Begin
+ If P^.N<5Then Exit;
+ N:=P^.N-1;                { sans le point de fermeture }
+ Q:=P^.Pts;
+ Repeat
+  Again:=False;
+  M:=0;
+  I:=0;
+  While I<N do Begin
+   If(N>3)and Redundant((I+N-1)mod N,I,(I+1)mod N)Then Begin
+    { on retire le sommet I }
+    Move(Q^[I+1],Q^[I],(N-I-1)*SizeOf(TPt));
+    Dec(N);
+    Again:=True;
+   End
+    Else
+   Inc(I);
+  End;
+ Until Not Again;
+ Q^[N]:=Q^[0];
+ P^.N:=N+1;
 End;
 
 { Decoupe toutes les aretes de OvAll a leurs intersections et retourne la liste
@@ -2414,6 +2618,7 @@ Begin
      Move(RB^,Pa^.Pts^,RN*SizeOf(TPt));
      Pa^.Pts^[RN]:=Pa^.Pts^[0];
      Pa^.N:=RN+1;
+     CleanRing(Pa,SnapQ*2);
      Pa^.Area:=RingArea(Pa);
     End;
    End;
@@ -3064,7 +3269,7 @@ Begin
      If Ts^[I+1]-Ts^[I]>1E-12Then Begin
       Mx:=Ax+(Ts^[I]+Ts^[I+1])/2*Dx;
       My:=Ay+(Ts^[I]+Ts^[I+1])/2*Dy;
-      If InsideOrOn(E,N,Mx,My,Tol)Then Begin
+      If InsideOrOn(E,N,Mx,My,Tol)<>ClipOutside Then Begin
        Pa:=NewPath(Pieces,2,0);
        Pa^.Pts^[0].X:=Ax+Ts^[I]*Dx;Pa^.Pts^[0].Y:=Ay+Ts^[I]*Dy;
        Pa^.Pts^[1].X:=Ax+Ts^[I+1]*Dx;Pa^.Pts^[1].Y:=Ay+Ts^[I+1]*Dy;
@@ -5809,6 +6014,11 @@ Begin
  AddRes('HEIGHT',RealToStr(Abs(Y2-Y1)));
 End;
 
+{ Fusionne toutes les entites d'une couche en une seule (definie plus loin) }
+Procedure DissolveAllInto(Root:PJ);Forward;
+Function ParamExists(A:Integer;Name:String):Boolean;Forward;
+Function NeedBool(A:Integer;Name:String):Boolean;Forward;
+
 Procedure RunBuffer(A:Integer);
 Var
  Root,Arr,F,Node:PJ;
@@ -5839,6 +6049,8 @@ Begin
   FreeGeom(G);
   F:=F^.Next;
  End;
+ If ParamExists(A,'DISSOLVE')Then
+  If NeedBool(A,'DISSOLVE')Then DissolveAllInto(Root);
  SaveLayer(Out,Root);
  AddRes('OUTPUT',Out);
 End;
@@ -10035,7 +10247,7 @@ Begin
  InitGeom(R);
  If(G.First=Nil)or(B.First=Nil)Then Exit;
  If G.Cls=3Then Begin
-  Overlay(1,G,B,R);
+  If ClipOutside Then Overlay(2,G,B,R) Else Overlay(1,G,B,R);
   Exit;
  End;
  GeomBBox(B,MinX,MinY,MaxX,MaxY);
@@ -10053,7 +10265,7 @@ Begin
   R.Cls:=1;
   P:=G.First;
   While P<>Nil do Begin
-   If InsideOrOn(Edges,N,P^.Pts^[0].X,P^.Pts^[0].Y,Tol)Then CopyPath(R,P,0);
+   If InsideOrOn(Edges,N,P^.Pts^[0].X,P^.Pts^[0].Y,Tol)<>ClipOutside Then CopyPath(R,P,0);
    P:=P^.Next;
   End;
  End;
@@ -10778,6 +10990,1177 @@ Begin
  SaveOut(A,'OUTPUT',Out);
 End;
 
+{ ------------------------------------------------------------------ }
+{ Algorithmes : superposition et analyses spatiales                   }
+{ ------------------------------------------------------------------ }
+
+Type
+ TNameList=Record
+  N:Integer;
+  Names:Array[1..64]of String;
+ End;
+ TCache=Record
+  N:LongInt;
+  FA:PJArr;
+  G:^TGeomArr;
+  B:PEdges;
+ End;
+
+Function ParamExists(A:Integer;Name:String):Boolean;
+Var
+ P:ParamRec;
+Begin
+ ParamExists:=ParamDef(A,Name,P);
+End;
+
+{ Geometries et boites englobantes d'une couche }
+Procedure BuildCache(Arr:PJ;Var C:TCache);
+Var
+ I:LongInt;
+Begin
+ C.FA:=FeatureArray(Arr,C.N);
+ C.G:=AllocBlock((C.N+1)*SizeOf(TGeom));
+ C.B:=AllocBlock((C.N+1)*SizeOf(TEdge));
+ For I:=0 to C.N-1do Begin
+  FlattenFeature(C.FA^[I],C.G^[I]);
+  If Not GeomBBox(C.G^[I],C.B^[I].X1,C.B^[I].Y1,C.B^[I].X2,C.B^[I].Y2)Then Begin
+   C.B^[I].X1:=1;C.B^[I].X2:=0;C.B^[I].Y1:=1;C.B^[I].Y2:=0;
+  End;
+ End;
+End;
+
+Function BoxHit(Var A:TCache;I:LongInt;Var B:TCache;J:LongInt):Boolean;Begin
+ BoxHit:=False;
+ If(A.B^[I].X1>A.B^[I].X2)or(B.B^[J].X1>B.B^[J].X2)Then Exit;
+ BoxHit:=Not((B.B^[J].X1>A.B^[I].X2)or(B.B^[J].X2<A.B^[I].X1)or(B.B^[J].Y1>A.B^[I].Y2)or(B.B^[J].Y2<A.B^[I].Y1));
+End;
+
+Procedure CollectFields(Arr:PJ;Var L:TNameList);
+Var
+ F,C,Pr:PJ;
+ I:Integer;
+ Found:Boolean;
+Begin
+ L.N:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   C:=Pr^.First;
+   While C<>Nil do Begin
+    Found:=False;
+    For I:=1 to L.N do If L.Names[I]=JKey(C)Then Found:=True;
+    If(Not Found)and(L.N<64)Then Begin Inc(L.N);L.Names[L.N]:=JKey(C);End;
+    C:=C^.Next;
+   End;
+  End;
+  F:=F^.Next;
+ End;
+End;
+
+Function InList(Var L:TNameList;Name:String):Boolean;
+Var
+ I:Integer;
+Begin
+ InList:=False;
+ For I:=1 to L.N do If L.Names[I]=Name Then InList:=True;
+End;
+
+{ Attributs de F1 puis de F2 (valeurs nulles si l'entite manque) ; les noms de F2 recoivent Prefix }
+Function JoinProps(F1:PJ;Var L1:TNameList;F2:PJ;Var L2:TNameList;Prefix:String):PJ;
+Var
+ Np,N:PJ;
+ I:Integer;
+ Nm:String;
+Begin
+ Np:=NewJ(5);
+ For I:=1 to L1.N do Begin
+  N:=Nil;
+  If F1<>Nil Then N:=GetProp(F1,L1.Names[I]);
+  If N=Nil Then JAddKV(Np,L1.Names[I],NewJ(0)) Else JAddKV(Np,L1.Names[I],JClone(N));
+ End;
+ For I:=1 to L2.N do Begin
+  Nm:=Prefix+L2.Names[I];
+  If(Prefix='')and InList(L1,Nm)Then Nm:=Nm+'_2';
+  N:=Nil;
+  If F2<>Nil Then N:=GetProp(F2,L2.Names[I]);
+  If N=Nil Then JAddKV(Np,Nm,NewJ(0)) Else JAddKV(Np,Nm,JClone(N));
+ End;
+ JoinProps:=Np;
+End;
+
+{ Table (GeoJSON ou CSV) sous forme de couche sans geometrie }
+Function LoadTable(FileName:String):PJ;
+Var
+ T:Text;
+ Line,Cell:String;
+ Hdr:Array[1..64]of String;
+ NH,K,I:Integer;
+ Root,Arr,F,Pr:PJ;
+ Q:Boolean;
+ Cells:Array[1..64]of String;
+ NC:Integer;
+ Up:String;
+ Buf:Array[0..4095]of Char;
+
+ Procedure Parse(S:String);
+ Var
+  J:Integer;
+ Begin
+  NC:=0;
+  Cell:='';Q:=False;
+  J:=1;
+  While J<=Length(S)+1do Begin
+   If J>Length(S)Then Begin
+    If NC<64Then Begin Inc(NC);Cells[NC]:=Cell;End;
+   End
+    Else
+   If Q Then Begin
+    If S[J]='"'Then Begin
+     If(J<Length(S))and(S[J+1]='"')Then Begin Cell:=Cell+'"';Inc(J);End
+                                    Else Q:=False;
+    End
+     Else
+    Cell:=Cell+S[J];
+   End
+    Else
+   If S[J]='"'Then Q:=True
+    Else
+   If S[J]=','Then Begin
+    If NC<64Then Begin Inc(NC);Cells[NC]:=Cell;End;
+    Cell:='';
+   End
+    Else
+   If S[J]<>#13Then Cell:=Cell+S[J];
+   Inc(J);
+  End;
+ End;
+
+Begin
+ Up:=StrUpper(FileName);
+ If(Length(Up)<4)or(Copy(Up,Length(Up)-3,4)<>'.CSV')Then Begin
+  LoadTable:=LoadLayer(FileName);
+  Exit;
+ End;
+ {$I-}
+ Assign(T,FileName);
+ Reset(T);
+ {$I+}
+ If IOResult<>0Then Fail('Error: unable to open input file '+FileName);
+ SetTextBuf(T,Buf);
+ Root:=NewLayerLike(Nil,Arr);
+ NH:=0;
+ If Not EOF(T)Then Begin
+  ReadLn(T,Line);
+  Parse(Line);
+  NH:=NC;
+  For I:=1 to NH do Hdr[I]:=Cells[I];
+ End;
+ While Not EOF(T)do Begin
+  ReadLn(T,Line);
+  If Line<>''Then Begin
+   Parse(Line);
+   Pr:=NewJ(5);
+   For I:=1 to NH do Begin
+    If I>NC Then JAddKV(Pr,Hdr[I],NewJ(0))
+     Else
+    If IsNumber(Cells[I])Then JAddKV(Pr,Hdr[I],JNum(0))
+     Else
+    JAddKV(Pr,Hdr[I],JTextEsc(Cells[I]));
+    If(I<=NC)and IsNumber(Cells[I])Then Begin
+     { valeur numerique : on conserve le texte d'origine }
+     JFind(Pr,Hdr[I])^.Val:=MkStr(Cells[I]);
+    End;
+   End;
+   JAdd(Arr,NewFeature(Pr,Nil));
+  End;
+ End;
+ Close(T);
+ LoadTable:=Root;
+End;
+
+{ ---- intersection / difference / union / difference symetrique ---- }
+
+{ Mode 0 intersection, 1 union, 2 difference symetrique }
+Procedure RunOverlayLayers(A:Integer;Mode:Integer);
+Var
+ InR,InA,OvR,OvA,Out,OutArr:PJ;
+ CI,CO:TCache;
+ LI,LO:TNameList;
+ I,J:LongInt;
+ R,Bf:TGeom;
+ Pref:String;
+
+ Procedure Emit(Var Rg:TGeom;F1,F2:PJ);Begin
+  If Rg.First<>Nil Then JAdd(OutArr,NewFeature(JoinProps(F1,LI,F2,LO,Pref),BuildGeom(Rg)));
+ End;
+
+ { parties de la couche X non couvertes par les polygones de la couche Y }
+ Procedure OnlyIn(Var X,Y:TCache;FromInput:Boolean);
+ Var
+  K,L:LongInt;
+ Begin
+  For K:=0 to X.N-1do
+   If X.G^[K].Cls<>0Then Begin
+    InitGeom(Bf);Bf.Cls:=3;
+    For L:=0 to Y.N-1do
+     If(Y.G^[L].Cls=3)and BoxHit(X,K,Y,L)Then GeomAppend(Bf,Y.G^[L]);
+    If Bf.First=Nil Then GeomCopy(X.G^[K],R)
+     Else
+    Begin
+     ClipOutside:=True;
+     ClipToPolys(X.G^[K],Bf,R);
+     ClipOutside:=False;
+    End;
+    If FromInput Then Emit(R,X.FA^[K],Nil) Else Emit(R,Nil,X.FA^[K]);
+    FreeGeom(R);FreeGeom(Bf);
+   End;
+ End;
+
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'OVERLAY',OvR,OvA);
+ Pref:=NeedStr(A,'OVERLAY_FIELDS_PREFIX');
+ CollectFields(InA,LI);CollectFields(OvA,LO);
+ BuildCache(InA,CI);BuildCache(OvA,CO);
+ Out:=NewLayerLike(InR,OutArr);
+ If Mode<>2Then
+  For I:=0 to CI.N-1do
+   If CI.G^[I].Cls<>0Then
+    For J:=0 to CO.N-1do
+     If(CO.G^[J].Cls=3)and BoxHit(CI,I,CO,J)Then Begin
+      ClipOutside:=False;
+      ClipToPolys(CI.G^[I],CO.G^[J],R);
+      Emit(R,CI.FA^[I],CO.FA^[J]);
+      FreeGeom(R);
+     End;
+ If Mode>=1Then Begin
+  OnlyIn(CI,CO,True);
+  OnlyIn(CO,CI,False);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunDifference(A:Integer);
+Var
+ InR,InA,OvR,OvA:PJ;
+ CI,CO:TCache;
+ I,L:LongInt;
+ Bf,R:TGeom;
+ F,Nx:PJ;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'OVERLAY',OvR,OvA);
+ BuildCache(InA,CI);BuildCache(OvA,CO);
+ InA^.First:=Nil;InA^.Last:=Nil;
+ For I:=0 to CI.N-1do Begin
+  If CI.G^[I].Cls<>0Then Begin
+   InitGeom(Bf);Bf.Cls:=3;
+   For L:=0 to CO.N-1do
+    If(CO.G^[L].Cls=3)and BoxHit(CI,I,CO,L)Then GeomAppend(Bf,CO.G^[L]);
+   If Bf.First=Nil Then GeomCopy(CI.G^[I],R)
+    Else
+   If CI.G^[I].Cls=3Then Overlay(2,CI.G^[I],Bf,R)
+    Else
+   Begin
+    ClipOutside:=True;
+    ClipToPolys(CI.G^[I],Bf,R);
+    ClipOutside:=False;
+   End;
+   If R.First<>Nil Then Begin
+    SetGeom(CI.FA^[I],BuildGeom(R));
+    JAdd(InA,CI.FA^[I]);
+   End;
+   FreeGeom(R);FreeGeom(Bf);
+  End;
+ End;
+ SaveOut(A,'OUTPUT',InR);
+End;
+
+{ ---- dissolve / agregats ---- }
+
+{ Regroupe les entites par cle ; retourne le groupe de chaque entite et le nombre de groupes }
+Function GroupFeatures(FA:PJArr;N:LongInt;Fields:String;Var Ng:LongInt):PLongs;
+Var
+ Grp:PLongs;
+ Keys:PStrs;
+ I,J,K:LongInt;
+ Key:String;
+ Found:Boolean;
+Begin
+ SplitList(Fields,';,');
+ Grp:=AllocBlock((N+1)*SizeOf(LongInt));
+ Keys:=AllocBlock((N+1)*SizeOf(PStr));
+ Ng:=0;
+ For I:=0 to N-1do Begin
+  Key:='';
+  For K:=1 to ListCount do Key:=Key+#1+PropText(FA^[I],ListItems[K]);
+  Found:=False;
+  For J:=0 to Ng-1do If Keys^[J]^=Key Then Begin Found:=True;Grp^[I]:=J;Break;End;
+  If Not Found Then Begin Keys^[Ng]:=MkStr(Key);Grp^[I]:=Ng;Inc(Ng);End;
+ End;
+ GroupFeatures:=Grp;
+End;
+
+{ Fusionne les geometries d'un groupe : polygones dissous, autres types regroupes }
+Procedure DissolveGeoms(Var Src:TGeom;Var R:TGeom);
+Var
+ Empty:TGeom;
+Begin
+ If Src.Cls=3Then Begin
+  InitGeom(Empty);
+  Overlay(0,Src,Empty,R);
+ End
+  Else
+ GeomCopy(Src,R);
+End;
+
+Procedure DissolveAllInto(Root:PJ);
+Var
+ Arr,Fe,Nf:PJ;
+ FA:PJArr;
+ N,I:LongInt;
+ G,All,R:TGeom;
+Begin
+ Arr:=LayerFeatures(Root);
+ FA:=FeatureArray(Arr,N);
+ If N=0Then Exit;
+ InitGeom(All);
+ For I:=0 to N-1do Begin
+  FlattenFeature(FA^[I],G);
+  If G.Cls<>0Then GeomAppend(All,G);
+  FreeGeom(G);
+ End;
+ DissolveGeoms(All,R);
+ Nf:=NewFeature(PropsClone(FA^[0]),BuildGeom(R));
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ JAdd(Arr,Nf);
+ FreeGeom(R);FreeGeom(All);
+End;
+
+Procedure RunDissolve(A:Integer);
+Var
+ Root,Arr,Out,OutArr,Fe,Nf:PJ;
+ FA:PJArr;
+ N,I,J,Ng:LongInt;
+ Grp:PLongs;
+ GA:^TGeomArr;
+ G,R,Part:TGeom;
+ P:PPath;
+ Sep:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Sep:=NeedBool(A,'SEPARATE_DISJOINT');
+ FA:=FeatureArray(Arr,N);
+ Grp:=GroupFeatures(FA,N,NeedStr(A,'FIELD'),Ng);
+ GA:=AllocBlock((Ng+1)*SizeOf(TGeom));
+ For J:=0 to Ng-1do InitGeom(GA^[J]);
+ For I:=0 to N-1do Begin
+  FlattenFeature(FA^[I],G);
+  If G.Cls<>0Then Begin
+   If(GA^[Grp^[I]].Cls<>0)and(GA^[Grp^[I]].Cls<>G.Cls)Then Fail('Error: cannot dissolve geometries of different types');
+   GeomAppend(GA^[Grp^[I]],G);
+  End;
+  FreeGeom(G);
+ End;
+ Out:=NewLayerLike(Root,OutArr);
+ For J:=0 to Ng-1do Begin
+  Fe:=Nil;
+  For I:=0 to N-1do If Grp^[I]=J Then Begin Fe:=FA^[I];Break;End;
+  DissolveGeoms(GA^[J],R);
+  If Sep and(R.Cls=3)Then Begin
+   P:=R.First;
+   While TakePart(R,P,Part)do Begin
+    JAdd(OutArr,NewFeature(PropsClone(Fe),BuildGeom(Part)));
+    FreeGeom(Part);
+   End;
+  End
+   Else
+  JAdd(OutArr,NewFeature(PropsClone(Fe),BuildGeom(R)));
+  FreeGeom(R);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunAggregate(A:Integer);
+Var
+ Root,Arr,Out,OutArr,Nf,Pr:PJ;
+ FA:PJArr;
+ N,I,J,K,Ng,Cnt,M:LongInt;
+ Grp:PLongs;
+ GA:^TGeomArr;
+ G,R:TGeom;
+ Items:Array[1..40]of String;
+ NI:Integer;
+ Fld,Fn,Nm,Tmp,Concat:String;
+ P1,P2:Integer;
+ Vals:PReals;
+ Sum,Mn,Mx,V,Mean,Sd:Real;
+ Keys:PStrs;
+ Expr:String;
+ T:TVal;
+ Seen:Array[1..200]of String;
+ NS,Q:Integer;
+ First,Last:PJ;
+ Fe:PJ;
+ Found:Boolean;
+ Ord:PLongs;
+
+ Function Median(Cnt:LongInt):Real;
+ Var
+  X,Y:LongInt;
+  Tm:Real;
+ Begin
+  For X:=1 to Cnt-1do Begin
+   Tm:=Vals^[X];Y:=X-1;
+   While(Y>=0)and(Vals^[Y]>Tm)do Begin Vals^[Y+1]:=Vals^[Y];Dec(Y);End;
+   Vals^[Y+1]:=Tm;
+  End;
+  If Odd(Cnt)Then Median:=Vals^[Cnt div 2] Else Median:=(Vals^[Cnt div 2-1]+Vals^[Cnt div 2])/2;
+ End;
+
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Expr:=NeedStr(A,'GROUP_BY');
+ FA:=FeatureArray(Arr,N);
+ Keys:=AllocBlock((N+1)*SizeOf(PStr));
+ Grp:=AllocBlock((N+1)*SizeOf(LongInt));
+ Ng:=0;
+ For I:=0 to N-1do Begin
+  If(Expr='')or(StrUpper(Expr)='NULL')Then Tmp:=''
+   Else Begin T:=EvalOn(Expr,FA^[I],I);Tmp:=ToStr(T);End;
+  Found:=False;
+  For J:=0 to Ng-1do If Keys^[J]^=Tmp Then Begin Found:=True;Grp^[I]:=J;Break;End;
+  If Not Found Then Begin Keys^[Ng]:=MkStr(Tmp);Grp^[I]:=Ng;Inc(Ng);End;
+ End;
+ SplitQuoted(NeedStr(A,'AGGREGATES'),';');
+ NI:=ListCount;
+ For K:=1 to NI do Items[K]:=ListItems[K];
+ GA:=AllocBlock((Ng+1)*SizeOf(TGeom));
+ For J:=0 to Ng-1do InitGeom(GA^[J]);
+ For I:=0 to N-1do Begin
+  FlattenFeature(FA^[I],G);
+  If G.Cls<>0Then Begin
+   If(GA^[Grp^[I]].Cls<>0)and(GA^[Grp^[I]].Cls<>G.Cls)Then Fail('Error: cannot aggregate geometries of different types');
+   GeomAppend(GA^[Grp^[I]],G);
+  End;
+  FreeGeom(G);
+ End;
+ Vals:=AllocBlock((N+1)*SizeOf(Real));
+ Out:=NewLayerLike(Root,OutArr);
+ For J:=0 to Ng-1do Begin
+  Pr:=NewJ(5);
+  For K:=1 to NI do Begin
+   P1:=Pos(':',Items[K]);
+   If P1=0Then Fail('Error: AGGREGATES items must look like field:function:name');
+   Fld:=Copy(Items[K],1,P1-1);
+   If(Length(Fld)>=2)and(Fld[1]='"')and(Fld[Length(Fld)]='"')Then Fld:=Copy(Fld,2,Length(Fld)-2);
+   Tmp:=Copy(Items[K],P1+1,255);
+   P2:=Pos(':',Tmp);
+   If P2=0Then Begin Fn:=StrUpper(Tmp);Nm:=Fld;End
+          Else Begin Fn:=StrUpper(Copy(Tmp,1,P2-1));Nm:=Copy(Tmp,P2+1,255);End;
+   Cnt:=0;Sum:=0;M:=0;Concat:='';NS:=0;First:=Nil;Last:=Nil;Mn:=1E300;Mx:=-1E300;
+   For I:=0 to N-1do
+    If Grp^[I]=J Then Begin
+     Fe:=GetProp(FA^[I],Fld);
+     If First=Nil Then First:=Fe;
+     Last:=Fe;
+     If(Fe<>Nil)and(Fe^.Kind<>0)Then Begin
+      Inc(Cnt);
+      If PropReal(FA^[I],Fld,V)Then Begin
+       Vals^[M]:=V;Inc(M);Sum:=Sum+V;
+       If V<Mn Then Mn:=V;
+       If V>Mx Then Mx:=V;
+      End;
+      Tmp:=PropText(FA^[I],Fld);
+      Found:=False;
+      For Q:=1 to NS do If Seen[Q]=Tmp Then Found:=True;
+      If(Not Found)and(NS<200)Then Begin Inc(NS);Seen[NS]:=Tmp;End;
+      If Concat<>''Then Concat:=Concat+',';
+      If Length(Concat)<200Then Concat:=Concat+Tmp;
+     End;
+    End;
+   If Fn='COUNT'Then JAddKV(Pr,Nm,JNum(Cnt)) Else
+   If Fn='COUNT_DISTINCT'Then JAddKV(Pr,Nm,JNum(NS)) Else
+   If Fn='FIRST_VALUE'Then Begin
+    If First=Nil Then JAddKV(Pr,Nm,NewJ(0)) Else JAddKV(Pr,Nm,JClone(First));
+   End Else
+   If Fn='LAST_VALUE'Then Begin
+    If Last=Nil Then JAddKV(Pr,Nm,NewJ(0)) Else JAddKV(Pr,Nm,JClone(Last));
+   End Else
+   If Fn='CONCATENATE'Then JAddKV(Pr,Nm,JTextEsc(Concat)) Else
+   If M=0Then JAddKV(Pr,Nm,NewJ(0)) Else
+   If Fn='SUM'Then JAddKV(Pr,Nm,JNum(Sum)) Else
+   If Fn='MEAN'Then JAddKV(Pr,Nm,JNum(Sum/M)) Else
+   If Fn='MIN'Then JAddKV(Pr,Nm,JNum(Mn)) Else
+   If Fn='MAX'Then JAddKV(Pr,Nm,JNum(Mx)) Else
+   If Fn='RANGE'Then JAddKV(Pr,Nm,JNum(Mx-Mn)) Else
+   If Fn='MEDIAN'Then JAddKV(Pr,Nm,JNum(Median(M))) Else
+   If(Fn='STDEV')or(Fn='STDEV_SAMP')or(Fn='STDEV_POP')Then Begin
+    Mean:=Sum/M;Sd:=0;
+    For I:=0 to M-1do Sd:=Sd+Sqr(Vals^[I]-Mean);
+    If Fn='STDEV_POP'Then JAddKV(Pr,Nm,JNum(Sqrt(Sd/M)))
+     Else
+    If M>1Then JAddKV(Pr,Nm,JNum(Sqrt(Sd/(M-1)))) Else JAddKV(Pr,Nm,NewJ(0));
+   End
+    Else
+   Fail('Error: unknown aggregate function '+Fn);
+  End;
+  DissolveGeoms(GA^[J],R);
+  JAdd(OutArr,NewFeature(Pr,BuildGeom(R)));
+  FreeGeom(R);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ ---- decoupage par des lignes, polygonize ---- }
+
+Procedure SplitLineByLines(Var G,Lines:TGeom;Var R:TGeom);
+Var
+ P,Q:PPath;
+ I,J,K,N,M,Cnt:LongInt;
+ Ts:PReals;
+ Ax,Ay,Bx,By,Dx,Dy,Rx,Ry,Den,T,U,Tmp:Real;
+ Buf:PPts;
+ Pa:PPath;
+ Cap:LongInt;
+Begin
+ InitGeom(R);R.Cls:=2;
+ Cap:=EdgeCount(Lines)+4;
+ Ts:=AllocBlock(Cap*SizeOf(Real));
+ P:=G.First;
+ While P<>Nil do Begin
+  Buf:=AllocBlock((P^.N*3+8)*SizeOf(TPt));
+  Cnt:=0;
+  Buf^[0]:=P^.Pts^[0];Cnt:=1;
+  For I:=0 to P^.N-2do Begin
+   Ax:=P^.Pts^[I].X;Ay:=P^.Pts^[I].Y;Bx:=P^.Pts^[I+1].X;By:=P^.Pts^[I+1].Y;
+   Dx:=Bx-Ax;Dy:=By-Ay;
+   N:=0;
+   Q:=Lines.First;
+   While Q<>Nil do Begin
+    For J:=0 to Q^.N-2do Begin
+     Rx:=Q^.Pts^[J+1].X-Q^.Pts^[J].X;Ry:=Q^.Pts^[J+1].Y-Q^.Pts^[J].Y;
+     Den:=Dx*Ry-Dy*Rx;
+     If Abs(Den)>1E-14*Sqrt(Dx*Dx+Dy*Dy)*Sqrt(Rx*Rx+Ry*Ry)Then Begin
+      T:=((Q^.Pts^[J].X-Ax)*Ry-(Q^.Pts^[J].Y-Ay)*Rx)/Den;
+      U:=((Q^.Pts^[J].X-Ax)*Dy-(Q^.Pts^[J].Y-Ay)*Dx)/Den;
+      If(T>1E-12)and(T<1-1E-12)and(U>=0)and(U<=1)and(N<Cap)Then Begin Ts^[N]:=T;Inc(N);End;
+     End;
+    End;
+    Q:=Q^.Next;
+   End;
+   For K:=1 to N-1do Begin
+    Tmp:=Ts^[K];M:=K-1;
+    While(M>=0)and(Ts^[M]>Tmp)do Begin Ts^[M+1]:=Ts^[M];Dec(M);End;
+    Ts^[M+1]:=Tmp;
+   End;
+   For K:=0 to N-1do Begin
+    Buf^[Cnt].X:=Ax+Ts^[K]*Dx;Buf^[Cnt].Y:=Ay+Ts^[K]*Dy;Inc(Cnt);
+    Pa:=NewPath(R,Cnt,0);
+    Move(Buf^,Pa^.Pts^,Cnt*SizeOf(TPt));
+    Pa^.N:=Cnt;
+    Buf^[0]:=Buf^[Cnt-1];Cnt:=1;
+   End;
+   Buf^[Cnt]:=P^.Pts^[I+1];Inc(Cnt);
+  End;
+  If Cnt>=2Then Begin
+   Pa:=NewPath(R,Cnt,0);
+   Move(Buf^,Pa^.Pts^,Cnt*SizeOf(TPt));
+   Pa^.N:=Cnt;
+  End;
+  FreeMem(Buf,(P^.N*3+8)*SizeOf(TPt));
+  P:=P^.Next;
+ End;
+ FreeMem(Ts,Cap*SizeOf(Real));
+End;
+
+Procedure RunSplitWithLines(A:Integer);
+Var
+ InR,InA,LnR,LnA,Out,OutArr:PJ;
+ CI,CL:TCache;
+ I,J:LongInt;
+ G,L,Faces,Face,R:TGeom;
+ P:PPath;
+ X,Y:Real;
+ Part:TGeom;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'LINES',LnR,LnA);
+ BuildCache(InA,CI);BuildCache(LnA,CL);
+ Out:=NewLayerLike(InR,OutArr);
+ For I:=0 to CI.N-1do Begin
+  If CI.G^[I].Cls=0Then JAdd(OutArr,NewFeature(PropsClone(CI.FA^[I]),Nil))
+   Else
+  Begin
+   InitGeom(L);L.Cls:=2;
+   For J:=0 to CL.N-1do
+    If(CL.G^[J].Cls=2)and BoxHit(CI,I,CL,J)Then GeomAppend(L,CL.G^[J]);
+   If CI.G^[I].Cls=2Then Begin
+    SplitLineByLines(CI.G^[I],L,R);
+    JAdd(OutArr,NewFeature(PropsClone(CI.FA^[I]),BuildLines(R)));
+    FreeGeom(R);
+   End
+    Else
+   If(CI.G^[I].Cls=3)and(L.First<>Nil)Then Begin
+    P:=CI.G^[I].First;
+    While P<>Nil do Begin CopyPath(L,P,0);P:=P^.Next;End;
+    PolygonizeLines(L,Faces);
+    P:=Faces.First;
+    While TakePart(Faces,P,Face)do Begin
+     PointOnSurface(Face,X,Y);
+     If PtInPolys(CI.G^[I],X,Y,0)=1Then
+      JAdd(OutArr,NewFeature(PropsClone(CI.FA^[I]),BuildPolygons(Face)));
+     FreeGeom(Face);
+    End;
+    FreeGeom(Faces);
+   End
+    Else
+   JAdd(OutArr,NewFeature(PropsClone(CI.FA^[I]),BuildGeom(CI.G^[I])));
+   FreeGeom(L);
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunPolygonizeLines(A:Integer);
+Var
+ Root,Arr,Out,OutArr,F:PJ;
+ G,L,Faces,Face:TGeom;
+ P:PPath;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ InitGeom(L);L.Cls:=2;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   GeomAppend(L,G);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ Out:=NewLayerLike(Root,OutArr);
+ PolygonizeLines(L,Faces);
+ P:=Faces.First;
+ While TakePart(Faces,P,Face)do Begin
+  JAdd(OutArr,NewFeature(Nil,BuildPolygons(Face)));
+  FreeGeom(Face);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ ---- comptages et jointures spatiales ---- }
+
+Procedure RunCountPoints(A:Integer);
+Var
+ PoR,PoA,PtR,PtA:PJ;
+ CP,CT:TCache;
+ I,J,K:LongInt;
+ Cnt,W:Real;
+ Fld,Cls,Wf:String;
+ Seen:Array[1..500]of String;
+ NS,Q:Integer;
+ P:PPath;
+ Found:Boolean;
+Begin
+ LoadIn(A,'POLYGONS',PoR,PoA);
+ LoadIn(A,'POINTS',PtR,PtA);
+ Fld:=NeedStr(A,'FIELD');
+ Cls:=NeedStr(A,'CLASSFIELD');
+ Wf:=NeedStr(A,'WEIGHT');
+ BuildCache(PoA,CP);BuildCache(PtA,CT);
+ For I:=0 to CP.N-1do Begin
+  Cnt:=0;NS:=0;
+  If CP.G^[I].Cls=3Then
+   For J:=0 to CT.N-1do
+    If(CT.G^[J].Cls=1)and BoxHit(CP,I,CT,J)Then Begin
+     P:=CT.G^[J].First;
+     While P<>Nil do Begin
+      If PtInPolys(CP.G^[I],P^.Pts^[0].X,P^.Pts^[0].Y,SnapQ)=1Then Begin
+       If Cls<>''Then Begin
+        Found:=False;
+        For Q:=1 to NS do If Seen[Q]=PropText(CT.FA^[J],Cls)Then Found:=True;
+        If(Not Found)and(NS<500)Then Begin Inc(NS);Seen[NS]:=PropText(CT.FA^[J],Cls);Cnt:=Cnt+1;End;
+       End
+        Else
+       If Wf<>''Then Begin
+        If PropReal(CT.FA^[J],Wf,W)Then Cnt:=Cnt+W;
+       End
+        Else
+       Cnt:=Cnt+1;
+      End;
+      P:=P^.Next;
+     End;
+    End;
+  PutProp(CP.FA^[I],Fld,JNum(Cnt));
+ End;
+ SaveOut(A,'OUTPUT',PoR);
+End;
+
+{ Predicats : liste d'entiers dans Preds ; Vrai si un predicat est satisfait }
+Function MatchAny(Var Preds:Array of Integer;NP:Integer;Var A,B:TGeom):Boolean;
+Var
+ K:Integer;
+Begin
+ MatchAny:=False;
+ For K:=0 to NP-1do
+  If GeomPredicate(Preds[K],A,B)Then Begin MatchAny:=True;Exit;End;
+End;
+
+Procedure ParsePredicates(S:String;Var Preds:Array of Integer;Var NP:Integer);
+Var
+ K,E:Integer;
+ V:Integer;
+Begin
+ SplitList(S,';, ');
+ NP:=0;
+ For K:=1 to ListCount do Begin
+  Val(ListItems[K],V,E);
+  If(E<>0)or(V<0)or(V>7)Then Fail('Error: PREDICATE values must be between 0 and 7');
+  If NP<=High(Preds)Then Begin Preds[NP]:=V;Inc(NP);End;
+ End;
+ If NP=0Then Fail('Error: PREDICATE is empty');
+End;
+
+Function HasPred(Var Preds:Array of Integer;NP,V:Integer):Boolean;
+Var
+ K:Integer;
+Begin
+ HasPred:=False;
+ For K:=0 to NP-1do If Preds[K]=V Then HasPred:=True;
+End;
+
+Procedure RunExtractByLocation(A:Integer);
+Var
+ InR,InA,OvR,OvA:PJ;
+ CI,CO:TCache;
+ Preds:Array[0..7]of Integer;
+ NP:Integer;
+ I,J:LongInt;
+ Hit:Boolean;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'INTERSECT',OvR,OvA);
+ ParsePredicates(NeedStr(A,'PREDICATE'),Preds,NP);
+ BuildCache(InA,CI);BuildCache(OvA,CO);
+ InA^.First:=Nil;InA^.Last:=Nil;
+ For I:=0 to CI.N-1do Begin
+  Hit:=False;
+  For J:=0 to CO.N-1do Begin
+   If(CI.G^[I].Cls<>0)and(CO.G^[J].Cls<>0)Then Begin
+    { le predicat "disjoint" ne depend pas des boites }
+    If(BoxHit(CI,I,CO,J)or HasPred(Preds,NP,2))and MatchAny(Preds,NP,CI.G^[I],CO.G^[J])Then Begin Hit:=True;Break;End;
+   End;
+  End;
+  If Hit Then JAdd(InA,CI.FA^[I]);
+ End;
+ SaveOut(A,'OUTPUT',InR);
+End;
+
+{ Champs de la couche jointe a copier (JOIN_FIELDS : liste ou vide = tous) }
+Procedure SelectFields(Spec:String;Var All,Sel:TNameList);
+Var
+ K:Integer;
+Begin
+ Sel.N:=0;
+ If Spec=''Then Begin Sel:=All;Exit;End;
+ SplitList(Spec,';,');
+ For K:=1 to ListCount do
+  If InList(All,ListItems[K])Then Begin
+   Inc(Sel.N);
+   Sel.Names[Sel.N]:=ListItems[K];
+  End
+   Else
+  Fail('Error: unknown field '+ListItems[K]);
+End;
+
+{ Mode 0 : joinattributesbylocation, 1 : joinbylocationsummary }
+Procedure RunJoinByLocation(A:Integer;Summary:Boolean);
+Var
+ InR,InA,JnR,JnA,Out,OutArr,Nf,Npj,Fe:PJ;
+ CI,CJ:TCache;
+ LI,LJ,LS:TNameList;
+ Preds:Array[0..7]of Integer;
+ NP,Method,Ns,K,S:Integer;
+ Sums:Array[0..19]of Integer;
+ I,J,Cnt,Best:LongInt;
+ Discard:Boolean;
+ Pref:String;
+ Matches:PLongs;
+ Ov,BestOv:Real;
+ R:TGeom;
+ Vals:PReals;
+ M,Q,X,Y:LongInt;
+ V,Sum,Mn,Mx,Mean,Sd,Tm:Real;
+ Nm,Suffix,Tmp:String;
+ Seen:Array[1..100]of String;
+ NS2:Integer;
+ Found:Boolean;
+ Cn:LongInt;
+ LenMin,LenMax,LenSum:Real;
+ Empty,Filled:LongInt;
+ Cp:String;
+
+ Function Quant(Cnt:LongInt;Fr:Real):Real;
+ Var
+  Pos,Fl:Real;
+  Lo:LongInt;
+ Begin
+  Pos:=(Cnt-1)*Fr;
+  Lo:=Trunc(Pos);
+  If Lo>=Cnt-1Then Quant:=Vals^[Cnt-1]
+              Else Quant:=Vals^[Lo]+(Pos-Lo)*(Vals^[Lo+1]-Vals^[Lo]);
+ End;
+
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'JOIN',JnR,JnA);
+ ParsePredicates(NeedStr(A,'PREDICATE'),Preds,NP);
+ Discard:=NeedBool(A,'DISCARD_NONMATCHING');
+ Pref:=NeedStr(A,'PREFIX');
+ CollectFields(InA,LI);CollectFields(JnA,LJ);
+ SelectFields(NeedStr(A,'JOIN_FIELDS'),LJ,LS);
+ BuildCache(InA,CI);BuildCache(JnA,CJ);
+ Method:=0;Ns:=0;
+ If Summary Then Begin
+  SplitList(NeedStr(A,'SUMMARIES'),';, ');
+  For K:=1 to ListCount do Begin
+   Val(ListItems[K],Sums[Ns],S);
+   If(S<>0)or(Sums[Ns]<0)or(Sums[Ns]>18)Then Fail('Error: SUMMARIES values must be between 0 and 18');
+   Inc(Ns);
+  End;
+  If Ns=0Then Fail('Error: SUMMARIES is empty');
+ End
+  Else
+ Method:=Round(NeedReal(A,'METHOD'));
+ Matches:=AllocBlock((CJ.N+1)*SizeOf(LongInt));
+ Vals:=AllocBlock((CJ.N+1)*SizeOf(Real));
+ Out:=NewLayerLike(InR,OutArr);
+ For I:=0 to CI.N-1do Begin
+  Cnt:=0;
+  If CI.G^[I].Cls<>0Then
+   For J:=0 to CJ.N-1do
+    If CJ.G^[J].Cls<>0Then
+     If(BoxHit(CI,I,CJ,J)or HasPred(Preds,NP,2))and MatchAny(Preds,NP,CI.G^[I],CJ.G^[J])Then Begin
+      Matches^[Cnt]:=J;Inc(Cnt);
+     End;
+  If Cnt=0Then Begin
+   If Not Discard Then Begin
+    If Summary Then Begin
+     Npj:=PropsClone(CI.FA^[I]);
+     For K:=1 to LS.N do
+      For S:=0 to Ns-1do Begin
+       Case Sums[S]of
+        0:Suffix:='count';1:Suffix:='unique';2:Suffix:='min';3:Suffix:='max';4:Suffix:='range';5:Suffix:='sum';
+        6:Suffix:='mean';7:Suffix:='median';8:Suffix:='stdev';9:Suffix:='minority';10:Suffix:='majority';
+        11:Suffix:='q1';12:Suffix:='q3';13:Suffix:='iqr';14:Suffix:='empty';15:Suffix:='filled';
+        16:Suffix:='min_length';17:Suffix:='max_length';Else Suffix:='mean_length';
+       End;
+       JAddKV(Npj,Pref+LS.Names[K]+'_'+Suffix,NewJ(0));
+      End;
+     JAdd(OutArr,NewFeature(Npj,JClone(JFind(CI.FA^[I],'geometry'))));
+    End
+     Else
+    JAdd(OutArr,NewFeature(JoinProps(CI.FA^[I],LI,Nil,LS,Pref),JClone(JFind(CI.FA^[I],'geometry'))));
+   End;
+  End
+   Else
+  If Summary Then Begin
+   Npj:=PropsClone(CI.FA^[I]);
+   For K:=1 to LS.N do Begin
+    M:=0;Sum:=0;Mn:=1E300;Mx:=-1E300;NS2:=0;Empty:=0;Filled:=0;LenMin:=1E300;LenMax:=-1;LenSum:=0;Cn:=0;
+    For Q:=0 to Cnt-1do Begin
+     Fe:=GetProp(CJ.FA^[Matches^[Q]],LS.Names[K]);
+     If(Fe=Nil)or(Fe^.Kind=0)or((Fe^.Kind=3)and(NodeText(Fe)=''))Then Inc(Empty) Else Inc(Filled);
+     If(Fe<>Nil)and(Fe^.Kind<>0)Then Begin
+      Inc(Cn);
+      Tmp:=NodeText(Fe);
+      If Length(Tmp)<LenMin Then LenMin:=Length(Tmp);
+      If Length(Tmp)>LenMax Then LenMax:=Length(Tmp);
+      LenSum:=LenSum+Length(Tmp);
+      If PropReal(CJ.FA^[Matches^[Q]],LS.Names[K],V)Then Begin
+       Vals^[M]:=V;Inc(M);Sum:=Sum+V;
+       If V<Mn Then Mn:=V;
+       If V>Mx Then Mx:=V;
+      End;
+      Found:=False;
+      For X:=1 to NS2 do If Seen[X]=Tmp Then Found:=True;
+      If(Not Found)and(NS2<100)Then Begin Inc(NS2);Seen[NS2]:=Tmp;End;
+     End;
+    End;
+    { tri des valeurs numeriques pour les quantiles }
+    For X:=1 to M-1do Begin
+     Tm:=Vals^[X];Y:=X-1;
+     While(Y>=0)and(Vals^[Y]>Tm)do Begin Vals^[Y+1]:=Vals^[Y];Dec(Y);End;
+     Vals^[Y+1]:=Tm;
+    End;
+    For S:=0 to Ns-1do Begin
+     Case Sums[S]of
+      0:Suffix:='count';1:Suffix:='unique';2:Suffix:='min';3:Suffix:='max';4:Suffix:='range';5:Suffix:='sum';
+      6:Suffix:='mean';7:Suffix:='median';8:Suffix:='stdev';9:Suffix:='minority';10:Suffix:='majority';
+      11:Suffix:='q1';12:Suffix:='q3';13:Suffix:='iqr';14:Suffix:='empty';15:Suffix:='filled';
+      16:Suffix:='min_length';17:Suffix:='max_length';Else Suffix:='mean_length';
+     End;
+     Nm:=Pref+LS.Names[K]+'_'+Suffix;
+     Case Sums[S]of
+      0:JAddKV(Npj,Nm,JNum(Cn));
+      1:JAddKV(Npj,Nm,JNum(NS2));
+      14:JAddKV(Npj,Nm,JNum(Empty));
+      15:JAddKV(Npj,Nm,JNum(Filled));
+      16:If Cn>0Then JAddKV(Npj,Nm,JNum(LenMin)) Else JAddKV(Npj,Nm,NewJ(0));
+      17:If Cn>0Then JAddKV(Npj,Nm,JNum(LenMax)) Else JAddKV(Npj,Nm,NewJ(0));
+      18:If Cn>0Then JAddKV(Npj,Nm,JNum(LenSum/Cn)) Else JAddKV(Npj,Nm,NewJ(0));
+      Else
+      If M=0Then JAddKV(Npj,Nm,NewJ(0))
+       Else
+      Case Sums[S]of
+       2:JAddKV(Npj,Nm,JNum(Mn));
+       3:JAddKV(Npj,Nm,JNum(Mx));
+       4:JAddKV(Npj,Nm,JNum(Mx-Mn));
+       5:JAddKV(Npj,Nm,JNum(Sum));
+       6:JAddKV(Npj,Nm,JNum(Sum/M));
+       7:JAddKV(Npj,Nm,JNum(Quant(M,0.5)));
+       8:Begin
+        Mean:=Sum/M;Sd:=0;
+        For X:=0 to M-1do Sd:=Sd+Sqr(Vals^[X]-Mean);
+        If M>1Then JAddKV(Npj,Nm,JNum(Sqrt(Sd/(M-1)))) Else JAddKV(Npj,Nm,NewJ(0));
+       End;
+       9,10:Begin
+        { valeur la moins / la plus frequente }
+        Mean:=Vals^[0];Best:=0;Y:=0;
+        X:=0;
+        While X<M do Begin
+         Y:=X;
+         While(Y<M)and(Vals^[Y]=Vals^[X])do Inc(Y);
+         If(X=0)or((Sums[S]=10)and(Y-X>Best))or((Sums[S]=9)and(Y-X<Best))Then Begin Best:=Y-X;Mean:=Vals^[X];End;
+         X:=Y;
+        End;
+        JAddKV(Npj,Nm,JNum(Mean));
+       End;
+       11:JAddKV(Npj,Nm,JNum(Quant(M,0.25)));
+       12:JAddKV(Npj,Nm,JNum(Quant(M,0.75)));
+       13:JAddKV(Npj,Nm,JNum(Quant(M,0.75)-Quant(M,0.25)));
+      End;
+     End;
+    End;
+   End;
+   JAdd(OutArr,NewFeature(Npj,JClone(JFind(CI.FA^[I],'geometry'))));
+  End
+   Else
+  Begin
+   If Method=2Then Begin
+    { plus grand recouvrement }
+    Best:=Matches^[0];BestOv:=-1;
+    If CI.G^[I].Cls=3Then
+     For Q:=0 to Cnt-1do Begin
+      If CJ.G^[Matches^[Q]].Cls=3Then Ov:=OverlapArea(CI.G^[I],CJ.G^[Matches^[Q]]) Else Ov:=0;
+      If Ov>BestOv Then Begin BestOv:=Ov;Best:=Matches^[Q];End;
+     End
+      Else
+     If CI.G^[I].Cls=2Then
+      For Q:=0 to Cnt-1do Begin
+       If CJ.G^[Matches^[Q]].Cls=3Then Begin
+        ClipOutside:=False;
+        ClipToPolys(CI.G^[I],CJ.G^[Matches^[Q]],R);
+        Ov:=GeomLength(R);FreeGeom(R);
+       End
+        Else
+       Ov:=0;
+       If Ov>BestOv Then Begin BestOv:=Ov;Best:=Matches^[Q];End;
+      End;
+    JAdd(OutArr,NewFeature(JoinProps(CI.FA^[I],LI,CJ.FA^[Best],LS,Pref),JClone(JFind(CI.FA^[I],'geometry'))));
+   End
+    Else
+   Begin
+    If Method=1Then Cn:=1 Else Cn:=Cnt;
+    For Q:=0 to Cn-1do
+     JAdd(OutArr,NewFeature(JoinProps(CI.FA^[I],LI,CJ.FA^[Matches^[Q]],LS,Pref),JClone(JFind(CI.FA^[I],'geometry'))));
+   End;
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunJoinAttributesTable(A:Integer);
+Var
+ InR,InA,TbR,TbA,Out,OutArr:PJ;
+ LI,LT,LS:TNameList;
+ FA,FB:PJArr;
+ NA,NB,I,J,Cnt:LongInt;
+ F1,F2,Key:String;
+ Method:Integer;
+ Discard:Boolean;
+ Pref:String;
+ Match:PLongs;
+ Ok:Boolean;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ TbR:=LoadTable(NeedStr(A,'INPUT_2'));
+ TbA:=LayerFeatures(TbR);
+ F1:=NeedStr(A,'FIELD');F2:=NeedStr(A,'FIELD_2');
+ Method:=Round(NeedReal(A,'METHOD'));
+ Discard:=NeedBool(A,'DISCARD_NONMATCHING');
+ Pref:=NeedStr(A,'PREFIX');
+ CollectFields(InA,LI);CollectFields(TbA,LT);
+ SelectFields(NeedStr(A,'FIELDS_TO_COPY'),LT,LS);
+ FA:=FeatureArray(InA,NA);FB:=FeatureArray(TbA,NB);
+ Match:=AllocBlock((NB+1)*SizeOf(LongInt));
+ Out:=NewLayerLike(InR,OutArr);
+ For I:=0 to NA-1do Begin
+  Key:=PropText(FA^[I],F1);
+  Cnt:=0;
+  If(GetProp(FA^[I],F1)<>Nil)and(GetProp(FA^[I],F1)^.Kind<>0)Then
+   For J:=0 to NB-1do
+    If(GetProp(FB^[J],F2)<>Nil)and(GetProp(FB^[J],F2)^.Kind<>0)and(PropText(FB^[J],F2)=Key)Then Begin
+     Match^[Cnt]:=J;Inc(Cnt);
+    End;
+  If Cnt=0Then Begin
+   If Not Discard Then JAdd(OutArr,NewFeature(JoinProps(FA^[I],LI,Nil,LS,Pref),JClone(JFind(FA^[I],'geometry'))));
+  End
+   Else
+  If Method=1Then
+   JAdd(OutArr,NewFeature(JoinProps(FA^[I],LI,FB^[Match^[0]],LS,Pref),JClone(JFind(FA^[I],'geometry'))))
+   Else
+  For J:=0 to Cnt-1do
+   JAdd(OutArr,NewFeature(JoinProps(FA^[I],LI,FB^[Match^[J]],LS,Pref),JClone(JFind(FA^[I],'geometry'))));
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunLineIntersections(A:Integer);
+Var
+ InR,InA,LnR,LnA,Out,OutArr,Nf:PJ;
+ CI,CL:TCache;
+ LI,LL:TNameList;
+ I,J,K,M:LongInt;
+ P,Q:PPath;
+ Pref:String;
+ Rx,Ry,Sx,Sy,Den,T,U,X,Y:Real;
+ PrevX:Array[1..64]of Real;
+ PrevY:Array[1..64]of Real;
+ NPrev:Integer;
+ Dup:Boolean;
+ S:TGeom;
+ W:Integer;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ LoadIn(A,'INTERSECT',LnR,LnA);
+ Pref:=NeedStr(A,'INTERSECT_FIELDS_PREFIX');
+ CollectFields(InA,LI);CollectFields(LnA,LL);
+ BuildCache(InA,CI);BuildCache(LnA,CL);
+ Out:=NewLayerLike(InR,OutArr);
+ For I:=0 to CI.N-1do
+  If CI.G^[I].Cls=2Then
+   For J:=0 to CL.N-1do
+    If(CL.G^[J].Cls=2)and BoxHit(CI,I,CL,J)Then Begin
+     NPrev:=0;
+     P:=CI.G^[I].First;
+     While P<>Nil do Begin
+      For K:=0 to P^.N-2do Begin
+       Q:=CL.G^[J].First;
+       While Q<>Nil do Begin
+        For M:=0 to Q^.N-2do Begin
+         Rx:=P^.Pts^[K+1].X-P^.Pts^[K].X;Ry:=P^.Pts^[K+1].Y-P^.Pts^[K].Y;
+         Sx:=Q^.Pts^[M+1].X-Q^.Pts^[M].X;Sy:=Q^.Pts^[M+1].Y-Q^.Pts^[M].Y;
+         Den:=Rx*Sy-Ry*Sx;
+         If Abs(Den)>1E-14*Sqrt(Rx*Rx+Ry*Ry)*Sqrt(Sx*Sx+Sy*Sy)Then Begin
+          T:=((Q^.Pts^[M].X-P^.Pts^[K].X)*Sy-(Q^.Pts^[M].Y-P^.Pts^[K].Y)*Sx)/Den;
+          U:=((Q^.Pts^[M].X-P^.Pts^[K].X)*Ry-(Q^.Pts^[M].Y-P^.Pts^[K].Y)*Rx)/Den;
+          If(T>=0)and(T<=1)and(U>=0)and(U<=1)Then Begin
+           X:=P^.Pts^[K].X+T*Rx;Y:=P^.Pts^[K].Y+T*Ry;
+           Dup:=False;
+           For W:=1 to NPrev do If(Abs(PrevX[W]-X)<1E-9)and(Abs(PrevY[W]-Y)<1E-9)Then Dup:=True;
+           If Not Dup Then Begin
+            If NPrev<64Then Begin Inc(NPrev);PrevX[NPrev]:=X;PrevY[NPrev]:=Y;End;
+            PointGeom(S,X,Y);
+            JAdd(OutArr,NewFeature(JoinProps(CI.FA^[I],LI,CL.FA^[J],LL,Pref),BuildPoints(S)));
+            FreeGeom(S);
+           End;
+          End;
+         End;
+        End;
+        Q:=Q^.Next;
+       End;
+      End;
+      P:=P^.Next;
+     End;
+    End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunVectorOverlaps(A:Integer);
+Var
+ InR,InA:PJ;
+ Layers:Array[1..8]of TCache;
+ Names:Array[1..8]of String;
+ NL,K:Integer;
+ CI:TCache;
+ I,J:LongInt;
+ Bf,R:TGeom;
+ Ar,Ov:Real;
+ LR,LA:PJ;
+Begin
+ LoadIn(A,'INPUT',InR,InA);
+ SplitList(NeedStr(A,'LAYERS'),';');
+ NL:=ListCount;
+ If(NL<1)or(NL>8)Then Fail('Error: LAYERS must list between 1 and 8 files separated by ;');
+ For K:=1 to NL do Begin
+  Names[K]:=BaseName(ListItems[K]);
+  LR:=LoadLayer(ListItems[K]);
+  BuildCache(LayerFeatures(LR),Layers[K]);
+ End;
+ BuildCache(InA,CI);
+ For I:=0 to CI.N-1do Begin
+  If CI.G^[I].Cls<>3Then Fail('Error: the input layer must contain polygons');
+  Ar:=GeomArea(CI.G^[I]);
+  For K:=1 to NL do Begin
+   InitGeom(Bf);Bf.Cls:=3;
+   For J:=0 to Layers[K].N-1do
+    If(Layers[K].G^[J].Cls=3)and BoxHit(CI,I,Layers[K],J)Then GeomAppend(Bf,Layers[K].G^[J]);
+   Ov:=0;
+   If Bf.First<>Nil Then Begin
+    Overlay(1,CI.G^[I],Bf,R);
+    Ov:=GeomArea(R);
+    FreeGeom(R);
+   End;
+   FreeGeom(Bf);
+   PutProp(CI.FA^[I],Names[K]+'_area',JNum(Ov));
+   If Ar>0Then PutProp(CI.FA^[I],Names[K]+'_pc',JNum(100*Ov/Ar))
+          Else PutProp(CI.FA^[I],Names[K]+'_pc',NewJ(0));
+  End;
+ End;
+ SaveOut(A,'OUTPUT',InR);
+End;
+
+Procedure RunSumLineLengths(A:Integer);
+Var
+ PoR,PoA,LnR,LnA:PJ;
+ CP,CL:TCache;
+ I,J:LongInt;
+ R:TGeom;
+ Len,Cnt:Real;
+Begin
+ LoadIn(A,'POLYGONS',PoR,PoA);
+ LoadIn(A,'LINES',LnR,LnA);
+ BuildCache(PoA,CP);BuildCache(LnA,CL);
+ For I:=0 to CP.N-1do Begin
+  Len:=0;Cnt:=0;
+  If CP.G^[I].Cls=3Then
+   For J:=0 to CL.N-1do
+    If(CL.G^[J].Cls=2)and BoxHit(CP,I,CL,J)Then Begin
+     ClipOutside:=False;
+     ClipToPolys(CL.G^[J],CP.G^[I],R);
+     If R.First<>Nil Then Begin Len:=Len+GeomLength(R);Cnt:=Cnt+1;End;
+     FreeGeom(R);
+    End;
+  PutProp(CP.FA^[I],NeedStr(A,'LEN_FIELD'),JNum(Len));
+  PutProp(CP.FA^[I],NeedStr(A,'COUNT_FIELD'),JNum(Cnt));
+ End;
+ SaveOut(A,'OUTPUT',PoR);
+End;
+
 Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
@@ -10885,6 +12268,23 @@ Begin
   92:RunNearestNeighbour(A);
   93:RunAngleToNearest(A);
   94:RunShortestLine(A);
+  95:RunBuffer(A);
+  96:RunOverlayLayers(A,0);
+  97:RunOverlayLayers(A,1);
+  98:RunOverlayLayers(A,2);
+  99:RunDifference(A);
+  100:RunDissolve(A);
+  101:RunAggregate(A);
+  102:RunSplitWithLines(A);
+  103:RunPolygonizeLines(A);
+  104:RunCountPoints(A);
+  105:RunExtractByLocation(A);
+  106:RunJoinByLocation(A,False);
+  107:RunJoinByLocation(A,True);
+  108:RunJoinAttributesTable(A);
+  109:RunLineIntersections(A);
+  110:RunVectorOverlaps(A);
+  111:RunSumLineLengths(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
