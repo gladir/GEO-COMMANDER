@@ -73,6 +73,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de demander la population d'un pays.</td>
   </tr>
   <tr>
+      <td><b>QGIS_PROCESS.PAS</b></td>
+      <td>Cette commande est un clone minimaliste de qgis_process : elle permet de lister (<code>list</code>), d'obtenir l'aide (<code>help</code>) et d'exécuter (<code>run</code>) des algorithmes géographiques (distance, azimut, point de destination, reprojection EPSG:4326/3857, étendue d'un fichier GeoJSON), avec l'option <code>--json</code>.</td>
+  </tr>
+  <tr>
       <td><b>SIZE.PAS</b></td>
       <td>Cette commande permet de retourner la taille d'un pays en Km<sup>2</sup>.</td>
   </tr>
