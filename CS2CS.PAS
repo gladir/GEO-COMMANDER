@@ -225,7 +225,8 @@ Procedure ShowHelp;Begin
  Writeln('Zones: world (001), North America (003), Europe (EUR), Canada (CA),');
  Writeln('United States (US/USA/US-48). Limites = enveloppes, non frontieres.');
  Writeln('--bbox <W,S,E,N> filtre les points dans une emprise geographique.');
- Writeln('--authority, --accuracy, --only-best,');
+ Writeln('--authority <nom> restreint a EPSG (seule autorite integree).');
+ Writeln('--accuracy, --only-best,');
  Writeln('--no-ballpark et --s_epoch/--t_epoch necessitent le moteur PROJ');
  Writeln('et sont refusees par cette implementation autonome.');
 End;
@@ -425,10 +426,11 @@ Var
  TempReal : Real;
  TempProj : TProjDef;
  Line, WorkLine, TokenX, TokenY, TokenZ, FormatString : String;
- ErrorText, CommentMark, Arg, AreaName, BBoxArg : String;
+ ErrorText, CommentMark, Arg, AreaName, BBoxArg, AuthorityName : String;
  Area, BBox : TAreaDef;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
  DMSOutput, FixedDMS, Has3D, Failed, HasArea, HasBBox : Boolean;
+ HasAuthority : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -446,8 +448,10 @@ BEGIN
  Has3D := False;
  HasArea := False;
  HasBBox := False;
+ HasAuthority := False;
  AreaName := '';
  BBoxArg := '';
+ AuthorityName := '';
 
  I := 1;
  While I <= ParamCount Do Begin
@@ -507,6 +511,21 @@ BEGIN
    End;
    HasBBox := True;
   End Else
+  If Arg = '--authority' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --authority.'); Halt(1);
+   End;
+   AuthorityName := ParamStr(I);
+   HasAuthority := True;
+  End Else
+  If Copy(Arg, 1, 12) = '--authority=' Then Begin
+   AuthorityName := Copy(Arg, 13, Length(Arg) - 12);
+   If AuthorityName = '' Then Begin
+    Writeln('Erreur: valeur manquante apres --authority.'); Halt(1);
+   End;
+   HasAuthority := True;
+  End Else
   If Arg = '-f' Then Begin
    Inc(I);
    If I > ParamCount Then Begin Writeln('Erreur: format manquant apres -f.'); Halt(1); End;
@@ -537,9 +556,7 @@ BEGIN
     Writeln('Erreur: precision DMS invalide (0..10).'); Halt(1);
    End;
   End Else
-    If (Arg = '--authority') Or (Arg = '--accuracy') Or
-      (Copy(Arg, 1, 12) = '--authority=') Or
-     (Copy(Arg, 1, 11) = '--accuracy=') Or
+    If (Arg = '--accuracy') Or (Copy(Arg, 1, 11) = '--accuracy=') Or
     (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
      (Arg = '--no-ballpark') Or (Arg = '--s_epoch') Or
      (Arg = '--t_epoch') Or (Copy(Arg, 1, 10) = '--s_epoch=') Or
@@ -585,6 +602,11 @@ BEGIN
  If (DestProj.Projection = prjUTM) And
     ((DestProj.Zone < 1) Or (DestProj.Zone > 60)) Then Begin
   Writeln('Erreur: zone UTM destination invalide (1..60).'); Halt(1);
+ End;
+ If HasAuthority And (UpperString(AuthorityName) <> 'EPSG') Then Begin
+  Writeln('Erreur: autorite non prise en charge: ', AuthorityName);
+  Writeln('Cette version autonome ne connait que les CRS WGS84 associes a EPSG.');
+  Halt(1);
  End;
  If Verbose Then ShowVerbose(SourceProj, DestProj);
 
