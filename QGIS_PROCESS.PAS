@@ -1253,6 +1253,9 @@ Type
 
 Var
  JsonMode:Boolean;
+ Verbose,StdinMode,HelpFlag,SkipPlugins:Boolean;
+ DistUnits,AreaUnits,Ellipsoid,ProjectPath,Pos3:String;
+ DistFactor,AreaFactor:Real;   { metres par unite, metres carres par unite (0 = non defini) }
  Cmd,AlgoId:String;
  ArgName,ArgVal:Array[1..MaxArg]of String;
  ArgCount:Integer;
@@ -1394,14 +1397,55 @@ End;
 
 Function JsonVal(S:String):String;
 Begin
- If IsNumber(S)Then JsonVal:=S
-               Else JsonVal:=JsonStr(S);
+ If IsNumber(S)Then JsonVal:=S Else
+ If(S='true')or(S='false')Then JsonVal:=S
+                         Else JsonVal:=JsonStr(S);
 End;
 
 Procedure Fail(Msg:String);Begin
  If JsonMode Then WriteLn('{"error":',JsonStr(Msg),'}')
              Else WriteLn(Msg);
  Halt(1);
+End;
+
+{ Metres par unite de distance (0 si l'unite est inconnue) }
+Function DistanceFactor(Name:String):Real;
+Var
+ I:Integer;
+Begin
+ Name:=StrUpper(Name);
+ For I:=1 to Length(Name)do If Name[I]in['_','-']Then Name[I]:=' ';
+ DistanceFactor:=0;
+ If(Name='METERS')or(Name='METRES')or(Name='M')Then DistanceFactor:=1 Else
+ If(Name='KILOMETERS')or(Name='KILOMETRES')or(Name='KM')Then DistanceFactor:=1000 Else
+ If(Name='FEET')or(Name='FT')Then DistanceFactor:=0.3048 Else
+ If(Name='YARDS')or(Name='YD')Then DistanceFactor:=0.9144 Else
+ If(Name='MILES')or(Name='MI')Then DistanceFactor:=1609.344 Else
+ If(Name='NAUTICAL MILES')or(Name='NM')Then DistanceFactor:=1852 Else
+ If(Name='CENTIMETERS')or(Name='CENTIMETRES')or(Name='CM')Then DistanceFactor:=0.01 Else
+ If(Name='MILLIMETERS')or(Name='MILLIMETRES')or(Name='MM')Then DistanceFactor:=0.001 Else
+ If(Name='INCHES')or(Name='IN')Then DistanceFactor:=0.0254;
+End;
+
+{ Metres carres par unite d'aire (0 si l'unite est inconnue) }
+Function AreaUnitFactor(Name:String):Real;
+Var
+ I:Integer;
+Begin
+ Name:=StrUpper(Name);
+ For I:=1 to Length(Name)do If Name[I]in['_','-']Then Name[I]:=' ';
+ AreaUnitFactor:=0;
+ If Name='SQUARE METERS'Then AreaUnitFactor:=1 Else
+ If Name='SQUARE KILOMETERS'Then AreaUnitFactor:=1E6 Else
+ If Name='SQUARE FEET'Then AreaUnitFactor:=0.09290304 Else
+ If Name='SQUARE YARDS'Then AreaUnitFactor:=0.83612736 Else
+ If Name='SQUARE MILES'Then AreaUnitFactor:=2589988.110336 Else
+ If Name='HECTARES'Then AreaUnitFactor:=10000 Else
+ If Name='ACRES'Then AreaUnitFactor:=4046.8564224 Else
+ If Name='SQUARE NAUTICAL MILES'Then AreaUnitFactor:=3429904 Else
+ If Name='SQUARE CENTIMETERS'Then AreaUnitFactor:=1E-4 Else
+ If Name='SQUARE MILLIMETERS'Then AreaUnitFactor:=1E-6 Else
+ If Name='SQUARE INCHES'Then AreaUnitFactor:=0.00064516;
 End;
 
 Function AllocBlock(Size:LongInt):Pointer;
@@ -5846,18 +5890,33 @@ End;
 Procedure ShowGeneralHelp;Begin
  WriteLn('QGIS Processing Executor (clone) - ',VersionStr);
  WriteLn;
- WriteLn('Usage: QGIS_PROCESS [--help] [--version] [--json] [command] [algorithm id] [parameters]');
+ WriteLn('Usage: QGIS_PROCESS [--help] [--version] [--json] [--verbose] [--no-python]');
+ WriteLn('                    [--skip-loading-plugins] [--distance_units=UNITS] [--area_units=UNITS]');
+ WriteLn('                    [--ellipsoid=ELLIPSOID] [--project_path=PATH]');
+ WriteLn('                    [command] [algorithm id or command parameters]');
  WriteLn;
  WriteLn('Options:');
- WriteLn('  --help, -h, /?   Display this help');
- WriteLn('  --version        Display the version');
- WriteLn('  --json           Output results in JSON format');
+ WriteLn('  --help, -h, /?            Display this help (after a command: help of that command)');
+ WriteLn('  --version                 Display the version');
+ WriteLn('  --json                    Output results in JSON format');
+ WriteLn('  --verbose                 Display more messages while an algorithm runs');
+ WriteLn('  --no-python               Accepted for compatibility (there is no Python here)');
+ WriteLn('  --skip-loading-plugins    Accepted for compatibility');
+ WriteLn('  --distance_units=UNITS    Units of the distances in the results (meters, kilometers,');
+ WriteLn('                            feet, yards, miles, nautical miles, centimeters, millimeters, inches)');
+ WriteLn('  --area_units=UNITS        Units of the areas in the results (square meters, square kilometers,');
+ WriteLn('                            square feet, square yards, square miles, hectares, acres, ...)');
+ WriteLn('  --ellipsoid=NAME          NONE forces planar measures; any other value uses the sphere');
+ WriteLn('  --project_path=PATH       Project file (must exist; its content is not used)');
  WriteLn;
  WriteLn('Available commands:');
- WriteLn('  plugins          List available (and active) plugins');
- WriteLn('  list             List all available processing algorithms');
- WriteLn('  help             Show help for an algorithm (help ALGORITHM_ID)');
- WriteLn('  run              Run an algorithm (run ALGORITHM_ID --PARAM=VALUE ...)');
+ WriteLn('  plugins                   List available (and active) plugins');
+ WriteLn('  plugins enable|disable N  Enable or disable the plugin N');
+ WriteLn('  list                      List all available processing algorithms');
+ WriteLn('  help                      Show help for an algorithm (help ALGORITHM_ID)');
+ WriteLn('  run                       Run an algorithm (run ALGORITHM_ID --PARAM=VALUE ...)');
+ WriteLn('                            With "-" as the last argument the parameters are read as JSON');
+ WriteLn('                            from the standard input: {"inputs":{"NAME":value,...}}');
  WriteLn;
  WriteLn('Vector layers are GeoJSON files, rasters are ESRI ASCII Grid (.asc) files.');
  WriteLn;
@@ -5905,14 +5964,57 @@ Begin
  End;
 End;
 
-Procedure ShowPlugins;Begin
- If JsonMode Then WriteLn('{"plugins":{}}')
+{ Extensions : seule "processing" existe (integree et toujours active) ; les autres fournisseurs de QGIS
+  (GRASS, SAGA, OTB...) sont connus mais indisponibles dans ce clone }
+Const
+ PluginCount=4;
+ PluginNames:Array[1..PluginCount]of String[24]=('processing','grassprovider','processing_saga_nextgen','otbprovider');
+
+Function PluginIndex(Name:String):Integer;
+Var
+ I:Integer;
+Begin
+ PluginIndex:=0;
+ For I:=1 to PluginCount do If PluginNames[I]=Name Then PluginIndex:=I;
+End;
+
+Procedure ShowPlugins;
+Var
+ I:Integer;
+Begin
+ If JsonMode Then Begin
+  Write('{"plugins":{');
+  For I:=1 to PluginCount do Begin
+   If I>1Then Write(',');
+   If I=1Then Write(JsonStr(PluginNames[I]),':{"loaded":true,"enabled":true,"builtin":true}')
+         Else Write(JsonStr(PluginNames[I]),':{"loaded":false,"enabled":false,"available":false}');
+  End;
+  WriteLn('}}');
+ End
   Else
  Begin
   WriteLn('Available plugins');
   WriteLn;
-  WriteLn('(none)');
+  For I:=1 to PluginCount do
+   If I=1Then WriteLn(#9,PluginNames[I],' (enabled, built-in)')
+         Else WriteLn(#9,PluginNames[I],' (not available in this clone)');
  End;
+End;
+
+{ plugins enable|disable NOM }
+Procedure PluginsAction(Action,Name:String);
+Var
+ I:Integer;
+Begin
+ Action:=StrUpper(Action);
+ If(Action<>'ENABLE')and(Action<>'DISABLE')Then Fail('Error: unknown plugins action "'+Action+'" (use enable or disable)');
+ If Name=''Then Fail('Error: missing plugin name');
+ I:=PluginIndex(Name);
+ If I=0Then Fail('Error: plugin "'+Name+'" not found');
+ If I>1Then Fail('Error: plugin "'+Name+'" is not available in this clone');
+ If Action='DISABLE'Then Fail('Error: the built-in plugin "processing" cannot be disabled');
+ If JsonMode Then WriteLn('{"plugin":"processing","enabled":true}')
+             Else WriteLn('Plugin "processing" is already enabled');
 End;
 
 Procedure ShowAlgoHelp(A:Integer);
@@ -10732,13 +10834,20 @@ Var
  Root,Arr,F:PJ;
  G:TGeom;
  Method:Integer;
- Sph:Boolean;
+ Sph,Metric:Boolean;
+ Lf,Af:Real;
  X,Y:Real;
  Ok:Boolean;
 Begin
  LoadIn(A,'INPUT',Root,Arr);
  Method:=Round(NeedReal(A,'CALC_METHOD'));
- Sph:=(Method=2)and(LayerCrs(Root)=4326);
+ Sph:=(Method=2)and(LayerCrs(Root)=4326)and(StrUpper(Ellipsoid)<>'NONE');
+ Metric:=Sph or(LayerCrs(Root)=3857);
+ Lf:=1;Af:=1;
+ If Metric Then Begin
+  If DistFactor>0Then Lf:=1/DistFactor;
+  If AreaFactor>0Then Af:=1/AreaFactor;
+ End;
  F:=Arr^.First;
  While F<>Nil do Begin
   FlattenFeature(F,G);
@@ -10749,18 +10858,18 @@ Begin
     PutProp(F,'ycoord',JNum(Y));
    End;
    2:Begin
-    If Sph Then PutProp(F,'length',JNum(SphereLength(G)))
-           Else PutProp(F,'length',JNum(GeomLength(G)));
+    If Sph Then PutProp(F,'length',JNum(SphereLength(G)*Lf))
+           Else PutProp(F,'length',JNum(GeomLength(G)*Lf));
    End;
    3:Begin
     If Sph Then Begin
-     PutProp(F,'area',JNum(SphereArea(G)));
-     PutProp(F,'perimeter',JNum(SphereLength(G)));
+     PutProp(F,'area',JNum(SphereArea(G)*Af));
+     PutProp(F,'perimeter',JNum(SphereLength(G)*Lf));
     End
      Else
     Begin
-     PutProp(F,'area',JNum(GeomArea(G)));
-     PutProp(F,'perimeter',JNum(GeomLength(G)));
+     PutProp(F,'area',JNum(GeomArea(G)*Af));
+     PutProp(F,'perimeter',JNum(GeomLength(G)*Lf));
     End;
    End;
   End;
@@ -12953,14 +13062,33 @@ Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
  P:ParamRec;
+ Tmp:String;
 Begin
- { Verifie qu'aucun parametre inconnu n'a ete passe }
+ { Verifie les parametres avant de lancer l'algorithme : aucun parametre inconnu,
+   tous les parametres obligatoires presents }
  For I:=1 to ArgCount do
   If Not ParamDef(A,ArgName[I],P)Then
-   If Not((ArgName[I]='DISTANCE_UNITS')or(ArgName[I]='AREA_UNITS')or
-          (ArgName[I]='ELLIPSOID')or(ArgName[I]='PROJECT_PATH'))Then
-    Fail('Error: unknown parameter '+ArgName[I]);
+   Fail('Error: unknown parameter '+ArgName[I]);
+ For I:=1 to MaxParam do
+  If(Params[I].A=A)and(Params[I].Def='')and Not GetArg(Params[I].Name,Tmp)Then
+   Fail('Error: missing required parameter '+Params[I].Name);
  ResCount:=0;
+ If Not JsonMode Then Begin
+  WriteLn('QGIS Processing Executor (clone) - ',VersionStr);
+  WriteLn('Running ',Algos[A].Id,' [',Algos[A].Title,']');
+  WriteLn;
+  WriteLn('----------------');
+  WriteLn('Inputs');
+  WriteLn('----------------');
+  WriteLn;
+  For I:=1 to ArgCount do WriteLn(ArgName[I],':',#9,ArgVal[I]);
+  If DistUnits<>''Then WriteLn('distance_units:',#9,DistUnits);
+  If AreaUnits<>''Then WriteLn('area_units:',#9,AreaUnits);
+  If Ellipsoid<>''Then WriteLn('ellipsoid:',#9,Ellipsoid);
+  If ProjectPath<>''Then WriteLn('project_path:',#9,ProjectPath);
+  WriteLn;
+  If Verbose Then WriteLn('Algorithm ',Algos[A].Id,' starting...');
+ End;
  Case A of
   1:RunDistance(A);
   2:RunBearing(A);
@@ -13104,7 +13232,12 @@ Begin
    Write(' ',JsonStr(ArgName[I]),':',JsonVal(ArgVal[I]));
    If I<ArgCount Then WriteLn(',') Else WriteLn;
   End;
-  WriteLn('},"results":{');
+  Write('}');
+  If DistUnits<>''Then Write(',"distance_units":',JsonStr(DistUnits));
+  If AreaUnits<>''Then Write(',"area_units":',JsonStr(AreaUnits));
+  If Ellipsoid<>''Then Write(',"ellipsoid":',JsonStr(Ellipsoid));
+  If ProjectPath<>''Then Write(',"project_path":',JsonStr(ProjectPath));
+  WriteLn(',"results":{');
   For J:=1 to ResCount do Begin
    Write(' ',JsonStr(ResName[J]),':',JsonVal(ResVal[J]));
    If J<ResCount Then WriteLn(',') Else WriteLn;
@@ -13113,20 +13246,161 @@ Begin
  End
   Else
  Begin
-  WriteLn('QGIS Processing Executor (clone) - ',VersionStr);
-  WriteLn('Running ',Algos[A].Id,' [',Algos[A].Title,']');
-  WriteLn;
-  WriteLn('----------------');
-  WriteLn('Inputs');
-  WriteLn('----------------');
-  WriteLn;
-  For I:=1 to ArgCount do WriteLn(ArgName[I],':',#9,ArgVal[I]);
+  WriteLn('0...10...20...30...40...50...60...70...80...90...100 - done.');
   WriteLn;
   WriteLn('----------------');
   WriteLn('Results');
   WriteLn('----------------');
   WriteLn;
   For J:=1 to ResCount do WriteLn(ResName[J],':',#9,ResVal[J]);
+  If Verbose Then Begin
+   WriteLn;
+   WriteLn('Algorithm ',Algos[A].Id,' finished (',ResCount,' result(s)).');
+  End;
+ End;
+End;
+
+{ Option globale (--distance_units, --area_units, --ellipsoid, --project_path) ; Faux si ce n'en est pas une }
+Function SetGlobalOption(Name,Value:String):Boolean;
+Var
+ T:Text;
+Begin
+ SetGlobalOption:=True;
+ Name:=StrUpper(Name);
+ If Name='DISTANCE_UNITS'Then Begin
+  DistFactor:=DistanceFactor(Value);
+  If DistFactor<=0Then Fail('Error: unknown distance unit "'+Value+'"');
+  DistUnits:=Value;
+ End Else
+ If Name='AREA_UNITS'Then Begin
+  AreaFactor:=AreaUnitFactor(Value);
+  If AreaFactor<=0Then Fail('Error: unknown area unit "'+Value+'"');
+  AreaUnits:=Value;
+ End Else
+ If Name='ELLIPSOID'Then Ellipsoid:=Value Else
+ If Name='PROJECT_PATH'Then Begin
+  {$I-}
+  Assign(T,Value);
+  Reset(T);
+  {$I+}
+  If IOResult<>0Then Fail('Error: project file "'+Value+'" not found');
+  Close(T);
+  ProjectPath:=Value;
+ End
+  Else
+ SetGlobalOption:=False;
+End;
+
+{ Ajoute un parametre ; Append : une valeur deja presente est completee (liste separee par ;), sinon remplacee }
+Procedure AddArg(Name,Value:String;Append:Boolean);
+Var
+ K:Integer;
+Begin
+ Name:=StrUpper(Name);
+ For K:=1 to ArgCount do
+  If ArgName[K]=Name Then Begin
+   If Append Then Begin
+    If Length(ArgVal[K])+Length(Value)+1>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+    ArgVal[K]:=ArgVal[K]+';'+Value;
+   End
+    Else
+   ArgVal[K]:=Value;
+   Exit;
+  End;
+ Inc(ArgCount);
+ If ArgCount>MaxArg Then Fail('Error: too many parameters');
+ ArgName[ArgCount]:=Name;
+ ArgVal[ArgCount]:=Value;
+End;
+
+{ Valeur texte d'un noeud JSON de parametre (les tableaux deviennent des listes separees par ;) }
+Function JArgValue(N:PJ;Name:String):String;
+Var
+ C:PJ;
+ S,T:String;
+Begin
+ Case N^.Kind of
+  1,2:S:=JVal(N);
+  3:S:=Unesc(JVal(N));
+  4:Begin
+   S:='';
+   C:=N^.First;
+   While C<>Nil do Begin
+    T:=JArgValue(C,Name);
+    If S<>''Then S:=S+';';
+    S:=S+T;
+    C:=C^.Next;
+   End;
+  End;
+  Else Begin
+   Fail('Error: the value of '+Name+' must be a string, a number, a boolean or a list');
+   S:='';
+  End;
+ End;
+ If Length(S)>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+ JArgValue:=S;
+End;
+
+(* Lit les parametres au format JSON sur l'entree standard :
+   {"inputs":{...},"distance_units":"...","area_units":"...","ellipsoid":"...","project_path":"..."} *)
+Procedure ReadStdinInputs;
+Var
+ Root,Inp,C:PJ;
+Begin
+ ParseName:='standard input';
+ Assign(PF,'');
+ Reset(PF);
+ SetTextBuf(PF,PBuf);
+ NextCh;
+ Root:=ParseValue(0);
+ If Root^.Kind<>5Then Fail('Error: the JSON read from the standard input must be an object');
+ Inp:=JFind(Root,'inputs');
+ If(Inp=Nil)or(Inp^.Kind<>5)Then Fail('Error: the JSON read from the standard input must have an "inputs" object');
+ C:=Inp^.First;
+ While C<>Nil do Begin
+  If C^.Kind<>0Then AddArg(JKey(C),JArgValue(C,JKey(C)),False);
+  C:=C^.Next;
+ End;
+ C:=Root^.First;
+ While C<>Nil do Begin
+  If(JKey(C)<>'inputs')and(C^.Kind in[1,2,3])Then
+   If Not SetGlobalOption(JKey(C),JArgValue(C,JKey(C)))Then Fail('Error: unknown key "'+JKey(C)+'" in the JSON read from the standard input');
+  C:=C^.Next;
+ End;
+End;
+
+Procedure ShowCommandHelp(C:String);Begin
+ C:=StrUpper(C);
+ If C='LIST'Then Begin
+  WriteLn('Usage: QGIS_PROCESS list');
+  WriteLn;
+  WriteLn('Lists all the available algorithms, grouped by provider (native, gdal).');
+  WriteLn('With --json the result is {"providers":{...}}.');
+ End Else
+ If C='PLUGINS'Then Begin
+  WriteLn('Usage: QGIS_PROCESS plugins');
+  WriteLn('       QGIS_PROCESS plugins enable PLUGIN_NAME');
+  WriteLn('       QGIS_PROCESS plugins disable PLUGIN_NAME');
+  WriteLn;
+  WriteLn('Lists the available plugins, or enables/disables one of them.');
+  WriteLn('Only the built-in "processing" plugin is available in this clone.');
+ End Else
+ If C='HELP'Then Begin
+  WriteLn('Usage: QGIS_PROCESS help ALGORITHM_ID');
+  WriteLn;
+  WriteLn('Describes an algorithm: its description, parameters (with types, defaults and');
+  WriteLn('whether they are required) and outputs. With --json the result is a JSON object.');
+ End
+  Else
+ Begin
+  WriteLn('Usage: QGIS_PROCESS run ALGORITHM_ID [--PARAMETER=VALUE ...]');
+  WriteLn('       QGIS_PROCESS run ALGORITHM_ID -');
+  WriteLn;
+  WriteLn('Runs an algorithm. Parameters are given as --NAME=VALUE (repeat a parameter to build a');
+  WriteLn('list, or separate the items with ;). With "-" the parameters are read as JSON from the');
+  WriteLn('standard input, for example:');
+  WriteLn('  echo {"inputs":{"X1":0,"Y1":0,"X2":3,"Y2":4}} | QGIS_PROCESS --json run native:calculatedistance -');
+  WriteLn('Values are limited to 255 characters. Use "help ALGORITHM_ID" to list the parameters.');
  End;
 End;
 
@@ -13137,16 +13411,20 @@ Var
  S,Name:String;
  N:Integer;
 Begin
- JsonMode:=False;
+ JsonMode:=False;Verbose:=False;StdinMode:=False;HelpFlag:=False;SkipPlugins:=False;
+ DistUnits:='';AreaUnits:='';Ellipsoid:='';ProjectPath:='';Pos3:='';
+ DistFactor:=0;AreaFactor:=0;
  Cmd:='';AlgoId:='';
  ArgCount:=0;
  N:=0;
  For I:=1 to ParamCount do Begin
   S:=ParamStr(I);
   If StrUpper(S)='--JSON'Then JsonMode:=True Else
-  If(StrUpper(S)='--NO-PYTHON')or(StrUpper(S)='--VERBOSE')Then Begin End Else
+  If StrUpper(S)='--VERBOSE'Then Verbose:=True Else
+  If StrUpper(S)='--NO-PYTHON'Then Begin End Else
+  If StrUpper(S)='--SKIP-LOADING-PLUGINS'Then SkipPlugins:=True Else
   If(S='/?')or(S='-h')or(S='/h')or(S='/H')or(StrUpper(S)='--HELP')Then Begin
-   If Cmd=''Then Cmd:='--help';
+   If Cmd=''Then Cmd:='--help' Else HelpFlag:=True;
   End
    Else
   If StrUpper(S)='--VERSION'Then Begin
@@ -13155,20 +13433,25 @@ Begin
    Else
   Begin
    P:=Pos('=',S);
-   If(P>0)and(N>0)Then Begin
+   Name:='';
+   If P>0Then Begin
     Name:=Copy(S,1,P-1);
     While(Name<>'')and(Name[1]in['-','/'])do Name:=Copy(Name,2,255);
-    Inc(ArgCount);
-    If ArgCount>MaxArg Then Fail('Error: too many parameters');
-    ArgName[ArgCount]:=StrUpper(Name);
-    ArgVal[ArgCount]:=Copy(S,P+1,255);
-   End
+   End;
+   If(P>0)and SetGlobalOption(Name,Copy(S,P+1,255))Then Begin End
+    Else
+   If(P>0)and(N>0)Then AddArg(Name,Copy(S,P+1,255),True)
     Else
    Begin
     Inc(N);
     If N=1Then Cmd:=S Else
-    If N=2Then AlgoId:=S
-          Else Fail('Error: unexpected argument '+S);
+    If N=2Then AlgoId:=S Else
+    If N=3Then Begin
+     Pos3:=S;
+     If S='-'Then StdinMode:=True;
+    End
+     Else
+    Fail('Error: unexpected argument '+S);
    End;
   End;
  End;
@@ -13176,6 +13459,7 @@ End;
 
 Var
  A:Integer;
+ Up:String;
 BEGIN
  ParseArgs;
  If(Cmd='')or(Cmd='--help')Then ShowGeneralHelp Else
@@ -13184,14 +13468,28 @@ BEGIN
               Else WriteLn('QGIS_PROCESS clone ',VersionStr);
  End
   Else
+ If HelpFlag and((StrUpper(Cmd)='LIST')or(StrUpper(Cmd)='PLUGINS')or(StrUpper(Cmd)='HELP')or(StrUpper(Cmd)='RUN'))Then
+  ShowCommandHelp(Cmd)
+  Else
  If StrUpper(Cmd)='LIST'Then ShowList Else
- If StrUpper(Cmd)='PLUGINS'Then ShowPlugins Else
+ If StrUpper(Cmd)='PLUGINS'Then Begin
+  If AlgoId=''Then ShowPlugins Else PluginsAction(AlgoId,Pos3);
+ End
+  Else
  If(StrUpper(Cmd)='HELP')or(StrUpper(Cmd)='RUN')Then Begin
   If AlgoId=''Then Fail('Error: missing algorithm id');
+  Up:=StrUpper(AlgoId);
+  If(Copy(Up,Length(Up)-6,7)='.MODEL3')or(Copy(Up,Length(Up)-2,3)='.PY')Then
+   Fail('Error: model files and Python scripts are not supported by this clone');
   A:=FindAlgo(AlgoId);
   If A=0Then Fail('Error: algorithm "'+AlgoId+'" not found');
   If StrUpper(Cmd)='HELP'Then ShowAlgoHelp(A)
-                         Else RunAlgo(A);
+   Else
+  Begin
+   If(Pos3<>'')and Not StdinMode Then Fail('Error: unexpected argument '+Pos3);
+   If StdinMode Then ReadStdinInputs;
+   RunAlgo(A);
+  End;
  End
   Else
  Fail('Error: unknown command "'+Cmd+'"');
