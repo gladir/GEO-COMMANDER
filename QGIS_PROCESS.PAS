@@ -3841,7 +3841,7 @@ End;
   fermee pour obtenir la bande qui entoure sa frontiere. }
 Procedure OffsetPath(Var G:TGeom;P:PPath;D:Real;Seg:Integer;Poly:Integer);
 Var
- Q,Cyc,Out:PPts;
+ Q,Cyc,Out,Q2:PPts;
  M,I,K,CN,ON,Pass:LongInt;
  Pa:PPath;
  Closed:Boolean;
@@ -3863,29 +3863,16 @@ Begin
  End;
  Closed:=(M>=4)and(Q^[0].X=Q^[M-1].X)and(Q^[0].Y=Q^[M-1].Y);
  If Closed Then Begin
-  { anneau ferme : deux contours fermes (cote droit, puis cote gauche) }
-  Dec(M);
-  CN:=M;
-  Cyc:=AllocBlock(CN*SizeOf(TPt));
-  Out:=AllocBlock((CN*(4*Seg+6)+2)*SizeOf(TPt));
-  For Pass:=0 to 1do Begin
-   If Pass=0Then For I:=0 to M-1do Cyc^[I]:=Q^[I]
-            Else For I:=0 to M-1do Cyc^[I]:=Q^[M-1-I];
-   ON:=0;
-   For I:=0 to CN-1do Begin
-    K:=(I+CN-1)mod CN;
-    RightJoin(Cyc^[K].X,Cyc^[K].Y,Cyc^[I].X,Cyc^[I].Y,Cyc^[(I+1)mod CN].X,Cyc^[(I+1)mod CN].Y,
-              D,Seg,True,Out,ON);
-   End;
-   Pa:=NewPath(G,ON+1,Poly);
-   Move(Out^,Pa^.Pts^,ON*SizeOf(TPt));
-   Pa^.Pts^[ON]:=Pa^.Pts^[0];
-   Pa^.N:=ON+1;
-  End;
-  FreeMem(Out,(CN*(4*Seg+6)+2)*SizeOf(TPt));
-  FreeMem(Cyc,CN*SizeOf(TPt));
+  { anneau ferme : on le coupe au milieu de son premier segment (sommet aligne),
+    ce qui evite toute extremite parasite a la jonction }
+  Q2:=AllocBlock((M+2)*SizeOf(TPt));
+  Q2^[0].X:=(Q^[0].X+Q^[1].X)/2;Q2^[0].Y:=(Q^[0].Y+Q^[1].Y)/2;
+  For I:=1 to M-1do Q2^[I]:=Q^[I];
+  Q2^[M]:=Q2^[0];
   FreeMem(Q,P^.N*SizeOf(TPt));
-  Exit;
+  Q:=Q2;
+  Inc(M);
+  Q2:=Nil;
  End;
  CN:=2*M-2;
  Cyc:=AllocBlock(CN*SizeOf(TPt));
