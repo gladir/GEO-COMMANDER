@@ -9,12 +9,12 @@ Program TRIANGLE;
 {$E+,N+}
 
 Const
- EarthRadius=6371000;  { Rayon moyen de la Terre en mŠtres }
+ EarthRadius=6371000;  { Rayon moyen de la Terre en metres }
 
 Type
  TPoint=Record
-  lat,lon:Double;  { Latitude et longitude en degr‚s }
-  dist:Double;     { Distance au point inconnu en mŠtres }
+  lat,lon:Double;  { Latitude et longitude en degres }
+  dist:Double;     { Distance au point inconnu en metres }
  End;
 
 Function ArcCos(a:Real):Real;
@@ -42,20 +42,20 @@ Begin
  If(x<0)And(y<0)Then Arctan2:=Arctan(y/x)-PI Else
  If(x=0)And(y>0)Then Arctan2:=PI/2 Else
  If(x=0)And(y<0)Then Arctan2:=-PI/2
-                Else Arctan2:=0;  { Cas x = 0 et y = 0, angle ind‚fini }
+                Else Arctan2:=0;  { Cas x = 0 et y = 0, angle indefini }
 End;
 
- { Conversion de degr‚s en radians }
+ { Conversion de degres en radians }
 Function DegToRad(deg:Double):Double;Begin
  DegToRad:=deg*Pi/180;
 End;
 
- { Conversion de radians en degr‚s }
+ { Conversion de radians en degres }
 Function RadToDeg(rad:Double):Double;Begin
  RadToDeg:=rad*180/Pi;
 End;
 
- { Conversion de latitude/longitude en coordonn‚es cart‚siennes (X, Y, Z) }
+ { Conversion de latitude/longitude en coordonnees cart‚siennes (X, Y, Z) }
 Procedure LatLonToXYZ(lat,lon:Double;Var x,y,z:Double);
 Var
  latRad,lonRad:Double;
@@ -68,18 +68,18 @@ Begin
  z:=EarthRadius*Sin(latRad);
 End;
 
- { Fonction de trilat‚ration }
+ { Fonction de trilateration }
 Procedure Trilaterate(p1,p2,p3:TPoint;Var lat,lon:Double);
 Var
  x1, y1, z1, x2, y2, z2, x3, y3, z3: Double;
  exx, exy, exz, i, eyx, eyy, eyz, j, ezx, ezy, ezz, x, y, z, d, a, b: Double;
 Begin
-  { Conversion des 3 points en coordonn‚es cart‚siennes }
+  { Conversion des 3 points en coordonnees cart‚siennes }
  LatLonToXYZ(p1.lat, p1.lon, x1, y1, z1);
  LatLonToXYZ(p2.lat, p2.lon, x2, y2, z2);
  LatLonToXYZ(p3.lat, p3.lon, x3, y3, z3);
 
-  { Vecteur unit‚ ex dans la direction de p2 - p1 }
+  { Vecteur unite ex dans la direction de p2 - p1 }
  exx:=(x2 - x1) / sqrt(sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1));
  exy:=(y2 - y1) / sqrt(sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1));
  exz:=(z2 - z1) / sqrt(sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1));
@@ -90,7 +90,7 @@ Begin
   { Projeter p3 sur le vecteur ex }
  i:=exx * (x3 - x1) + exy * (y3 - y1) + exz * (z3 - z1);
 
-  { Vecteur unit‚ ey perpendiculaire … ex }
+  { Vecteur unite ey perpendiculaire a ex }
  eyx:=(x3 - x1 - i * exx) / sqrt(sqr(x3 - x1 - i * exx) + sqr(y3 - y1 - i * exy) + sqr(z3 - z1 - i * exz));
  eyy:=(y3 - y1 - i * exy) / sqrt(sqr(x3 - x1 - i * exx) + sqr(y3 - y1 - i * exy) + sqr(z3 - z1 - i * exz));
  eyz:=(z3 - z1 - i * exz) / sqrt(sqr(x3 - x1 - i * exx) + sqr(y3 - y1 - i * exy) + sqr(z3 - z1 - i * exz));
@@ -98,7 +98,7 @@ Begin
   { Projeter p3 sur ey }
  j:=eyx * (x3 - x1) + eyy * (y3 - y1) + eyz * (z3 - z1);
 
-  { Vecteur unit‚ ez perpendiculaire … ex et ey }
+  { Vecteur unite ez perpendiculaire a ex et ey }
  ezx:=exy * eyz - exz * eyy;
  ezy:=exz * eyx - exx * eyz;
  ezz:=exx * eyy - exy * eyx;
@@ -126,26 +126,26 @@ BEGIN
  If(ParamStr(1)='/?')or(ParamStr(1)='--help')or(ParamStr(1)='-h')or
    (ParamStr(1)='/h')or(ParamStr(1)='/H')Then Begin
   WriteLn('TRIANGLE : Cette commande permet la triangulation d''une position ',
-                     ' en utilisant un algorithme de trilat‚ration ',
-                     'g‚ographique. ');
+                     ' en utilisant un algorithme de trilat'+#130+'ration ',
+                     'g'+#130+'ographique. ');
   WriteLn;
   WriteLn('Syntaxe : TRIANGLE lat1 lon1 dist1 lat2 lon2 dist2 lat3 lon3 dist3');
   WriteLn;
-  WriteLn(' lat1   Lattitude de la premiŠre coordonn‚e');
-  WriteLn(' lon1   Longitude de la premiŠre coordonn‚es');
-  WriteLn(' dist1  La distance de la premiŠre coordonn‚e');
-  WriteLn(' lat2   Lattitude de la deuxiŠme coordonn‚e');
-  WriteLn(' lon2   Longitude de la deuxiŠme coordonn‚e');
-  WriteLn(' dist2  La distance de la deuxiŠme coordonn‚e');
-  WriteLn(' lat3   Lattitude de la troisiŠme coordonn‚e');
-  WriteLn(' lon3   Longitude de la troisiŠme coordonn‚e');
-  WriteLn(' dist3  La distance de la troisiŠme coordonn‚e');
+  WriteLn(' lat1   Lattitude de la premi'+#138+'re coordonn'+#130+'e');
+  WriteLn(' lon1   Longitude de la premi'+#138+'re coordonn'+#130+'es');
+  WriteLn(' dist1  La distance de la premi'+#138+'re coordonn'+#130+'e');
+  WriteLn(' lat2   Lattitude de la deuxi'+#138+'me coordonn'+#130+'e');
+  WriteLn(' lon2   Longitude de la deuxi'+#138+'me coordonn'+#130+'e');
+  WriteLn(' dist2  La distance de la deuxi'+#138+'me coordonn'+#130+'e');
+  WriteLn(' lat3   Lattitude de la troisi'+#138+'me coordonn'+#130+'e');
+  WriteLn(' lon3   Longitude de la troisi'+#138+'me coordonn'+#130+'e');
+  WriteLn(' dist3  La distance de la troisi'+#138+'me coordonn'+#130+'e');
   WriteLn;
   WriteLn('Exemple : triangle 48.8566 2.3522 5000 48.8584 2.2945 3000 48.8738 2.2950 4000');
  End
   Else
  If ParamCount>0Then Begin
-   { D‚finition des 3 points de r‚f‚rence et leurs distances }
+   { D‚finition des 3 points de reference et leurs distances }
   Val(ParamStr(1),p1.lat,Err);
   If Err>0 Then Begin
    WriteLn('La latitude 1 n''est pas valide');
@@ -195,7 +195,7 @@ BEGIN
    { Calcul de la position inconnue }
    Trilaterate(p1, p2, p3, lat, lon);
 
-   { Affichage du r‚sultat }
+   { Affichage du resultat }
   Writeln('Latitude: ', lat:0:6, ' Longitude: ', lon:0:6);
  End;
 END.
