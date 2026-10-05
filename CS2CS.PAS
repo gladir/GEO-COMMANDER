@@ -151,6 +151,69 @@ Begin
  Longitude := RadToDeg(Longitude);
 End;
 
+Function ArcTan2(Y, X : Real) : Real;
+Var A : Real;
+Begin
+ If X > 0.0 Then A := ArcTan(Y / X)
+ Else If X < 0.0 Then Begin
+  A := ArcTan(Y / X);
+  If Y >= 0.0 Then A := A + PI Else A := A - PI;
+ End Else If Y > 0.0 Then A := PI / 2.0
+ Else If Y < 0.0 Then A := -PI / 2.0
+ Else A := 0.0;
+ ArcTan2 := A;
+End;
+
+Procedure GeodeticToECEF(Longitude, Latitude, Height : Real;
+                         Var X, Y, Z : Real);
+Var F, E2, Lat, Lon, N : Real;
+Begin
+ F := F_WGS84;
+ E2 := F * (2.0 - F);
+ Lat := DegToRad(Latitude);
+ Lon := DegToRad(Longitude);
+ N := A_WGS84 / Sqrt(1.0 - E2 * Sqr(Sin(Lat)));
+ X := (N + Height) * Cos(Lat) * Cos(Lon);
+ Y := (N + Height) * Cos(Lat) * Sin(Lon);
+ Z := (N * (1.0 - E2) + Height) * Sin(Lat);
+End;
+
+Procedure ECEFToGeodetic(X, Y, Z : Real;
+                         Var Longitude, Latitude, Height : Real);
+Var F, E2, P, Lat, N : Real;
+ I : Integer;
+Begin
+ F := F_WGS84;
+ E2 := F * (2.0 - F);
+ P := Sqrt(X * X + Y * Y);
+ Longitude := RadToDeg(ArcTan2(Y, X));
+ If P < 0.000001 Then Begin
+  If Z >= 0.0 Then Latitude := 90.0 Else Latitude := -90.0;
+  Height := Abs(Z) - A_WGS84 * Sqrt(1.0 - E2);
+ End Else Begin
+  Lat := ArcTan(Z / (P * (1.0 - E2)));
+  For I := 1 To 8 Do Begin
+   N := A_WGS84 / Sqrt(1.0 - E2 * Sqr(Sin(Lat)));
+   Lat := ArcTan((Z + E2 * N * Sin(Lat)) / P);
+  End;
+  N := A_WGS84 / Sqrt(1.0 - E2 * Sqr(Sin(Lat)));
+  Height := P / Cos(Lat) - N;
+  Latitude := RadToDeg(Lat);
+ End;
+End;
+
+Procedure PropagateEpoch(Longitude, Latitude, Height, DeltaYears : Real;
+                         VelocityX, VelocityY, VelocityZ : Real;
+                         Var NewLongitude, NewLatitude, NewHeight : Real);
+Var X, Y, Z : Real;
+Begin
+ GeodeticToECEF(Longitude, Latitude, Height, X, Y, Z);
+ X := X + VelocityX * DeltaYears;
+ Y := Y + VelocityY * DeltaYears;
+ Z := Z + VelocityZ * DeltaYears;
+ ECEFToGeodetic(X, Y, Z, NewLongitude, NewLatitude, NewHeight);
+End;
+
 Function UpperString(S : String) : String;
 Var I : Integer;
 Begin
@@ -229,8 +292,10 @@ Procedure ShowHelp;Begin
  Writeln('--accuracy <metres> accepte les tolerances de 1 m ou plus.');
  Writeln('--only-best[=yes|no] et --no-ballpark sont acceptes; le moteur');
  Writeln('autonome ne dispose que de transformations explicites WGS84.');
- Writeln('--s_epoch/--t_epoch acceptent une annee decimale identique;');
- Writeln('les changements d''epoque exigent un moteur dynamique PROJ.');
+ Writeln('--s_epoch/--t_epoch <annee> propagent une coordonnee dans le temps.');
+ Writeln('--velocity <vx,vy,vz> fournit la vitesse ECEF constante X,Y,Z en m/an.');
+ Writeln('Avec --3d, Z doit contenir la hauteur ellipsoidale en metres; sinon');
+ Writeln('la hauteur est supposee nulle. Modele lineaire, sans grille tectonique.');
 End;
 
 Procedure ShowList(Kind : String);
@@ -415,6 +480,32 @@ Begin
  ParseBBoxValue := True;
 End;
 
+Function ParseVelocityValue(S : String; Var VX, VY, VZ : Real) : Boolean;
+Var
+ I, StartPos, Count : Integer;
+ Value : Real;
+ Part : String;
+Begin
+ ParseVelocityValue := False;
+ StartPos := 1;
+ Count := 0;
+ For I := 1 To Length(S) + 1 Do Begin
+  If (I > Length(S)) Or (S[I] = ',') Then Begin
+   If Count >= 3 Then Exit;
+   Part := Copy(S, StartPos, I - StartPos);
+   If (Part = '') Or (Not TryValue(Part, Value)) Then Exit;
+   Case Count Of
+    0: VX := Value;
+    1: VY := Value;
+    2: VZ := Value;
+   End;
+   Inc(Count);
+   StartPos := I + 1;
+  End;
+ End;
+ ParseVelocityValue := Count = 3;
+End;
+
 Procedure ShowVerbose(Source, Dest : TProjDef; OnlyBest, NoBallpark,
                       HasSourceEpoch, HasTargetEpoch : Boolean;
                       SourceEpoch, TargetEpoch : Real);
@@ -442,10 +533,13 @@ Var
  Area, BBox : TAreaDef;
  RequestedAccuracy : Real;
  SourceEpoch, TargetEpoch : Real;
+ VelocityX, VelocityY, VelocityZ, DeltaYears : Real;
+ SourceHeight, NewHeight : Real;
+ GeographicLongitude, GeographicLatitude : Real;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
  DMSOutput, FixedDMS, Has3D, Failed, HasArea, HasBBox : Boolean;
  HasAuthority, HasAccuracy, OnlyBest, NoBallpark : Boolean;
- HasSourceEpoch, HasTargetEpoch : Boolean;
+ HasSourceEpoch, HasTargetEpoch, HasVelocity : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -469,6 +563,7 @@ BEGIN
  NoBallpark := False;
  HasSourceEpoch := False;
  HasTargetEpoch := False;
+ HasVelocity := False;
  AreaName := '';
  BBoxArg := '';
  AuthorityName := '';
@@ -606,6 +701,25 @@ BEGIN
    End;
    HasTargetEpoch := True;
   End Else
+  If Arg = '--velocity' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --velocity.'); Halt(1);
+   End;
+   If Not ParseVelocityValue(ParamStr(I), VelocityX, VelocityY, VelocityZ) Then Begin
+    Writeln('Erreur: --velocity attend trois composantes vx,vy,vz en m/an.');
+    Halt(1);
+   End;
+   HasVelocity := True;
+  End Else
+  If Copy(Arg, 1, 11) = '--velocity=' Then Begin
+   If Not ParseVelocityValue(Copy(Arg, 12, Length(Arg) - 11),
+                             VelocityX, VelocityY, VelocityZ) Then Begin
+    Writeln('Erreur: --velocity attend trois composantes vx,vy,vz en m/an.');
+    Halt(1);
+   End;
+   HasVelocity := True;
+  End Else
   If Arg = '-f' Then Begin
    Inc(I);
    If I > ParamCount Then Begin Writeln('Erreur: format manquant apres -f.'); Halt(1); End;
@@ -658,6 +772,11 @@ BEGIN
   TempProj := SourceProj;
   SourceProj := DestProj;
   DestProj := TempProj;
+  If HasSourceEpoch And HasTargetEpoch Then Begin
+   TempReal := SourceEpoch;
+   SourceEpoch := TargetEpoch;
+   TargetEpoch := TempReal;
+  End;
  End;
  If SourceProj.Projection = prjUnknown Then Begin
   Writeln('Erreur: projection source non supportee.'); Halt(1);
@@ -690,9 +809,11 @@ BEGIN
   Writeln('Erreur: --s_epoch et --t_epoch doivent etre fournis ensemble.');
   Halt(1);
  End;
- If HasSourceEpoch And (Abs(SourceEpoch - TargetEpoch) > 0.000001) Then Begin
-  Writeln('Erreur: epoque source et cible differente; les transformations');
-  Writeln('dynamiques ne sont pas disponibles dans cette version autonome.');
+ If HasSourceEpoch Then DeltaYears := TargetEpoch - SourceEpoch
+ Else DeltaYears := 0.0;
+ If (Abs(DeltaYears) > 0.000001) And (Not HasVelocity) Then Begin
+  Writeln('Erreur: une vitesse ECEF est requise pour changer d''epoque.');
+  Writeln('Fournissez --velocity vx,vy,vz en metres par annee.');
   Halt(1);
  End;
  If Verbose Then ShowVerbose(SourceProj, DestProj, OnlyBest, NoBallpark,
@@ -746,24 +867,30 @@ BEGIN
   If Failed Then Writeln(ErrorText)
   Else Begin
     If SourceProj.Projection = prjLongLat Then Begin
-     If DestProj.Projection = prjLongLat Then Begin
-      OutX := Longitude; OutY := Latitude;
-     End Else Begin
-      LatLonToUTM(Latitude, Longitude, DestProj.Zone,
-                  DestProj.South, OutX, OutY);
-     End;
-    End Else If DestProj.Projection = prjLongLat Then Begin
+     GeographicLongitude := Longitude;
+     GeographicLatitude := Latitude;
+    End Else
      UTMToLatLon(Longitude, Latitude, SourceProj.Zone,
-                 SourceProj.South, OutY, OutX);
-    End Else If (SourceProj.Zone = DestProj.Zone) And
-                 (SourceProj.South = DestProj.South) Then Begin
-     OutX := Longitude; OutY := Latitude;
+                 SourceProj.South, GeographicLatitude, GeographicLongitude);
+    SourceHeight := 0.0;
+    If Has3D Then SourceHeight := Z;
+    If Abs(DeltaYears) > 0.000001 Then Begin
+     PropagateEpoch(GeographicLongitude, GeographicLatitude, SourceHeight,
+                    DeltaYears, VelocityX, VelocityY, VelocityZ,
+                    Longitude, Latitude, NewHeight);
+     If Has3D Then Z := NewHeight;
     End Else Begin
-     Failed := True;
+     Longitude := GeographicLongitude;
+     Latitude := GeographicLatitude;
     End;
-    If Failed Then Writeln(ErrorText)
-    Else Begin
-     If SwapOutput Then Begin
+    If DestProj.Projection = prjLongLat Then Begin
+     OutX := Longitude;
+     OutY := Latitude;
+    End Else Begin
+     LatLonToUTM(Latitude, Longitude, DestProj.Zone,
+                 DestProj.South, OutX, OutY);
+    End;
+    If SwapOutput Then Begin
       TempReal := OutX; OutX := OutY; OutY := TempReal;
      End;
      If EchoInput Then Begin
@@ -781,8 +908,7 @@ BEGIN
       Write(FormatNumber(OutY, Decimals, FormatString));
      End;
      If Has3D And (TokenZ <> '') Then Write(' ', FormatNumber(Z, Decimals, FormatString));
-     Writeln;
-    End;
+    Writeln;
    End;
   End;
  End;
