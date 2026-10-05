@@ -190,9 +190,16 @@ End;
 
 Function IsInsideArea(Longitude, Latitude : Real;
                       Area : TAreaDef) : Boolean;
+Var Inside : Boolean;
 Begin
- IsInsideArea := (Latitude >= Area.South) And (Latitude <= Area.North) And
-  (Longitude >= Area.West) And (Longitude <= Area.East);
+ Inside := (Latitude >= Area.South) And (Latitude <= Area.North);
+ If Area.West <= Area.East Then
+  Inside := Inside And (Longitude >= Area.West) And
+            (Longitude <= Area.East)
+ Else
+  Inside := Inside And ((Longitude >= Area.West) Or
+                        (Longitude <= Area.East));
+ IsInsideArea := Inside;
 End;
 
 Procedure ShowHelp;Begin
@@ -217,7 +224,8 @@ Procedure ShowHelp;Begin
  Writeln('--area <nom/code> filtre les points par zone geographique reconnue.');
  Writeln('Zones: world (001), North America (003), Europe (EUR), Canada (CA),');
  Writeln('United States (US/USA/US-48). Limites = enveloppes, non frontieres.');
- Writeln('--bbox, --authority, --accuracy, --only-best,');
+ Writeln('--bbox <W,S,E,N> filtre les points dans une emprise geographique.');
+ Writeln('--authority, --accuracy, --only-best,');
  Writeln('--no-ballpark et --s_epoch/--t_epoch necessitent le moteur PROJ');
  Writeln('et sont refusees par cette implementation autonome.');
 End;
@@ -371,6 +379,39 @@ Begin
  TryValue := Err = 0;
 End;
 
+Function ParseBBoxValue(S : String; Var B : TAreaDef) : Boolean;
+Var
+ I, StartPos, Count : Integer;
+ Value : Real;
+ Part : String;
+Begin
+ ParseBBoxValue := False;
+ StartPos := 1;
+ Count := 0;
+ For I := 1 To Length(S) + 1 Do Begin
+  If (I > Length(S)) Or (S[I] = ',') Then Begin
+  If Count >= 4 Then Exit;
+  Part := Copy(S, StartPos, I - StartPos);
+  If (Part = '') Or (Not TryValue(Part, Value)) Then Exit;
+  Case Count Of
+   0: B.West := Value;
+   1: B.South := Value;
+   2: B.East := Value;
+   3: B.North := Value;
+  End;
+  Inc(Count);
+  StartPos := I + 1;
+  End;
+ End;
+ If Count <> 4 Then Exit;
+ If (B.West < -180.0) Or (B.West > 180.0) Or
+   (B.East < -180.0) Or (B.East > 180.0) Or
+   (B.South < -90.0) Or (B.South > 90.0) Or
+   (B.North < -90.0) Or (B.North > 90.0) Or
+   (B.South > B.North) Then Exit;
+ ParseBBoxValue := True;
+End;
+
 Procedure ShowVerbose(Source, Dest : TProjDef);Begin
  Writeln('Source:      ', ProjectionName(Source));
  Writeln('Destination: ', ProjectionName(Dest));
@@ -384,10 +425,10 @@ Var
  TempReal : Real;
  TempProj : TProjDef;
  Line, WorkLine, TokenX, TokenY, TokenZ, FormatString : String;
- ErrorText, CommentMark, Arg, AreaName : String;
- Area : TAreaDef;
+ ErrorText, CommentMark, Arg, AreaName, BBoxArg : String;
+ Area, BBox : TAreaDef;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
- DMSOutput, FixedDMS, Has3D, Failed, HasArea : Boolean;
+ DMSOutput, FixedDMS, Has3D, Failed, HasArea, HasBBox : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -404,7 +445,9 @@ BEGIN
  FixedDMS := False;
  Has3D := False;
  HasArea := False;
+ HasBBox := False;
  AreaName := '';
+ BBoxArg := '';
 
  I := 1;
  While I <= ParamCount Do Begin
@@ -446,6 +489,24 @@ BEGIN
     Writeln('Erreur: valeur manquante apres --area.'); Halt(1);
    End;
   End Else
+  If Arg = '--bbox' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --bbox.'); Halt(1);
+   End;
+   BBoxArg := ParamStr(I);
+   If Not ParseBBoxValue(BBoxArg, BBox) Then Begin
+    Writeln('Erreur: --bbox attend W,S,E,N en degres.'); Halt(1);
+   End;
+   HasBBox := True;
+  End Else
+  If Copy(Arg, 1, 7) = '--bbox=' Then Begin
+   BBoxArg := Copy(Arg, 8, Length(Arg) - 7);
+   If Not ParseBBoxValue(BBoxArg, BBox) Then Begin
+    Writeln('Erreur: --bbox attend W,S,E,N en degres.'); Halt(1);
+   End;
+   HasBBox := True;
+  End Else
   If Arg = '-f' Then Begin
    Inc(I);
    If I > ParamCount Then Begin Writeln('Erreur: format manquant apres -f.'); Halt(1); End;
@@ -476,8 +537,7 @@ BEGIN
     Writeln('Erreur: precision DMS invalide (0..10).'); Halt(1);
    End;
   End Else
-    If (Arg = '--bbox') Or (Arg = '--authority') Or
-      (Arg = '--accuracy') Or (Copy(Arg, 1, 7) = '--bbox=') Or
+    If (Arg = '--authority') Or (Arg = '--accuracy') Or
       (Copy(Arg, 1, 12) = '--authority=') Or
      (Copy(Arg, 1, 11) = '--accuracy=') Or
     (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
@@ -558,15 +618,18 @@ BEGIN
      Longitude := X;
      Latitude := Y;
     End;
-   If HasArea Then Begin
+   If HasArea Or HasBBox Then Begin
     If SourceProj.Projection = prjUTM Then
-    UTMToLatLon(Longitude, Latitude, SourceProj.Zone,
-                  SourceProj.South, AreaLatitude, AreaLongitude)
+     UTMToLatLon(Longitude, Latitude, SourceProj.Zone,
+                 SourceProj.South, AreaLatitude, AreaLongitude)
     Else Begin
-      AreaLatitude := Latitude;
-      AreaLongitude := Longitude;
+     AreaLatitude := Latitude;
+     AreaLongitude := Longitude;
     End;
-     If Not IsInsideArea(AreaLongitude, AreaLatitude, Area) Then Failed := True;
+    If HasArea And (Not IsInsideArea(AreaLongitude, AreaLatitude, Area)) Then
+     Failed := True;
+    If HasBBox And (Not IsInsideArea(AreaLongitude, AreaLatitude, BBox)) Then
+     Failed := True;
    End;
   End;
   If Failed Then Writeln(ErrorText)
