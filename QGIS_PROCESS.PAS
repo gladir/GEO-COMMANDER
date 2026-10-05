@@ -18,15 +18,15 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=58;
- MaxParam=256;
- MaxOut=73;
+ MaxAlgo=94;
+ MaxParam=402;
+ MaxOut=114;
  MaxArg=30;
  MaxCells=40000000;
 
 Type
  AlgoRec=Record
-  Id:String[32];
+  Id:String[33];
   Title:String[40];
   Group:String[24];
   Descr:String[120];
@@ -40,7 +40,7 @@ Type
  End;
  OutRec=Record
   A:Byte;
-  Name:String[14];
+  Name:String[16];
   Typ:String[18];
   Desc:String[40];
  End;
@@ -220,7 +220,115 @@ Const
    Descr:'Sets the Z value of all the vertices.'),
   (Id:'native:filterverticesbyz';Title:'Filter vertices by Z value';
    Group:'Vector geometry';
-   Descr:'Removes the vertices whose Z value is outside a range.')
+   Descr:'Removes the vertices whose Z value is outside a range.'),
+  (Id:'native:multiparttosingleparts';Title:'Multipart to singleparts';
+   Group:'Vector geometry';
+   Descr:'Splits multipart features into one feature per part.'),
+  (Id:'native:singlepartstomultipart';Title:'Singleparts to multipart';
+   Group:'Vector geometry';
+   Descr:'Merges the features that share a field value into multipart features.'),
+  (Id:'native:collect';Title:'Collect geometries';
+   Group:'Vector geometry';
+   Descr:'Collects the geometries of features that share field values into multipart features.'),
+  (Id:'native:explodelines';Title:'Explode lines';
+   Group:'Vector geometry';
+   Descr:'Splits lines into their individual segments.'),
+  (Id:'native:extractvertices';Title:'Extract vertices';
+   Group:'Vector geometry';
+   Descr:'Creates a point for each vertex (fields: vertex_index, vertex_part, vertex_part_ring, vertex_pos, distance, angle).'),
+  (Id:'native:deleteholes';Title:'Delete holes';
+   Group:'Vector geometry';
+   Descr:'Removes the holes of polygons (all, or those smaller than MIN_AREA).'),
+  (Id:'native:densifygeometries';Title:'Densify by count';
+   Group:'Vector geometry';
+   Descr:'Adds VERTICES equally spaced vertices on every segment.'),
+  (Id:'native:simplifygeometries';Title:'Simplify';
+   Group:'Vector geometry';
+   Descr:'Simplifies lines and polygons (0 Douglas-Peucker, 1 snap to grid, 2 Visvalingam area).'),
+  (Id:'native:smoothgeometry';Title:'Smooth';
+   Group:'Vector geometry';
+   Descr:'Smooths lines and polygons with Chaikin corner cutting.'),
+  (Id:'native:linesubstring';Title:'Line substring';
+   Group:'Vector geometry';
+   Descr:'Extracts the portion of lines between two distances measured from the start.'),
+  (Id:'native:splitlinesbylength';Title:'Split lines by maximum length';
+   Group:'Vector geometry';
+   Descr:'Splits each line into parts of at most LENGTH.'),
+  (Id:'native:pointsalonglines';Title:'Points along geometry';
+   Group:'Vector geometry';
+   Descr:'Creates points at regular intervals along lines (fields: distance, angle).'),
+  (Id:'native:createpointsalonglines';Title:'Create points along lines';
+   Group:'Vector geometry';
+   Descr:'Creates points at regular intervals along lines (fields: distance, angle).'),
+  (Id:'native:transect';Title:'Transect';
+   Group:'Vector analysis';
+   Descr:'Creates transects perpendicular to the lines at each vertex.'),
+  (Id:'native:wedgebuffers';Title:'Create wedge buffers';
+   Group:'Vector geometry';
+   Descr:'Creates wedge-shaped buffers from points (azimuth, width, radii).'),
+  (Id:'native:offsetline';Title:'Offset lines';
+   Group:'Vector geometry';
+   Descr:'Offsets lines by a distance (positive = left, negative = right).'),
+  (Id:'native:arrayoffsetlines';Title:'Array of offset (parallel) lines';
+   Group:'Vector geometry';
+   Descr:'Creates COUNT offset copies of the lines (fields: instance, offset).'),
+  (Id:'native:mergevectorlayers';Title:'Merge vector layers';
+   Group:'Vector general';
+   Descr:'Merges GeoJSON layers (adds the fields layer and path).'),
+  (Id:'native:pointonsurface';Title:'Point on surface';
+   Group:'Vector geometry';
+   Descr:'Creates a point guaranteed to lie on each feature.'),
+  (Id:'native:orientedminimumboundingbox';Title:'Oriented minimum bounding box';
+   Group:'Vector geometry';
+   Descr:'Minimum area rotated rectangle around each feature (fields: area, angle, width, height).'),
+  (Id:'native:roundness';Title:'Roundness';
+   Group:'Vector geometry';
+   Descr:'Adds the roundness (4 pi area / perimeter^2) of each polygon.'),
+  (Id:'native:concavehull';Title:'Concave hull';
+   Group:'Vector geometry';
+   Descr:'Concave hull of all the vertices of a layer (Delaunay based, ALPHA = edge length ratio).'),
+  (Id:'native:fixgeometries';Title:'Fix geometries';
+   Group:'Vector geometry';
+   Descr:'Repairs invalid polygons (even-odd rule).'),
+  (Id:'native:snapgeometries';Title:'Snap geometries to layer';
+   Group:'Vector geometry';
+   Descr:'Snaps the vertices to the vertices (and segments for behaviors 1 and 3) of a reference layer.'),
+  (Id:'native:antimeridiansplit';Title:'Geodesic line split at antimeridian';
+   Group:'Vector geometry';
+   Descr:'Splits lines at the antimeridian (longitudes -180/180).'),
+  (Id:'native:geometrybyexpression';Title:'Geometry by expression';
+   Group:'Vector geometry';
+   Descr:'Replaces the geometry with the result of a geometry expression, e.g. buffer($geometry,5).'),
+  (Id:'native:extractbyextent';Title:'Extract/clip by extent';
+   Group:'Vector overlay';
+   Descr:'Extracts (or clips to) the features that intersect an extent.'),
+  (Id:'native:linestopolygons';Title:'Lines to polygons';
+   Group:'Vector geometry';
+   Descr:'Converts lines to polygons (first part exterior, other parts rings).'),
+  (Id:'native:creategrid';Title:'Create grid';
+   Group:'Vector creation';
+   Descr:'Creates a grid of points, lines, rectangles, diamonds or hexagons.'),
+  (Id:'native:exportaddgeometrycolumns';Title:'Add geometry attributes';
+   Group:'Vector table';
+   Descr:'Adds xcoord/ycoord, length or area/perimeter (0 layer units, 2 spherical on EPSG:4326).'),
+  (Id:'native:taperedbuffer';Title:'Tapered buffers';
+   Group:'Vector geometry';
+   Descr:'Buffers lines with a radius varying linearly from START_WIDTH to END_WIDTH.'),
+  (Id:'native:kmeansclustering';Title:'K-means clustering';
+   Group:'Vector analysis';
+   Descr:'Clusters the features (centroids) with k-means (deterministic initialisation).'),
+  (Id:'native:dbscanclustering';Title:'DBSCAN clustering';
+   Group:'Vector analysis';
+   Descr:'Density based clustering of the features (centroids).'),
+  (Id:'native:nearestneighbouranalysis';Title:'Nearest neighbour analysis';
+   Group:'Vector analysis';
+   Descr:'Statistics of the nearest neighbour distances of a point layer.'),
+  (Id:'native:angletonearest';Title:'Align points to features';
+   Group:'Vector analysis';
+   Descr:'Adds the azimuth of the nearest line segment of a reference layer.'),
+  (Id:'native:shortestline';Title:'Shortest line between features';
+   Group:'Vector analysis';
+   Descr:'Creates the shortest line from each source feature to its nearest destination feature(s).')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -479,7 +587,153 @@ Const
   (A:58;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:58;Name:'MIN';Typ:'number';Desc:'Minimum Z';Def:''),
   (A:58;Name:'MAX';Typ:'number';Desc:'Maximum Z';Def:''),
-  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
+  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:59;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:59;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:60;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:60;Name:'FIELD';Typ:'string';Desc:'Unique ID field(s), separated by commas';Def:'*'),
+  (A:60;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:61;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:61;Name:'FIELD';Typ:'string';Desc:'Unique ID field(s), separated by commas';Def:'*'),
+  (A:61;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:62;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:62;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:63;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:63;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:64;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:64;Name:'MIN_AREA';Typ:'number';Desc:'Remove holes smaller than this area (0 = all)';Def:'0'),
+  (A:64;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:65;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:65;Name:'VERTICES';Typ:'number';Desc:'Vertices to add to each segment';Def:'1'),
+  (A:65;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:66;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:66;Name:'METHOD';Typ:'enum';Desc:'0 distance, 1 snap to grid, 2 area';Def:'0'),
+  (A:66;Name:'TOLERANCE';Typ:'number';Desc:'Tolerance (distance, grid size or area)';Def:'1'),
+  (A:66;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:67;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:67;Name:'ITERATIONS';Typ:'number';Desc:'Iterations (1 to 10)';Def:'1'),
+  (A:67;Name:'OFFSET';Typ:'number';Desc:'Offset (0 to 0.5)';Def:'0.25'),
+  (A:67;Name:'MAX_ANGLE';Typ:'number';Desc:'Maximum node angle to smooth (degrees)';Def:'180'),
+  (A:67;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:68;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:68;Name:'START_DISTANCE';Typ:'number';Desc:'Start distance';Def:'0'),
+  (A:68;Name:'END_DISTANCE';Typ:'number';Desc:'End distance';Def:''),
+  (A:68;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:69;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:69;Name:'LENGTH';Typ:'number';Desc:'Maximum length';Def:''),
+  (A:69;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:70;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:70;Name:'DISTANCE';Typ:'number';Desc:'Distance between points';Def:''),
+  (A:70;Name:'START_OFFSET';Typ:'number';Desc:'Start offset';Def:'0'),
+  (A:70;Name:'END_OFFSET';Typ:'number';Desc:'End offset';Def:'0'),
+  (A:70;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:71;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:71;Name:'DISTANCE';Typ:'number';Desc:'Distance between points';Def:''),
+  (A:71;Name:'START_OFFSET';Typ:'number';Desc:'Start offset';Def:'0'),
+  (A:71;Name:'END_OFFSET';Typ:'number';Desc:'End offset';Def:'0'),
+  (A:71;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:72;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:72;Name:'LENGTH';Typ:'number';Desc:'Length of the transect (each side)';Def:'5'),
+  (A:72;Name:'ANGLE';Typ:'number';Desc:'Angle to the line (degrees)';Def:'90'),
+  (A:72;Name:'SIDE';Typ:'enum';Desc:'0 left, 1 right, 2 both';Def:'2'),
+  (A:72;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:73;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:73;Name:'AZIMUTH';Typ:'string';Desc:'Azimuth in degrees (number or field name)';Def:'0'),
+  (A:73;Name:'WIDTH';Typ:'string';Desc:'Wedge width in degrees (number or field)';Def:'45'),
+  (A:73;Name:'OUTER_RADIUS';Typ:'string';Desc:'Outer radius (number or field)';Def:'1'),
+  (A:73;Name:'INNER_RADIUS';Typ:'string';Desc:'Inner radius (number or field)';Def:'0'),
+  (A:73;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:74;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:74;Name:'DISTANCE';Typ:'number';Desc:'Offset distance';Def:'10'),
+  (A:74;Name:'SEGMENTS';Typ:'number';Desc:'Segments per quarter circle';Def:'8'),
+  (A:74;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
+  (A:74;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:74;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:75;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:75;Name:'COUNT';Typ:'number';Desc:'Number of lines to create';Def:'10'),
+  (A:75;Name:'OFFSET';Typ:'number';Desc:'Offset between lines';Def:'1'),
+  (A:75;Name:'SEGMENTS';Typ:'number';Desc:'Segments per quarter circle';Def:'8'),
+  (A:75;Name:'JOIN_STYLE';Typ:'enum';Desc:'Join style (only round is supported)';Def:'0'),
+  (A:75;Name:'MITER_LIMIT';Typ:'number';Desc:'Miter limit (unused)';Def:'2'),
+  (A:75;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:76;Name:'LAYERS';Typ:'vector';Desc:'Input GeoJSON files separated by ;';Def:''),
+  (A:76;Name:'CRS';Typ:'crs';Desc:'Destination CRS (default: first layer)';Def:'*'),
+  (A:76;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:77;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:77;Name:'ALL_PARTS';Typ:'boolean';Desc:'Create a point for each part';Def:'false'),
+  (A:77;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:78;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:78;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:79;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:79;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:80;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:80;Name:'ALPHA';Typ:'number';Desc:'Threshold 0 (very concave) to 1 (convex)';Def:'0.3'),
+  (A:80;Name:'HOLES';Typ:'boolean';Desc:'Allow holes (no hole is ever created)';Def:'true'),
+  (A:80;Name:'NO_MULTIGEOMETRY';Typ:'boolean';Desc:'Avoid multigeometries (unused)';Def:'false'),
+  (A:80;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:81;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:81;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:82;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:82;Name:'REFERENCE_LAYER';Typ:'vector';Desc:'Reference GeoJSON file';Def:''),
+  (A:82;Name:'TOLERANCE';Typ:'number';Desc:'Snap tolerance';Def:'10'),
+  (A:82;Name:'BEHAVIOR';Typ:'enum';Desc:'0 prefer nodes, 1 prefer closest point, 2 nodes only, 3 closest, no extra vertices';Def:'0'),
+  (A:82;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:83;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:83;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:84;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:84;Name:'OUTPUT_GEOMETRY';Typ:'enum';Desc:'0 polygon, 1 line, 2 point (unused)';Def:'0'),
+  (A:84;Name:'WITH_Z';Typ:'boolean';Desc:'Output has Z (unused)';Def:'false'),
+  (A:84;Name:'WITH_M';Typ:'boolean';Desc:'Output has M (unused)';Def:'false'),
+  (A:84;Name:'EXPRESSION';Typ:'expression';Desc:'Geometry expression';Def:''),
+  (A:84;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:85;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:85;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
+  (A:85;Name:'CLIP';Typ:'boolean';Desc:'Clip the geometries to the extent';Def:'false'),
+  (A:85;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:86;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:86;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:87;Name:'TYPE';Typ:'enum';Desc:'0 point, 1 line, 2 rectangle, 3 diamond, 4 hexagon';Def:'2'),
+  (A:87;Name:'EXTENT';Typ:'extent';Desc:'Grid extent xmin,xmax,ymin,ymax';Def:''),
+  (A:87;Name:'HSPACING';Typ:'number';Desc:'Horizontal spacing (cell width)';Def:'1'),
+  (A:87;Name:'VSPACING';Typ:'number';Desc:'Vertical spacing (cell height)';Def:'1'),
+  (A:87;Name:'HOVERLAY';Typ:'number';Desc:'Horizontal overlay';Def:'0'),
+  (A:87;Name:'VOVERLAY';Typ:'number';Desc:'Vertical overlay';Def:'0'),
+  (A:87;Name:'CRS';Typ:'crs';Desc:'CRS of the grid (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
+  (A:87;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:88;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:88;Name:'CALC_METHOD';Typ:'enum';Desc:'0 layer CRS, 1 project CRS (layer), 2 ellipsoidal (spherical)';Def:'0'),
+  (A:88;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:89;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:89;Name:'START_WIDTH';Typ:'number';Desc:'Radius at the start';Def:'0'),
+  (A:89;Name:'END_WIDTH';Typ:'number';Desc:'Radius at the end';Def:'0'),
+  (A:89;Name:'SEGMENTS';Typ:'number';Desc:'Segments per quarter circle';Def:'16'),
+  (A:89;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:90;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:90;Name:'CLUSTERS';Typ:'number';Desc:'Number of clusters';Def:'5'),
+  (A:90;Name:'FIELD_NAME';Typ:'string';Desc:'Cluster field';Def:'CLUSTER_ID'),
+  (A:90;Name:'SIZE_FIELD_NAME';Typ:'string';Desc:'Size field';Def:'CLUSTER_SIZE'),
+  (A:90;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:91;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:91;Name:'MIN_SIZE';Typ:'number';Desc:'Minimum cluster size';Def:'5'),
+  (A:91;Name:'EPS';Typ:'number';Desc:'Maximum distance between clustered points';Def:'1'),
+  (A:91;Name:'DBSCAN*';Typ:'boolean';Desc:'Treat border points as noise';Def:'false'),
+  (A:91;Name:'FIELD_NAME';Typ:'string';Desc:'Cluster field';Def:'CLUSTER_ID'),
+  (A:91;Name:'SIZE_FIELD_NAME';Typ:'string';Desc:'Size field';Def:'CLUSTER_SIZE'),
+  (A:91;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:92;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:92;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Text report file';Def:'*'),
+  (A:93;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:93;Name:'REFERENCE_LAYER';Typ:'vector';Desc:'Reference line or polygon GeoJSON file';Def:''),
+  (A:93;Name:'MAX_DISTANCE';Typ:'number';Desc:'Maximum distance';Def:'*'),
+  (A:93;Name:'FIELD_NAME';Typ:'string';Desc:'Angle field';Def:'ANGLE'),
+  (A:93;Name:'APPLY_SYMBOLOGY';Typ:'boolean';Desc:'Rotate the symbols (unused)';Def:'true'),
+  (A:93;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:94;Name:'SOURCE';Typ:'vector';Desc:'Source GeoJSON file';Def:''),
+  (A:94;Name:'DESTINATION';Typ:'vector';Desc:'Destination GeoJSON file';Def:''),
+  (A:94;Name:'METHOD';Typ:'enum';Desc:'0 nearest feature, 1 k nearest';Def:'0'),
+  (A:94;Name:'NEIGHBORS';Typ:'number';Desc:'Number of neighbors (method 1)';Def:'1'),
+  (A:94;Name:'DISTANCE';Typ:'number';Desc:'Maximum distance';Def:'*'),
+  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -555,7 +809,48 @@ Const
   (A:55;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:56;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:57;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
-  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
+  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:59;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:60;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:61;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:62;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:63;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:64;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:65;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:66;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:67;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:68;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:69;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:70;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:71;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:72;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:73;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:74;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:75;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:76;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:77;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:78;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:79;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:80;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:81;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:82;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:83;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:84;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:85;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:86;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:87;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:88;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:89;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:90;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:91;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:92;Name:'OBSERVED_MD';Typ:'number';Desc:'Observed mean distance'),
+  (A:92;Name:'EXPECTED_MD';Typ:'number';Desc:'Expected mean distance'),
+  (A:92;Name:'NN_INDEX';Typ:'number';Desc:'Nearest neighbour index'),
+  (A:92;Name:'POINT_COUNT';Typ:'number';Desc:'Number of points'),
+  (A:92;Name:'Z_SCORE';Typ:'number';Desc:'Z-score'),
+  (A:92;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Text report'),
+  (A:93;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:94;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
  );
 
 Type
@@ -600,6 +895,7 @@ Type
  TStrs=Array[0..8000000]of PStr;
  PBytes=^TBytes;
  TBytes=Array[0..8000000]of Byte;
+ TGeomArr=Array[0..1000000]of TGeom;
  TRaster=Record
   NC,NR:LongInt;
   XLL,YLL,Cell,NoData:Real;
@@ -3203,8 +3499,13 @@ Begin
      End;
     End;
     If Smooth or(Not(Closed or(I>0)))Then Begin
-     If Not Closed and(I=0)Then Begin
+     If Not Closed and(I=0)and(N>2)Then Begin
       Nxt^[M].X:=Cur^[I].X+(1-Off)*(Cur^[J].X-Cur^[I].X);Nxt^[M].Y:=Cur^[I].Y+(1-Off)*(Cur^[J].Y-Cur^[I].Y);
+      Inc(M);
+     End
+      Else
+     If Not Closed and(I=N-2)and(N>2)Then Begin
+      Nxt^[M].X:=Cur^[I].X+Off*(Cur^[J].X-Cur^[I].X);Nxt^[M].Y:=Cur^[I].Y+Off*(Cur^[J].Y-Cur^[I].Y);
       Inc(M);
      End
       Else
@@ -8726,6 +9027,1757 @@ Begin
 End;
 
 
+{ ------------------------------------------------------------------ }
+{ Algorithmes : geometries (parties, sommets, simplification...)     }
+{ ------------------------------------------------------------------ }
+
+{ Prend la partie suivante d'une geometrie (point, ligne ou polygone avec ses trous) }
+Function TakePart(Var G:TGeom;Var P:PPath;Var Part:TGeom):Boolean;
+Var
+ Poly:Integer;
+Begin
+ InitGeom(Part);
+ TakePart:=False;
+ If P=Nil Then Exit;
+ Part.Cls:=G.Cls;
+ If G.Cls=3Then Begin
+  Poly:=P^.Poly;
+  Part.NPoly:=1;
+  While(P<>Nil)and(P^.Poly=Poly)do Begin
+   CopyPath(Part,P,0);
+   P:=P^.Next;
+  End;
+ End
+  Else
+ Begin
+  CopyPath(Part,P,0);
+  P:=P^.Next;
+ End;
+ TakePart:=True;
+End;
+
+Procedure RunMultiToSingle(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr:PJ;
+ G,Part:TGeom;
+ P:PPath;
+ N:Integer;
+ Pieces:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=0Then JAdd(OutArr,NewFeature(PropsClone(F),Nil))
+   Else
+  Begin
+   P:=G.First;
+   While TakePart(G,P,Part)do Begin
+    JAdd(OutArr,NewFeature(PropsClone(F),BuildGeom(Part)));
+    FreeGeom(Part);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Regroupe les geometries par valeurs de champs (FIELD, liste separee par des virgules) }
+Procedure RunCollect(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Fe:PJ;
+ FA:PJArr;
+ N,I,J,K,Ng:LongInt;
+ Keys:PStrs;
+ Grp:PLongs;
+ Key:String;
+ GA:^TGeomArr;
+ G:TGeom;
+ Found:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ SplitList(NeedStr(A,'FIELD'),';,');
+ FA:=FeatureArray(Arr,N);
+ Keys:=AllocBlock((N+1)*SizeOf(PStr));
+ Grp:=AllocBlock((N+1)*SizeOf(LongInt));
+ GA:=AllocBlock((N+1)*SizeOf(TGeom));
+ Ng:=0;
+ For I:=0 to N-1do Begin
+  Key:='';
+  For K:=1 to ListCount do Key:=Key+#1+PropText(FA^[I],ListItems[K]);
+  Found:=False;
+  For J:=0 to Ng-1do
+   If Keys^[J]^=Key Then Begin Found:=True;Grp^[I]:=J;Break;End;
+  If Not Found Then Begin
+   Keys^[Ng]:=MkStr(Key);
+   Grp^[I]:=Ng;
+   InitGeom(GA^[Ng]);
+   Inc(Ng);
+  End;
+  FlattenFeature(FA^[I],G);
+  If G.Cls<>0Then Begin
+   If(GA^[Grp^[I]].Cls<>0)and(GA^[Grp^[I]].Cls<>G.Cls)Then Fail('Error: cannot collect geometries of different types');
+   GeomAppend(GA^[Grp^[I]],G);
+  End;
+  FreeGeom(G);
+ End;
+ Out:=NewLayerLike(Root,OutArr);
+ For J:=0 to Ng-1do Begin
+  Fe:=Nil;
+  For I:=0 to N-1do If Grp^[I]=J Then Begin Fe:=FA^[I];Break;End;
+  JAdd(OutArr,NewFeature(PropsClone(Fe),BuildGeom(GA^[J])));
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunExplodeLines(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr:PJ;
+ G,S:TGeom;
+ P,Q:PPath;
+ I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If(G.Cls<>0)and(G.Cls<>2)Then Fail('Error: the input layer must contain lines');
+  P:=G.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-2do Begin
+    InitGeom(S);
+    S.Cls:=2;
+    Q:=NewPath(S,2,0);
+    Q^.Pts^[0]:=P^.Pts^[I];Q^.Pts^[1]:=P^.Pts^[I+1];
+    JAdd(OutArr,NewFeature(PropsClone(F),BuildLines(S)));
+    FreeGeom(S);
+   End;
+   P:=P^.Next;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunExtractVertices(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,S:TGeom;
+ P:PPath;
+ I,Part,Ring,Idx,Prev:LongInt;
+ Acc,Ang,A1,A2,Dx,Dy:Real;
+ Closed:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  Idx:=0;Part:=-1;Ring:=0;Prev:=-1;
+  P:=G.First;
+  While P<>Nil do Begin
+   If G.Cls=3Then Begin
+    If P^.Poly<>Prev Then Begin Inc(Part);Ring:=0;End Else Inc(Ring);
+    Prev:=P^.Poly;
+   End
+    Else
+   Begin Inc(Part);Ring:=0;End;
+   Acc:=0;
+   For I:=0 to P^.N-1do Begin
+    If I>0Then Acc:=Acc+Sqrt(Sqr(P^.Pts^[I].X-P^.Pts^[I-1].X)+Sqr(P^.Pts^[I].Y-P^.Pts^[I-1].Y));
+    { azimut moyen des segments voisins }
+    A1:=-1;A2:=-1;
+    If I>0Then A1:=NormDeg(Rad2Deg(Atan2(P^.Pts^[I].X-P^.Pts^[I-1].X,P^.Pts^[I].Y-P^.Pts^[I-1].Y)));
+    If I<P^.N-1Then A2:=NormDeg(Rad2Deg(Atan2(P^.Pts^[I+1].X-P^.Pts^[I].X,P^.Pts^[I+1].Y-P^.Pts^[I].Y)));
+    If(A1<0)and(A2<0)Then Ang:=0 Else
+    If A1<0Then Ang:=A2 Else
+    If A2<0Then Ang:=A1
+     Else
+    Begin
+     Dx:=Sin(Deg2Rad(A1))+Sin(Deg2Rad(A2));Dy:=Cos(Deg2Rad(A1))+Cos(Deg2Rad(A2));
+     Ang:=NormDeg(Rad2Deg(Atan2(Dx,Dy)));
+    End;
+    PointGeom(S,P^.Pts^[I].X,P^.Pts^[I].Y);
+    Nf:=NewFeature(PropsClone(F),BuildPoints(S));
+    PutProp(Nf,'vertex_index',JNum(Idx));
+    PutProp(Nf,'vertex_part',JNum(Part));
+    PutProp(Nf,'vertex_part_ring',JNum(Ring));
+    PutProp(Nf,'vertex_pos',JNum(I));
+    PutProp(Nf,'distance',JNum(Acc));
+    PutProp(Nf,'angle',JNum(Ang));
+    JAdd(OutArr,Nf);
+    FreeGeom(S);
+    Inc(Idx);
+   End;
+   P:=P^.Next;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunDeleteHoles(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P:PPath;
+ MinA:Real;
+ Prev:Integer;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ MinA:=NeedReal(A,'MIN_AREA');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=3Then Begin
+   InitGeom(R);
+   R.Cls:=3;R.NPoly:=G.NPoly;
+   Prev:=-1;
+   P:=G.First;
+   While P<>Nil do Begin
+    If(P^.Poly<>Prev)or((MinA>0)and(Abs(RingArea(P))>=MinA))Then CopyPath(R,P,P^.Poly);
+    Prev:=P^.Poly;
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildPolygons(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Traitement chemin par chemin : Mode 0 densifier, 1 simplifier, 2 lisser }
+Procedure RunPathOp(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P:PPath;
+ Cnt,Method,Iter:LongInt;
+ Tol,Off,MaxAng:Real;
+ Closed,Ok:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Cnt:=0;Method:=0;Tol:=0;Off:=0.25;MaxAng:=180;Iter:=1;
+ Case Mode of
+  0:Begin Cnt:=Round(NeedReal(A,'VERTICES'));If Cnt<1Then Fail('Error: VERTICES must be at least 1');End;
+  1:Begin Method:=Round(NeedReal(A,'METHOD'));Tol:=NeedReal(A,'TOLERANCE');If(Method<0)or(Method>2)Then Fail('Error: METHOD must be 0, 1 or 2');End;
+  2:Begin
+   Iter:=Round(NeedReal(A,'ITERATIONS'));Off:=NeedReal(A,'OFFSET');MaxAng:=NeedReal(A,'MAX_ANGLE');
+   If(Iter<1)or(Iter>10)Then Fail('Error: ITERATIONS must be between 1 and 10');
+   If(Off<=0)or(Off>=0.5)Then Fail('Error: OFFSET must be between 0 and 0.5');
+  End;
+ End;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls>=2Then Begin
+   InitGeom(R);
+   R.Cls:=G.Cls;R.NPoly:=G.NPoly;
+   Closed:=G.Cls=3;
+   P:=G.First;
+   While P<>Nil do Begin
+    Case Mode of
+     0:DensifyPath(P,Cnt,R,P^.Poly);
+     1:Case Method of
+        0:Ok:=SimplifyDP(P,Tol,Closed,R,P^.Poly);
+        1:Ok:=SnapGridPath(P,Tol,Closed,R,P^.Poly);
+        2:Ok:=SimplifyVW(P,Tol,Closed,R,P^.Poly);
+       End;
+     2:SmoothPath(P,Iter,Off,MaxAng,Closed,R,P^.Poly);
+    End;
+    P:=P^.Next;
+   End;
+   If Closed and(R.Count>0)Then Begin
+    { un polygone dont l'exterieur disparait perd aussi ses trous }
+    If R.First^.Poly<>0Then Begin End;
+   End;
+   SetGeom(F,BuildGeom(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunLineSubstring(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P:PPath;
+ D1,D2:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ D1:=NeedReal(A,'START_DISTANCE');
+ D2:=NeedReal(A,'END_DISTANCE');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(R);R.Cls:=2;
+   P:=G.First;
+   While P<>Nil do Begin
+    If Not SubLine(P,D1,MinR(D2,PathLength(P)),R,0)Then Begin End;
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildLines(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunSplitLinesByLength(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P:PPath;
+ Len,L,D:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Len:=NeedReal(A,'LENGTH');
+ If Len<=0Then Fail('Error: LENGTH must be greater than 0');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(R);R.Cls:=2;
+   P:=G.First;
+   While P<>Nil do Begin
+    L:=PathLength(P);
+    D:=0;
+    While D<L-1E-12do Begin
+     If Not SubLine(P,D,MinR(D+Len,L),R,0)Then Begin End;
+     D:=D+Len;
+    End;
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildLines(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunPointsAlongLines(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,S,B:TGeom;
+ P:PPath;
+ Dist,St,En,L,D,X,Y,Ang:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Dist:=NeedReal(A,'DISTANCE');
+ St:=NeedReal(A,'START_OFFSET');
+ En:=NeedReal(A,'END_OFFSET');
+ If Dist<=0Then Fail('Error: DISTANCE must be greater than 0');
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<2Then Begin
+   If G.Cls<>0Then Fail('Error: the input layer must contain lines or polygons');
+  End
+   Else
+  Begin
+   P:=G.First;
+   While P<>Nil do Begin
+    L:=PathLength(P);
+    D:=St;
+    While D<=L-En+1E-12do Begin
+     If PointAlong(P,D,X,Y,Ang)Then Begin
+      PointGeom(S,X,Y);
+      Nf:=NewFeature(PropsClone(F),BuildPoints(S));
+      PutProp(Nf,'distance',JNum(D));
+      PutProp(Nf,'angle',JNum(Ang));
+      JAdd(OutArr,Nf);
+      FreeGeom(S);
+     End;
+     D:=D+Dist;
+    End;
+    P:=P^.Next;
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunTransect(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,S:TGeom;
+ P:PPath;
+ Len,Ang,Az,X,Y,Ax,Ay:Real;
+ Side,I,K,Fid,Tid:LongInt;
+ Pa:PPath;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Len:=NeedReal(A,'LENGTH');
+ Ang:=NeedReal(A,'ANGLE');
+ Side:=Round(NeedReal(A,'SIDE'));
+ If(Side<0)or(Side>2)Then Fail('Error: SIDE must be 0 (left), 1 (right) or 2 (both)');
+ Out:=NewLayerLike(Root,OutArr);
+ Fid:=0;Tid:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   P:=G.First;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do Begin
+     If I<P^.N-1Then K:=I Else K:=I-1;
+     If K>=0Then Begin
+      Az:=NormDeg(Rad2Deg(Atan2(P^.Pts^[K+1].X-P^.Pts^[K].X,P^.Pts^[K+1].Y-P^.Pts^[K].Y)));
+      InitGeom(S);
+      S.Cls:=2;
+      Pa:=NewPath(S,2,0);
+      Pa^.Pts^[0]:=P^.Pts^[I];
+      Pa^.Pts^[1]:=P^.Pts^[I];
+      If Side=0Then Begin
+       Pa^.Pts^[1].X:=P^.Pts^[I].X+Len*Sin(Deg2Rad(Az-Ang));
+       Pa^.Pts^[1].Y:=P^.Pts^[I].Y+Len*Cos(Deg2Rad(Az-Ang));
+      End
+       Else
+      If Side=1Then Begin
+       Pa^.Pts^[1].X:=P^.Pts^[I].X+Len*Sin(Deg2Rad(Az+Ang));
+       Pa^.Pts^[1].Y:=P^.Pts^[I].Y+Len*Cos(Deg2Rad(Az+Ang));
+      End
+       Else
+      Begin
+       Pa^.Pts^[0].X:=P^.Pts^[I].X+Len*Sin(Deg2Rad(Az-Ang));
+       Pa^.Pts^[0].Y:=P^.Pts^[I].Y+Len*Cos(Deg2Rad(Az-Ang));
+       Pa^.Pts^[1].X:=P^.Pts^[I].X+Len*Sin(Deg2Rad(Az+Ang));
+       Pa^.Pts^[1].Y:=P^.Pts^[I].Y+Len*Cos(Deg2Rad(Az+Ang));
+      End;
+      Nf:=NewFeature(PropsClone(F),BuildLines(S));
+      PutProp(Nf,'TR_FID',JNum(Fid));
+      PutProp(Nf,'TR_ID',JNum(Tid));
+      PutProp(Nf,'TR_SEGMENT',JNum(K));
+      PutProp(Nf,'TR_ANGLE',JNum(Az));
+      PutProp(Nf,'TR_LENGTH',JNum(Len));
+      PutProp(Nf,'TR_ORIENT',JNum(Side));
+      JAdd(OutArr,Nf);
+      FreeGeom(S);
+      Inc(Tid);
+     End;
+    End;
+    P:=P^.Next;
+   End;
+  End;
+  FreeGeom(G);
+  Inc(Fid);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Valeur numerique d'un parametre qui est soit un nombre, soit un nom de champ }
+Function NumOrField(A:Integer;Name:String;F:PJ):Real;
+Var
+ S:String;
+ R:Real;
+ E:Integer;
+Begin
+ S:=NeedStr(A,Name);
+ Val(S,R,E);
+ If E=0Then Begin NumOrField:=R;Exit;End;
+ If PropReal(F,S,R)Then NumOrField:=R
+  Else
+ Fail('Error: parameter '+Name+' is neither a number nor a numeric field');
+End;
+
+Procedure RunWedgeBuffers(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ Pa:PPath;
+ Az,W,Ro,Ri,A0,A1,X,Y:Real;
+ Steps,I,N:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>1Then Fail('Error: the input layer must contain points');
+   Az:=NumOrField(A,'AZIMUTH',F);
+   W:=NumOrField(A,'WIDTH',F);
+   Ro:=NumOrField(A,'OUTER_RADIUS',F);
+   Ri:=NumOrField(A,'INNER_RADIUS',F);
+   X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;
+   A0:=Az-W/2;A1:=Az+W/2;
+   If W>=360Then Begin A0:=0;A1:=360;End;
+   Steps:=CeilL(Abs(A1-A0)/5);
+   If Steps<1Then Steps:=1;
+   InitGeom(R);R.Cls:=3;R.NPoly:=1;
+   If Ri>0Then N:=2*(Steps+1) Else N:=Steps+3;
+   Pa:=NewPath(R,N+1,0);
+   N:=0;
+   If Ri<=0Then Begin Pa^.Pts^[N].X:=X;Pa^.Pts^[N].Y:=Y;Inc(N);End;
+   For I:=0 to Steps do Begin
+    Pa^.Pts^[N].X:=X+Ro*Sin(Deg2Rad(A0+(A1-A0)*I/Steps));
+    Pa^.Pts^[N].Y:=Y+Ro*Cos(Deg2Rad(A0+(A1-A0)*I/Steps));
+    Inc(N);
+   End;
+   If Ri>0Then
+    For I:=Steps downto 0do Begin
+     Pa^.Pts^[N].X:=X+Ri*Sin(Deg2Rad(A0+(A1-A0)*I/Steps));
+     Pa^.Pts^[N].Y:=Y+Ri*Cos(Deg2Rad(A0+(A1-A0)*I/Steps));
+     Inc(N);
+    End;
+   Pa^.Pts^[N]:=Pa^.Pts^[0];
+   Pa^.N:=N+1;
+   OrientPolygons(R);
+   SetGeom(F,BuildPolygons(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Mode 0 : offsetline (une seule courbe), 1 : arrayoffsetlines (plusieurs) }
+Procedure RunOffsetLine(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,R:TGeom;
+ P:PPath;
+ Dist:Real;
+ Seg,Cnt,I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Dist:=0;
+ If Mode=0Then Dist:=NeedReal(A,'DISTANCE');
+ Seg:=Round(NeedReal(A,'SEGMENTS'));
+ If(Seg<1)or(Seg>64)Then Fail('Error: SEGMENTS must be between 1 and 64');
+ If Mode=1Then Begin
+  Cnt:=Round(NeedReal(A,'COUNT'));
+  If Cnt<1Then Fail('Error: COUNT must be at least 1');
+  Dist:=NeedReal(A,'OFFSET');
+ End
+  Else
+ Cnt:=1;
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   For I:=1 to Cnt do Begin
+    InitGeom(R);R.Cls:=2;
+    P:=G.First;
+    While P<>Nil do Begin
+     If Mode=0Then OffsetCurve(R,P,Dist,Seg) Else OffsetCurve(R,P,Dist*I,Seg);
+     P:=P^.Next;
+    End;
+    Nf:=NewFeature(PropsClone(F),BuildLines(R));
+    If Mode=1Then Begin
+     PutProp(Nf,'instance',JNum(I));
+     PutProp(Nf,'offset',JNum(Dist*I));
+    End;
+    JAdd(OutArr,Nf);
+    FreeGeom(R);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunMergeLayers(A:Integer);
+Var
+ Layers:Array[1..16]of PJ;
+ Names:Array[1..40]of String;
+ NL,K,I,NFld:Integer;
+ Fields:Array[1..64]of String;
+ Out,OutArr,F,Pr,C,Np:PJ;
+ Paths:Array[1..16]of String;
+ Dst,Src:Integer;
+ Gn:PJ;
+ Found:Boolean;
+Begin
+ SplitList(NeedStr(A,'LAYERS'),';');
+ NL:=ListCount;
+ If NL<1Then Fail('Error: LAYERS is empty');
+ For K:=1 to NL do Begin
+  If K>16Then Fail('Error: at most 16 layers can be merged');
+  Paths[K]:=ListItems[K];
+  Layers[K]:=LoadLayer(Paths[K]);
+ End;
+ If HasArg('CRS')Then Dst:=ParseEpsg(NeedStr(A,'CRS'),'CRS') Else Dst:=LayerCrs(Layers[1]);
+ { liste des champs (union) }
+ NFld:=0;
+ For K:=1 to NL do Begin
+  F:=LayerFeatures(Layers[K])^.First;
+  While F<>Nil do Begin
+   Pr:=JFind(F,'properties');
+   If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+    C:=Pr^.First;
+    While C<>Nil do Begin
+     Found:=False;
+     For I:=1 to NFld do If Fields[I]=JKey(C)Then Found:=True;
+     If(Not Found)and(NFld<64)Then Begin Inc(NFld);Fields[NFld]:=JKey(C);End;
+     C:=C^.Next;
+    End;
+   End;
+   F:=F^.Next;
+  End;
+ End;
+ Out:=NewLayerLike(Nil,OutArr);
+ SetLayerCrs(Out,Dst);
+ For K:=1 to NL do Begin
+  Src:=LayerCrs(Layers[K]);
+  F:=LayerFeatures(Layers[K])^.First;
+  While F<>Nil do Begin
+   Np:=NewJ(5);
+   For I:=1 to NFld do Begin
+    C:=GetProp(F,Fields[I]);
+    If C=Nil Then JAddKV(Np,Fields[I],NewJ(0)) Else JAddKV(Np,Fields[I],JClone(C));
+   End;
+   JAddKV(Np,'layer',JTextEsc(BaseName(Paths[K])));
+   JAddKV(Np,'path',JTextEsc(Paths[K]));
+   Gn:=JClone(JFind(F,'geometry'));
+   If(Src<>Dst)and(Gn<>Nil)and(Gn^.Kind=5)Then TransformCoords(JFind(Gn,'coordinates'),Src,Dst);
+   JAdd(OutArr,NewFeature(Np,Gn));
+   F:=F^.Next;
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunPointOnSurface(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr:PJ;
+ G,Part,S:TGeom;
+ P:PPath;
+ X,Y:Real;
+ AllParts:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ AllParts:=NeedBool(A,'ALL_PARTS');
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=0Then JAdd(OutArr,NewFeature(PropsClone(F),Nil))
+   Else
+  If AllParts Then Begin
+   P:=G.First;
+   While TakePart(G,P,Part)do Begin
+    PointOnSurface(Part,X,Y);
+    PointGeom(S,X,Y);
+    JAdd(OutArr,NewFeature(PropsClone(F),BuildPoints(S)));
+    FreeGeom(S);FreeGeom(Part);
+   End;
+  End
+   Else
+  Begin
+   PointOnSurface(G,X,Y);
+   PointGeom(S,X,Y);
+   JAdd(OutArr,NewFeature(PropsClone(F),BuildPoints(S)));
+   FreeGeom(S);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunOrientedBox(A:Integer);
+Var
+ Root,Arr,F,Nf:PJ;
+ G,R:TGeom;
+ Ar,An,W,H:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   MinOrientedBox(G,R,Ar,An,W,H);
+   If R.First<>Nil Then Begin
+    SetGeom(F,BuildPolygons(R));
+    PutProp(F,'area',JNum(Ar));
+    PutProp(F,'angle',JNum(An));
+    PutProp(F,'width',JNum(W));
+    PutProp(F,'height',JNum(H));
+   End
+    Else
+   SetGeom(F,Nil);
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunRoundness(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ Ar,Pe:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=3Then Begin
+   Ar:=GeomArea(G);Pe:=GeomLength(G);
+   If Pe>0Then PutProp(F,'roundness',JNum(4*Pi*Ar/(Pe*Pe)))
+          Else PutProp(F,'roundness',NewJ(0));
+  End
+   Else
+  Begin
+   If G.Cls<>0Then Fail('Error: the input layer must contain polygons');
+   PutProp(F,'roundness',NewJ(0));
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Sommets de toutes les entites, tries et sans doublons }
+Function CollectVertices(Arr:PJ;Var N:LongInt):PPts;
+Var
+ F:PJ;
+ G:TGeom;
+ P:PPath;
+ Raw,Res:PPts;
+ Idx:PLongs;
+ Cnt,I,M:LongInt;
+Begin
+ Cnt:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  P:=G.First;
+  While P<>Nil do Begin Inc(Cnt,P^.N);P:=P^.Next;End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ Raw:=AllocBlock((Cnt+1)*SizeOf(TPt));
+ Cnt:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  P:=G.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin Raw^[Cnt]:=P^.Pts^[I];Inc(Cnt);End;
+   P:=P^.Next;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ Idx:=AllocBlock((Cnt+1)*SizeOf(LongInt));
+ For I:=0 to Cnt-1do Idx^[I]:=I;
+ SP:=Raw;SMode:=1;
+ If Cnt>1Then SortIdx(Idx,0,Cnt-1);
+ Res:=AllocBlock((Cnt+1)*SizeOf(TPt));
+ M:=0;
+ For I:=0 to Cnt-1do
+  If(I=0)or(CmpIdx(Idx^[I],Idx^[I-1])<>0)Then Begin
+   Res^[M]:=Raw^[Idx^[I]];
+   Inc(M);
+  End;
+ N:=M;
+ CollectVertices:=Res;
+End;
+
+Procedure RunConcaveHull(A:Integer);
+Var
+ Root,Arr,Out,OutArr:PJ;
+ Pts:PPts;
+ N:LongInt;
+ R:TGeom;
+ Ratio:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Ratio:=NeedReal(A,'ALPHA');
+ If(Ratio<0)or(Ratio>1)Then Fail('Error: ALPHA must be between 0 and 1');
+ Pts:=CollectVertices(Arr,N);
+ If N<3Then Fail('Error: at least 3 distinct points are required');
+ ConcaveHullPts(Pts,N,Ratio,R);
+ Out:=NewLayerLike(Root,OutArr);
+ JAdd(OutArr,NewFeature(Nil,BuildPolygons(R)));
+ FreeGeom(R);
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Rend valides les polygones (regle pair/impair sur le reseau des anneaux) }
+Procedure RunFixGeometries(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,L,Faces,R:TGeom;
+ P,Q:PPath;
+ X,Y:Real;
+ K:Integer;
+ Face:TGeom;
+ Empty:TGeom;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=3Then Begin
+   InitGeom(L);L.Cls:=2;
+   P:=G.First;
+   While P<>Nil do Begin CopyPath(L,P,0);P:=P^.Next;End;
+   PolygonizeLines(L,Faces);
+   InitGeom(R);R.Cls:=3;
+   K:=0;
+   P:=Faces.First;
+   While P<>Nil do Begin
+    { chaque face : on garde celles dont un point interieur a un nombre impair d'anneaux autour }
+    Q:=P;
+    InitGeom(Face);Face.Cls:=3;Face.NPoly:=1;
+    CopyPath(Face,Q,0);
+    P:=P^.Next;
+    While(P<>Nil)and(P^.Poly=Q^.Poly)do Begin CopyPath(Face,P,0);P:=P^.Next;End;
+    PointOnSurface(Face,X,Y);
+    If PtInPolys(G,X,Y,0)=1Then Begin
+     GeomAppend(R,Face);
+    End;
+    FreeGeom(Face);
+   End;
+   If R.First<>Nil Then Begin
+    InitGeom(Empty);
+    KeepOrient:=True;
+    FreeGeom(L);
+    Overlay(0,R,Empty,L);
+    KeepOrient:=False;
+    SetGeom(F,BuildPolygons(L));
+   End
+    Else
+   SetGeom(F,Nil);
+   FreeGeom(R);FreeGeom(L);FreeGeom(Faces);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunSnapGeometries(A:Integer);
+Var
+ Root,Arr,Ref,RefArr,F,Rf:PJ;
+ G,Rg:TGeom;
+ P,Q:PPath;
+ Tol,D,Best,Bx,By,Cx,Cy:Real;
+ Behav:Integer;
+ I,J:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Ref:=LoadLayer(NeedStr(A,'REFERENCE_LAYER'));
+ RefArr:=LayerFeatures(Ref);
+ Tol:=NeedReal(A,'TOLERANCE');
+ Behav:=Round(NeedReal(A,'BEHAVIOR'));
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   P:=G.First;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do Begin
+     Best:=Tol;Bx:=P^.Pts^[I].X;By:=P^.Pts^[I].Y;
+     Rf:=RefArr^.First;
+     While Rf<>Nil do Begin
+      FlattenFeature(Rf,Rg);
+      Q:=Rg.First;
+      While Q<>Nil do Begin
+       For J:=0 to Q^.N-1do Begin
+        D:=Sqrt(Sqr(P^.Pts^[I].X-Q^.Pts^[J].X)+Sqr(P^.Pts^[I].Y-Q^.Pts^[J].Y));
+        If D<Best Then Begin Best:=D;Bx:=Q^.Pts^[J].X;By:=Q^.Pts^[J].Y;End;
+       End;
+       Q:=Q^.Next;
+      End;
+      { comportements 1 et 3 : le point le plus proche (sommet ou segment) }
+      If(Behav=1)or(Behav=3)Then Begin
+       D:=NearestOnGeom(Rg,P^.Pts^[I].X,P^.Pts^[I].Y,Cx,Cy);
+       If(D<Best)and(Rg.Cls>=2)Then Begin Best:=D;Bx:=Cx;By:=Cy;End;
+      End;
+      FreeGeom(Rg);
+      Rf:=Rf^.Next;
+     End;
+     P^.Pts^[I].X:=Bx;P^.Pts^[I].Y:=By;
+    End;
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildGeom(G));
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Decoupe aux limites de l'antimeridien (lignes) : les parties sont ramenees entre -180 et 180 }
+Procedure RunAntimeridian(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P,Pa:PPath;
+ Unw:PPts;
+ Buf:PPts;
+ I,N,BN,W0,W1,M,Cur,Wn:LongInt;
+ Off,X0,Y0,X1,Y1,T,Xb,Yb:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(R);R.Cls:=2;
+   P:=G.First;
+   While P<>Nil do Begin
+    N:=P^.N;
+    Unw:=AllocBlock((N+1)*SizeOf(TPt));
+    Buf:=AllocBlock((N*3+8)*SizeOf(TPt));
+    { longitudes continues (sans saut de 360 degres) }
+    Off:=0;
+    For I:=0 to N-1do Begin
+     If I>0Then Begin
+      If P^.Pts^[I].X+Off-Unw^[I-1].X>180Then Off:=Off-360 Else
+      If P^.Pts^[I].X+Off-Unw^[I-1].X<-180Then Off:=Off+360;
+     End;
+     Unw^[I].X:=P^.Pts^[I].X+Off;Unw^[I].Y:=P^.Pts^[I].Y;
+    End;
+    { monde courant : floor((x+180)/360) ; coupure aux multiples impairs de 180 }
+    BN:=0;
+    Cur:=FloorL((Unw^[0].X+180)/360);
+    Buf^[0].X:=Unw^[0].X-360*Cur;Buf^[0].Y:=Unw^[0].Y;BN:=1;
+    For I:=1 to N-1do Begin
+     X0:=Unw^[I-1].X;Y0:=Unw^[I-1].Y;X1:=Unw^[I].X;Y1:=Unw^[I].Y;
+     W1:=FloorL((X1+180)/360);
+     While Cur<>W1 do Begin
+      { passage de la frontiere entre les mondes Cur et Cur+/-1 }
+      If W1>Cur Then Xb:=180+360*Cur Else Xb:=-180+360*Cur;
+      If X1<>X0 Then T:=(Xb-X0)/(X1-X0) Else T:=0;
+      Yb:=Y0+T*(Y1-Y0);
+      Buf^[BN].X:=Xb-360*Cur;Buf^[BN].Y:=Yb;Inc(BN);
+      Pa:=NewPath(R,BN,0);
+      Move(Buf^,Pa^.Pts^,BN*SizeOf(TPt));
+      Pa^.N:=BN;
+      If W1>Cur Then Inc(Cur) Else Dec(Cur);
+      Buf^[0].X:=Xb-360*Cur;
+      Buf^[0].Y:=Yb;BN:=1;
+      X0:=Xb;Y0:=Yb;
+     End;
+     Buf^[BN].X:=X1-360*Cur;Buf^[BN].Y:=Y1;Inc(BN);
+    End;
+    If BN>=2Then Begin
+     Pa:=NewPath(R,BN,0);
+     Move(Buf^,Pa^.Pts^,BN*SizeOf(TPt));
+     Pa^.N:=BN;
+    End;
+    FreeMem(Buf,(N*3+8)*SizeOf(TPt));
+    FreeMem(Unw,(N+1)*SizeOf(TPt));
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildLines(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunGeometryByExpression(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ Expr:String;
+ V:TVal;
+ I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Expr:=NeedStr(A,'EXPRESSION');
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  V:=EvalOn(Expr,F,I);
+  If V.K=4Then SetGeom(F,BuildGeom(V.G^))
+          Else SetGeom(F,Nil);
+  Inc(I);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Decoupe une geometrie aplatie par des polygones (extent, overlay...) }
+Procedure ClipToPolys(Var G,B:TGeom;Var R:TGeom);
+Var
+ Edges:PEdges;
+ NB,N:LongInt;
+ MinX,MinY,MaxX,MaxY,Ext,Tol:Real;
+ P:PPath;
+Begin
+ InitGeom(R);
+ If(G.First=Nil)or(B.First=Nil)Then Exit;
+ If G.Cls=3Then Begin
+  Overlay(1,G,B,R);
+  Exit;
+ End;
+ GeomBBox(B,MinX,MinY,MaxX,MaxY);
+ Ext:=MaxR(MaxX-MinX,MaxY-MinY);
+ If Ext<=0Then Ext:=1;
+ SnapQ:=Ext*1E-9;
+ Tol:=SnapQ*4;
+ NB:=EdgeCount(B);
+ Edges:=AllocBlock((NB+1)*SizeOf(TEdge));
+ N:=0;
+ FillEdges(B,Edges,N);
+ If G.Cls=2Then ClipLines(G,Edges,N,Tol,R)
+  Else
+ Begin
+  R.Cls:=1;
+  P:=G.First;
+  While P<>Nil do Begin
+   If InsideOrOn(Edges,N,P^.Pts^[0].X,P^.Pts^[0].Y,Tol)Then CopyPath(R,P,0);
+   P:=P^.Next;
+  End;
+ End;
+ FreeMem(Edges,(NB+1)*SizeOf(TEdge));
+End;
+
+Procedure RectGeom(Var G:TGeom;X1,Y1,X2,Y2:Real);
+Var
+ P:PPath;
+Begin
+ InitGeom(G);
+ G.Cls:=3;G.NPoly:=1;
+ P:=NewPath(G,5,0);
+ P^.Pts^[0].X:=X1;P^.Pts^[0].Y:=Y1;P^.Pts^[1].X:=X2;P^.Pts^[1].Y:=Y1;
+ P^.Pts^[2].X:=X2;P^.Pts^[2].Y:=Y2;P^.Pts^[3].X:=X1;P^.Pts^[3].Y:=Y2;
+ P^.Pts^[4]:=P^.Pts^[0];
+End;
+
+Procedure RunExtractByExtent(A:Integer);
+Var
+ Root,Arr,F,Nx:PJ;
+ X1,X2,Y1,Y2:Real;
+ Box,G,R:TGeom;
+ Clip,Keep:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Clip:=NeedBool(A,'CLIP');
+ RectGeom(Box,X1,Y1,X2,Y2);
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  FlattenFeature(F,G);
+  Keep:=False;
+  If G.Cls<>0Then Begin
+   If Clip Then Begin
+    ClipToPolys(G,Box,R);
+    If R.First<>Nil Then Begin SetGeom(F,BuildGeom(R));Keep:=True;End;
+    FreeGeom(R);
+   End
+    Else
+   Keep:=GeomIntersects(G,Box);
+  End;
+  If Keep Then JAdd(Arr,F);
+  FreeGeom(G);
+  F:=Nx;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunLinesToPolygons(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P,Q:PPath;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(R);R.Cls:=3;R.NPoly:=1;
+   P:=G.First;
+   While P<>Nil do Begin
+    If P^.N>=3Then Begin
+     If(P^.Pts^[0].X=P^.Pts^[P^.N-1].X)and(P^.Pts^[0].Y=P^.Pts^[P^.N-1].Y)Then CopyPath(R,P,0)
+      Else
+     Begin
+      { fermeture de l'anneau }
+      Q:=NewPath(R,P^.N+1,0);
+      Move(P^.Pts^,Q^.Pts^,P^.N*SizeOf(TPt));
+      Q^.Pts^[P^.N]:=P^.Pts^[0];
+      Q^.N:=P^.N+1;
+     End;
+    End;
+    P:=P^.Next;
+   End;
+   OrientPolygons(R);
+   SetGeom(F,BuildPolygons(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunCreateGrid(A:Integer);
+Var
+ Out,OutArr,Nf:PJ;
+ Typ,Ho,Vo,Dst:Integer;
+ X1,X2,Y1,Y2,H,V,Hov,Vov,X,Y,Sx,Sy,Cx,Cy:Real;
+ Id,R,C,Rows,Cols:LongInt;
+ G:TGeom;
+ P:PPath;
+ K:Integer;
+
+ Procedure AddCell(L,T,Rr,B:Real;Ri,Ci:LongInt;WithIdx:Boolean);Begin
+  Nf:=NewFeature(Nil,BuildGeom(G));
+  PutProp(Nf,'id',JNum(Id));
+  PutProp(Nf,'left',JNum(L));PutProp(Nf,'top',JNum(T));
+  PutProp(Nf,'right',JNum(Rr));PutProp(Nf,'bottom',JNum(B));
+  If WithIdx Then Begin
+   PutProp(Nf,'row_index',JNum(Ri));
+   PutProp(Nf,'col_index',JNum(Ci));
+  End;
+  JAdd(OutArr,Nf);
+  Inc(Id);
+ End;
+
+Begin
+ Typ:=Round(NeedReal(A,'TYPE'));
+ If(Typ<0)or(Typ>4)Then Fail('Error: TYPE must be between 0 and 4');
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ H:=NeedReal(A,'HSPACING');V:=NeedReal(A,'VSPACING');
+ Hov:=NeedReal(A,'HOVERLAY');Vov:=NeedReal(A,'VOVERLAY');
+ If(H<=0)or(V<=0)Then Fail('Error: HSPACING and VSPACING must be greater than 0');
+ If(Hov<0)or(Vov<0)or(Hov>=H)or(Vov>=V)Then Fail('Error: invalid overlay');
+ Dst:=ParseEpsg(NeedStr(A,'CRS'),'CRS');
+ Sx:=H-Hov;Sy:=V-Vov;
+ If(((X2-X1)/Sx+1)*((Y2-Y1)/Sy+1))*2>1000000Then Fail('Error: the grid would have too many cells');
+ Out:=NewLayerLike(Nil,OutArr);
+ SetLayerCrs(Out,Dst);
+ Id:=1;
+ Case Typ of
+  0:Begin
+   InitGeom(G);
+   R:=0;Y:=Y2;
+   While Y>=Y1-1E-9do Begin
+    C:=0;X:=X1;
+    While X<=X2+1E-9do Begin
+     PointGeom(G,X,Y);
+     AddCell(X,Y,X,Y,R,C,False);
+     FreeGeom(G);
+     Inc(C);X:=X1+C*Sx;
+    End;
+    Inc(R);Y:=Y2-R*Sy;
+   End;
+  End;
+  1:Begin
+   R:=0;Y:=Y2;
+   While Y>=Y1-1E-9do Begin
+    InitGeom(G);G.Cls:=2;
+    P:=NewPath(G,2,0);
+    P^.Pts^[0].X:=X1;P^.Pts^[0].Y:=Y;P^.Pts^[1].X:=X2;P^.Pts^[1].Y:=Y;
+    AddCell(X1,Y,X2,Y,R,0,False);
+    FreeGeom(G);
+    Inc(R);Y:=Y2-R*Sy;
+   End;
+   C:=0;X:=X1;
+   While X<=X2+1E-9do Begin
+    InitGeom(G);G.Cls:=2;
+    P:=NewPath(G,2,0);
+    P^.Pts^[0].X:=X;P^.Pts^[0].Y:=Y2;P^.Pts^[1].X:=X;P^.Pts^[1].Y:=Y1;
+    AddCell(X,Y2,X,Y1,0,C,False);
+    FreeGeom(G);
+    Inc(C);X:=X1+C*Sx;
+   End;
+  End;
+  2:Begin
+   R:=0;Y:=Y2;
+   While Y-V>=Y1-1E-9do Begin
+    C:=0;X:=X1;
+    While X+H<=X2+1E-9do Begin
+     RectGeom(G,X,Y-V,X+H,Y);
+     AddCell(X,Y,X+H,Y-V,R,C,True);
+     FreeGeom(G);
+     Inc(C);X:=X1+C*Sx;
+    End;
+    Inc(R);Y:=Y2-R*Sy;
+   End;
+  End;
+  3:Begin
+   { losanges : rangees decalees d'une demi-largeur }
+   R:=0;
+   Repeat
+    Cy:=Y2-V/2-R*V/2;
+    C:=0;
+    Repeat
+     Cx:=X1+H/2+C*H+(R mod 2)*H/2;
+     If(Cx+H/2<=X2+1E-9)and(Cy-V/2>=Y1-1E-9)Then Begin
+      InitGeom(G);G.Cls:=3;G.NPoly:=1;
+      P:=NewPath(G,5,0);
+      P^.Pts^[0].X:=Cx;P^.Pts^[0].Y:=Cy-V/2;P^.Pts^[1].X:=Cx+H/2;P^.Pts^[1].Y:=Cy;
+      P^.Pts^[2].X:=Cx;P^.Pts^[2].Y:=Cy+V/2;P^.Pts^[3].X:=Cx-H/2;P^.Pts^[3].Y:=Cy;
+      P^.Pts^[4]:=P^.Pts^[0];
+      AddCell(Cx-H/2,Cy+V/2,Cx+H/2,Cy-V/2,R,C,True);
+      FreeGeom(G);
+     End;
+     Inc(C);
+    Until Cx+H/2>X2+H;
+    Inc(R);
+   Until Cy-V/2<Y1-V;
+  End;
+  4:Begin
+   { hexagones a sommet plat : largeur H, hauteur V, colonnes decalees }
+   C:=0;
+   Repeat
+    Cx:=X1+H/2+C*H*0.75;
+    R:=0;
+    Repeat
+     Cy:=Y2-V/2-R*V-(C mod 2)*V/2;
+     If(Cx+H/2<=X2+1E-9)and(Cy-V/2>=Y1-1E-9)Then Begin
+      InitGeom(G);G.Cls:=3;G.NPoly:=1;
+      P:=NewPath(G,7,0);
+      P^.Pts^[0].X:=Cx+H/2;P^.Pts^[0].Y:=Cy;
+      P^.Pts^[1].X:=Cx+H/4;P^.Pts^[1].Y:=Cy+V/2;
+      P^.Pts^[2].X:=Cx-H/4;P^.Pts^[2].Y:=Cy+V/2;
+      P^.Pts^[3].X:=Cx-H/2;P^.Pts^[3].Y:=Cy;
+      P^.Pts^[4].X:=Cx-H/4;P^.Pts^[4].Y:=Cy-V/2;
+      P^.Pts^[5].X:=Cx+H/4;P^.Pts^[5].Y:=Cy-V/2;
+      P^.Pts^[6]:=P^.Pts^[0];
+      AddCell(Cx-H/2,Cy+V/2,Cx+H/2,Cy-V/2,R,C,True);
+      FreeGeom(G);
+     End;
+     Inc(R);
+    Until Cy-V/2<Y1-V;
+    Inc(C);
+   Until Cx-H/2>X2;
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Rayon de la Terre pour les calculs spheriques (CALC_METHOD = 2) }
+Function SphereArea(Var G:TGeom):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ S,Tot:Real;
+ Prev:Integer;
+Begin
+ Tot:=0;
+ Prev:=-1;
+ P:=G.First;
+ While P<>Nil do Begin
+  S:=0;
+  For I:=0 to P^.N-2do
+   S:=S+Deg2Rad(P^.Pts^[I+1].X-P^.Pts^[I].X)*(2+Sin(Deg2Rad(P^.Pts^[I].Y))+Sin(Deg2Rad(P^.Pts^[I+1].Y)));
+  S:=Abs(S)*Sqr(EarthRadius)/2;
+  If P^.Poly=Prev Then Tot:=Tot-S Else Tot:=Tot+S;
+  Prev:=P^.Poly;
+  P:=P^.Next;
+ End;
+ SphereArea:=Tot;
+End;
+
+Function SphereLength(Var G:TGeom):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ L:Real;
+Begin
+ L:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-2do
+   L:=L+Haversine(P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y);
+  P:=P^.Next;
+ End;
+ SphereLength:=L;
+End;
+
+Procedure RunAddGeometryColumns(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ Method:Integer;
+ Sph:Boolean;
+ X,Y:Real;
+ Ok:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Method:=Round(NeedReal(A,'CALC_METHOD'));
+ Sph:=(Method=2)and(LayerCrs(Root)=4326);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  Case G.Cls of
+   1:Begin
+    CentroidGeom(G,X,Y,Ok);
+    PutProp(F,'xcoord',JNum(X));
+    PutProp(F,'ycoord',JNum(Y));
+   End;
+   2:Begin
+    If Sph Then PutProp(F,'length',JNum(SphereLength(G)))
+           Else PutProp(F,'length',JNum(GeomLength(G)));
+   End;
+   3:Begin
+    If Sph Then Begin
+     PutProp(F,'area',JNum(SphereArea(G)));
+     PutProp(F,'perimeter',JNum(SphereLength(G)));
+    End
+     Else
+    Begin
+     PutProp(F,'area',JNum(GeomArea(G)));
+     PutProp(F,'perimeter',JNum(GeomLength(G)));
+    End;
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunTaperedBuffer(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,Pc,B,R,Cir:TGeom;
+ P,Pa:PPath;
+ R0,R1,L,Acc,Ra,Rb,Seg2:Real;
+ Seg,K,I,J,N:LongInt;
+ Empty:TGeom;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ R0:=NeedReal(A,'START_WIDTH');R1:=NeedReal(A,'END_WIDTH');
+ Seg:=Round(NeedReal(A,'SEGMENTS'));
+ If(Seg<1)or(Seg>64)Then Fail('Error: SEGMENTS must be between 1 and 64');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(Pc);Pc.Cls:=3;
+   InitGeom(Empty);
+   K:=0;
+   P:=G.First;
+   While P<>Nil do Begin
+    L:=PathLength(P);
+    Acc:=0;
+    For I:=0 to P^.N-2do Begin
+     If L>0Then Begin
+      Ra:=R0+(R1-R0)*Acc/L;
+      Acc:=Acc+Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+      Rb:=R0+(R1-R0)*Acc/L;
+     End
+      Else
+     Begin Ra:=R0;Rb:=R0;End;
+     { enveloppe convexe des deux cercles }
+     InitGeom(Cir);Cir.Cls:=1;
+     N:=4*Seg;
+     For J:=0 to N-1do Begin
+      Pa:=NewPath(Cir,1,0);
+      Pa^.Pts^[0].X:=P^.Pts^[I].X+Ra*Cos(2*Pi*J/N);Pa^.Pts^[0].Y:=P^.Pts^[I].Y+Ra*Sin(2*Pi*J/N);
+      Pa:=NewPath(Cir,1,0);
+      Pa^.Pts^[0].X:=P^.Pts^[I+1].X+Rb*Cos(2*Pi*J/N);Pa^.Pts^[0].Y:=P^.Pts^[I+1].Y+Rb*Sin(2*Pi*J/N);
+     End;
+     HullGeom(Cir,R);
+     If R.Cls=3Then Begin
+      CopyPath(Pc,R.First,K);
+      Inc(K);
+     End;
+     FreeGeom(R);FreeGeom(Cir);
+    End;
+    P:=P^.Next;
+   End;
+   Pc.NPoly:=K;
+   If Pc.First<>Nil Then Begin
+    KeepOrient:=True;
+    Overlay(0,Pc,Empty,R);
+    KeepOrient:=False;
+    SetGeom(F,BuildPolygons(R));
+    FreeGeom(R);
+   End
+    Else
+   SetGeom(F,Nil);
+   FreeGeom(Pc);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Centroides des entites dans deux tableaux (valeurs reelles) }
+Procedure FeatureCentroids(Arr:PJ;Var N:LongInt;Var Xs,Ys:PReals;Var Have:PBools);
+Var
+ F:PJ;
+ G:TGeom;
+ I:LongInt;
+ Ok:Boolean;
+Begin
+ N:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin Inc(N);F:=F^.Next;End;
+ Xs:=AllocBlock((N+1)*SizeOf(Real));Ys:=AllocBlock((N+1)*SizeOf(Real));Have:=AllocBlock((N+1)*SizeOf(Boolean));
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  CentroidGeom(G,Xs^[I],Ys^[I],Ok);
+  Have^[I]:=Ok;
+  FreeGeom(G);
+  Inc(I);
+  F:=F^.Next;
+ End;
+End;
+
+Procedure RunKMeans(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ N,I,J,K,Ks,It:LongInt;
+ Xs,Ys,Cx,Cy,Dm:PReals;
+ Have:PBools;
+ Lab,Cnt:PLongs;
+ Best,D,Mx,My:Real;
+ Fld,SFld:String;
+ Changed:Boolean;
+ BestJ:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Ks:=Round(NeedReal(A,'CLUSTERS'));
+ Fld:=NeedStr(A,'FIELD_NAME');
+ SFld:=NeedStr(A,'SIZE_FIELD_NAME');
+ FeatureCentroids(Arr,N,Xs,Ys,Have);
+ If(Ks<1)or(Ks>N)Then Fail('Error: CLUSTERS must be between 1 and the number of features');
+ Cx:=AllocBlock((Ks+1)*SizeOf(Real));Cy:=AllocBlock((Ks+1)*SizeOf(Real));
+ Dm:=AllocBlock((N+1)*SizeOf(Real));
+ Lab:=AllocBlock((N+1)*SizeOf(LongInt));Cnt:=AllocBlock((Ks+1)*SizeOf(LongInt));
+ { initialisation deterministe : premier point, puis le plus eloigne des centres choisis }
+ Cx^[0]:=Xs^[0];Cy^[0]:=Ys^[0];
+ For I:=0 to N-1do Dm^[I]:=Sqr(Xs^[I]-Cx^[0])+Sqr(Ys^[I]-Cy^[0]);
+ For J:=1 to Ks-1do Begin
+  Best:=-1;BestJ:=0;
+  For I:=0 to N-1do If Dm^[I]>Best Then Begin Best:=Dm^[I];BestJ:=I;End;
+  Cx^[J]:=Xs^[BestJ];Cy^[J]:=Ys^[BestJ];
+  For I:=0 to N-1do Begin
+   D:=Sqr(Xs^[I]-Cx^[J])+Sqr(Ys^[I]-Cy^[J]);
+   If D<Dm^[I]Then Dm^[I]:=D;
+  End;
+ End;
+ For It:=1 to 100do Begin
+  Changed:=False;
+  For I:=0 to N-1do Begin
+   Best:=1E300;BestJ:=0;
+   For J:=0 to Ks-1do Begin
+    D:=Sqr(Xs^[I]-Cx^[J])+Sqr(Ys^[I]-Cy^[J]);
+    If D<Best Then Begin Best:=D;BestJ:=J;End;
+   End;
+   If(It=1)or(Lab^[I]<>BestJ)Then Changed:=True;
+   Lab^[I]:=BestJ;
+  End;
+  For J:=0 to Ks-1do Begin
+   Mx:=0;My:=0;Cnt^[J]:=0;
+   For I:=0 to N-1do If Lab^[I]=J Then Begin Mx:=Mx+Xs^[I];My:=My+Ys^[I];Inc(Cnt^[J]);End;
+   If Cnt^[J]>0Then Begin Cx^[J]:=Mx/Cnt^[J];Cy^[J]:=My/Cnt^[J];End;
+  End;
+  If Not Changed Then Break;
+ End;
+ For J:=0 to Ks-1do Cnt^[J]:=0;
+ For I:=0 to N-1do Inc(Cnt^[Lab^[I]]);
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  PutProp(F,Fld,JNum(Lab^[I]));
+  PutProp(F,SFld,JNum(Cnt^[Lab^[I]]));
+  Inc(I);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunDbscan(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ N,I,J,K,Cl,Sp,MinSz,M:LongInt;
+ Xs,Ys:PReals;
+ Have:PBools;
+ Lab,Stack,Nb,Cnt,Core:PLongs;
+ Eps:Real;
+ Star:Boolean;
+ Fld,SFld:String;
+ IsCore:PBools;
+
+ Function Neighbours(P:LongInt;Buf:PLongs):LongInt;
+ Var
+  Q,C:LongInt;
+ Begin
+  C:=0;
+  For Q:=0 to N-1do
+   If Sqr(Xs^[P]-Xs^[Q])+Sqr(Ys^[P]-Ys^[Q])<=Eps*Eps Then Begin Buf^[C]:=Q;Inc(C);End;
+  Neighbours:=C;
+ End;
+
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ MinSz:=Round(NeedReal(A,'MIN_SIZE'));
+ Eps:=NeedReal(A,'EPS');
+ Star:=NeedBool(A,'DBSCAN*');
+ Fld:=NeedStr(A,'FIELD_NAME');
+ SFld:=NeedStr(A,'SIZE_FIELD_NAME');
+ FeatureCentroids(Arr,N,Xs,Ys,Have);
+ Lab:=AllocBlock((N+1)*SizeOf(LongInt));
+ Stack:=AllocBlock((N+2)*SizeOf(LongInt));
+ Nb:=AllocBlock((N+1)*SizeOf(LongInt));
+ Cnt:=AllocBlock((N+2)*SizeOf(LongInt));
+ IsCore:=AllocBlock((N+1)*SizeOf(Boolean));
+ For I:=0 to N-1do Begin Lab^[I]:=-2;IsCore^[I]:=Neighbours(I,Nb)>=MinSz;End;
+ Cl:=0;
+ For I:=0 to N-1do
+  If(Lab^[I]=-2)Then Begin
+   If Not IsCore^[I]Then Lab^[I]:=-1
+    Else
+   Begin
+    Lab^[I]:=Cl;
+    Sp:=0;
+    Stack^[Sp]:=I;Inc(Sp);
+    While Sp>0do Begin
+     Dec(Sp);
+     K:=Stack^[Sp];
+     If IsCore^[K]Then Begin
+      M:=Neighbours(K,Nb);
+      For J:=0 to M-1do
+       If(Lab^[Nb^[J]]=-2)or(Lab^[Nb^[J]]=-1)Then Begin
+        If IsCore^[Nb^[J]]Then Begin
+         Lab^[Nb^[J]]:=Cl;
+         Stack^[Sp]:=Nb^[J];Inc(Sp);
+        End
+         Else
+        If Not Star Then Lab^[Nb^[J]]:=Cl
+         Else
+        Lab^[Nb^[J]]:=-1;
+       End;
+     End;
+    End;
+    Inc(Cl);
+   End;
+  End;
+ For J:=0 to Cl-1do Cnt^[J]:=0;
+ For I:=0 to N-1do If Lab^[I]>=0Then Inc(Cnt^[Lab^[I]]);
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  If Lab^[I]>=0Then Begin
+   PutProp(F,Fld,JNum(Lab^[I]));
+   PutProp(F,SFld,JNum(Cnt^[Lab^[I]]));
+  End
+   Else
+  Begin
+   PutProp(F,Fld,NewJ(0));
+   PutProp(F,SFld,NewJ(0));
+  End;
+  Inc(I);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunNearestNeighbour(A:Integer);
+Var
+ Root,Arr:PJ;
+ N,I,J:LongInt;
+ Xs,Ys:PReals;
+ Have:PBools;
+ D,Best,Sum,MinX,MaxX,MinY,MaxY,Area,Obs,Expd,Se:Real;
+ T:Text;
+ Out:String;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ FeatureCentroids(Arr,N,Xs,Ys,Have);
+ If N<2Then Fail('Error: at least 2 points are required');
+ Sum:=0;
+ MinX:=Xs^[0];MaxX:=MinX;MinY:=Ys^[0];MaxY:=MinY;
+ For I:=0 to N-1do Begin
+  Best:=1E300;
+  For J:=0 to N-1do
+   If J<>I Then Begin
+    D:=Sqrt(Sqr(Xs^[I]-Xs^[J])+Sqr(Ys^[I]-Ys^[J]));
+    If D<Best Then Best:=D;
+   End;
+  Sum:=Sum+Best;
+  If Xs^[I]<MinX Then MinX:=Xs^[I];If Xs^[I]>MaxX Then MaxX:=Xs^[I];
+  If Ys^[I]<MinY Then MinY:=Ys^[I];If Ys^[I]>MaxY Then MaxY:=Ys^[I];
+ End;
+ Obs:=Sum/N;
+ Area:=(MaxX-MinX)*(MaxY-MinY);
+ If Area<=0Then Fail('Error: the points are aligned, the extent has no area');
+ Expd:=0.5/Sqrt(N/Area);
+ Se:=0.26136/Sqrt(N*N/Area);
+ AddRes('OBSERVED_MD',RealToStr(Obs));
+ AddRes('EXPECTED_MD',RealToStr(Expd));
+ AddRes('NN_INDEX',RealToStr(Obs/Expd));
+ AddRes('POINT_COUNT',IntToStr(N));
+ AddRes('Z_SCORE',RealToStr((Obs-Expd)/Se));
+ Out:=NeedStr(A,'OUTPUT_HTML_FILE');
+ If Out<>''Then Begin
+  {$I-}
+  Assign(T,Out);
+  Rewrite(T);
+  {$I+}
+  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
+  WriteLn(T,'Observed mean distance: ',RealToStr(Obs));
+  WriteLn(T,'Expected mean distance: ',RealToStr(Expd));
+  WriteLn(T,'Nearest neighbour index: ',RealToStr(Obs/Expd));
+  WriteLn(T,'Number of points: ',N);
+  WriteLn(T,'Z-score: ',RealToStr((Obs-Expd)/Se));
+  Close(T);
+  AddRes('OUTPUT_HTML_FILE',Out);
+ End;
+End;
+
+Procedure RunAngleToNearest(A:Integer);
+Var
+ Root,Arr,Ref,RefArr,F,Rf:PJ;
+ G,Rg:TGeom;
+ P:PPath;
+ X,Y,Qx,Qy,D,Best,Az,MaxD:Real;
+ I:LongInt;
+ Ok,HaveMax:Boolean;
+ Fld:String;
+ BestAz:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Ref:=LoadLayer(NeedStr(A,'REFERENCE_LAYER'));
+ RefArr:=LayerFeatures(Ref);
+ Fld:=NeedStr(A,'FIELD_NAME');
+ HaveMax:=HasArg('MAX_DISTANCE');
+ MaxD:=0;
+ If HaveMax Then MaxD:=NeedReal(A,'MAX_DISTANCE');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  CentroidGeom(G,X,Y,Ok);
+  If Ok Then Begin
+   Best:=1E300;BestAz:=0;
+   Rf:=RefArr^.First;
+   While Rf<>Nil do Begin
+    FlattenFeature(Rf,Rg);
+    If Rg.Cls>=2Then Begin
+     P:=Rg.First;
+     While P<>Nil do Begin
+      For I:=0 to P^.N-2do Begin
+       If(P^.Pts^[I].X<>P^.Pts^[I+1].X)or(P^.Pts^[I].Y<>P^.Pts^[I+1].Y)Then Begin
+        ClosestOnSeg(X,Y,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y,Qx,Qy);
+        D:=Sqrt(Sqr(X-Qx)+Sqr(Y-Qy));
+        If D<Best Then Begin
+         Best:=D;
+         BestAz:=NormDeg(Rad2Deg(Atan2(P^.Pts^[I+1].X-P^.Pts^[I].X,P^.Pts^[I+1].Y-P^.Pts^[I].Y)));
+        End;
+       End;
+      End;
+      P:=P^.Next;
+     End;
+    End;
+    FreeGeom(Rg);
+    Rf:=Rf^.Next;
+   End;
+   If(Best<1E299)and((Not HaveMax)or(Best<=MaxD))Then PutProp(F,Fld,JNum(BestAz))
+                                                   Else PutProp(F,Fld,NewJ(0));
+  End
+   Else
+  PutProp(F,Fld,NewJ(0));
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunShortestLine(A:Integer);
+Var
+ Src,SArr,Dst,DArr,F,Df,Out,OutArr,Nf:PJ;
+ G,H,L:TGeom;
+ P:PPath;
+ K,Cnt,I,J,Pick:LongInt;
+ Ds:PReals;
+ Dx1,Dy1,Dx2,Dy2,D,MaxD:Real;
+ HaveMax:Boolean;
+ Ax,Ay,Bx,By,Prev:Real;
+ DA:PJArr;
+ Nd:LongInt;
+ Used:PBools;
+ Best:Real;
+ BestI:LongInt;
+Begin
+ Src:=LoadLayer(NeedStr(A,'SOURCE'));SArr:=LayerFeatures(Src);
+ Dst:=LoadLayer(NeedStr(A,'DESTINATION'));DArr:=LayerFeatures(Dst);
+ K:=Round(NeedReal(A,'NEIGHBORS'));
+ If Round(NeedReal(A,'METHOD'))=0Then K:=1;
+ If K<1Then Fail('Error: NEIGHBORS must be at least 1');
+ HaveMax:=HasArg('DISTANCE');
+ MaxD:=0;
+ If HaveMax Then MaxD:=NeedReal(A,'DISTANCE');
+ DA:=FeatureArray(DArr,Nd);
+ Ds:=AllocBlock((Nd+1)*SizeOf(Real));
+ Used:=AllocBlock((Nd+1)*SizeOf(Boolean));
+ Out:=NewLayerLike(Src,OutArr);
+ F:=SArr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   For I:=0 to Nd-1do Begin
+    FlattenFeature(DA^[I],H);
+    If H.Cls=0Then Ds^[I]:=1E300 Else Ds^[I]:=NearestPoints(G,H,Ax,Ay,Bx,By);
+    FreeGeom(H);
+    Used^[I]:=False;
+   End;
+   For J:=1 to K do Begin
+    Best:=1E300;BestI:=-1;
+    For I:=0 to Nd-1do If(Not Used^[I])and(Ds^[I]<Best)Then Begin Best:=Ds^[I];BestI:=I;End;
+    If(BestI>=0)and((Not HaveMax)or(Best<=MaxD))Then Begin
+     Used^[BestI]:=True;
+     FlattenFeature(DA^[BestI],H);
+     NearestPoints(G,H,Ax,Ay,Bx,By);
+     InitGeom(L);L.Cls:=2;
+     P:=NewPath(L,2,0);
+     P^.Pts^[0].X:=Ax;P^.Pts^[0].Y:=Ay;P^.Pts^[1].X:=Bx;P^.Pts^[1].Y:=By;
+     Nf:=NewFeature(PropsClone(F),BuildLines(L));
+     PutProp(Nf,'distance',JNum(Best));
+     PutProp(Nf,'feature_x',JNum(Ax));PutProp(Nf,'feature_y',JNum(Ay));
+     PutProp(Nf,'nearest_x',JNum(Bx));PutProp(Nf,'nearest_y',JNum(By));
+     JAdd(OutArr,Nf);
+     FreeGeom(L);FreeGeom(H);
+    End;
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
 Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
@@ -8797,6 +10849,42 @@ Begin
   56:RunZValues(A,0);
   57:RunZValues(A,1);
   58:RunZValues(A,2);
+  59:RunMultiToSingle(A);
+  60:RunCollect(A);
+  61:RunCollect(A);
+  62:RunExplodeLines(A);
+  63:RunExtractVertices(A);
+  64:RunDeleteHoles(A);
+  65:RunPathOp(A,0);
+  66:RunPathOp(A,1);
+  67:RunPathOp(A,2);
+  68:RunLineSubstring(A);
+  69:RunSplitLinesByLength(A);
+  70:RunPointsAlongLines(A);
+  71:RunPointsAlongLines(A);
+  72:RunTransect(A);
+  73:RunWedgeBuffers(A);
+  74:RunOffsetLine(A,0);
+  75:RunOffsetLine(A,1);
+  76:RunMergeLayers(A);
+  77:RunPointOnSurface(A);
+  78:RunOrientedBox(A);
+  79:RunRoundness(A);
+  80:RunConcaveHull(A);
+  81:RunFixGeometries(A);
+  82:RunSnapGeometries(A);
+  83:RunAntimeridian(A);
+  84:RunGeometryByExpression(A);
+  85:RunExtractByExtent(A);
+  86:RunLinesToPolygons(A);
+  87:RunCreateGrid(A);
+  88:RunAddGeometryColumns(A);
+  89:RunTaperedBuffer(A);
+  90:RunKMeans(A);
+  91:RunDbscan(A);
+  92:RunNearestNeighbour(A);
+  93:RunAngleToNearest(A);
+  94:RunShortestLine(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
