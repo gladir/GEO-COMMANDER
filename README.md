@@ -45,6 +45,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
     <td>Cette commande permet de detecter les pays mentionnées dans un texte.</td>
   </tr>
   <tr>
+		<td><b>GEO.PAS</b></td>
+	  <td>Cette commande permet d'inspecter des données géographiques, de convertir et reprojeter des couches, de lancer des traitements raster et d'obtenir des distances.</td>td
+  </tr>
+  <tr>
       <td><b>GEODELTA.PAS</b></td>
       <td>Cette commande permet de demander la distance entre deux villes, soit par coordonnée géographique, soit par son nom s'il est répertorié.</td>
   </tr>
