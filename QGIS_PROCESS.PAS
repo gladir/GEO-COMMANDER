@@ -18,16 +18,16 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=111;
- MaxParam=495;
- MaxOut=131;
+ MaxAlgo=134;
+ MaxParam=577;
+ MaxOut=161;
  MaxArg=30;
  MaxCells=40000000;
 
 Type
  AlgoRec=Record
-  Id:String[33];
-  Title:String[40];
+  Id:String[38];
+  Title:String[43];
   Group:String[24];
   Descr:String[120];
  End;
@@ -379,7 +379,76 @@ Const
    Descr:'Adds, for each overlay layer, the overlapping area (<layer>_area) and percentage (<layer>_pc).'),
   (Id:'native:sumlinelengths';Title:'Sum line lengths';
    Group:'Vector analysis';
-   Descr:'Sums the length (and counts) of the lines inside each polygon.')
+   Descr:'Sums the length (and counts) of the lines inside each polygon.'),
+  (Id:'native:createconstantrasterlayer';Title:'Create constant raster layer';
+   Group:'Raster tools';
+   Descr:'Creates an ASCII grid filled with a constant value.'),
+  (Id:'native:alignrasters';Title:'Align rasters';
+   Group:'Raster tools';
+   Descr:'Resamples ASCII grids onto the grid of a reference raster (OUTPUT is a directory).'),
+  (Id:'native:fuzzifyrastergaussianmembership';Title:'Fuzzify raster (gaussian membership)';
+   Group:'Raster analysis';
+   Descr:'Gaussian fuzzy membership: exp(-spread * (x - midpoint)^2).'),
+  (Id:'native:rasterlayerstatistics';Title:'Raster layer statistics';
+   Group:'Raster analysis';
+   Descr:'Computes statistics of the valid pixels of a raster.'),
+  (Id:'native:reclassifybytable';Title:'Reclassify by table';
+   Group:'Raster analysis';
+   Descr:'Reclassifies the pixels with min,max,value triplets.'),
+  (Id:'native:rescaleraster';Title:'Rescale raster';
+   Group:'Raster analysis';
+   Descr:'Linearly rescales the pixel values to a new range.'),
+  (Id:'native:slope';Title:'Slope';
+   Group:'Raster terrain analysis';
+   Descr:'Computes the slope in degrees of a digital elevation model (Horn).'),
+  (Id:'native:zonalstatistics';Title:'Zonal statistics';
+   Group:'Raster analysis';
+   Descr:'Adds statistics of the raster pixels inside each polygon.'),
+  (Id:'native:zonalhistogram';Title:'Zonal histogram';
+   Group:'Raster analysis';
+   Descr:'Adds the pixel count of each raster value inside each polygon.'),
+  (Id:'native:rastercalc';Title:'Raster calculator';
+   Group:'Raster analysis';
+   Descr:'Raster calculator: layers are referenced as "name@1" (name = file name without extension).'),
+  (Id:'native:savefeatures';Title:'Save vector features to file';
+   Group:'Vector general';
+   Descr:'Saves a layer to a GeoJSON (.geojson, .json) or CSV (WKT column) file.'),
+  (Id:'native:atlaslayouttomultiplepdf';Title:'Export atlas layout as PDF (multiple files)';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: print layouts do not exist in this clone'),
+  (Id:'native:atlaslayouttoimage';Title:'Export atlas layout as image';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: print layouts do not exist in this clone'),
+  (Id:'native:atlaslayouttopdf';Title:'Export atlas layout as PDF (single file)';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: print layouts do not exist in this clone'),
+  (Id:'native:categorizeusingstyle';Title:'Create categorized renderer from styles';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: styles and renderers do not exist in this clone'),
+  (Id:'native:eliminateselectedpolygons';Title:'Eliminate selected polygons';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: there is no feature selection in this clone'),
+  (Id:'native:filterverticesbym';Title:'Filter vertices by M value';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: GeoJSON has no M values'),
+  (Id:'native:setmvalue';Title:'Set M value';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: GeoJSON has no M values'),
+  (Id:'native:package';Title:'Package layers';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: GeoPackage files are not available'),
+  (Id:'native:writevectortiles_mbtiles';Title:'Write vector tiles (MBTiles)';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: MBTiles/vector tile encoding is not available'),
+  (Id:'native:writevectortiles_xyz';Title:'Write vector tiles (XYZ)';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: vector tile encoding is not available'),
+  (Id:'native:rasterize';Title:'Convert map to raster';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: needs the map renderer (use gdal:rasterize)'),
+  (Id:'native:rasterrank';Title:'Raster rank';
+   Group:'Not supported';
+   Descr:'NOT SUPPORTED: definition of this algorithm not available')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -877,7 +946,89 @@ Const
   (A:111;Name:'LINES';Typ:'vector';Desc:'Line GeoJSON file';Def:''),
   (A:111;Name:'LEN_FIELD';Typ:'string';Desc:'Length field name';Def:'LENGTH'),
   (A:111;Name:'COUNT_FIELD';Typ:'string';Desc:'Count field name';Def:'COUNT'),
-  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
+  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:112;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
+  (A:112;Name:'TARGET_CRS';Typ:'crs';Desc:'CRS (unused)';Def:'*'),
+  (A:112;Name:'PIXEL_SIZE';Typ:'number';Desc:'Pixel size';Def:'1'),
+  (A:112;Name:'NUMBER';Typ:'number';Desc:'Constant value';Def:'1'),
+  (A:112;Name:'OUTPUT_TYPE';Typ:'enum';Desc:'Output data type (unused)';Def:'5'),
+  (A:112;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:113;Name:'REFERENCE_LAYER';Typ:'raster';Desc:'Reference ASCII grid';Def:''),
+  (A:113;Name:'LAYERS';Typ:'raster';Desc:'ASCII grids to align separated by ;';Def:''),
+  (A:113;Name:'RESAMPLE_METHOD';Typ:'enum';Desc:'0 nearest neighbour, 1 bilinear';Def:'0'),
+  (A:113;Name:'OUTPUT';Typ:'folderDestination';Desc:'Output directory';Def:''),
+  (A:114;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:114;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:114;Name:'FUZZYMIDPOINT';Typ:'number';Desc:'Midpoint';Def:'10'),
+  (A:114;Name:'FUZZYSPREAD';Typ:'number';Desc:'Spread';Def:'0.01'),
+  (A:114;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:115;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:115;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:115;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Text report file';Def:'*'),
+  (A:116;Name:'INPUT_RASTER';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:116;Name:'RASTER_BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:116;Name:'TABLE';Typ:'string';Desc:'min,max,value,min,max,value,...';Def:''),
+  (A:116;Name:'NO_DATA';Typ:'number';Desc:'Nodata value of the output';Def:'-9999'),
+  (A:116;Name:'RANGE_BOUNDARIES';Typ:'enum';Desc:'0 min<v<=max, 1 min<=v<max, 2 min<=v<=max, 3 min<v<max';Def:'0'),
+  (A:116;Name:'NODATA_FOR_MISSING';Typ:'boolean';Desc:'Use nodata for the unclassified pixels';Def:'false'),
+  (A:116;Name:'DATA_TYPE';Typ:'enum';Desc:'Output data type (unused)';Def:'5'),
+  (A:116;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:117;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:117;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:117;Name:'MINIMUM';Typ:'number';Desc:'New minimum';Def:'0'),
+  (A:117;Name:'MAXIMUM';Typ:'number';Desc:'New maximum';Def:'255'),
+  (A:117;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'-9999'),
+  (A:117;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:118;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:118;Name:'Z_FACTOR';Typ:'number';Desc:'Vertical exaggeration';Def:'1'),
+  (A:118;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:119;Name:'INPUT_RASTER';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:119;Name:'RASTER_BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:119;Name:'INPUT_VECTOR';Typ:'vector';Desc:'Polygon GeoJSON file';Def:''),
+  (A:119;Name:'COLUMN_PREFIX';Typ:'string';Desc:'Prefix of the new fields';Def:'_'),
+  (A:119;Name:'STATISTICS';Typ:'string';Desc:'0 count,1 sum,2 mean,3 median,4 stdev,5 min,6 max,7 range,8 minority,9 majority,10 variety,11 variance';Def:'0,1,2'),
+  (A:119;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:120;Name:'INPUT_RASTER';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:120;Name:'RASTER_BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:120;Name:'INPUT_VECTOR';Typ:'vector';Desc:'Polygon GeoJSON file';Def:''),
+  (A:120;Name:'COLUMN_PREFIX';Typ:'string';Desc:'Prefix of the new fields';Def:'HISTO_'),
+  (A:120;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:121;Name:'EXPRESSION';Typ:'expression';Desc:'Expression, e.g. "dem@1" * 2 + "slope@1"';Def:''),
+  (A:121;Name:'LAYERS';Typ:'raster';Desc:'ASCII grids separated by ;';Def:''),
+  (A:121;Name:'CELLSIZE';Typ:'number';Desc:'Output pixel size';Def:'*'),
+  (A:121;Name:'EXTENT';Typ:'extent';Desc:'Output extent xmin,xmax,ymin,ymax';Def:'*'),
+  (A:121;Name:'CRS';Typ:'crs';Desc:'CRS (unused)';Def:'*'),
+  (A:121;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:122;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:122;Name:'OUTPUT';Typ:'fileDestination';Desc:'Output file (.geojson, .json or .csv)';Def:''),
+  (A:122;Name:'LAYER_NAME';Typ:'string';Desc:'Layer name (unused)';Def:'*'),
+  (A:122;Name:'DATASOURCE_OPTIONS';Typ:'string';Desc:'Options (unused)';Def:'*'),
+  (A:122;Name:'LAYER_OPTIONS';Typ:'string';Desc:'Options (unused)';Def:'*'),
+  (A:122;Name:'ACTION_ON_EXISTING_FILE';Typ:'enum';Desc:'Action on existing file (unused)';Def:'0'),
+  (A:123;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:123;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:124;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:124;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:125;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:125;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:126;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:126;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:127;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:127;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:128;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:128;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:129;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:129;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:130;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:131;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:131;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:132;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:132;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:133;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:133;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:134;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
+  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -1011,7 +1162,37 @@ Const
   (A:108;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:109;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:110;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
-  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
+  (A:111;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:112;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:113;Name:'OUTPUT';Typ:'folderDestination';Desc:'Output directory'),
+  (A:114;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:115;Name:'MIN';Typ:'number';Desc:'Minimum'),
+  (A:115;Name:'MAX';Typ:'number';Desc:'Maximum'),
+  (A:115;Name:'RANGE';Typ:'number';Desc:'Range'),
+  (A:115;Name:'SUM';Typ:'number';Desc:'Sum'),
+  (A:115;Name:'MEAN';Typ:'number';Desc:'Mean'),
+  (A:115;Name:'STD_DEV';Typ:'number';Desc:'Standard deviation'),
+  (A:115;Name:'SUM_OF_SQUARES';Typ:'number';Desc:'Sum of squares'),
+  (A:115;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Text report'),
+  (A:116;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:117;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:118;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:119;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:120;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:121;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output raster'),
+  (A:122;Name:'OUTPUT';Typ:'fileDestination';Desc:'Saved file'),
+  (A:123;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:124;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:125;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:126;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:127;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:128;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:129;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:131;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:132;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:133;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:134;Name:'OUTPUT';Typ:'string';Desc:'Not produced')
  );
 
 Type
@@ -7478,6 +7659,8 @@ Const
 Var
  CalcS:String;
  CalcP:Integer;
+ CalcNames:Array[0..15]of String;
+ CalcNN:Integer;
  CodeOp:Array[1..MaxCode]of Byte;
  CodeV:Array[1..MaxCode]of Real;
  CodeN:Integer;
@@ -7536,6 +7719,19 @@ Begin
   Val(Copy(CalcS,Start,CalcP-Start),V,E);
   If E<>0Then CFail('invalid number');
   CEmit(1,V);
+ End
+  Else
+ If CalcS[CalcP]='"'Then Begin
+  Inc(CalcP);
+  Start:=CalcP;
+  While(CalcP<=Length(CalcS))and(CalcS[CalcP]<>'"')do Inc(CalcP);
+  If CalcP>Length(CalcS)Then CFail('unterminated layer name');
+  Name:=Copy(CalcS,Start,CalcP-Start);
+  Inc(CalcP);
+  E:=-1;
+  For Op:=0 to CalcNN-1do If StrUpper(CalcNames[Op])=StrUpper(Name)Then E:=Op;
+  If E<0Then CFail('unknown layer '+Name);
+  CEmit(2,E);
  End
   Else
  If UpCase(CalcS[CalcP])in['A'..'Z']Then Begin
@@ -12161,6 +12357,598 @@ Begin
  SaveOut(A,'OUTPUT',PoR);
 End;
 
+{ ------------------------------------------------------------------ }
+{ Algorithmes : rasters natifs, export, algorithmes non pris en charge }
+{ ------------------------------------------------------------------ }
+
+Procedure RunCreateConstantRaster(A:Integer);
+Var
+ O:TRaster;
+ X1,X2,Y1,Y2,Ps,V:Real;
+ Nc,Nr,I:LongInt;
+ Out:String;
+Begin
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Ps:=NeedReal(A,'PIXEL_SIZE');
+ V:=NeedReal(A,'NUMBER');
+ Out:=NeedStr(A,'OUTPUT');
+ If Ps<=0Then Fail('Error: PIXEL_SIZE must be greater than 0');
+ Nc:=CeilL((X2-X1)/Ps-1E-9);
+ Nr:=CeilL((Y2-Y1)/Ps-1E-9);
+ NewRaster(O,Nc,Nr,X1,Y2-Nr*Ps,Ps,-9999);
+ For I:=0 to Nc*Nr-1do O.Data^[I]:=V;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunAlignRasters(A:Integer);
+Var
+ Ref,R,O:TRaster;
+ Dir,Name:String;
+ Mode,K,I,J:LongInt;
+ X,Y,V:Real;
+Begin
+ ReadRaster(NeedStr(A,'REFERENCE_LAYER'),Ref);
+ Mode:=Round(NeedReal(A,'RESAMPLE_METHOD'));
+ If(Mode<>0)and(Mode<>1)Then Fail('Error: RESAMPLE_METHOD must be 0 (nearest) or 1 (bilinear)');
+ SplitList(NeedStr(A,'LAYERS'),';');
+ Dir:=NeedStr(A,'OUTPUT');
+ If Dir=''Then Fail('Error: OUTPUT must be a directory');
+ If(Dir[Length(Dir)]='/')or(Dir[Length(Dir)]='\')Then Dir:=Copy(Dir,1,Length(Dir)-1);
+ {$I-}
+ MkDir(Dir);
+ If IOResult<>0Then Begin End;
+ {$I+}
+ For K:=1 to ListCount do Begin
+  ReadRaster(ListItems[K],R);
+  NewRaster(O,Ref.NC,Ref.NR,Ref.XLL,Ref.YLL,Ref.Cell,R.NoData);
+  For I:=0 to Ref.NR-1do
+   For J:=0 to Ref.NC-1do Begin
+    X:=Ref.XLL+(J+0.5)*Ref.Cell;
+    Y:=RasterTop(Ref)-(I+0.5)*Ref.Cell;
+    If SampleRaster(R,X,Y,Mode,V)Then O.Data^[I*Ref.NC+J]:=V;
+   End;
+  Name:=Dir+'/'+BaseName(ListItems[K])+'.asc';
+  WriteRaster(Name,O);
+  AddRes('OUTPUT_'+IntToStr(K),Name);
+ End;
+ AddRes('OUTPUT',Dir);
+End;
+
+Procedure RunFuzzify(A:Integer);
+Var
+ R,O:TRaster;
+ Mid,Spread,V:Real;
+ I:LongInt;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ Mid:=NeedReal(A,'FUZZYMIDPOINT');
+ Spread:=NeedReal(A,'FUZZYSPREAD');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
+ For I:=0 to R.NC*R.NR-1do Begin
+  V:=R.Data^[I];
+  If Not IsNoData(R,V)Then O.Data^[I]:=Exp(-Spread*Sqr(V-Mid));
+ End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunRasterStatistics(A:Integer);
+Var
+ R:TRaster;
+ I,N:LongInt;
+ V,Sum,Sq,Mn,Mx,Mean,Sd:Real;
+ T:Text;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ N:=0;Sum:=0;Sq:=0;Mn:=1E300;Mx:=-1E300;
+ For I:=0 to R.NC*R.NR-1do Begin
+  V:=R.Data^[I];
+  If Not IsNoData(R,V)Then Begin
+   Inc(N);Sum:=Sum+V;Sq:=Sq+V*V;
+   If V<Mn Then Mn:=V;
+   If V>Mx Then Mx:=V;
+  End;
+ End;
+ If N=0Then Fail('Error: the raster has no valid pixel');
+ Mean:=Sum/N;
+ Sd:=Sqrt(MaxR(0,Sq/N-Mean*Mean));
+ AddRes('MIN',RealToStr(Mn));
+ AddRes('MAX',RealToStr(Mx));
+ AddRes('RANGE',RealToStr(Mx-Mn));
+ AddRes('SUM',RealToStr(Sum));
+ AddRes('MEAN',RealToStr(Mean));
+ AddRes('STD_DEV',RealToStr(Sd));
+ AddRes('SUM_OF_SQUARES',RealToStr(Sq));
+ Out:=NeedStr(A,'OUTPUT_HTML_FILE');
+ If Out<>''Then Begin
+  {$I-}
+  Assign(T,Out);
+  Rewrite(T);
+  {$I+}
+  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
+  WriteLn(T,'Minimum: ',RealToStr(Mn));
+  WriteLn(T,'Maximum: ',RealToStr(Mx));
+  WriteLn(T,'Range: ',RealToStr(Mx-Mn));
+  WriteLn(T,'Sum: ',RealToStr(Sum));
+  WriteLn(T,'Mean value: ',RealToStr(Mean));
+  WriteLn(T,'Standard deviation: ',RealToStr(Sd));
+  WriteLn(T,'Sum of the squares: ',RealToStr(Sq));
+  Close(T);
+  AddRes('OUTPUT_HTML_FILE',Out);
+ End;
+End;
+
+Procedure RunReclassify(A:Integer);
+Var
+ R,O:TRaster;
+ Mins,Maxs,Vals:Array[1..60]of Real;
+ NR2,K,Bnd,I:LongInt;
+ Nd,V,Out2:Real;
+ MissingNd,Hit:Boolean;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT_RASTER'),R);
+ If Round(NeedReal(A,'RASTER_BAND'))<>1Then Fail('Error: only band 1 is available');
+ SplitList(NeedStr(A,'TABLE'),';, ');
+ If(ListCount=0)or(ListCount mod 3<>0)Then Fail('Error: TABLE must contain min,max,value triplets');
+ NR2:=ListCount div 3;
+ If NR2>60Then Fail('Error: at most 60 classes');
+ For K:=1 to NR2 do Begin
+  RNum(ListItems[3*K-2],Mins[K]);RNum(ListItems[3*K-1],Maxs[K]);RNum(ListItems[3*K],Vals[K]);
+ End;
+ Nd:=NeedReal(A,'NO_DATA');
+ Bnd:=Round(NeedReal(A,'RANGE_BOUNDARIES'));
+ If(Bnd<0)or(Bnd>3)Then Fail('Error: RANGE_BOUNDARIES must be between 0 and 3');
+ MissingNd:=NeedBool(A,'NODATA_FOR_MISSING');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,Nd);
+ For I:=0 to R.NC*R.NR-1do Begin
+  V:=R.Data^[I];
+  If IsNoData(R,V)Then O.Data^[I]:=Nd
+   Else
+  Begin
+   Hit:=False;
+   For K:=1 to NR2 do
+    If Not Hit Then Begin
+     Case Bnd of
+      0:Hit:=(V>Mins[K])and(V<=Maxs[K]);
+      1:Hit:=(V>=Mins[K])and(V<Maxs[K]);
+      2:Hit:=(V>=Mins[K])and(V<=Maxs[K]);
+      3:Hit:=(V>Mins[K])and(V<Maxs[K]);
+     End;
+     If Hit Then O.Data^[I]:=Vals[K];
+    End;
+   If Not Hit Then Begin
+    If MissingNd Then O.Data^[I]:=Nd Else O.Data^[I]:=V;
+   End;
+  End;
+ End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunRescale(A:Integer);
+Var
+ R,O:TRaster;
+ Mn,Mx,V,NMin,NMax,Nd:Real;
+ I:LongInt;
+ Have:Boolean;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ NMin:=NeedReal(A,'MINIMUM');NMax:=NeedReal(A,'MAXIMUM');
+ Nd:=NeedReal(A,'NODATA');
+ Out:=NeedStr(A,'OUTPUT');
+ Have:=False;Mn:=0;Mx:=0;
+ For I:=0 to R.NC*R.NR-1do Begin
+  V:=R.Data^[I];
+  If Not IsNoData(R,V)Then
+   If Not Have Then Begin Mn:=V;Mx:=V;Have:=True;End
+    Else
+   Begin If V<Mn Then Mn:=V;If V>Mx Then Mx:=V;End;
+ End;
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,Nd);
+ For I:=0 to R.NC*R.NR-1do Begin
+  V:=R.Data^[I];
+  If Not IsNoData(R,V)Then
+   If Mx>Mn Then O.Data^[I]:=NMin+(V-Mn)/(Mx-Mn)*(NMax-NMin)
+            Else O.Data^[I]:=NMin;
+ End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunNativeSlope(A:Integer);
+Var
+ R,O:TRaster;
+ I,J:LongInt;
+ Z:Array[1..9]of Real;
+ Zf,Dx,Dy:Real;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ Zf:=NeedReal(A,'Z_FACTOR');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
+ For I:=0 to R.NR-1do
+  For J:=0 to R.NC-1do
+   If Not IsNoData(R,R.Data^[I*R.NC+J])Then Begin
+    Z[1]:=Nb(R,I,J,-1,-1);Z[2]:=Nb(R,I,J,-1,0);Z[3]:=Nb(R,I,J,-1,1);
+    Z[4]:=Nb(R,I,J,0,-1);Z[5]:=Nb(R,I,J,0,0);Z[6]:=Nb(R,I,J,0,1);
+    Z[7]:=Nb(R,I,J,1,-1);Z[8]:=Nb(R,I,J,1,0);Z[9]:=Nb(R,I,J,1,1);
+    Dx:=((Z[3]+2*Z[6]+Z[9])-(Z[1]+2*Z[4]+Z[7]))/(8*R.Cell);
+    Dy:=((Z[7]+2*Z[8]+Z[9])-(Z[1]+2*Z[2]+Z[3]))/(8*R.Cell);
+    O.Data^[I*R.NC+J]:=Rad2Deg(ArcTan(Zf*Sqrt(Dx*Dx+Dy*Dy)));
+   End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Valeurs des pixels (centres) a l'interieur d'un polygone ; Vals doit pouvoir contenir NC*NR valeurs }
+Procedure ZonalValues(Var R:TRaster;Var G:TGeom;Vals:PReals;Var N:LongInt);
+Var
+ P:PPath;
+ Xs:PReals;
+ Cap,NX,I,J,K,Row,C0,C1,R0,R1:LongInt;
+ X1,Y1,X2,Y2,Y,Tmp,MinX,MinY,MaxX,MaxY:Real;
+ V:Real;
+Begin
+ N:=0;
+ If G.Cls<>3Then Exit;
+ If Not GeomBBox(G,MinX,MinY,MaxX,MaxY)Then Exit;
+ Cap:=0;
+ P:=G.First;
+ While P<>Nil do Begin Inc(Cap,P^.N);P:=P^.Next;End;
+ Xs:=AllocBlock((Cap+2)*SizeOf(Real));
+ R0:=FloorL((RasterTop(R)-MaxY)/R.Cell);
+ R1:=CeilL((RasterTop(R)-MinY)/R.Cell);
+ If R0<0Then R0:=0;
+ If R1>R.NR-1Then R1:=R.NR-1;
+ For Row:=R0 to R1 do Begin
+  Y:=RasterTop(R)-(Row+0.5)*R.Cell;
+  NX:=0;
+  P:=G.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    K:=I+1;
+    If K>=P^.N Then K:=0;
+    X1:=P^.Pts^[I].X;Y1:=P^.Pts^[I].Y;X2:=P^.Pts^[K].X;Y2:=P^.Pts^[K].Y;
+    If(Y1<=Y)<>(Y2<=Y)Then Begin Xs^[NX]:=X1+(Y-Y1)*(X2-X1)/(Y2-Y1);Inc(NX);End;
+   End;
+   P:=P^.Next;
+  End;
+  For I:=1 to NX-1do Begin
+   Tmp:=Xs^[I];K:=I-1;
+   While(K>=0)and(Xs^[K]>Tmp)do Begin Xs^[K+1]:=Xs^[K];Dec(K);End;
+   Xs^[K+1]:=Tmp;
+  End;
+  I:=0;
+  While I+1<NX do Begin
+   C0:=CeilL((Xs^[I]-R.XLL)/R.Cell-0.5);
+   C1:=CeilL((Xs^[I+1]-R.XLL)/R.Cell-0.5)-1;
+   If C0<0Then C0:=0;
+   If C1>=R.NC Then C1:=R.NC-1;
+   For J:=C0 to C1 do Begin
+    V:=R.Data^[Row*R.NC+J];
+    If Not IsNoData(R,V)Then Begin Vals^[N]:=V;Inc(N);End;
+   End;
+   Inc(I,2);
+  End;
+ End;
+ FreeMem(Xs,(Cap+2)*SizeOf(Real));
+End;
+
+Procedure SortReals(V:PReals;N:LongInt);
+Var
+ I,J:LongInt;
+ T:Real;
+Begin
+ For I:=1 to N-1do Begin
+  T:=V^[I];J:=I-1;
+  While(J>=0)and(V^[J]>T)do Begin V^[J+1]:=V^[J];Dec(J);End;
+  V^[J+1]:=T;
+ End;
+End;
+
+Procedure RunZonalStatistics(A:Integer);
+Var
+ R:TRaster;
+ VR,VA,F:PJ;
+ G:TGeom;
+ Vals:PReals;
+ Stats:Array[0..11]of Integer;
+ NS,K,S,E:Integer;
+ N,I,J,Y:LongInt;
+ Pref,Nm:String;
+ Sum,Mean,Sd,Mn,Mx,Best:Real;
+ Cnt,BestCnt,Variety:LongInt;
+ Idx:LongInt;
+Begin
+ ReadRaster(NeedStr(A,'INPUT_RASTER'),R);
+ If Round(NeedReal(A,'RASTER_BAND'))<>1Then Fail('Error: only band 1 is available');
+ LoadIn(A,'INPUT_VECTOR',VR,VA);
+ Pref:=NeedStr(A,'COLUMN_PREFIX');
+ SplitList(NeedStr(A,'STATISTICS'),';, ');
+ NS:=0;
+ For K:=1 to ListCount do Begin
+  Val(ListItems[K],Stats[NS],E);
+  If(E<>0)or(Stats[NS]<0)or(Stats[NS]>11)Then Fail('Error: STATISTICS values must be between 0 and 11');
+  Inc(NS);
+ End;
+ If NS=0Then Fail('Error: STATISTICS is empty');
+ Vals:=AllocBlock((R.NC*R.NR+1)*SizeOf(Real));
+ F:=VA^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  ZonalValues(R,G,Vals,N);
+  FreeGeom(G);
+  Sum:=0;
+  For I:=0 to N-1do Sum:=Sum+Vals^[I];
+  If N>0Then Begin
+   Mean:=Sum/N;Sd:=0;
+   For I:=0 to N-1do Sd:=Sd+Sqr(Vals^[I]-Mean);
+   SortReals(Vals,N);
+  End;
+  For S:=0 to NS-1do Begin
+   Case Stats[S]of
+    0:Nm:='count';1:Nm:='sum';2:Nm:='mean';3:Nm:='median';4:Nm:='stdev';5:Nm:='min';
+    6:Nm:='max';7:Nm:='range';8:Nm:='minority';9:Nm:='majority';10:Nm:='variety';Else Nm:='variance';
+   End;
+   Nm:=Pref+Nm;
+   If Stats[S]=0Then PutProp(F,Nm,JNum(N))
+    Else
+   If N=0Then PutProp(F,Nm,NewJ(0))
+    Else
+   Case Stats[S]of
+    1:PutProp(F,Nm,JNum(Sum));
+    2:PutProp(F,Nm,JNum(Mean));
+    3:If Odd(N)Then PutProp(F,Nm,JNum(Vals^[N div 2])) Else PutProp(F,Nm,JNum((Vals^[N div 2-1]+Vals^[N div 2])/2));
+    4:PutProp(F,Nm,JNum(Sqrt(Sd/N)));
+    5:PutProp(F,Nm,JNum(Vals^[0]));
+    6:PutProp(F,Nm,JNum(Vals^[N-1]));
+    7:PutProp(F,Nm,JNum(Vals^[N-1]-Vals^[0]));
+    11:PutProp(F,Nm,JNum(Sd/N));
+    8,9,10:Begin
+     Best:=Vals^[0];BestCnt:=0;Variety:=0;
+     I:=0;
+     While I<N do Begin
+      J:=I;
+      While(J<N)and(Vals^[J]=Vals^[I])do Inc(J);
+      Cnt:=J-I;
+      Inc(Variety);
+      If(BestCnt=0)or((Stats[S]=9)and(Cnt>BestCnt))or((Stats[S]=8)and(Cnt<BestCnt))Then Begin BestCnt:=Cnt;Best:=Vals^[I];End;
+      I:=J;
+     End;
+     If Stats[S]=10Then PutProp(F,Nm,JNum(Variety)) Else PutProp(F,Nm,JNum(Best));
+    End;
+   End;
+  End;
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',VR);
+End;
+
+Procedure RunZonalHistogram(A:Integer);
+Var
+ R:TRaster;
+ VR,VA,F:PJ;
+ G:TGeom;
+ Vals:PReals;
+ Uniq:Array[1..200]of Real;
+ NU,K:Integer;
+ N,I,J,Cnt:LongInt;
+ Pref:String;
+ V:Real;
+ Pass:Integer;
+ Found:Boolean;
+Begin
+ ReadRaster(NeedStr(A,'INPUT_RASTER'),R);
+ If Round(NeedReal(A,'RASTER_BAND'))<>1Then Fail('Error: only band 1 is available');
+ LoadIn(A,'INPUT_VECTOR',VR,VA);
+ Pref:=NeedStr(A,'COLUMN_PREFIX');
+ Vals:=AllocBlock((R.NC*R.NR+1)*SizeOf(Real));
+ NU:=0;
+ For Pass:=1 to 2do Begin
+  F:=VA^.First;
+  While F<>Nil do Begin
+   FlattenFeature(F,G);
+   ZonalValues(R,G,Vals,N);
+   FreeGeom(G);
+   If Pass=1Then Begin
+    For I:=0 to N-1do Begin
+     Found:=False;
+     For K:=1 to NU do If Uniq[K]=Vals^[I]Then Found:=True;
+     If Not Found Then Begin
+      If NU>=200Then Fail('Error: too many distinct values in the raster zones');
+      Inc(NU);Uniq[NU]:=Vals^[I];
+     End;
+    End;
+   End
+    Else
+   For K:=1 to NU do Begin
+    Cnt:=0;
+    For I:=0 to N-1do If Vals^[I]=Uniq[K]Then Inc(Cnt);
+    PutProp(F,Pref+NumStr(Uniq[K]),JNum(Cnt));
+   End;
+   F:=F^.Next;
+  End;
+ End;
+ SaveOut(A,'OUTPUT',VR);
+End;
+
+{ Calculatrice raster native : couches referencees par "nom@1" }
+Procedure RunRasterCalcExpr(A:Integer);
+Var
+ Rs:Array[0..15]of TRaster;
+ O:TRaster;
+ NL,K:Integer;
+ Vars:Array[0..15]of Real;
+ X1,X2,Y1,Y2,Cell,X,Y,V:Real;
+ I,J,Nc,Nr:LongInt;
+ Out:String;
+ Ok:Boolean;
+Begin
+ SplitList(NeedStr(A,'LAYERS'),';');
+ NL:=ListCount;
+ If(NL<1)or(NL>16)Then Fail('Error: LAYERS must list between 1 and 16 rasters separated by ;');
+ For K:=0 to NL-1do Begin
+  ReadRaster(ListItems[K+1],Rs[K]);
+  CalcNames[K]:=BaseName(ListItems[K+1])+'@1';
+ End;
+ CalcNN:=NL;
+ CalcS:=NeedStr(A,'EXPRESSION');
+ CalcP:=1;CodeN:=0;
+ CExpr;
+ CSkip;
+ If CalcP<=Length(CalcS)Then CFail('unexpected token');
+ Out:=NeedStr(A,'OUTPUT');
+ X1:=Rs[0].XLL;Y2:=RasterTop(Rs[0]);X2:=Rs[0].XLL+Rs[0].NC*Rs[0].Cell;Y1:=Rs[0].YLL;
+ Cell:=Rs[0].Cell;
+ If HasArg('EXTENT')Then ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ If HasArg('CELLSIZE')Then Cell:=NeedReal(A,'CELLSIZE');
+ If Cell<=0Then Fail('Error: CELLSIZE must be greater than 0');
+ Nc:=CeilL((X2-X1)/Cell-1E-9);Nr:=CeilL((Y2-Y1)/Cell-1E-9);
+ NewRaster(O,Nc,Nr,X1,Y2-Nr*Cell,Cell,-9999);
+ For I:=0 to Nr-1do
+  For J:=0 to Nc-1do Begin
+   X:=X1+(J+0.5)*Cell;Y:=Y2-(I+0.5)*Cell;
+   Ok:=True;
+   For K:=0 to NL-1do
+    If Not SampleRaster(Rs[K],X,Y,0,Vars[K])Then Ok:=False;
+   If Ok and CEval(Vars,V)Then O.Data^[I*Nc+J]:=V;
+  End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+{ ---- export ---- }
+
+{ Ecrit une geometrie aplatie en WKT dans un fichier texte }
+Procedure WriteWkt(Var T:Text;Var G:TGeom);
+Var
+ P:PPath;
+ I:LongInt;
+ First,FirstPoly:Boolean;
+ Prev:Integer;
+Begin
+ If G.First=Nil Then Begin Write(T,'');Exit;End;
+ Case G.Cls of
+  1:Begin
+   If G.Count=1Then Write(T,'POINT (')
+               Else Write(T,'MULTIPOINT (');
+   P:=G.First;First:=True;
+   While P<>Nil do Begin
+    If Not First Then Write(T,', ');
+    First:=False;
+    Write(T,NumStr(P^.Pts^[0].X),' ',NumStr(P^.Pts^[0].Y));
+    P:=P^.Next;
+   End;
+   Write(T,')');
+  End;
+  2:Begin
+   If G.Count=1Then Write(T,'LINESTRING ')Else Write(T,'MULTILINESTRING (');
+   P:=G.First;First:=True;
+   While P<>Nil do Begin
+    If Not First Then Write(T,', ');
+    First:=False;
+    Write(T,'(');
+    For I:=0 to P^.N-1do Begin
+     If I>0Then Write(T,', ');
+     Write(T,NumStr(P^.Pts^[I].X),' ',NumStr(P^.Pts^[I].Y));
+    End;
+    Write(T,')');
+    P:=P^.Next;
+   End;
+   If G.Count>1Then Write(T,')');
+  End;
+  3:Begin
+   If G.NPoly=1Then Write(T,'POLYGON (')Else Write(T,'MULTIPOLYGON ((');
+   Prev:=-1;
+   P:=G.First;
+   While P<>Nil do Begin
+    If P^.Poly<>Prev Then Begin
+     If Prev>=0Then Write(T,'), (');
+     Write(T,'(');
+    End
+     Else
+    Write(T,', (');
+    For I:=0 to P^.N-1do Begin
+     If I>0Then Write(T,', ');
+     Write(T,NumStr(P^.Pts^[I].X),' ',NumStr(P^.Pts^[I].Y));
+    End;
+    Write(T,')');
+    Prev:=P^.Poly;
+    P:=P^.Next;
+   End;
+   If G.NPoly=1Then Write(T,')')Else Write(T,'))');
+  End;
+ End;
+End;
+
+Procedure RunSaveFeatures(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ Out,Up,Cell:String;
+ L:TNameList;
+ T:Text;
+ I:Integer;
+ G:TGeom;
+ N:PJ;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NeedStr(A,'OUTPUT');
+ Up:=StrUpper(Out);
+ If(Copy(Up,Length(Up)-3,4)='.CSV')Then Begin
+  CollectFields(Arr,L);
+  {$I-}
+  Assign(T,Out);
+  Rewrite(T);
+  {$I+}
+  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
+  For I:=1 to L.N do Write(T,L.Names[I],',');
+  WriteLn(T,'WKT');
+  F:=Arr^.First;
+  While F<>Nil do Begin
+   For I:=1 to L.N do Begin
+    N:=GetProp(F,L.Names[I]);
+    Cell:=NodeText(N);
+    If(Pos(',',Cell)>0)or(Pos('"',Cell)>0)Then Begin
+     Write(T,'"');
+     Write(T,Cell);
+     Write(T,'"');
+    End
+     Else
+    Write(T,Cell);
+    Write(T,',');
+   End;
+   FlattenFeature(F,G);
+   Write(T,'"');
+   WriteWkt(T,G);
+   Write(T,'"');
+   FreeGeom(G);
+   WriteLn(T);
+   F:=F^.Next;
+  End;
+  Close(T);
+ End
+  Else
+ If(Copy(Up,Length(Up)-7,8)='.GEOJSON')or(Copy(Up,Length(Up)-4,5)='.JSON')Then SaveLayer(Out,Root)
+  Else
+ Fail('Error: unsupported output format (only .geojson, .json and .csv)');
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunUnsupported(A:Integer);Begin
+ Fail('Error: '+Algos[A].Id+' is not supported by this clone ('+Algos[A].Descr+')');
+End;
+
 Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
@@ -12285,6 +13073,29 @@ Begin
   109:RunLineIntersections(A);
   110:RunVectorOverlaps(A);
   111:RunSumLineLengths(A);
+  112:RunCreateConstantRaster(A);
+  113:RunAlignRasters(A);
+  114:RunFuzzify(A);
+  115:RunRasterStatistics(A);
+  116:RunReclassify(A);
+  117:RunRescale(A);
+  118:RunNativeSlope(A);
+  119:RunZonalStatistics(A);
+  120:RunZonalHistogram(A);
+  121:RunRasterCalcExpr(A);
+  122:RunSaveFeatures(A);
+  123:RunUnsupported(A);
+  124:RunUnsupported(A);
+  125:RunUnsupported(A);
+  126:RunUnsupported(A);
+  127:RunUnsupported(A);
+  128:RunUnsupported(A);
+  129:RunUnsupported(A);
+  130:RunUnsupported(A);
+  131:RunUnsupported(A);
+  132:RunUnsupported(A);
+  133:RunUnsupported(A);
+  134:RunUnsupported(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
