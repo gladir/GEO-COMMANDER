@@ -4,7 +4,10 @@
   @abstract(Target: Turbo Pascal, Free Pascal)
   @description: Clone minimaliste de la commande qgis_process de QGIS
 
-  Formats vectoriels (EPSG:4326 ou EPSG:3857) : GeoJSON, Shapefile, GeoPackage,
+  Systemes de coordonnees : EPSG:4326/3857, UTM (WGS84, NAD83, NAD27, ETRS89, ED50),
+  Lambert, Albers, LAEA, Mercator, projections polaires, MTM, Gauss-Kruger, Lambert-93,
+  British National Grid... ou definition "+proj=..." ; option --ellipsoid (geodesie).
+  Formats vectoriels : GeoJSON, Shapefile, GeoPackage,
   CSV (WKT ou colonnes X/Y, URI "file://...?xField=..."), GML, KML et KMZ ;
   sources "chemin|layername=...|subset=..." et noms de couches d'un projet
   .qgs/.qgz (--project_path). Formats rasters : GeoTIFF (lecture Deflate, LZW,
@@ -64,7 +67,7 @@ Const
    Descr:'Computes the point reached from a start point, bearing and distance.'),
   (Id:'native:reprojectpoint';Title:'Reproject point';
    Group:'Vector general';
-   Descr:'Converts a point between EPSG:4326 and EPSG:3857.'),
+   Descr:'Converts a point between coordinate reference systems.'),
   (Id:'native:layerextent';Title:'Extract layer extent';
    Group:'Vector general';
    Descr:'Computes the bounding box of the geometries of a GeoJSON file.'),
@@ -88,7 +91,7 @@ Const
    Descr:'Extracts the features for which an expression is true.'),
   (Id:'native:reprojectlayer';Title:'Reproject layer';
    Group:'Vector general';
-   Descr:'Reprojects a layer between EPSG:4326 and EPSG:3857.'),
+   Descr:'Reprojects a layer between coordinate reference systems.'),
   (Id:'native:polygonstolines';Title:'Polygons to lines';
    Group:'Vector geometry';
    Descr:'Converts the rings of polygon features to line features.'),
@@ -100,7 +103,7 @@ Const
    Descr:'Clips an ASCII grid to an extent (xmin,xmax,ymin,ymax), like gdal_translate -projwin.'),
   (Id:'gdal:warpreproject';Title:'Warp (reproject)';
    Group:'Raster projections';
-   Descr:'Reprojects an ASCII grid between EPSG:4326 and EPSG:3857, like gdalwarp.'),
+   Descr:'Reprojects an ASCII grid between coordinate reference systems, like gdalwarp.'),
   (Id:'gdal:nearblack';Title:'Near black';
    Group:'Raster analysis';
    Descr:'Sets to black the near-black pixels connected to the edges of an ASCII grid.'),
@@ -169,7 +172,7 @@ Const
    Descr:'Adds a field with a class index (from 0) for each unique value of a field.'),
   (Id:'native:addxyfields';Title:'Add X/Y fields to layer';
    Group:'Vector table';
-   Descr:'Adds the x and y fields of a point layer, in EPSG:4326 or EPSG:3857.'),
+   Descr:'Adds the x and y fields of a point layer, in a supported CRS.'),
   (Id:'native:affinetransform';Title:'Affine transform';
    Group:'Vector geometry';
    Descr:'Rotates (CCW, degrees), scales then translates the geometries.'),
@@ -211,7 +214,7 @@ Const
    Descr:'No-op: GeoJSON files do not use attribute indexes. OUTPUT is the input file.'),
   (Id:'native:assignprojection';Title:'Assign projection';
    Group:'Vector general';
-   Descr:'Sets the CRS of a layer (EPSG:4326 or EPSG:3857) without changing the coordinates.'),
+   Descr:'Sets the CRS of a layer (EPSG code or +proj string) without changing the coordinates.'),
   (Id:'native:splitfeaturesbycharacter';Title:'Split features by character';
    Group:'Vector table';
    Descr:'Splits each feature into several features by cutting a text field at a character.'),
@@ -472,8 +475,8 @@ Const
   (A:3;Name:'DISTANCE';Typ:'number';Desc:'Distance (meters)';Def:''),
   (A:4;Name:'X';Typ:'number';Desc:'X coordinate of the point';Def:''),
   (A:4;Name:'Y';Typ:'number';Desc:'Y coordinate of the point';Def:''),
-  (A:4;Name:'SOURCE_CRS';Typ:'crs';Desc:'Source CRS (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
-  (A:4;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG:4326 or EPSG:3857)';Def:'EPSG:3857'),
+  (A:4;Name:'SOURCE_CRS';Typ:'crs';Desc:'Source CRS (EPSG code or +proj string)';Def:'EPSG:4326'),
+  (A:4;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG code or +proj string)';Def:'EPSG:3857'),
   (A:5;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:6;Name:'XMIN';Typ:'number';Desc:'Minimum X';Def:''),
   (A:6;Name:'YMIN';Typ:'number';Desc:'Minimum Y';Def:''),
@@ -499,7 +502,7 @@ Const
   (A:11;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Matching features (GeoJSON file)';Def:''),
   (A:11;Name:'FAIL_OUTPUT';Typ:'vectorDestination';Desc:'Non-matching features (GeoJSON file)';Def:'*'),
   (A:12;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
-  (A:12;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG:4326 or EPSG:3857)';Def:''),
+  (A:12;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG code or +proj string)';Def:''),
   (A:12;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:13;Name:'INPUT';Typ:'vector';Desc:'Input polygon GeoJSON file';Def:''),
   (A:13;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
@@ -512,8 +515,8 @@ Const
   (A:15;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
   (A:15;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
   (A:16;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
-  (A:16;Name:'SOURCE_CRS';Typ:'crs';Desc:'Source CRS (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
-  (A:16;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG:4326 or EPSG:3857)';Def:''),
+  (A:16;Name:'SOURCE_CRS';Typ:'crs';Desc:'Source CRS (EPSG code or +proj string)';Def:'EPSG:4326'),
+  (A:16;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS (EPSG code or +proj string)';Def:''),
   (A:16;Name:'RESAMPLING';Typ:'enum';Desc:'0 = nearest neighbour, 1 = bilinear';Def:'0'),
   (A:16;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
   (A:16;Name:'TARGET_RESOLUTION';Typ:'number';Desc:'Output pixel size in target CRS units';Def:'*'),
@@ -639,7 +642,7 @@ Const
   (A:38;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:38;Name:'SUMMARY_OUTPUT';Typ:'vectorDestination';Desc:'Optional summary table (GeoJSON)';Def:'*'),
   (A:39;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
-  (A:39;Name:'CRS';Typ:'crs';Desc:'CRS of the coordinates (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
+  (A:39;Name:'CRS';Typ:'crs';Desc:'CRS of the coordinates (EPSG code or +proj string)';Def:'EPSG:4326'),
   (A:39;Name:'PREFIX';Typ:'string';Desc:'Field prefix';Def:'*'),
   (A:39;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:40;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
@@ -699,7 +702,7 @@ Const
   (A:52;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:52;Name:'FIELD';Typ:'string';Desc:'Field (ignored)';Def:'*'),
   (A:53;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
-  (A:53;Name:'CRS';Typ:'crs';Desc:'CRS to assign (EPSG:4326 or EPSG:3857)';Def:''),
+  (A:53;Name:'CRS';Typ:'crs';Desc:'CRS to assign (EPSG code or +proj string)';Def:''),
   (A:53;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:54;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:54;Name:'FIELD';Typ:'string';Desc:'Field to split';Def:''),
@@ -828,7 +831,7 @@ Const
   (A:87;Name:'VSPACING';Typ:'number';Desc:'Vertical spacing (cell height)';Def:'1'),
   (A:87;Name:'HOVERLAY';Typ:'number';Desc:'Horizontal overlay';Def:'0'),
   (A:87;Name:'VOVERLAY';Typ:'number';Desc:'Vertical overlay';Def:'0'),
-  (A:87;Name:'CRS';Typ:'crs';Desc:'CRS of the grid (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
+  (A:87;Name:'CRS';Typ:'crs';Desc:'CRS of the grid (EPSG code or +proj string)';Def:'EPSG:4326'),
   (A:87;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
   (A:88;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
   (A:88;Name:'CALC_METHOD';Typ:'enum';Desc:'0 layer CRS, 1 project CRS (layer), 2 ellipsoidal (spherical)';Def:'0'),
@@ -1837,81 +1840,799 @@ End;
 { Systemes de coordonnees                                             }
 { ------------------------------------------------------------------ }
 
-Function ParseEpsg(S,What:String):Integer;
-Var
- U:String;
- N,Err:Integer;
-Begin
- U:=StrUpper(S);
- If Copy(U,1,5)='EPSG:'Then Begin
-  Val(Copy(U,6,10),N,Err);
-  If(Err=0)and((N=4326)or(N=3857))Then Begin
-   ParseEpsg:=N;
-   Exit;
-  End;
+{ ------------------------------------------------------------------ }
+{ Systemes de coordonnees                                             }
+{ ------------------------------------------------------------------ }
+
+Const
+ MaxEll=9;
+ EllName:Array[1..MaxEll]of String[12]=('WGS84','GRS80','Clarke1866','Intl1924','Bessel1841','Airy1830','Sphere','Krassowsky','Clarke1880');
+ EllA:Array[1..MaxEll]of Real=(6378137.0,6378137.0,6378206.4,6378388.0,6377397.155,6377563.396,6371008.8,6378245.0,6378249.145);
+ EllRf:Array[1..MaxEll]of Real=(298.257223563,298.257222101,294.9786982,297.0,299.1528128,299.3249646,0,298.3,293.465);
+ KGeo=0;KTm=1;KLcc=2;KAea=3;KMerc=4;KLaea=5;KPolar=6;KWeb=7;KEqc=8;
+ CustomBase=100000;
+
+Type
+ TCrs=Record
+  Code:LongInt;
+  Kind,Ell:Byte;
+  Lon0,Lat0,Lat1,Lat2,K0,X0,Y0,Dx,Dy,Dz,EA,EF,Rx,Ry,Rz,Sc:Real;
+  Name:String[48];
+  Proj:String[120];
+  Z:Array[1..24]of Real;
  End;
- Fail('Error: unsupported '+What+' '+S+' (only EPSG:4326 and EPSG:3857 are supported)');
+
+Var
+ Custom:Array[1..8]of TCrs;
+ CustomN:Integer;
+ CSlot:Array[1..4]of TCrs;
+ CSlotUsed:Array[1..4]of Boolean;
+ CSlotNext:Integer;
+
+Function Tan2(X:Real):Real;Begin Tan2:=Sin(X)/Cos(X);End;
+Function Sinh(X:Real):Real;Begin Sinh:=(Exp(X)-Exp(-X))/2;End;
+Function Cosh(X:Real):Real;Begin Cosh:=(Exp(X)+Exp(-X))/2;End;
+Function Asinh(X:Real):Real;Begin
+ If X>=0Then Asinh:=Ln(X+Sqrt(X*X+1)) Else Asinh:=-Ln(-X+Sqrt(X*X+1));
+End;
+Function Atanh(X:Real):Real;Begin Atanh:=0.5*Ln((1+X)/(1-X));End;
+Function SgnR(X:Real):Real;Begin If X<0Then SgnR:=-1 Else SgnR:=1;End;
+
+Procedure SetupCrs(Var C:TCrs;Kind,Ell:Byte;Lon0,Lat0,Lat1,Lat2,K0,X0,Y0:Real);Begin
+ C.Kind:=Kind;C.Ell:=Ell;C.Lon0:=Lon0;C.Lat0:=Lat0;C.Lat1:=Lat1;C.Lat2:=Lat2;
+ C.K0:=K0;C.X0:=X0;C.Y0:=Y0;
 End;
 
-{ Transforme un point entre EPSG:4326 et EPSG:3857 (Faux si hors domaine) }
-Function TryTransform(Src,Dst:Integer;Var X,Y:Real):Boolean;
+Procedure CrsDatum(Var C:TCrs;Dx,Dy,Dz:Real);Begin
+ C.Dx:=Dx;C.Dy:=Dy;C.Dz:=Dz;
+End;
+
+{ Rotations en secondes d'arc, echelle en ppm (convention vecteur de position) }
+Procedure CrsRot(Var C:TCrs;Rx,Ry,Rz,Sc:Real);Begin
+ C.Rx:=Rx*Pi/648000;C.Ry:=Ry*Pi/648000;C.Rz:=Rz*Pi/648000;C.Sc:=Sc*1E-6;
+End;
+
+Function CrsDefine(Code:LongInt;Var C:TCrs):Boolean;
 Var
- A:Real;
+ Zn:Integer;
+ Ok:Boolean;
+ Nm:String;
 Begin
- TryTransform:=True;
- If Src=Dst Then Exit;
- If Src=4326Then Begin
-  If Abs(Y)>=89.9999Then Begin TryTransform:=False;Exit;End;
-  A:=Pi/4+Deg2Rad(Y)/2;
-  Y:=MercatorRadius*Ln(Sin(A)/Cos(A));
-  X:=MercatorRadius*Deg2Rad(X);
+ Ok:=True;
+ FillChar(C,SizeOf(C),0);
+ C.Code:=Code;C.K0:=1;
+ Nm:='EPSG:'+IntToStr(Code);
+ Case Code of
+  4326:Begin SetupCrs(C,KGeo,1,0,0,0,0,1,0,0);Nm:='WGS 84';End;
+  4269:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='NAD83';End;
+  4617:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='NAD83(CSRS)';End;
+  4258:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='ETRS89';End;
+  4283:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='GDA94';End;
+  7844:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='GDA2020';End;
+  4674:Begin SetupCrs(C,KGeo,2,0,0,0,0,1,0,0);Nm:='SIRGAS 2000';End;
+  4267:Begin SetupCrs(C,KGeo,3,0,0,0,0,1,0,0);CrsDatum(C,-8,160,176);Nm:='NAD27';End;
+  4230:Begin SetupCrs(C,KGeo,4,0,0,0,0,1,0,0);CrsDatum(C,-87,-98,-121);Nm:='ED50';End;
+  4277:Begin SetupCrs(C,KGeo,6,0,0,0,0,1,0,0);CrsDatum(C,446.448,-125.157,542.06);CrsRot(C,0.1502,0.247,0.8421,-20.4894);Nm:='OSGB36';End;
+  4314:Begin SetupCrs(C,KGeo,5,0,0,0,0,1,0,0);CrsDatum(C,598.1,73.7,418.2);CrsRot(C,0.202,0.045,-2.455,6.7);Nm:='DHDN';End;
+  3857,900913,3785:Begin SetupCrs(C,KWeb,1,0,0,0,0,1,0,0);C.Code:=3857;Nm:='WGS 84 / Pseudo-Mercator';End;
+  3395:Begin SetupCrs(C,KMerc,1,0,0,0,0,1,0,0);Nm:='WGS 84 / World Mercator';End;
+  4087,32662:Begin SetupCrs(C,KEqc,1,0,0,0,0,1,0,0);Nm:='WGS 84 / World Equidistant Cylindrical';End;
+  27700:Begin SetupCrs(C,KTm,6,-2,49,0,0,0.9996012717,400000,-100000);CrsDatum(C,446.448,-125.157,542.06);CrsRot(C,0.1502,0.247,0.8421,-20.4894);Nm:='OSGB36 / British National Grid';End;
+  2154:Begin SetupCrs(C,KLcc,2,3,46.5,49,44,1,700000,6600000);Nm:='RGF93 / Lambert-93';End;
+  3035:Begin SetupCrs(C,KLaea,2,10,52,0,0,1,4321000,3210000);Nm:='ETRS89-extended / LAEA Europe';End;
+  5070:Begin SetupCrs(C,KAea,2,-96,23,29.5,45.5,1,0,0);Nm:='NAD83 / Conus Albers';End;
+  3347:Begin SetupCrs(C,KLcc,2,-91.866666666667,63.390675,49,77,1,6200000,3000000);Nm:='NAD83 / Statistics Canada Lambert';End;
+  3978:Begin SetupCrs(C,KLcc,2,-95,49,49,77,1,0,0);Nm:='NAD83 / Canada Atlas Lambert';End;
+  32198:Begin SetupCrs(C,KLcc,2,-68.5,44,60,46,1,0,0);Nm:='NAD83 / Quebec Lambert';End;
+  3005:Begin SetupCrs(C,KAea,2,-126,45,50,58.5,1,1000000,0);Nm:='NAD83 / BC Albers';End;
+  3413:Begin SetupCrs(C,KPolar,1,-45,90,70,0,1,0,0);Nm:='WGS 84 / NSIDC Sea Ice Polar Stereographic North';End;
+  3031:Begin SetupCrs(C,KPolar,1,0,-90,-71,0,1,0,0);Nm:='WGS 84 / Antarctic Polar Stereographic';End;
+  2193:Begin SetupCrs(C,KTm,2,173,0,0,0,0.9996,1600000,10000000);Nm:='NZGD2000 / New Zealand Transverse Mercator 2000';End;
+  3112:Begin SetupCrs(C,KLcc,2,134,0,-18,-36,1,0,0);Nm:='GDA94 / Geoscience Australia Lambert';End;
+  31466,31467,31468,31469:Begin
+   Zn:=Code-31464;
+   SetupCrs(C,KTm,5,Zn*3,0,0,0,1,Zn*1000000.0+500000,0);
+   CrsDatum(C,598.1,73.7,418.2);CrsRot(C,0.202,0.045,-2.455,6.7);Nm:='DHDN / 3-degree Gauss-Kruger zone '+IntToStr(Zn);
+  End;
+  3067:Begin SetupCrs(C,KTm,2,27,0,0,0,0.9996,500000,0);Nm:='ETRS89 / TM35FIN';End;
+  3006:Begin SetupCrs(C,KTm,2,15,0,0,0,0.9996,500000,0);Nm:='SWEREF99 TM';End;
+  3059:Begin SetupCrs(C,KTm,2,24,0,0,0,0.9996,500000,-6000000);Nm:='LKS92 / Latvia TM';End;
+  32181:Begin SetupCrs(C,KTm,2,-53,0,0,0,0.9999,304800,0);Nm:='NAD83 / MTM zone 1';End;
+  32182:Begin SetupCrs(C,KTm,2,-56,0,0,0,0.9999,304800,0);Nm:='NAD83 / MTM zone 2';End;
+  32183..32190:Begin
+   SetupCrs(C,KTm,2,-58.5-3*(Code-32183),0,0,0,0.9999,304800,0);
+   Nm:='NAD83 / MTM zone '+IntToStr(Code-32180);
+  End;
+  32601..32660:Begin Zn:=Code-32600;SetupCrs(C,KTm,1,Zn*6-183,0,0,0,0.9996,500000,0);Nm:='WGS 84 / UTM zone '+IntToStr(Zn)+'N';End;
+  32701..32760:Begin Zn:=Code-32700;SetupCrs(C,KTm,1,Zn*6-183,0,0,0,0.9996,500000,10000000);Nm:='WGS 84 / UTM zone '+IntToStr(Zn)+'S';End;
+  26901..26923:Begin Zn:=Code-26900;SetupCrs(C,KTm,2,Zn*6-183,0,0,0,0.9996,500000,0);Nm:='NAD83 / UTM zone '+IntToStr(Zn)+'N';End;
+  26703..26722:Begin Zn:=Code-26700;SetupCrs(C,KTm,3,Zn*6-183,0,0,0,0.9996,500000,0);CrsDatum(C,-8,160,176);Nm:='NAD27 / UTM zone '+IntToStr(Zn)+'N';End;
+  25828..25838:Begin Zn:=Code-25800;SetupCrs(C,KTm,2,Zn*6-183,0,0,0,0.9996,500000,0);Nm:='ETRS89 / UTM zone '+IntToStr(Zn)+'N';End;
+  23028..23038:Begin Zn:=Code-23000;SetupCrs(C,KTm,4,Zn*6-183,0,0,0,0.9996,500000,0);CrsDatum(C,-87,-98,-121);Nm:='ED50 / UTM zone '+IntToStr(Zn)+'N';End;
+  Else Ok:=False;
+ End;
+ If Ok Then Begin
+  C.Name:=Nm;
+  C.EA:=EllA[C.Ell];C.EF:=EllRf[C.Ell];
+ End
+  Else
+ If(Code>CustomBase)and(Code<=CustomBase+CustomN)Then Begin
+  C:=Custom[Code-CustomBase];
+  Ok:=True;
+ End;
+ CrsDefine:=Ok;
+End;
+
+{ Constantes derivees (dependent du type de projection) }
+Procedure CrsPrep(Var C:TCrs);
+Var
+ A,F,E2,E,N,S,M1,M2,T1,T2,T0,Q0,Qp,B0,Q1,Q2,Ph:Real;
+
+ Function Mm(Lat:Real):Real;Begin Mm:=Cos(Lat)/Sqrt(1-E2*Sqr(Sin(Lat)));End;
+ Function Tt(Lat:Real):Real;Begin
+  Tt:=Tan2(Pi/4-Lat/2)/Exp(E/2*Ln((1-E*Sin(Lat))/(1+E*Sin(Lat))));
+ End;
+ Function Qq(Lat:Real):Real;
+ Var Sp:Real;
+ Begin
+  Sp:=Sin(Lat);
+  If E<1E-12Then Qq:=2*Sp
+   Else Qq:=(1-E2)*(Sp/(1-E2*Sp*Sp)-(1/(2*E))*Ln((1-E*Sp)/(1+E*Sp)));
+ End;
+
+Begin
+ A:=C.EA;
+ If C.EF>0Then F:=1/C.EF Else F:=0;
+ E2:=F*(2-F);E:=Sqrt(E2);
+ C.Z[1]:=A;C.Z[2]:=E2;C.Z[3]:=E;
+ Case C.Kind of
+  KTm:Begin
+   N:=F/(2-F);
+   C.Z[4]:=N;
+   C.Z[5]:=A/(1+N)*(1+N*N/4+Sqr(N*N)/64+N*N*N*N*N*N/256);
+   C.Z[6]:=N/2-2*N*N/3+5*N*N*N/16+41*Sqr(N*N)/180;
+   C.Z[7]:=13*N*N/48-3*N*N*N/5+557*Sqr(N*N)/1440;
+   C.Z[8]:=61*N*N*N/240-103*Sqr(N*N)/140;
+   C.Z[9]:=49561*Sqr(N*N)/161280;
+   C.Z[10]:=N/2-2*N*N/3+37*N*N*N/96-Sqr(N*N)/360;
+   C.Z[11]:=N*N/48+N*N*N/15-437*Sqr(N*N)/1440;
+   C.Z[12]:=17*N*N*N/480-37*Sqr(N*N)/840;
+   C.Z[13]:=4397*Sqr(N*N)/161280;
+   C.Z[14]:=2*N-2*N*N/3-2*N*N*N+116*Sqr(N*N)/45;
+   C.Z[15]:=7*N*N/3-8*N*N*N/5-227*Sqr(N*N)/45;
+   C.Z[16]:=56*N*N*N/15-136*Sqr(N*N)/35;
+   C.Z[17]:=4279*Sqr(N*N)/630;
+   Ph:=Deg2Rad(C.Lat0);
+   S:=Sin(Ph);
+   T0:=Sinh(Atanh(S)-(2*Sqrt(N)/(1+N))*Atanh((2*Sqrt(N)/(1+N))*S));
+   T1:=ArcTan(T0);
+   C.Z[18]:=C.K0*0+C.Z[5]*(T1+C.Z[6]*Sin(2*T1)+C.Z[7]*Sin(4*T1)+C.Z[8]*Sin(6*T1)+C.Z[9]*Sin(8*T1));
+  End;
+  KLcc:Begin
+   T1:=Deg2Rad(C.Lat1);T2:=Deg2Rad(C.Lat2);
+   M1:=Mm(T1);M2:=Mm(T2);
+   If Abs(C.Lat1-C.Lat2)<1E-9Then N:=Sin(T1)
+    Else N:=(Ln(M1)-Ln(M2))/(Ln(Tt(T1))-Ln(Tt(T2)));
+   C.Z[4]:=N;
+   C.Z[5]:=M1/(N*Exp(N*Ln(Tt(T1))));
+   C.Z[6]:=A*C.Z[5]*Exp(N*Ln(Tt(Deg2Rad(C.Lat0))));
+  End;
+  KAea:Begin
+   T1:=Deg2Rad(C.Lat1);T2:=Deg2Rad(C.Lat2);
+   M1:=Mm(T1);M2:=Mm(T2);
+   Q1:=Qq(T1);Q2:=Qq(T2);
+   If Abs(C.Lat1-C.Lat2)<1E-9Then N:=Sin(T1)
+    Else N:=(M1*M1-M2*M2)/(Q2-Q1);
+   C.Z[4]:=N;
+   C.Z[5]:=M1*M1+N*Q1;
+   C.Z[6]:=A*Sqrt(C.Z[5]-N*Qq(Deg2Rad(C.Lat0)))/N;
+  End;
+  KLaea:Begin
+   Ph:=Deg2Rad(C.Lat0);
+   Qp:=Qq(Pi/2);Q0:=Qq(Ph);
+   B0:=ArcSin(Q0/Qp);
+   C.Z[4]:=Qp;C.Z[5]:=B0;
+   C.Z[6]:=A*Sqrt(Qp/2);
+   C.Z[7]:=A*Mm(Ph)/(C.Z[6]*Cos(B0));
+  End;
+  KPolar:Begin
+   Ph:=Abs(Deg2Rad(C.Lat1));
+   C.Z[4]:=Tt(Ph);
+   C.Z[5]:=Mm(Ph);
+  End;
+ End;
+End;
+
+Function CrsFwd(Var C:TCrs;Lon,Lat:Real;Var X,Y:Real):Boolean;
+Var
+ A,E,E2,L,P,S,T,Xi,Eta,Rho,N,Th,Q,B,Bb,D,Cb,Sbb,K:Real;
+ J:Integer;
+
+ Function Tt(Ph:Real):Real;Begin
+  Tt:=Tan2(Pi/4-Ph/2)/Exp(E/2*Ln((1-E*Sin(Ph))/(1+E*Sin(Ph))));
+ End;
+ Function Qq(Ph:Real):Real;
+ Var Sp:Real;
+ Begin
+  Sp:=Sin(Ph);
+  If E<1E-12Then Qq:=2*Sp
+   Else Qq:=(1-E2)*(Sp/(1-E2*Sp*Sp)-(1/(2*E))*Ln((1-E*Sp)/(1+E*Sp)));
+ End;
+
+Begin
+ CrsFwd:=True;
+ A:=C.Z[1];E2:=C.Z[2];E:=C.Z[3];
+ P:=Deg2Rad(Lat);
+ L:=Deg2Rad(Lon-C.Lon0);
+ While L>Pi do L:=L-2*Pi;
+ While L<-Pi do L:=L+2*Pi;
+ Case C.Kind of
+  KGeo:Begin X:=Lon;Y:=Lat;End;
+  KWeb:Begin
+   If Abs(Lat)>=89.9999Then Begin CrsFwd:=False;Exit;End;
+   X:=MercatorRadius*Deg2Rad(Lon);
+   Y:=MercatorRadius*Ln(Tan2(Pi/4+P/2));
+  End;
+  KEqc:Begin X:=A*Deg2Rad(Lon-C.Lon0);Y:=A*P;End;
+  KMerc:Begin
+   If Abs(Lat)>=89.9999Then Begin CrsFwd:=False;Exit;End;
+   X:=C.X0+A*C.K0*L;
+   Y:=C.Y0+A*C.K0*Ln(Tan2(Pi/4+P/2)*Exp(E/2*Ln((1-E*Sin(P))/(1+E*Sin(P)))));
+  End;
+  KTm:Begin
+   If Abs(L)>Pi/2*0.98Then Begin CrsFwd:=False;Exit;End;
+   N:=C.Z[4];
+   S:=Sin(P);
+   T:=Sinh(Atanh(S)-(2*Sqrt(N)/(1+N))*Atanh((2*Sqrt(N)/(1+N))*S));
+   Xi:=Atan2(T,Cos(L));
+   Eta:=Atanh(Sin(L)/Sqrt(1+T*T));
+   B:=Xi;D:=Eta;
+   For J:=1 to 4do Begin
+    B:=B+C.Z[5+J]*Sin(2*J*Xi)*Cosh(2*J*Eta);
+    D:=D+C.Z[5+J]*Cos(2*J*Xi)*Sinh(2*J*Eta);
+   End;
+   X:=C.X0+C.K0*C.Z[5]*D;
+   Y:=C.Y0+C.K0*(C.Z[5]*B-C.Z[18]);
+  End;
+  KLcc:Begin
+   If Abs(Lat)>=89.9999Then Begin CrsFwd:=False;Exit;End;
+   N:=C.Z[4];
+   Rho:=A*C.Z[5]*Exp(N*Ln(Tt(P)));
+   Th:=N*L;
+   X:=C.X0+Rho*Sin(Th);
+   Y:=C.Y0+C.Z[6]-Rho*Cos(Th);
+  End;
+  KAea:Begin
+   N:=C.Z[4];
+   Rho:=A*Sqrt(C.Z[5]-N*Qq(P))/N;
+   Th:=N*L;
+   X:=C.X0+Rho*Sin(Th);
+   Y:=C.Y0+C.Z[6]-Rho*Cos(Th);
+  End;
+  KLaea:Begin
+   Q:=Qq(P);
+   Bb:=ArcSin(Q/C.Z[4]);
+   Cb:=Cos(C.Z[5]);Sbb:=Sin(C.Z[5]);
+   T:=1+Sbb*Sin(Bb)+Cb*Cos(Bb)*Cos(L);
+   If T<1E-12Then Begin CrsFwd:=False;Exit;End;
+   K:=C.Z[6]*Sqrt(2/T);
+   X:=C.X0+K*C.Z[7]*Cos(Bb)*Sin(L);
+   Y:=C.Y0+(K/C.Z[7])*(Cb*Sin(Bb)-Sbb*Cos(Bb)*Cos(L));
+  End;
+  KPolar:Begin
+   If C.Lat1>=0Then Begin
+    T:=Tt(P);
+    Rho:=A*C.Z[5]*T/C.Z[4];
+    X:=C.X0+Rho*Sin(L);
+    Y:=C.Y0-Rho*Cos(L);
+   End
+    Else
+   Begin
+    T:=Tt(-P);
+    Rho:=A*C.Z[5]*T/C.Z[4];
+    X:=C.X0+Rho*Sin(L);
+    Y:=C.Y0+Rho*Cos(L);
+   End;
+  End;
+ End;
+End;
+
+Function CrsInv(Var C:TCrs;X,Y:Real;Var Lon,Lat:Real):Boolean;
+Var
+ A,E,E2,Xp,Yp,Xi,Eta,Rho,N,T,Ph,Chi,Th,Q,Rq,Cc,Bp,Dd,Sg:Real;
+ J,It:Integer;
+
+ Function PhiFromT(T:Real):Real;
+ Var Pp:Real;I:Integer;
+ Begin
+  Pp:=Pi/2-2*ArcTan(T);
+  For I:=1 to 12do Pp:=Pi/2-2*ArcTan(T*Exp(E/2*Ln((1-E*Sin(Pp))/(1+E*Sin(Pp)))));
+  PhiFromT:=Pp;
+ End;
+
+Begin
+ CrsInv:=True;
+ A:=C.Z[1];E2:=C.Z[2];E:=C.Z[3];
+ Case C.Kind of
+  KGeo:Begin Lon:=X;Lat:=Y;End;
+  KWeb:Begin
+   Lon:=Rad2Deg(X/MercatorRadius);
+   Lat:=Rad2Deg(2*ArcTan(Exp(Y/MercatorRadius))-Pi/2);
+  End;
+  KEqc:Begin Lon:=C.Lon0+Rad2Deg(X/A);Lat:=Rad2Deg(Y/A);End;
+  KMerc:Begin
+   T:=Exp(-(Y-C.Y0)/(A*C.K0));
+   Lat:=Rad2Deg(PhiFromT(T));
+   Lon:=C.Lon0+Rad2Deg((X-C.X0)/(A*C.K0));
+  End;
+  KTm:Begin
+   Xi:=((Y-C.Y0)/C.K0+C.Z[18])/C.Z[5];
+   Eta:=(X-C.X0)/(C.K0*C.Z[5]);
+   Xp:=Xi;Yp:=Eta;
+   For J:=1 to 4do Begin
+    Xp:=Xp-C.Z[9+J]*Sin(2*J*Xi)*Cosh(2*J*Eta);
+    Yp:=Yp-C.Z[9+J]*Cos(2*J*Xi)*Sinh(2*J*Eta);
+   End;
+   Chi:=ArcSin(Sin(Xp)/Cosh(Yp));
+   Ph:=Chi;
+   For J:=1 to 4do Ph:=Ph+C.Z[13+J]*Sin(2*J*Chi);
+   Lat:=Rad2Deg(Ph);
+   Lon:=C.Lon0+Rad2Deg(Atan2(Sinh(Yp),Cos(Xp)));
+  End;
+  KLcc:Begin
+   N:=C.Z[4];
+   Sg:=SgnR(N);
+   Xp:=X-C.X0;Yp:=C.Z[6]-(Y-C.Y0);
+   Rho:=Sg*Sqrt(Xp*Xp+Yp*Yp);
+   If Rho=0Then Begin Lat:=Sg*90;Lon:=C.Lon0;Exit;End;
+   T:=Exp(Ln(Rho/(A*C.Z[5]))/N);
+   Th:=Atan2(Sg*Xp,Sg*Yp);
+   Lat:=Rad2Deg(PhiFromT(T));
+   Lon:=C.Lon0+Rad2Deg(Th/N);
+  End;
+  KAea:Begin
+   N:=C.Z[4];
+   Sg:=SgnR(N);
+   Xp:=X-C.X0;Yp:=C.Z[6]-(Y-C.Y0);
+   Rho:=Sg*Sqrt(Xp*Xp+Yp*Yp);
+   Q:=(C.Z[5]-Sqr(Rho*N/A))/N;
+   Th:=Atan2(Sg*Xp,Sg*Yp);
+   If Abs(Q)>=1.99999999Then Ph:=SgnR(Q)*Pi/2
+    Else Begin
+     Ph:=ArcSin(Q/2);
+     If E>1E-12Then
+      For It:=1 to 25do
+       Ph:=Ph+Sqr(1-E2*Sqr(Sin(Ph)))/(2*Cos(Ph))*(Q/(1-E2)-Sin(Ph)/(1-E2*Sqr(Sin(Ph)))+(1/(2*E))*Ln((1-E*Sin(Ph))/(1+E*Sin(Ph))));
+    End;
+   Lat:=Rad2Deg(Ph);
+   Lon:=C.Lon0+Rad2Deg(Th/N);
+  End;
+  KLaea:Begin
+   Xp:=X-C.X0;Yp:=Y-C.Y0;
+   Dd:=C.Z[7];
+   Rho:=Sqrt(Sqr(Xp/Dd)+Sqr(Dd*Yp));
+   If Rho<1E-9Then Begin Lat:=C.Lat0;Lon:=C.Lon0;Exit;End;
+   If Rho/(2*C.Z[6])>1Then Begin CrsInv:=False;Exit;End;
+   Cc:=2*ArcSin(Rho/(2*C.Z[6]));
+   Bp:=ArcSin(Cos(Cc)*Sin(C.Z[5])+Dd*Yp*Sin(Cc)*Cos(C.Z[5])/Rho);
+   Lon:=C.Lon0+Rad2Deg(Atan2(Xp*Sin(Cc),Dd*Rho*Cos(C.Z[5])*Cos(Cc)-Dd*Dd*Yp*Sin(C.Z[5])*Sin(Cc)));
+   Ph:=Bp+(E2/3+31*E2*E2/180+517*E2*E2*E2/5040)*Sin(2*Bp)+(23*E2*E2/360+251*E2*E2*E2/3780)*Sin(4*Bp)+(761*E2*E2*E2/45360)*Sin(6*Bp);
+   Lat:=Rad2Deg(Ph);
+  End;
+  KPolar:Begin
+   Xp:=X-C.X0;Yp:=Y-C.Y0;
+   Rho:=Sqrt(Xp*Xp+Yp*Yp);
+   T:=Rho*C.Z[4]/(A*C.Z[5]);
+   Ph:=PhiFromT(T);
+   If C.Lat1>=0Then Begin
+    Lat:=Rad2Deg(Ph);
+    Lon:=C.Lon0+Rad2Deg(Atan2(Xp,-Yp));
+   End
+    Else
+   Begin
+    Lat:=-Rad2Deg(Ph);
+    Lon:=C.Lon0+Rad2Deg(Atan2(Xp,Yp));
+   End;
+  End;
+ End;
+ If(Lon<>Lon)or(Lat<>Lat)Then Begin CrsInv:=False;Exit;End;
+ While Lon>180do Lon:=Lon-360;
+ While Lon<-180do Lon:=Lon+360;
+End;
+
+{ Index d'un systeme en cache (prepare) ; 0 si le code est inconnu }
+Function CrsSlot(Code:LongInt):Integer;
+Var
+ I:Integer;
+Begin
+ For I:=1 to 4do If CSlotUsed[I]and(CSlot[I].Code=Code)Then Begin CrsSlot:=I;Exit;End;
+ Inc(CSlotNext);
+ If CSlotNext>4Then CSlotNext:=1;
+ If Not CrsDefine(Code,CSlot[CSlotNext])Then Begin
+  CSlotUsed[CSlotNext]:=False;
+  CrsSlot:=0;
+  Exit;
+ End;
+ CrsPrep(CSlot[CSlotNext]);
+ CSlotUsed[CSlotNext]:=True;
+ CrsSlot:=CSlotNext;
+End;
+
+Function CrsKnown(Code:LongInt):Boolean;
+Var
+ C:TCrs;
+Begin
+ CrsKnown:=CrsDefine(Code,C);
+End;
+
+Function CrsIsGeographic(Code:LongInt):Boolean;
+Var
+ C:TCrs;
+Begin
+ CrsIsGeographic:=CrsDefine(Code,C)and(C.Kind=KGeo);
+End;
+
+{ Changement de datum par translation geocentrique : Dir=1 de C vers WGS84, Dir=-1 de WGS84 vers C }
+Procedure DatumShift(Var C:TCrs;Dir:Integer;Var Lon,Lat:Real);
+Var
+ A1,F1,E1,A2,F2,E2,P,L,Nn,X,Y,Z,Pn,Lt,Xs,Rxx,Ryy,Rzz,Xn,Yn,Zn2:Real;
+ It:Integer;
+Begin
+ If Dir=1Then Begin
+  A1:=C.EA;F1:=1/C.EF;A2:=EllA[1];F2:=1/EllRf[1];
  End
   Else
  Begin
-  X:=Rad2Deg(X/MercatorRadius);
-  Y:=Rad2Deg(2*ArcTan(Exp(Y/MercatorRadius))-Pi/2);
+  A1:=EllA[1];F1:=1/EllRf[1];A2:=C.EA;F2:=1/C.EF;
+ End;
+ E1:=F1*(2-F1);E2:=F2*(2-F2);
+ P:=Deg2Rad(Lat);L:=Deg2Rad(Lon);
+ Nn:=A1/Sqrt(1-E1*Sqr(Sin(P)));
+ X:=Nn*Cos(P)*Cos(L);
+ Y:=Nn*Cos(P)*Sin(L);
+ Z:=Nn*(1-E1)*Sin(P);
+ Xs:=Dir*C.Sc;Rxx:=Dir*C.Rx;Ryy:=Dir*C.Ry;Rzz:=Dir*C.Rz;
+ Xn:=Dir*C.Dx+(1+Xs)*(X-Rzz*Y+Ryy*Z);
+ Yn:=Dir*C.Dy+(1+Xs)*(Rzz*X+Y-Rxx*Z);
+ Zn2:=Dir*C.Dz+(1+Xs)*(-Ryy*X+Rxx*Y+Z);
+ X:=Xn;Y:=Yn;Z:=Zn2;
+ L:=Atan2(Y,X);
+ Pn:=Sqrt(X*X+Y*Y);
+ Lt:=ArcTan(Z/(Pn*(1-E2)));
+ For It:=1 to 8do Begin
+  Nn:=A2/Sqrt(1-E2*Sqr(Sin(Lt)));
+  Lt:=ArcTan((Z+E2*Nn*Sin(Lt))/Pn);
+ End;
+ Lon:=Rad2Deg(L);Lat:=Rad2Deg(Lt);
+End;
+
+Function HasShift(Var C:TCrs):Boolean;Begin
+ HasShift:=(C.Dx<>0)or(C.Dy<>0)or(C.Dz<>0)or(C.Sc<>0)or(C.Rx<>0)or(C.Ry<>0)or(C.Rz<>0);
+End;
+
+Function TryTransform(Src,Dst:LongInt;Var X,Y:Real):Boolean;
+Var
+ Si,Di:Integer;
+ Lon,Lat:Real;
+Begin
+ TryTransform:=True;
+ If Src=Dst Then Exit;
+ If CrsSlot(Src)=0Then Fail('Error: unsupported CRS EPSG:'+IntToStr(Src));
+ If CrsSlot(Dst)=0Then Fail('Error: unsupported CRS EPSG:'+IntToStr(Dst));
+ Si:=CrsSlot(Src);
+ Di:=CrsSlot(Dst);
+ If Not CrsInv(CSlot[Si],X,Y,Lon,Lat)Then Begin TryTransform:=False;Exit;End;
+ If HasShift(CSlot[Si])Then DatumShift(CSlot[Si],1,Lon,Lat);
+ If HasShift(CSlot[Di])Then DatumShift(CSlot[Di],-1,Lon,Lat);
+ If Not CrsFwd(CSlot[Di],Lon,Lat,X,Y)Then Begin TryTransform:=False;Exit;End;
+End;
+
+{ ---- chaines de definition : EPSG:n, urn, "+proj=..." ---- }
+
+Function NextWord(Var S:String):String;
+Var
+ P:Integer;
+Begin
+ While(S<>'')and(S[1]=' ')do Delete(S,1,1);
+ P:=Pos(' ',S);
+ If P=0Then Begin NextWord:=S;S:='';End
+       Else Begin NextWord:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End;
+End;
+
+Function RegisterCustom(Var C:TCrs):LongInt;
+Var
+ I:Integer;
+Begin
+ For I:=1 to CustomN do
+  If Custom[I].Proj=C.Proj Then Begin RegisterCustom:=CustomBase+I;Exit;End;
+ If CustomN>=8Then Fail('Error: too many custom coordinate reference systems');
+ Inc(CustomN);
+ C.Code:=CustomBase+CustomN;
+ Custom[CustomN]:=C;
+ RegisterCustom:=C.Code;
+End;
+
+{ Retrouve un systeme connu (code EPSG) a partir de ses parametres geometriques }
+Function SameCrs(Var A,B:TCrs):Boolean;
+ Function Eq(X,Y,T:Real):Boolean;Begin Eq:=Abs(X-Y)<=T;End;
+Begin
+ SameCrs:=False;
+ If A.Kind<>B.Kind Then Exit;
+ If(Not Eq(A.EA,B.EA,1E-3))or(Not Eq(A.EF,B.EF,1E-7))Then Exit;
+ Case A.Kind of
+  KGeo:SameCrs:=True;
+  KWeb,KEqc:SameCrs:=Eq(A.Lon0,B.Lon0,1E-9);
+  KTm:SameCrs:=Eq(A.Lon0,B.Lon0,1E-7)and Eq(A.Lat0,B.Lat0,1E-7)and Eq(A.K0,B.K0,1E-8)and Eq(A.X0,B.X0,1E-3)and Eq(A.Y0,B.Y0,1E-3);
+  KMerc:SameCrs:=Eq(A.Lon0,B.Lon0,1E-7)and Eq(A.K0,B.K0,1E-8)and Eq(A.X0,B.X0,1E-3)and Eq(A.Y0,B.Y0,1E-3);
+  KLcc,KAea:SameCrs:=Eq(A.Lon0,B.Lon0,1E-6)and Eq(A.Lat0,B.Lat0,1E-6)and Eq(A.Lat1,B.Lat1,1E-6)and Eq(A.Lat2,B.Lat2,1E-6)and Eq(A.X0,B.X0,1E-3)and Eq(A.Y0,B.Y0,1E-3);
+  KLaea:SameCrs:=Eq(A.Lon0,B.Lon0,1E-6)and Eq(A.Lat0,B.Lat0,1E-6)and Eq(A.X0,B.X0,1E-3)and Eq(A.Y0,B.Y0,1E-3);
+  KPolar:SameCrs:=Eq(A.Lon0,B.Lon0,1E-6)and Eq(A.Lat1,B.Lat1,1E-6)and(A.Lat0*B.Lat0>0)and Eq(A.X0,B.X0,1E-3)and Eq(A.Y0,B.Y0,1E-3);
  End;
 End;
 
-Procedure TransformPt(Src,Dst:Integer;Var X,Y:Real);Begin
- If Not TryTransform(Src,Dst,X,Y)Then
-  Fail('Error: latitude out of range for EPSG:3857');
+Function MatchKnown(Var C:TCrs):LongInt;
+Const
+ Cand:Array[1..23]of LongInt=(3395,27700,2154,3035,5070,3347,3978,32198,3005,3413,3031,2193,3112,31466,31467,31468,31469,3067,3006,3059,32181,32182,4087);
+Var
+ T:TCrs;
+ I,Zn:Integer;
+
+ Function Try(Code:LongInt):Boolean;Begin
+  Try:=CrsDefine(Code,T)and SameCrs(C,T);
+ End;
+
+Begin
+ MatchKnown:=0;
+ For I:=1 to 23do If Try(Cand[I])Then Begin MatchKnown:=Cand[I];Exit;End;
+ For Zn:=1 to 60do Begin
+  If Try(32600+Zn)Then Begin MatchKnown:=32600+Zn;Exit;End;
+  If Try(32700+Zn)Then Begin MatchKnown:=32700+Zn;Exit;End;
+ End;
+ For Zn:=1 to 23do If Try(26900+Zn)Then Begin MatchKnown:=26900+Zn;Exit;End;
+ For Zn:=3 to 22do If Try(26700+Zn)Then Begin MatchKnown:=26700+Zn;Exit;End;
+ For Zn:=28 to 38do Begin
+  If Try(25800+Zn)Then Begin MatchKnown:=25800+Zn;Exit;End;
+  If Try(23000+Zn)Then Begin MatchKnown:=23000+Zn;Exit;End;
+ End;
+ For Zn:=3 to 10do If Try(32180+Zn)Then Begin MatchKnown:=32180+Zn;Exit;End;
+ If Try(4326)Then Begin MatchKnown:=4326;Exit;End;
 End;
 
-{ Systeme de coordonnees declare dans un fichier GeoJSON (defaut 4326) }
-Function LayerCrs(Root:PJ):Integer;
+{ "+proj=utm +zone=33 +datum=WGS84" -> code (0 si non gere) }
+Function ParseProj(S:String):LongInt;
+Var
+ W,K,V,Prj,Datum,Ell:String;
+ P,Err,Zn,E:Integer;
+ C:TCrs;
+ Val1:Real;
+ Lon0,Lat0,Lat1,Lat2,K0,X0,Y0,A,B,Rf,Dx,Dy,Dz,Rx0,Ry0,Rz0,Sc0:Real;
+ South,HaveA,HaveB,HaveRf:Boolean;
+ Orig:String;
+Begin
+ ParseProj:=0;
+ Orig:=S;
+ Prj:='';Datum:='';Ell:='';Zn:=0;South:=False;
+ Lon0:=0;Lat0:=0;Lat1:=0;Lat2:=0;K0:=1;X0:=0;Y0:=0;A:=0;B:=0;Rf:=0;Dx:=0;Dy:=0;Dz:=0;Rx0:=0;Ry0:=0;Rz0:=0;Sc0:=0;
+ HaveA:=False;HaveB:=False;HaveRf:=False;
+ While S<>''do Begin
+  W:=NextWord(S);
+  If W=''Then Continue;
+  If W[1]='+'Then Delete(W,1,1);
+  P:=Pos('=',W);
+  If P=0Then Begin
+   If LowerStr(W)='south'Then South:=True;
+   Continue;
+  End;
+  K:=LowerStr(Copy(W,1,P-1));
+  V:=Copy(W,P+1,100);
+  Val(V,Val1,Err);
+  If K='proj'Then Prj:=LowerStr(V) Else
+  If K='zone'Then Zn:=Round(Val1) Else
+  If K='ellps'Then Ell:=LowerStr(V) Else
+  If K='datum'Then Datum:=LowerStr(V) Else
+  If K='lon_0'Then Lon0:=Val1 Else
+  If K='lat_0'Then Lat0:=Val1 Else
+  If K='lat_1'Then Lat1:=Val1 Else
+  If K='lat_2'Then Lat2:=Val1 Else
+  If K='lat_ts'Then Lat1:=Val1 Else
+  If(K='k')or(K='k_0')Then K0:=Val1 Else
+  If K='x_0'Then X0:=Val1 Else
+  If K='y_0'Then Y0:=Val1 Else
+  If K='a'Then Begin A:=Val1;HaveA:=True;End Else
+  If K='b'Then Begin B:=Val1;HaveB:=True;End Else
+  If K='rf'Then Begin Rf:=Val1;HaveRf:=True;End Else
+  If K='towgs84'Then Begin
+   P:=Pos(',',V);
+   If P>0Then Begin Val(Copy(V,1,P-1),Dx,Err);V:=Copy(V,P+1,100);End;
+   P:=Pos(',',V);
+   If P>0Then Begin Val(Copy(V,1,P-1),Dy,Err);V:=Copy(V,P+1,100);End;
+   P:=Pos(',',V);
+   If P>0Then Begin
+    Val(Copy(V,1,P-1),Dz,Err);V:=Copy(V,P+1,100);
+    P:=Pos(',',V);
+    If P>0Then Begin Val(Copy(V,1,P-1),Rx0,Err);V:=Copy(V,P+1,100);End;
+    P:=Pos(',',V);
+    If P>0Then Begin Val(Copy(V,1,P-1),Ry0,Err);V:=Copy(V,P+1,100);End;
+    P:=Pos(',',V);
+    If P>0Then Begin Val(Copy(V,1,P-1),Rz0,Err);V:=Copy(V,P+1,100);End;
+    Val(V,Sc0,Err);
+   End
+    Else Val(V,Dz,Err);
+  End Else
+  If(K='units')and(LowerStr(V)<>'m')Then Fail('Error: only metre-based PROJ definitions are supported') Else
+  If(K='to_meter')and(Val1<>1)Then Fail('Error: only metre-based PROJ definitions are supported');
+ End;
+ FillChar(C,SizeOf(C),0);
+ E:=1;
+ If Datum='nad83'Then E:=2 Else
+ If Datum='nad27'Then Begin E:=3;Dx:=-8;Dy:=160;Dz:=176;End Else
+ If Datum='ed50'Then Begin E:=4;Dx:=-87;Dy:=-98;Dz:=-121;End Else
+ If Datum='osgb36'Then Begin E:=6;Dx:=375;Dy:=-111;Dz:=431;End Else
+ If Datum='etrs89'Then E:=2;
+ If Ell='grs80'Then E:=2 Else
+ If Ell='clrk66'Then E:=3 Else
+ If Ell='intl'Then E:=4 Else
+ If Ell='bessel'Then E:=5 Else
+ If Ell='airy'Then E:=6 Else
+ If Ell='sphere'Then E:=7 Else
+ If Ell='krass'Then E:=8 Else
+ If Ell='clrk80ign'Then E:=9;
+ C.Ell:=E;
+ C.EA:=EllA[E];C.EF:=EllRf[E];
+ If HaveA Then Begin
+  C.Ell:=1;C.EA:=A;
+  If HaveRf Then C.EF:=Rf Else
+  If HaveB Then Begin
+   If Abs(A-B)<1E-9Then C.EF:=0 Else C.EF:=A/(A-B);
+  End;
+ End;
+ If Prj='longlat'Then Begin C.Kind:=KGeo;End Else
+ If Prj='latlong'Then Begin C.Kind:=KGeo;End Else
+ If Prj='utm'Then Begin
+  If(Zn<1)or(Zn>60)Then Fail('Error: invalid UTM zone in "'+Orig+'"');
+  C.Kind:=KTm;C.Lon0:=Zn*6-183;C.K0:=0.9996;C.X0:=500000;
+  If South Then C.Y0:=10000000;
+ End Else
+ If(Prj='tmerc')or(Prj='etmerc')Then Begin C.Kind:=KTm;C.Lon0:=Lon0;C.Lat0:=Lat0;C.K0:=K0;C.X0:=X0;C.Y0:=Y0;End Else
+ If Prj='lcc'Then Begin
+  C.Kind:=KLcc;C.Lon0:=Lon0;C.Lat0:=Lat0;C.Lat1:=Lat1;C.Lat2:=Lat2;
+  If Lat2=0Then C.Lat2:=Lat1;
+  C.X0:=X0;C.Y0:=Y0;C.K0:=1;
+ End Else
+ If Prj='aea'Then Begin
+  C.Kind:=KAea;C.Lon0:=Lon0;C.Lat0:=Lat0;C.Lat1:=Lat1;C.Lat2:=Lat2;
+  If Lat2=0Then C.Lat2:=Lat1;
+  C.X0:=X0;C.Y0:=Y0;C.K0:=1;
+ End Else
+ If Prj='merc'Then Begin
+  If(HaveA and HaveB and(Abs(A-B)<1E-6))or(Ell='sphere')Then Begin C.Kind:=KWeb;C.Ell:=1;C.EA:=EllA[1];C.EF:=EllRf[1];End
+   Else Begin C.Kind:=KMerc;C.Lon0:=Lon0;C.K0:=K0;C.X0:=X0;C.Y0:=Y0;End;
+ End Else
+ If Prj='laea'Then Begin C.Kind:=KLaea;C.Lon0:=Lon0;C.Lat0:=Lat0;C.X0:=X0;C.Y0:=Y0;C.K0:=1;End Else
+ If Prj='stere'Then Begin
+  If Abs(Lat0)<>90Then Fail('Error: only polar stereographic projections are supported');
+  C.Kind:=KPolar;C.Lon0:=Lon0;C.Lat0:=Lat0;C.Lat1:=Lat1;
+  If Lat1=0Then C.Lat1:=Lat0;
+  C.X0:=X0;C.Y0:=Y0;C.K0:=1;
+ End Else
+ If(Prj='eqc')or(Prj='cea')and False Then Begin C.Kind:=KEqc;C.Lon0:=Lon0;End
+  Else
+ Begin
+  Fail('Error: unsupported projection "'+Prj+'" in "'+Orig+'"');
+ End;
+ C.Dx:=Dx;C.Dy:=Dy;C.Dz:=Dz;
+ CrsRot(C,Rx0,Ry0,Rz0,Sc0);
+ Zn:=MatchKnown(C);
+ If Zn>0Then Begin ParseProj:=Zn;Exit;End;
+ C.Proj:=Copy(Orig,1,120);
+ C.Name:='PROJ';
+ ParseProj:=RegisterCustom(C);
+End;
+
+{ EPSG:n, urn:ogc:def:crs:EPSG::n, OGC:CRS84, +proj=... ; Faux si invalide ou non gere }
+Function ParseCrsName(S:String;Var Code:LongInt):Boolean;
+Var
+ U,T:String;
+ I,P,Err:Integer;
+ N:LongInt;
+Begin
+ ParseCrsName:=False;
+ Code:=0;
+ While(S<>'')and(S[1]=' ')do Delete(S,1,1);
+ While(S<>'')and(S[Length(S)]=' ')do Delete(S,Length(S),1);
+ U:=StrUpper(S);
+ If Pos('+PROJ=',U)>0Then Begin
+  Code:=ParseProj(S);
+  ParseCrsName:=Code<>0;
+  Exit;
+ End;
+ If(U='OGC:CRS84')or(Pos('CRS84',U)>0)or(U='WGS84')Then Begin Code:=4326;ParseCrsName:=True;Exit;End;
+ If(Copy(U,1,5)='EPSG:')or(Copy(U,1,4)='URN:')or(Copy(U,1,5)='http:')Then Begin
+  P:=0;
+  For I:=Length(U)downto 1do If U[I]in[':','/']Then Begin P:=I;Break;End;
+  T:=Copy(U,P+1,12);
+ End
+  Else
+ T:=U;
+ Val(T,N,Err);
+ If(Err<>0)or(N<=0)Then Exit;
+ If Not CrsKnown(N)Then Exit;
+ If N=900913Then N:=3857;
+ Code:=N;
+ ParseCrsName:=True;
+End;
+
+Function ParseEpsg(S,What:String):LongInt;
+Var
+ N:LongInt;
+Begin
+ If ParseCrsName(S,N)Then Begin ParseEpsg:=N;Exit;End;
+ Fail('Error: unsupported '+What+' '+S+' (use EPSG:code for a common projection, or a "+proj=..." definition)');
+End;
+
+{ Nom (EPSG:n ou chaine PROJ) a ecrire dans le membre "crs" d'un fichier GeoJSON }
+Function CrsLabel(Code:LongInt):String;
+Var
+ C:TCrs;
+Begin
+ If(Code>CustomBase)and(CrsDefine(Code,C))Then CrsLabel:=C.Proj
+  Else CrsLabel:='urn:ogc:def:crs:EPSG::'+IntToStr(Code);
+End;
+
+Function TransformOk(Src,Dst:LongInt;Var X,Y:Real):Boolean;Begin
+ TransformOk:=TryTransform(Src,Dst,X,Y);
+End;
+
+Procedure TransformPt(Src,Dst:LongInt;Var X,Y:Real);Begin
+ If Not TryTransform(Src,Dst,X,Y)Then
+  Fail('Error: coordinates out of the domain of the coordinate reference system');
+End;
+
+{ Systeme de coordonnees declare dans un fichier GeoJSON (defaut 4326) ; 0 si non gere }
+Function SoftCrs(Root:PJ):LongInt;
 Var
  C,P:PJ;
- S:String;
+ N:LongInt;
 Begin
- LayerCrs:=4326;
+ SoftCrs:=4326;
  C:=JFind(Root,'crs');
  If C=Nil Then Exit;
  P:=JFind(JFind(C,'properties'),'name');
- S:=StrUpper(JVal(P));
- If Pos('3857',S)>0Then LayerCrs:=3857 Else
- If(Pos('4326',S)>0)or(Pos('CRS84',S)>0)Then LayerCrs:=4326
-  Else
- Fail('Error: unsupported layer CRS '+JVal(P)+' (only EPSG:4326 and EPSG:3857 are supported)');
+ If ParseCrsName(JVal(P),N)Then SoftCrs:=N
+                           Else SoftCrs:=0;
 End;
 
-Procedure SetLayerCrs(Root:PJ;Epsg:Integer);
+Function LayerCrs(Root:PJ):LongInt;
+Var
+ C,P:PJ;
+ N:LongInt;
+Begin
+ N:=SoftCrs(Root);
+ LayerCrs:=N;
+ If N=0Then Begin
+  C:=JFind(Root,'crs');
+  P:=JFind(JFind(C,'properties'),'name');
+  Fail('Error: unsupported layer CRS '+JVal(P));
+ End;
+End;
+
+Procedure SetLayerCrs(Root:PJ;Epsg:LongInt);
 Var
  C,P:PJ;
 Begin
  JRemoveKey(Root,'crs');
- If Epsg=3857Then Begin
+ If Epsg<>4326Then Begin
   C:=NewJ(5);
   JAddKV(C,'type',JText('name'));
   P:=NewJ(5);
-  JAddKV(P,'name',JText('urn:ogc:def:crs:EPSG::3857'));
+  JAddKV(P,'name',JText(CrsLabel(Epsg)));
   JAddKV(C,'properties',P);
   JAddKV(Root,'crs',C);
  End;
 End;
 
 { Transforme en place tous les couples de coordonnees d'une geometrie }
-Procedure TransformCoords(N:PJ;Src,Dst:Integer);
+Procedure TransformCoords(N:PJ;Src,Dst:LongInt);
 Var
  C:PJ;
  X,Y:Real;
@@ -5618,37 +6339,266 @@ Begin
  End;
 End;
 
-{ Texte (ex. contenu d'un .prj) : 0 inconnu, 4326 ou 3857 ; Name : nom du systeme }
-Function CrsFromWkt(W:String;Var Name:String):Integer;
+{ Texte WKT (ex. contenu d'un .prj) : code du systeme (0 inconnu) ; Name : nom du systeme }
 Var
- P,Q:Integer;
- U:String;
+ WkU:PBytes;
+ WkN:LongInt;
+
+Function WkFind(Const Pat:String;From:LongInt):LongInt;
+Var
+ I,K:LongInt;
+ Ok:Boolean;
+Begin
+ WkFind:=-1;
+ For I:=From to WkN-Length(Pat)do Begin
+  Ok:=True;
+  For K:=1 to Length(Pat)do If WkU^[I+K-1]<>Ord(Pat[K])Then Begin Ok:=False;Break;End;
+  If Ok Then Begin WkFind:=I;Exit;End;
+ End;
+End;
+
+{ Premier nombre apres la position P }
+Function WkNumAfter(P:LongInt;Var V:Real):Boolean;
+Var
+ S:String;
+ Err:Integer;
+Begin
+ WkNumAfter:=False;
+ While(P<WkN)and Not(Chr(WkU^[P])in['0'..'9','-','+','.'])do Inc(P);
+ S:='';
+ While(P<WkN)and(Chr(WkU^[P])in['0'..'9','-','+','.','E'])and(Length(S)<40)do Begin
+  S:=S+Chr(WkU^[P]);
+  Inc(P);
+ End;
+ Val(S,V,Err);
+ WkNumAfter:=(S<>'')and(Err=0);
+End;
+
+{ PARAMETER["nom",valeur] }
+Function WkParam(Const Names:String;Var V:Real):Boolean;
+Var
+ P,Q,E:LongInt;
+ Nm,Rest:String;
+ I:Integer;
+Begin
+ WkParam:=False;
+ Rest:=Names;
+ While Rest<>''do Begin
+  I:=Pos('|',Rest);
+  If I=0Then Begin Nm:=Rest;Rest:='';End
+        Else Begin Nm:=Copy(Rest,1,I-1);Rest:=Copy(Rest,I+1,255);End;
+  P:=0;
+  Repeat
+   P:=WkFind('PARAMETER["'+Nm+'"',P);
+   If P<0Then Break;
+   Q:=P+11+Length(Nm);
+   If WkNumAfter(Q,V)Then Begin WkParam:=True;Exit;End;
+   P:=P+1;
+  Until False;
+ End;
+End;
+
+Function WkHas(Const S:String):Boolean;Begin
+ WkHas:=WkFind(S,0)>=0;
+End;
+
+Function CrsFromBytes(B:PBytes;N:LongInt;Var Name:String):LongInt;
+Var
+ I,P,E,LastAuth,LastEnd,Zn,Q:LongInt;
+ V,Lon0,Lat0,Lat1,Lat2,K0,X0,Y0,A,Rf,Dx:Real;
+ Prj,Pr,Hemi:String;
+ Err:Integer;
+ Num:String;
+ Clean:Boolean;
+ Base:LongInt;
+ Datum:String;
+Begin
+ CrsFromBytes:=0;
+ Name:='';
+ If N<=0Then Exit;
+ WkU:=AllocBlock(N+1);
+ WkN:=N;
+ For I:=0 to N-1do Begin
+  If(B^[I]>=97)and(B^[I]<=122)Then WkU^[I]:=B^[I]-32 Else WkU^[I]:=B^[I];
+ End;
+ { nom : premiere chaine entre guillemets }
+ P:=0;
+ While(P<N)and(B^[P]<>34)do Inc(P);
+ Inc(P);
+ While(P<N)and(B^[P]<>34)and(Length(Name)<60)do Begin Name:=Name+Chr(B^[P]);Inc(P);End;
+ { derniere autorite EPSG, en fin de texte }
+ LastAuth:=0;LastEnd:=-1;
+ P:=0;
+ Repeat
+  P:=WkFind('AUTHORITY["EPSG","',P);
+  If P<0Then Break;
+  Num:='';
+  Q:=P+18;
+  While(Q<N)and(Chr(WkU^[Q])in['0'..'9'])do Begin Num:=Num+Chr(WkU^[Q]);Inc(Q);End;
+  Val(Num,E,Err);
+  If(Err=0)and(Num<>'')Then Begin LastAuth:=E;LastEnd:=Q;End;
+  P:=P+1;
+ Until False;
+ If LastEnd>=0Then Begin
+  Clean:=True;
+  For I:=LastEnd to N-1do If Not(Chr(WkU^[I])in['"',']',' ',#9,#10,#13,#26])Then Clean:=False;
+  If Clean and CrsKnown(LastAuth)Then Begin
+   If LastAuth=900913Then LastAuth:=3857;
+   CrsFromBytes:=LastAuth;
+   FreeMem(WkU,N+1);
+   Exit;
+  End;
+ End;
+ If WkHas('MERCATOR_AUXILIARY_SPHERE')or WkHas('WEB_MERCATOR')or WkHas('PSEUDO-MERCATOR')or WkHas('POPULAR VISUALISATION')Then Begin
+  CrsFromBytes:=3857;FreeMem(WkU,N+1);Exit;
+ End;
+ If Not WkHas('PROJCS')Then Begin
+  If WkHas('GCS_WGS_1984')or WkHas('"WGS 84"')or WkHas('"WGS84"')or WkHas('"WGS_1984"')Then CrsFromBytes:=4326 Else
+  If WkHas('NAD83')or WkHas('NAD_1983')Then CrsFromBytes:=4269 Else
+  If WkHas('NAD27')or WkHas('NAD_1927')Then CrsFromBytes:=4267 Else
+  If WkHas('ETRS89')or WkHas('ETRS_1989')Then CrsFromBytes:=4258 Else
+  If WkHas('GCS_NORTH_AMERICAN_1983')Then CrsFromBytes:=4269 Else
+  If WkHas('GCS_NORTH_AMERICAN_1927')Then CrsFromBytes:=4267;
+  FreeMem(WkU,N+1);
+  Exit;
+ End;
+ { zones UTM par le nom }
+ P:=WkFind('UTM_ZONE_',0);
+ If P<0Then P:=WkFind('UTM ZONE ',0);
+ If P>=0Then Begin
+  Q:=P+9;
+  Num:='';
+  While(Q<N)and(Chr(WkU^[Q])in['0'..'9'])do Begin Num:=Num+Chr(WkU^[Q]);Inc(Q);End;
+  Val(Num,Zn,Err);
+  If(Err=0)and(Zn>=1)and(Zn<=60)Then Begin
+   Hemi:='N';
+   If(Q<N)and(Chr(WkU^[Q])='S')Then Hemi:='S';
+   Base:=0;
+   If WkHas('NAD_1983')or WkHas('NAD83')Then Base:=26900 Else
+   If WkHas('NAD_1927')or WkHas('NAD27')Then Base:=26700 Else
+   If WkHas('ETRS')Then Base:=25800 Else
+   If WkHas('ED_1950')or WkHas('ED50')Then Base:=23000 Else
+   If Hemi='S'Then Base:=32700 Else Base:=32600;
+   If CrsKnown(Base+Zn)Then Begin
+    CrsFromBytes:=Base+Zn;
+    FreeMem(WkU,N+1);
+    Exit;
+   End;
+  End;
+ End;
+ { projection generique decrite par ses parametres }
+ Prj:='';
+ P:=WkFind('PROJECTION["',0);
+ If P>=0Then Begin
+  Q:=P+12;
+  While(Q<N)and(WkU^[Q]<>34)and(Length(Prj)<50)do Begin Prj:=Prj+Chr(WkU^[Q]);Inc(Q);End;
+ End;
+ If(Prj='')or(Not WkHas('UNIT["METER"')and Not WkHas('UNIT["METRE"')and Not WkHas('UNIT["M"'))Then Begin
+  FreeMem(WkU,N+1);Exit;
+ End;
+ Lon0:=0;Lat0:=0;Lat1:=0;Lat2:=0;K0:=1;X0:=0;Y0:=0;
+ WkParam('CENTRAL_MERIDIAN|LONGITUDE_OF_CENTER|LONGITUDE_OF_ORIGIN',Lon0);
+ WkParam('LATITUDE_OF_ORIGIN|LATITUDE_OF_CENTER',Lat0);
+ WkParam('STANDARD_PARALLEL_1',Lat1);
+ WkParam('STANDARD_PARALLEL_2',Lat2);
+ WkParam('SCALE_FACTOR',K0);
+ WkParam('FALSE_EASTING',X0);
+ WkParam('FALSE_NORTHING',Y0);
+ A:=0;Rf:=0;
+ P:=WkFind('SPHEROID["',0);
+ If P>=0Then Begin
+  Q:=P+10;
+  While(Q<N)and(WkU^[Q]<>34)do Inc(Q);
+  Inc(Q);
+  If WkNumAfter(Q,A)Then Begin
+   While(Q<N)and(WkU^[Q]<>44)do Inc(Q);
+   Inc(Q);
+   While(Q<N)and(Chr(WkU^[Q])in['0'..'9','-','+','.','E'])do Inc(Q);
+   If WkNumAfter(Q,Rf)Then Begin End;
+  End;
+ End;
+ FreeMem(WkU,N+1);
+ If A<=0Then Exit;
+ Pr:='';
+ If Prj='TRANSVERSE_MERCATOR'Then Pr:='+proj=tmerc +lat_0='+NumStr(Lat0)+' +lon_0='+NumStr(Lon0)+' +k_0='+NumStr(K0) Else
+ If(Prj='LAMBERT_CONFORMAL_CONIC_2SP')or(Prj='LAMBERT_CONFORMAL_CONIC')or(Prj='LAMBERT_CONFORMAL_CONIC_1SP')Then Begin
+  If Lat1=0Then Lat1:=Lat0;
+  If Lat2=0Then Lat2:=Lat1;
+  Pr:='+proj=lcc +lat_0='+NumStr(Lat0)+' +lon_0='+NumStr(Lon0)+' +lat_1='+NumStr(Lat1)+' +lat_2='+NumStr(Lat2);
+ End Else
+ If(Prj='ALBERS')or(Prj='ALBERS_CONIC_EQUAL_AREA')Then
+  Pr:='+proj=aea +lat_0='+NumStr(Lat0)+' +lon_0='+NumStr(Lon0)+' +lat_1='+NumStr(Lat1)+' +lat_2='+NumStr(Lat2) Else
+ If Prj='MERCATOR_1SP'Then Pr:='+proj=merc +lon_0='+NumStr(Lon0)+' +k_0='+NumStr(K0) Else
+ If Prj='LAMBERT_AZIMUTHAL_EQUAL_AREA'Then Pr:='+proj=laea +lat_0='+NumStr(Lat0)+' +lon_0='+NumStr(Lon0) Else
+ If(Prj='POLAR_STEREOGRAPHIC')or(Prj='STEREOGRAPHIC_NORTH_POLE')or(Prj='STEREOGRAPHIC_SOUTH_POLE')Then Begin
+  If Lat1=0Then Lat1:=Lat0;
+  If Prj='STEREOGRAPHIC_SOUTH_POLE'Then Lat1:=-Abs(Lat1);
+  Pr:='+proj=stere +lat_0='+NumStr(SgnR(Lat1)*90)+' +lon_0='+NumStr(Lon0)+' +lat_ts='+NumStr(Lat1);
+ End;
+ If Pr=''Then Exit;
+ Pr:=Pr+' +x_0='+NumStr(X0)+' +y_0='+NumStr(Y0)+' +a='+NumStr(A);
+ If Rf>0Then Pr:=Pr+' +rf='+NumStr(Rf)
+        Else Pr:=Pr+' +b='+NumStr(A);
+ CrsFromBytes:=ParseProj(Pr);
+End;
+
+Function CrsFromWkt(W:String;Var Name:String):LongInt;
+Var
+ B:PBytes;
 Begin
  CrsFromWkt:=0;
  Name:='';
- U:=StrUpper(W);
- P:=Pos('"',W);
- If P>0Then Begin
-  Q:=Pos('"',Copy(W,P+1,255));
-  If Q>0Then Name:=Copy(W,P+1,Q-1);
+ If W=''Then Exit;
+ B:=AllocBlock(Length(W)+1);
+ Move(W[1],B^,Length(W));
+ CrsFromWkt:=CrsFromBytes(B,Length(W),Name);
+ FreeMem(B,Length(W)+1);
+End;
+
+Function CrsFromFile(FileName:String;Var Name:String):LongInt;
+Var
+ B:PBytes;
+ N:LongInt;
+Begin
+ CrsFromFile:=0;
+ Name:='';
+ B:=LoadFileBytes(FileName,N);
+ If B=Nil Then Exit;
+ CrsFromFile:=CrsFromBytes(B,N,Name);
+ FreeMem(B,N+8);
+End;
+
+Procedure ApplyCrsFile(Root:PJ;FileName:String);
+Var
+ Code:LongInt;
+ Name:String;
+ C,P:PJ;
+Begin
+ Code:=CrsFromFile(FileName,Name);
+ If Code>0Then Begin
+  SetLayerCrs(Root,Code);
+  Exit;
  End;
- If(Pos('MERCATOR_AUXILIARY_SPHERE',U)>0)or(Pos('WEB_MERCATOR',U)>0)or(Pos('PSEUDO-MERCATOR',U)>0)or
-   (Pos('"EPSG","3857"',U)>0)or(Pos('POPULAR VISUALISATION',U)>0)Then CrsFromWkt:=3857 Else
- If(Pos('PROJCS',U)=0)and((Pos('GCS_WGS_1984',U)>0)or(Pos('"WGS 84"',U)>0)or(Pos('"WGS84"',U)>0)or(Pos('"EPSG","4326"',U)>0))Then
-  CrsFromWkt:=4326;
+ If Name=''Then Exit;
+ JRemoveKey(Root,'crs');
+ C:=NewJ(5);
+ JAddKV(C,'type',JText('name'));
+ P:=NewJ(5);
+ JAddKV(P,'name',JTextEsc(Name));
+ JAddKV(C,'properties',P);
+ JAddKV(Root,'crs',C);
 End;
 
 Procedure ApplyCrs(Root:PJ;Wkt:String);
 Var
- Code:Integer;
+ Code:LongInt;
  Name:String;
  C,P:PJ;
 Begin
  If Wkt=''Then Exit;
  Code:=CrsFromWkt(Wkt,Name);
- If Code=3857Then SetLayerCrs(Root,3857) Else
- If Code=0Then Begin
-  { systeme non gere : on garde seulement son nom pour le signaler }
+ If Code>0Then SetLayerCrs(Root,Code) Else
+ Begin
   JRemoveKey(Root,'crs');
   C:=NewJ(5);
   JAddKV(C,'type',JText('name'));
@@ -5795,7 +6745,7 @@ Begin
   Cur:=Cur+8+Len;
  End;
  PrjName:=SideFile(Path,'.prj');
- If PrjName<>''Then ApplyCrs(Root,ReadTextFile(PrjName));
+ If PrjName<>''Then ApplyCrsFile(Root,PrjName);
  LoadShapefile:=Root;
 End;
 
@@ -5820,6 +6770,63 @@ Begin
  Write(T,S2);
  Close(T);
 End;
+
+{ Texte WKT d'un systeme de coordonnees dans un tampon }
+Procedure CrsWktBuf(Code:LongInt;Var B:TBuf);
+Var
+ C:TCrs;
+ Nm,Pn,Prm:String;
+ Geog:String;
+ Known:Boolean;
+
+ Function Pm(N:String;V:Real):String;Begin
+  Pm:=',PARAMETER["'+N+'",'+NumStr(V)+']';
+ End;
+
+Begin
+ If Not CrsDefine(Code,C)Then Fail('Error: unsupported CRS EPSG:'+IntToStr(Code));
+ Known:=Code<=CustomBase;
+ If C.Ell=1Then Nm:=EllName[1] Else Nm:=EllName[C.Ell];
+ If C.Ell=0Then Nm:='Custom';
+ Geog:='GEOGCS["GCS_'+Nm+'",DATUM["D_'+Nm+'",SPHEROID["'+Nm+'",'+NumStr(C.EA)+','+NumStr(C.EF)+']';
+ If HasShift(C)Then
+  Geog:=Geog+',TOWGS84['+NumStr(C.Dx)+','+NumStr(C.Dy)+','+NumStr(C.Dz)+','+NumStr(C.Rx*648000/Pi)+','+NumStr(C.Ry*648000/Pi)+','+NumStr(C.Rz*648000/Pi)+','+NumStr(C.Sc*1E6)+']';
+ Geog:=Geog+'],PRIMEM["Greenwich",0],UNIT["Degree",0.0174532925199433]';
+ If C.Kind=KGeo Then Begin
+  If Known Then Geog:=Geog+',AUTHORITY["EPSG","'+IntToStr(Code)+'"]';
+  BufText(B,Geog+']');
+  Exit;
+ End;
+ BufText(B,'PROJCS["'+C.Name+'",'+Geog+'],');
+ Pn:='';Prm:='';
+ Case C.Kind of
+  KTm:Begin Pn:='Transverse_Mercator';Prm:=Pm('latitude_of_origin',C.Lat0)+Pm('central_meridian',C.Lon0)+Pm('scale_factor',C.K0);End;
+  KLcc:Begin Pn:='Lambert_Conformal_Conic_2SP';Prm:=Pm('standard_parallel_1',C.Lat1)+Pm('standard_parallel_2',C.Lat2)+Pm('latitude_of_origin',C.Lat0)+Pm('central_meridian',C.Lon0);End;
+  KAea:Begin Pn:='Albers_Conic_Equal_Area';Prm:=Pm('standard_parallel_1',C.Lat1)+Pm('standard_parallel_2',C.Lat2)+Pm('latitude_of_center',C.Lat0)+Pm('longitude_of_center',C.Lon0);End;
+  KMerc,KWeb:Begin Pn:='Mercator_1SP';Prm:=Pm('central_meridian',C.Lon0)+Pm('scale_factor',C.K0);End;
+  KLaea:Begin Pn:='Lambert_Azimuthal_Equal_Area';Prm:=Pm('latitude_of_center',C.Lat0)+Pm('longitude_of_center',C.Lon0);End;
+  KPolar:Begin Pn:='Polar_Stereographic';Prm:=Pm('latitude_of_origin',C.Lat1)+Pm('central_meridian',C.Lon0)+Pm('scale_factor',1);End;
+  Else Begin Pn:='Equirectangular';Prm:=Pm('central_meridian',C.Lon0);End;
+ End;
+ BufText(B,'PROJECTION["'+Pn+'"]');
+ BufText(B,Prm);
+ BufText(B,Pm('false_easting',C.X0)+Pm('false_northing',C.Y0)+',UNIT["Meter",1]');
+ If Known Then BufText(B,',AUTHORITY["EPSG","'+IntToStr(Code)+'"]');
+ BufText(B,']');
+End;
+
+Procedure WritePrj(FileName:String;Code:LongInt);
+Var
+ B:TBuf;
+Begin
+ If Code=4326Then Begin WriteSmallText(FileName,PrjWgs84,'');Exit;End;
+ If Code=3857Then Begin WriteSmallText(FileName,PrjMerc1,PrjMerc2);Exit;End;
+ If Code<=0Then Exit;
+ BufInit(B);
+ CrsWktBuf(Code,B);
+ BufSave(FileName,B);
+End;
+
 
 { Anneau en sens horaire (exterieur) ou anti-horaire (trou) pour le Shapefile }
 Procedure ShpOrientRing(P:PPath;Exterior:Boolean);
@@ -5849,7 +6856,7 @@ Var
  Found,AllNum,AllInt,AllBool,AnyVal:Boolean;
  S,T,Nm:String;
  Wk:String;
- Crs:Integer;
+ Crs:LongInt;
 Begin
  If FileExt(Path)=''Then Path:=Path+'.shp';
  Arr:=LayerFeatures(Root);
@@ -6077,14 +7084,8 @@ Begin
  BufSave(ChangeExt(Path,'.dbf'),Dbf);
  WriteSmallText(ChangeExt(Path,'.cpg'),'UTF-8','');
  { systeme de coordonnees }
- Crs:=4326;
- If JFind(Root,'crs')<>Nil Then Begin
-  Wk:=JVal(JFind(JFind(JFind(Root,'crs'),'properties'),'name'));
-  If Pos('3857',Wk)>0Then Crs:=3857 Else
-  If(Pos('4326',Wk)=0)and(Pos('CRS84',Wk)=0)Then Crs:=0;
- End;
- If Crs=4326Then WriteSmallText(ChangeExt(Path,'.prj'),PrjWgs84,'') Else
- If Crs=3857Then WriteSmallText(ChangeExt(Path,'.prj'),PrjMerc1,PrjMerc2);
+ Crs:=SoftCrs(Root);
+ If Crs>0Then WritePrj(ChangeExt(Path,'.prj'),Crs);
 End;
 
 { ------------------------------------------------------------------ }
@@ -7116,10 +8117,14 @@ Procedure GmlGeom(N:PX);
 Var
  C:PX;
  Nm,S:String;
+ Cd:LongInt;
 Begin
  Nm:=N^.Name^;
  S:=XAttr(N,'srsName');
- If S<>''Then XSwap:=(Pos('urn:ogc:def:crs',S)>0)and(Copy(S,Length(S)-3,4)='4326');
+ If S<>''Then Begin
+  XSwap:=False;
+  If(Pos('urn:ogc:def:crs',S)>0)and ParseCrsName(S,Cd)Then XSwap:=CrsIsGeographic(Cd);
+ End;
  If Nm='POINT'Then Begin
   GmlRing(N);
   If TpN>0Then GcPoint(TpP^[0].X,TpP^[0].Y);
@@ -7244,10 +8249,28 @@ Begin
  AddFeature(Col,Props,Geom);
 End;
 
+Function XFirstAttr(N:PX;Const Nm:String):String;
+Var
+ C:PX;
+ S:String;
+Begin
+ XFirstAttr:='';
+ C:=N^.First;
+ While C<>Nil do Begin
+  S:=XAttr(C,Nm);
+  If S<>''Then Begin XFirstAttr:=S;Exit;End;
+  S:=XFirstAttr(C,Nm);
+  If S<>''Then Begin XFirstAttr:=S;Exit;End;
+  C:=C^.Next;
+ End;
+End;
+
 Function ReadGml(B:PBytes;N:LongInt):PJ;
 Var
  Root,Rt,C,F:PX;
  Col:PJ;
+ Sn:String;
+ Cd:LongInt;
 Begin
  Col:=NewCollection;
  Root:=XParse(B,N);
@@ -7264,7 +8287,8 @@ Begin
   End;
   C:=C^.Next;
  End;
- If Pos('3857',XAttr(XFind(Rt,'POINT'),'srsName'))>0Then SetLayerCrs(Col,3857);
+ Sn:=XFirstAttr(Rt,'srsName');
+ If(Sn<>'')and ParseCrsName(Sn,Cd)and(Cd<>4326)Then SetLayerCrs(Col,Cd);
  ReadGml:=Col;
 End;
 
@@ -7445,7 +8469,7 @@ End;
 Var
  CsvDelim:Integer;
  CsvXName,CsvYName,CsvWName:String;
- CsvCrs:Integer;
+ CsvCrs:LongInt;
 
 Function CsvField(B:PBytes;N:LongInt;Var P:LongInt;Var S,E:LongInt;Var Quoted,EndRec:Boolean;D:Integer):Boolean;Begin
  CsvField:=False;
@@ -7601,7 +8625,7 @@ Begin
  End;
  { passe 2 : entites }
  Col:=NewCollection;
- If CsvCrs=3857Then SetLayerCrs(Col,3857);
+ If CsvCrs>0Then SetLayerCrs(Col,CsvCrs);
  P:=Start;
  Repeat
   If Not CsvField(B,N,P,S,E,Q,EndRec,Delim)Then Break;
@@ -7699,19 +8723,6 @@ Begin
  End;
  For I:=Length(S)downto 1do If S[I]='.'Then Begin S:=Copy(S,1,I-1);Break;End;
  BaseNoExt:=S;
-End;
-
-{ CRS declare par la couche : 4326 ou 3857 (0 = autre) }
-Function SoftCrs(Root:PJ):Integer;
-Var
- S:String;
-Begin
- SoftCrs:=4326;
- If JFind(Root,'crs')=Nil Then Exit;
- S:=JVal(JFind(JFind(JFind(Root,'crs'),'properties'),'name'));
- If Pos('3857',S)>0Then SoftCrs:=3857 Else
- If(Pos('4326',S)>0)or(Pos('CRS84',S)>0)Then SoftCrs:=4326
-                                       Else SoftCrs:=0;
 End;
 
 Procedure BufWkt(Var B:TBuf;Var G:TGeom);
@@ -7939,7 +8950,8 @@ Var
  Feats,F,Pr,C:PJ;
  G:TGeom;
  Layer,Srs,V:String;
- Crs,N:Integer;
+ N:Integer;
+ Crs:LongInt;
  P:PPath;
  I:LongInt;
  X1,Y1,X2,Y2:Real;
@@ -7948,7 +8960,7 @@ Begin
  Feats:=JFind(Root,'features');
  Layer:=XmlName(BaseNoExt(FileName));
  Crs:=SoftCrs(Root);
- If Crs=0Then Srs:='' Else Srs:=' srsName="EPSG:'+IntToStr(Crs)+'"';
+ If(Crs=0)or(Crs>CustomBase)Then Srs:='' Else Srs:=' srsName="EPSG:'+IntToStr(Crs)+'"';
  Have:=False;X1:=0;Y1:=0;X2:=0;Y2:=0;
  F:=Feats^.First;
  While F<>Nil do Begin
@@ -8073,13 +9085,13 @@ Var
  Feats,F,Pr,C,Gj:PJ;
  G:TGeom;
  Layer,K:String;
- Crs:Integer;
+ Crs:LongInt;
  HasExt:Boolean;
 Begin
  Feats:=JFind(Root,'features');
  Layer:=BaseNoExt(FileName);
  Crs:=SoftCrs(Root);
- If Crs=0Then Fail('Error: KML output needs a layer in EPSG:4326 or EPSG:3857');
+ If Crs=0Then Fail('Error: KML output needs a layer with a known coordinate reference system');
  BufInit(B);
  BufLn(B,'<?xml version="1.0" encoding="utf-8" ?>');
  BufLn(B,'<kml xmlns="http://www.opengis.net/kml/2.2">');
@@ -8111,9 +9123,9 @@ Begin
   End;
   Gj:=JFind(F,'geometry');
   If(Gj<>Nil)and(Gj^.Kind=5)Then Begin
-   If Crs=3857Then Begin
+   If Crs<>4326Then Begin
     Gj:=JClone(Gj);
-    If JFind(Gj,'coordinates')<>Nil Then TransformCoords(JFind(Gj,'coordinates'),3857,4326);
+    If JFind(Gj,'coordinates')<>Nil Then TransformCoords(JFind(Gj,'coordinates'),Crs,4326);
    End;
    InitGeom(G);
    Flatten(Gj,G);
@@ -8619,9 +9631,8 @@ Begin
  FeatCol:=NewCollection;
  SqMode:=4;
  SqWalk(Root);
- If Srs=3857Then SetLayerCrs(FeatCol,3857) Else
+ If(Srs>0)and(Srs<>4326)and CrsKnown(Srs)Then SetLayerCrs(FeatCol,Srs) Else
  If(Srs<>4326)and(Srs>0)Then Begin
-  { systeme non gere : seul son nom est conserve }
   C:=NewJ(5);
   JAddKV(C,'type',JText('name'));
   Pr:=NewJ(5);
@@ -8964,7 +9975,8 @@ Var
  Feats,F,Pr,C,V:PJ;
  Cols:Array[1..MaxCols]of String[60];
  ColTyp:Array[1..MaxCols]of Byte;  { 1 entier, 2 reel, 3 texte, 4 booleen }
- NC,J,Crs:Integer;
+ NC,J:Integer;
+ Crs:LongInt;
  I,NF,K:LongInt;
  G:TGeom;
  P:PPath;
@@ -8986,6 +9998,7 @@ Var
  MRows:Integer;
  MOff,MLen:Array[1..8]of LongInt;
  CE,Sz:LongInt;
+ CTmp:TCrs;
 
  Function TwoD(V:Integer):String;
  Var S:String;
@@ -9163,14 +10176,17 @@ Begin
  Ids:=AllocBlock(6*SizeOf(LongInt));
  Ids^[0]:=-1;Ids^[1]:=0;Ids^[2]:=4326;
  MRows:=3;
- If Crs=3857Then Begin Ids^[3]:=3857;MRows:=4;End;
+ If(Crs>0)and(Crs<>4326)Then Begin Ids^[3]:=Crs;MRows:=4;End;
+ If(MRows=4)and(Ids^[3]<4326)Then Begin
+  Ids^[3]:=4326;Ids^[2]:=Crs;
+ End;
  For J:=0 to MRows-1do Begin
   WrClear;
   Tmp.N:=0;
-  Case J of
-   0:Begin WrText('Undefined cartesian SRS');WrNull;WrText('NONE');WrInt(-1);WrText('undefined');WrText('undefined Cartesian coordinate reference system');End;
-   1:Begin WrText('Undefined geographic SRS');WrNull;WrText('NONE');WrInt(0);WrText('undefined');WrText('undefined geographic coordinate reference system');End;
-   2:Begin
+  Case Ids^[J]of
+   -1:Begin WrText('Undefined cartesian SRS');WrNull;WrText('NONE');WrInt(-1);WrText('undefined');WrText('undefined Cartesian coordinate reference system');End;
+   0:Begin WrText('Undefined geographic SRS');WrNull;WrText('NONE');WrInt(0);WrText('undefined');WrText('undefined geographic coordinate reference system');End;
+   4326:Begin
       WrText('WGS 84 geodetic');WrNull;WrText('EPSG');WrInt(4326);
       Tmp.N:=0;
       BufText(Tmp,'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],');
@@ -9178,7 +10194,7 @@ Begin
       WrTextBuf(Tmp);
       WrText('longitude/latitude coordinates in decimal degrees on the WGS 84 spheroid');
      End;
-   Else Begin
+   3857:Begin
       WrText('WGS 84 / Pseudo-Mercator');WrNull;WrText('EPSG');WrInt(3857);
       Tmp.N:=0;
       BufText(Tmp,'PROJCS["WGS 84 / Pseudo-Mercator",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],');
@@ -9187,6 +10203,15 @@ Begin
       BufText(Tmp,'UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","3857"]]');
       WrTextBuf(Tmp);
       WrText('Web Mercator');
+     End;
+   Else Begin
+      CrsDefine(Ids^[J],CTmp);
+      WrText(CTmp.Name);WrNull;
+      If Ids^[J]>CustomBase Then Begin WrText('NONE');WrInt(-1);End
+                            Else Begin WrText('EPSG');WrInt(Ids^[J]);End;
+      CrsWktBuf(Ids^[J],Tmp);
+      WrTextBuf(Tmp);
+      WrText('');
      End;
   End;
   RowOff^[J]:=Recs.N;
@@ -9400,7 +10425,7 @@ Begin
    If K='yfield'Then CsvYName:=V Else
    If K='wktfield'Then CsvWName:=V Else
    If K='crs'Then Begin
-    If Pos('3857',V)>0Then CsvCrs:=3857;
+    Begin If ParseCrsName(V,CsvCrs)Then Begin End;End;
    End;
   End;
  End;
@@ -10215,7 +11240,7 @@ Var
 Begin
  R.Epsg:=0;
  Pn:=SideFile(FileName,'.prj');
- If Pn<>''Then R.Epsg:=CrsFromWkt(ReadTextFile(Pn),Nm);
+ If Pn<>''Then R.Epsg:=CrsFromFile(Pn,Nm);
  LastEpsg:=R.Epsg;
 End;
 
@@ -10308,8 +11333,7 @@ Begin
   WriteLn(F);
  End;
  Close(F);
- If R.Epsg=4326Then WriteSmallText(ChangeExt(FileName,'.prj'),PrjWgs84,'') Else
- If R.Epsg=3857Then WriteSmallText(ChangeExt(FileName,'.prj'),PrjMerc1,PrjMerc2);
+ If(R.Epsg>0)and CrsKnown(R.Epsg)Then WritePrj(ChangeExt(FileName,'.prj'),R.Epsg);
 End;
 
 { ------------------------------------------------------------------ }
@@ -10800,7 +11824,7 @@ Begin
  TwN:=0;
  { disposition : IFD, puis donnees externes }
  E:=11+2;   { 256 257 258 259 262 273 277 278 279 339 + 33550 33922 42113 }
- If R.Epsg>0Then Inc(E);
+ If (R.Epsg>0)and(R.Epsg<=CustomBase)Then Inc(E);
  IfdOff:=DataEnd;
  ExtOff:=IfdOff+2+E*12+4;
  OffOff:=0;CntOff:=0;
@@ -10808,7 +11832,7 @@ Begin
  ScaleOff:=ExtOff;Inc(ExtOff,24);
  TieOff:=ExtOff;Inc(ExtOff,48);
  KeyOff:=0;
- If R.Epsg>0Then Begin KeyOff:=ExtOff;Inc(ExtOff,8*4);End;
+ If (R.Epsg>0)and(R.Epsg<=CustomBase)Then Begin KeyOff:=ExtOff;Inc(ExtOff,8*4);End;
  NdOff:=0;
  If Length(Nd)+1>4Then Begin NdOff:=ExtOff;Inc(ExtOff,Length(Nd)+1);End;
  TwAdd(256,4,1,R.NC);
@@ -10823,7 +11847,7 @@ Begin
  TwAdd(339,3,1,Fmt);
  TwAdd(33550,12,3,ScaleOff);
  TwAdd(33922,12,6,TieOff);
- If R.Epsg>0Then TwAdd(34735,3,16,KeyOff);
+ If (R.Epsg>0)and(R.Epsg<=CustomBase)Then TwAdd(34735,3,16,KeyOff);
  If NdOff>0Then TwAdd(42113,2,Length(Nd)+1,NdOff)
            Else TwAdd(42113,2,Length(Nd)+1,0);
  BufInit(X);
@@ -10850,7 +11874,7 @@ Begin
  BufDouble(X,R.Cell);BufDouble(X,R.Cell);BufDouble(X,0);
  BufDouble(X,0);BufDouble(X,0);BufDouble(X,0);
  BufDouble(X,R.XLL);BufDouble(X,R.YLL+R.NR*R.Cell);BufDouble(X,0);
- If R.Epsg>0Then Begin
+ If (R.Epsg>0)and(R.Epsg<=CustomBase)Then Begin
   Geographic:=(R.Epsg>=4000)and(R.Epsg<5000);
   BufLE16(X,1);BufLE16(X,1);BufLE16(X,0);BufLE16(X,3);
   BufLE16(X,1024);BufLE16(X,0);BufLE16(X,1);
@@ -11265,6 +12289,214 @@ Begin
  Haversine:=EarthRadius*2*Atan2(Sqrt(A),Sqrt(1-A));
 End;
 
+{ ---- geodesie sur l'ellipsoide (option --ellipsoid) ---- }
+
+Var
+ GeoOn,GeoNone:Boolean;
+ GeoA,GeoF:Real;
+
+{ Ellipsoide courant pour les mesures : celui demande, sinon la sphere moyenne }
+Procedure MeasEll(Var A,F:Real);Begin
+ If GeoOn Then Begin A:=GeoA;F:=GeoF;End
+          Else Begin A:=EarthRadius;F:=0;End;
+End;
+
+Procedure SetEllipsoid(Value:String);
+Var
+ U,Sa,Sb:String;
+ P,Err:Integer;
+ A,B:Real;
+ K:Integer;
+Begin
+ U:=StrUpper(Value);
+ While(U<>'')and(U[1]=' ')do Delete(U,1,1);
+ GeoOn:=False;GeoNone:=False;
+ If(U='')Then Exit;
+ If U='NONE'Then Begin GeoNone:=True;Exit;End;
+ If Copy(U,1,10)='PARAMETER:'Then Begin
+  Sa:=Copy(U,11,60);
+  P:=Pos(':',Sa);
+  If P=0Then Fail('Error: invalid ellipsoid "'+Value+'" (expected PARAMETER:semimajor:semiminor)');
+  Sb:=Copy(Sa,P+1,60);Sa:=Copy(Sa,1,P-1);
+  Val(Sa,A,Err);
+  If(Err<>0)or(A<=0)Then Fail('Error: invalid ellipsoid semi-major axis in "'+Value+'"');
+  Val(Sb,B,Err);
+  If(Err<>0)or(B<=0)or(B>A)Then Fail('Error: invalid ellipsoid semi-minor axis in "'+Value+'"');
+  GeoA:=A;GeoF:=(A-B)/A;GeoOn:=True;
+  Exit;
+ End;
+ K:=0;
+ If(U='EPSG:7030')or(U='WGS84')or(U='WGS 84')Then K:=1 Else
+ If(U='EPSG:7019')or(U='GRS80')Then K:=2 Else
+ If(U='EPSG:7008')or(U='CLARKE1866')Then K:=3 Else
+ If(U='EPSG:7022')or(U='INTERNATIONAL1924')Then K:=4 Else
+ If(U='EPSG:7004')or(U='BESSEL1841')Then K:=5 Else
+ If(U='EPSG:7001')or(U='AIRY1830')Then K:=6 Else
+ If(U='EPSG:7024')or(U='KRASSOWSKY')Then K:=8 Else
+ If(U='EPSG:7012')or(U='CLARKE1880')Then K:=9 Else
+ If(U='EPSG:7035')or(U='SPHERE')Then K:=7;
+ If K=0Then Fail('Error: unknown ellipsoid "'+Value+'" (use NONE, EPSG:7030, EPSG:7019, EPSG:7008, EPSG:7022, EPSG:7004, EPSG:7001, EPSG:7024 or PARAMETER:a:b)');
+ GeoA:=EllA[K];
+ If EllRf[K]>0Then GeoF:=1/EllRf[K] Else GeoF:=0;
+ GeoOn:=True;
+End;
+
+{ Probleme geodesique inverse (Vincenty) : distance et azimuts en degres ; Faux si pas de convergence }
+Function GeoInverse(A,F,Lon1,Lat1,Lon2,Lat2:Real;Var S,Az1,Az2:Real):Boolean;
+Var
+ B,U1,U2,L,Lam,LamP,SinSig,CosSig,Sig,SinAl,CosSqAl,Cos2SM,C,USq,Ba,Bb,DSig,SinLam,CosLam,SU1,CU1,SU2,CU2,T:Real;
+ It:Integer;
+Begin
+ GeoInverse:=True;
+ S:=0;Az1:=0;Az2:=0;
+ If(Lon1=Lon2)and(Lat1=Lat2)Then Exit;
+ B:=A*(1-F);
+ U1:=ArcTan((1-F)*Sin(Deg2Rad(Lat1))/Cos(Deg2Rad(Lat1)+1E-300));
+ U2:=ArcTan((1-F)*Sin(Deg2Rad(Lat2))/Cos(Deg2Rad(Lat2)+1E-300));
+ If Abs(Lat1)=90Then U1:=SgnR(Lat1)*Pi/2;
+ If Abs(Lat2)=90Then U2:=SgnR(Lat2)*Pi/2;
+ L:=Deg2Rad(Lon2-Lon1);
+ While L>Pi do L:=L-2*Pi;
+ While L<-Pi do L:=L+2*Pi;
+ Lam:=L;
+ SU1:=Sin(U1);CU1:=Cos(U1);SU2:=Sin(U2);CU2:=Cos(U2);
+ It:=0;
+ Repeat
+  SinLam:=Sin(Lam);CosLam:=Cos(Lam);
+  SinSig:=Sqrt(Sqr(CU2*SinLam)+Sqr(CU1*SU2-SU1*CU2*CosLam));
+  If SinSig=0Then Exit;
+  CosSig:=SU1*SU2+CU1*CU2*CosLam;
+  Sig:=Atan2(SinSig,CosSig);
+  SinAl:=CU1*CU2*SinLam/SinSig;
+  CosSqAl:=1-SinAl*SinAl;
+  If CosSqAl<>0Then Cos2SM:=CosSig-2*SU1*SU2/CosSqAl Else Cos2SM:=0;
+  C:=F/16*CosSqAl*(4+F*(4-3*CosSqAl));
+  LamP:=Lam;
+  Lam:=L+(1-C)*F*SinAl*(Sig+C*SinSig*(Cos2SM+C*CosSig*(-1+2*Cos2SM*Cos2SM)));
+  Inc(It);
+ Until(Abs(Lam-LamP)<1E-12)or(It>200);
+ If Abs(Lam-LamP)>=1E-9Then Begin GeoInverse:=False;Exit;End;
+ USq:=CosSqAl*(A*A-B*B)/(B*B);
+ Ba:=1+USq/16384*(4096+USq*(-768+USq*(320-175*USq)));
+ Bb:=USq/1024*(256+USq*(-128+USq*(74-47*USq)));
+ DSig:=Bb*SinSig*(Cos2SM+Bb/4*(CosSig*(-1+2*Cos2SM*Cos2SM)-Bb/6*Cos2SM*(-3+4*SinSig*SinSig)*(-3+4*Cos2SM*Cos2SM)));
+ S:=B*Ba*(Sig-DSig);
+ Az1:=Rad2Deg(Atan2(CU2*Sin(Lam),CU1*SU2-SU1*CU2*Cos(Lam)));
+ Az2:=Rad2Deg(Atan2(CU1*Sin(Lam),-SU1*CU2+CU1*SU2*Cos(Lam)));
+ If Az1<0Then Az1:=Az1+360;
+ If Az2<0Then Az2:=Az2+360;
+End;
+
+{ Probleme geodesique direct (Vincenty) }
+Procedure GeoDirect(A,F,Lon1,Lat1,Az1,S:Real;Var Lon2,Lat2:Real);
+Var
+ B,U1,Al1,SigmaD,Sig,SigP,SinAl,CosSqAl,USq,Ba,Bb,Cos2SM,SinSig,CosSig,DSig,Tmp,Lam,C,L,SU1,CU1:Real;
+ It:Integer;
+Begin
+ B:=A*(1-F);
+ Al1:=Deg2Rad(Az1);
+ U1:=ArcTan((1-F)*Sin(Deg2Rad(Lat1))/Cos(Deg2Rad(Lat1)+1E-300));
+ SU1:=Sin(U1);CU1:=Cos(U1);
+ SigmaD:=Atan2(SU1/CU1,Cos(Al1));
+ SinAl:=CU1*Sin(Al1);
+ CosSqAl:=1-SinAl*SinAl;
+ USq:=CosSqAl*(A*A-B*B)/(B*B);
+ Ba:=1+USq/16384*(4096+USq*(-768+USq*(320-175*USq)));
+ Bb:=USq/1024*(256+USq*(-128+USq*(74-47*USq)));
+ Sig:=S/(B*Ba);
+ It:=0;
+ Repeat
+  Cos2SM:=Cos(2*SigmaD+Sig);
+  SinSig:=Sin(Sig);CosSig:=Cos(Sig);
+  DSig:=Bb*SinSig*(Cos2SM+Bb/4*(CosSig*(-1+2*Cos2SM*Cos2SM)-Bb/6*Cos2SM*(-3+4*SinSig*SinSig)*(-3+4*Cos2SM*Cos2SM)));
+  SigP:=Sig;
+  Sig:=S/(B*Ba)+DSig;
+  Inc(It);
+ Until(Abs(Sig-SigP)<1E-12)or(It>200);
+ SinSig:=Sin(Sig);CosSig:=Cos(Sig);
+ Cos2SM:=Cos(2*SigmaD+Sig);
+ Tmp:=SU1*SinSig-CU1*CosSig*Cos(Al1);
+ Lat2:=Rad2Deg(Atan2(SU1*CosSig+CU1*SinSig*Cos(Al1),(1-F)*Sqrt(SinAl*SinAl+Tmp*Tmp)));
+ Lam:=Atan2(SinSig*Sin(Al1),CU1*CosSig-SU1*SinSig*Cos(Al1));
+ C:=F/16*CosSqAl*(4+F*(4-3*CosSqAl));
+ L:=Lam-(1-C)*F*SinAl*(Sig+C*SinSig*(Cos2SM+C*CosSig*(-1+2*Cos2SM*Cos2SM)));
+ Lon2:=Lon1+Rad2Deg(L);
+ While Lon2>180do Lon2:=Lon2-360;
+ While Lon2<-180do Lon2:=Lon2+360;
+End;
+
+{ Sinus de la latitude authalique }
+Function AuthSin(F,Lat:Real):Real;
+Var
+ E2,E,Sp,Qp,Q:Real;
+Begin
+ E2:=F*(2-F);E:=Sqrt(E2);
+ Sp:=Sin(Deg2Rad(Lat));
+ If E<1E-12Then Begin AuthSin:=Sp;Exit;End;
+ Qp:=1-(1-E2)/(2*E)*Ln((1-E)/(1+E));
+ Q:=Sp/(1-E2*Sp*Sp)-1/(2*E)*Ln((1-E*Sp)/(1+E*Sp));
+ AuthSin:=Q*(1-E2)/Qp;
+End;
+
+{ Longueur geodesique d'un trace en metres sur l'ellipsoide de mesure }
+Function EllPathLength(P:PPath;A,F:Real):Real;
+Var
+ I:LongInt;
+ L,S,Z1,Z2:Real;
+Begin
+ L:=0;
+ For I:=0 to P^.N-2do Begin
+  If GeoInverse(A,F,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y,S,Z1,Z2)Then L:=L+S
+   Else L:=L+Haversine(P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y)*A/EarthRadius;
+ End;
+ EllPathLength:=L;
+End;
+
+Function EllLength(Var G:TGeom):Real;
+Var
+ P:PPath;
+ A,F,L:Real;
+Begin
+ MeasEll(A,F);
+ L:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  L:=L+EllPathLength(P,A,F);
+  P:=P^.Next;
+ End;
+ EllLength:=L;
+End;
+
+{ Aire sur l'ellipsoide : trapeze en (longitude, sinus de latitude authalique) }
+Function EllArea(Var G:TGeom):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ A,F,E2,Qp,Rq,S,Tot,Dl:Real;
+ Prev:Integer;
+Begin
+ MeasEll(A,F);
+ E2:=F*(2-F);
+ If E2<1E-14Then Rq:=A
+  Else Rq:=A*Sqrt((1-(1-E2)/(2*Sqrt(E2))*Ln((1-Sqrt(E2))/(1+Sqrt(E2))))/2);
+ Tot:=0;Prev:=-1;
+ P:=G.First;
+ While P<>Nil do Begin
+  S:=0;
+  For I:=0 to P^.N-2do Begin
+   Dl:=Deg2Rad(P^.Pts^[I+1].X-P^.Pts^[I].X);
+   While Dl>Pi do Dl:=Dl-2*Pi;
+   While Dl<-Pi do Dl:=Dl+2*Pi;
+   S:=S+Dl*(2+AuthSin(F,P^.Pts^[I].Y)+AuthSin(F,P^.Pts^[I+1].Y));
+  End;
+  S:=Abs(S)*Rq*Rq/2;
+  If P^.Poly=Prev Then Tot:=Tot-S Else Tot:=Tot+S;
+  Prev:=P^.Poly;
+  P:=P^.Next;
+ End;
+ EllArea:=Tot;
+End;
+
 Function Bearing(X1,Y1,X2,Y2:Real):Real;
 Var
  P1,P2,DL:Real;
@@ -11278,21 +12510,29 @@ End;
 
 Procedure RunDistance(A:Integer);
 Var
- X1,Y1,X2,Y2,D:Real;
+ X1,Y1,X2,Y2,D,Az1,Az2:Real;
 Begin
  X1:=NeedReal(A,'X1');Y1:=NeedReal(A,'Y1');
  X2:=NeedReal(A,'X2');Y2:=NeedReal(A,'Y2');
  D:=Haversine(X1,Y1,X2,Y2);
+ If GeoOn Then
+  If Not GeoInverse(GeoA,GeoF,X1,Y1,X2,Y2,D,Az1,Az2)Then D:=Haversine(X1,Y1,X2,Y2)*GeoA/EarthRadius;
  AddRes('DISTANCE',RealToStr(D));
  AddRes('DISTANCE_KM',RealToStr(D/1000));
 End;
 
 Procedure RunBearing(A:Integer);
 Var
- X1,Y1,X2,Y2:Real;
+ X1,Y1,X2,Y2,D,Az1,Az2:Real;
 Begin
  X1:=NeedReal(A,'X1');Y1:=NeedReal(A,'Y1');
  X2:=NeedReal(A,'X2');Y2:=NeedReal(A,'Y2');
+ If GeoOn Then
+  If GeoInverse(GeoA,GeoF,X1,Y1,X2,Y2,D,Az1,Az2)Then Begin
+   AddRes('BEARING',RealToStr(Az1));
+   AddRes('FINAL_BEARING',RealToStr(Az2));
+   Exit;
+  End;
  AddRes('BEARING',RealToStr(Bearing(X1,Y1,X2,Y2)));
  AddRes('FINAL_BEARING',RealToStr(NormDeg(Bearing(X2,Y2,X1,Y1)+180)));
 End;
@@ -11304,6 +12544,12 @@ Begin
  X:=NeedReal(A,'X');Y:=NeedReal(A,'Y');
  B:=Deg2Rad(NeedReal(A,'BEARING'));
  D:=NeedReal(A,'DISTANCE');
+ If GeoOn Then Begin
+  GeoDirect(GeoA,GeoF,X,Y,NeedReal(A,'BEARING'),D,L2,P2);
+  AddRes('X',RealToStr(L2));
+  AddRes('Y',RealToStr(P2));
+  Exit;
+ End;
  Delta:=D/EarthRadius;
  P1:=Deg2Rad(Y);
  P2:=ArcSin(Sin(P1)*Cos(Delta)+Cos(P1)*Sin(Delta)*Cos(B));
@@ -11318,7 +12564,7 @@ End;
 Procedure RunReproject(A:Integer);
 Var
  X,Y:Real;
- Src,Dst:Integer;
+ Src,Dst:LongInt;
 Begin
  X:=NeedReal(A,'X');Y:=NeedReal(A,'Y');
  Src:=ParseEpsg(NeedStr(A,'SOURCE_CRS'),'SOURCE_CRS');
@@ -11522,7 +12768,7 @@ End;
 Procedure RunReprojectLayer(A:Integer);
 Var
  Root,Arr,F,Gn:PJ;
- Src,Dst:Integer;
+ Src,Dst:LongInt;
  Out:String;
 Begin
  Root:=LoadLayer(NeedStr(A,'INPUT'));
@@ -11789,7 +13035,7 @@ Begin
  {$I+}
  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
  Write(F,'{"type":"FeatureCollection",');
- If R.Epsg=3857Then Write(F,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}},');
+ If(R.Epsg<>0)and(R.Epsg<>4326)and CrsKnown(R.Epsg)Then Write(F,'"crs":{"type":"name","properties":{"name":"',CrsLabel(R.Epsg),'"}},');
  WriteLn(F,'"features":[');
  First:=True;
  For I:=0 to R.NR-1do Begin
@@ -12131,7 +13377,10 @@ Begin
  Info('Geometry: '+GT);
  Info('Feature Count: '+IntToStr(N));
  If Have Then Info('Extent: ('+NumStr(MinX)+', '+NumStr(MinY)+') - ('+NumStr(MaxX)+', '+NumStr(MaxY)+')');
- Info('Layer SRS: EPSG:'+IntToStr(LayerCrs(Root)));
+ Begin
+  If LayerCrs(Root)>CustomBase Then Info('Layer SRS: '+CrsLabel(LayerCrs(Root)))
+   Else Info('Layer SRS: EPSG:'+IntToStr(LayerCrs(Root)));
+ End;
  For J:=1 to NF do
   If FTypes[J]<>''Then Info(FNames[J]+': '+FTypes[J])
                   Else Info(FNames[J]+': String');
@@ -12635,7 +13884,7 @@ Begin
  {$I+}
  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
  Write(F,'{"type":"FeatureCollection",');
- If R.Epsg=3857Then Write(F,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}},');
+ If(R.Epsg<>0)and(R.Epsg<>4326)and CrsKnown(R.Epsg)Then Write(F,'"crs":{"type":"name","properties":{"name":"',CrsLabel(R.Epsg),'"}},');
  WriteLn(F,'"features":[');
  First:=True;
  Pos:=0;
@@ -13725,7 +14974,8 @@ End;
 Procedure RunWarp(A:Integer);
 Var
  R,O:TRaster;
- Src,Dst,Resamp:Integer;
+ Resamp:Integer;
+ Src,Dst:LongInt;
  Out:String;
  NewNd,MinX,MinY,MaxX,MaxY,X,Y,Res,W,H,YTop,Col,Row,Fx,Fy,Wx,Wy,Wt,Sum,V:Real;
  K,I,J,Q,Cc,Rr,Cx,Cy:LongInt;
@@ -13750,7 +15000,7 @@ Var
 Begin
  ReadRaster(NeedStr(A,'INPUT'),R);
  Src:=ParseEpsg(NeedStr(A,'SOURCE_CRS'),'SOURCE_CRS');
- If Not HasArg('SOURCE_CRS')and((R.Epsg=4326)or(R.Epsg=3857))Then Src:=R.Epsg;
+ If Not HasArg('SOURCE_CRS')and(R.Epsg>0)and CrsKnown(R.Epsg)Then Src:=R.Epsg;
  Dst:=ParseEpsg(NeedStr(A,'TARGET_CRS'),'TARGET_CRS');
  Resamp:=Round(NeedReal(A,'RESAMPLING'));
  If(Resamp<>0)and(Resamp<>1)Then Fail('Error: RESAMPLING must be 0 (nearest) or 1 (bilinear)');
@@ -14117,7 +15367,7 @@ Procedure RunAddXY(A:Integer);
 Var
  Root,Arr,F:PJ;
  G:TGeom;
- Dst,Src:Integer;
+ Dst,Src:LongInt;
  Pre:String;
  X,Y:Real;
 Begin
@@ -15161,7 +16411,7 @@ Var
  Fields:Array[1..64]of String;
  Out,OutArr,F,Pr,C,Np:PJ;
  Paths:Array[1..16]of String;
- Dst,Src:Integer;
+ Dst,Src:LongInt;
  Gn:PJ;
  Found:Boolean;
 Begin
@@ -15697,7 +16947,8 @@ End;
 Procedure RunCreateGrid(A:Integer);
 Var
  Out,OutArr,Nf:PJ;
- Typ,Ho,Vo,Dst:Integer;
+ Typ,Ho,Vo:Integer;
+ Dst:LongInt;
  X1,X2,Y1,Y2,H,V,Hov,Vov,X,Y,Sx,Sy,Cx,Cy:Real;
  Id,R,C,Rows,Cols:LongInt;
  G:TGeom;
@@ -15875,15 +17126,21 @@ Var
  Root,Arr,F:PJ;
  G:TGeom;
  Method:Integer;
- Sph,Metric:Boolean;
- Lf,Af:Real;
+ I:LongInt;
+ Sph,Metric,Proj:Boolean;
+ Lf,Af,Xt,Yt:Real;
  X,Y:Real;
  Ok:Boolean;
+ LCrs:LongInt;
+ Gg:TGeom;
+ P,Q:PPath;
 Begin
  LoadIn(A,'INPUT',Root,Arr);
  Method:=Round(NeedReal(A,'CALC_METHOD'));
- Sph:=(Method=2)and(LayerCrs(Root)=4326)and(StrUpper(Ellipsoid)<>'NONE');
- Metric:=Sph or(LayerCrs(Root)=3857);
+ LCrs:=LayerCrs(Root);
+ Sph:=(Method=2)and Not GeoNone;
+ Proj:=Not CrsIsGeographic(LCrs);
+ Metric:=Sph or Proj;
  Lf:=1;Af:=1;
  If Metric Then Begin
   If DistFactor>0Then Lf:=1/DistFactor;
@@ -15892,6 +17149,21 @@ Begin
  F:=Arr^.First;
  While F<>Nil do Begin
   FlattenFeature(F,G);
+  Gg:=G;
+  If Sph and Proj Then Begin
+   { vertices ramenes en longitude/latitude avant le calcul ellipsoidal }
+   InitGeom(Gg);
+   Gg.Cls:=G.Cls;Gg.NPoly:=G.NPoly;
+   P:=G.First;
+   While P<>Nil do Begin
+    Q:=CopyPath(Gg,P,P^.Poly);
+    For I:=0 to Q^.N-1do Begin
+     Xt:=Q^.Pts^[I].X;Yt:=Q^.Pts^[I].Y;
+     If TryTransform(LCrs,4326,Xt,Yt)Then Begin Q^.Pts^[I].X:=Xt;Q^.Pts^[I].Y:=Yt;End;
+    End;
+    P:=P^.Next;
+   End;
+  End;
   Case G.Cls of
    1:Begin
     CentroidGeom(G,X,Y,Ok);
@@ -15899,13 +17171,23 @@ Begin
     PutProp(F,'ycoord',JNum(Y));
    End;
    2:Begin
-    If Sph Then PutProp(F,'length',JNum(SphereLength(G)*Lf))
-           Else PutProp(F,'length',JNum(GeomLength(G)*Lf));
+    If Sph Then Begin
+     If GeoOn Then PutProp(F,'length',JNum(EllLength(Gg)*Lf))
+              Else PutProp(F,'length',JNum(SphereLength(Gg)*Lf));
+    End
+     Else PutProp(F,'length',JNum(GeomLength(G)*Lf));
    End;
    3:Begin
     If Sph Then Begin
-     PutProp(F,'area',JNum(SphereArea(G)*Af));
-     PutProp(F,'perimeter',JNum(SphereLength(G)*Lf));
+     If GeoOn Then Begin
+      PutProp(F,'area',JNum(EllArea(Gg)*Af));
+      PutProp(F,'perimeter',JNum(EllLength(Gg)*Lf));
+     End
+      Else
+     Begin
+      PutProp(F,'area',JNum(SphereArea(Gg)*Af));
+      PutProp(F,'perimeter',JNum(SphereLength(Gg)*Lf));
+     End;
     End
      Else
     Begin
@@ -15914,6 +17196,7 @@ Begin
     End;
    End;
   End;
+  If Sph and Proj Then FreeGeom(Gg);
   FreeGeom(G);
   F:=F^.Next;
  End;
@@ -18280,7 +19563,7 @@ Begin
   If AreaFactor<=0Then Fail('Error: unknown area unit "'+Value+'"');
   AreaUnits:=Value;
  End Else
- If Name='ELLIPSOID'Then Ellipsoid:=Value Else
+ If Name='ELLIPSOID'Then Begin Ellipsoid:=Value;SetEllipsoid(Value);End Else
  If Name='PROJECT_PATH'Then Begin
   {$I-}
   Assign(T,Value);
