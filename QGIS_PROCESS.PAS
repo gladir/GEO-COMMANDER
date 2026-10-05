@@ -18,24 +18,24 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=16;
- MaxParam=56;
- MaxOut=29;
+ MaxAlgo=35;
+ MaxParam=156;
+ MaxOut=48;
  MaxArg=30;
  MaxCells=40000000;
 
 Type
  AlgoRec=Record
-  Id:String[28];
+  Id:String[32];
   Title:String[40];
   Group:String[24];
   Descr:String[120];
  End;
  ParamRec=Record
   A:Byte;
-  Name:String[18];
+  Name:String[20];
   Typ:String[18];
-  Desc:String[64];
+  Desc:String[80];
   Def:String[12];    { '' = obligatoire, '*' = facultatif }
  End;
  OutRec=Record
@@ -94,7 +94,64 @@ Const
    Descr:'Clips an ASCII grid to an extent (xmin,xmax,ymin,ymax), like gdal_translate -projwin.'),
   (Id:'gdal:warpreproject';Title:'Warp (reproject)';
    Group:'Raster projections';
-   Descr:'Reprojects an ASCII grid between EPSG:4326 and EPSG:3857, like gdalwarp.')
+   Descr:'Reprojects an ASCII grid between EPSG:4326 and EPSG:3857, like gdalwarp.'),
+  (Id:'gdal:nearblack';Title:'Near black';
+   Group:'Raster analysis';
+   Descr:'Sets to black the near-black pixels connected to the edges of an ASCII grid.'),
+  (Id:'gdal:offsetcurve';Title:'Offset lines';
+   Group:'Vector geoprocessing';
+   Descr:'Offsets lines by a distance in layer units (positive = left, negative = right).'),
+  (Id:'gdal:ogrinfo';Title:'Vector information';
+   Group:'Vector miscellaneous';
+   Descr:'Prints information about a GeoJSON layer (count, extent, CRS, fields).'),
+  (Id:'gdal:onesidebuffer';Title:'One side buffer';
+   Group:'Vector geoprocessing';
+   Descr:'Buffers the lines on one side only, in layer units (round joins).'),
+  (Id:'gdal:overviews';Title:'Build overviews (pyramids)';
+   Group:'Raster miscellaneous';
+   Descr:'Builds reduced-resolution copies of an ASCII grid (OUTPUT.ovrN.asc).'),
+  (Id:'gdal:pansharp';Title:'Pansharpening';
+   Group:'Raster analysis';
+   Descr:'Sharpens spectral ASCII grids with a panchromatic grid (Brovey transform).'),
+  (Id:'gdal:polygonize';Title:'Polygonize (raster to vector)';
+   Group:'Raster conversion';
+   Descr:'Converts regions of equal value of an ASCII grid to polygons.'),
+  (Id:'gdal:proximity';Title:'Proximity (raster distance)';
+   Group:'Raster analysis';
+   Descr:'Computes the distance of each pixel to the nearest target pixel.'),
+  (Id:'gdal:rastercalculator';Title:'Raster calculator';
+   Group:'Raster miscellaneous';
+   Descr:'Evaluates a formula on up to six ASCII grids (variables A to F).'),
+  (Id:'gdal:rasterize';Title:'Rasterize (vector to raster)';
+   Group:'Raster conversion';
+   Descr:'Burns the features of a GeoJSON layer into a new ASCII grid.'),
+  (Id:'gdal:rasterize_over';Title:'Rasterize (overwrite with attribute)';
+   Group:'Raster conversion';
+   Descr:'Burns an attribute of a layer into an existing ASCII grid.'),
+  (Id:'gdal:rasterize_over_fixed_value';Title:'Rasterize (overwrite with fixed value)';
+   Group:'Raster conversion';
+   Descr:'Burns a fixed value of a layer into an existing ASCII grid.'),
+  (Id:'gdal:retile';Title:'Retile';
+   Group:'Raster miscellaneous';
+   Descr:'Splits an ASCII grid into tiles (OUTPUT is a directory).'),
+  (Id:'gdal:roughness';Title:'Roughness';
+   Group:'Raster analysis';
+   Descr:'Computes the largest difference between a pixel and its 3x3 neighbours.'),
+  (Id:'gdal:sieve';Title:'Sieve';
+   Group:'Raster analysis';
+   Descr:'Merges the regions smaller than a threshold into their largest neighbour.'),
+  (Id:'gdal:slope';Title:'Slope';
+   Group:'Raster analysis';
+   Descr:'Computes the slope of a digital elevation model (Horn or Zevenbergen-Thorne).'),
+  (Id:'gdal:tileindex';Title:'Tile index';
+   Group:'Raster miscellaneous';
+   Descr:'Creates a polygon layer with the footprint of each input ASCII grid.'),
+  (Id:'gdal:translate';Title:'Translate (convert format)';
+   Group:'Raster conversion';
+   Descr:'Crops (-projwin), resizes (-outsize), sets nodata and converts the data type.'),
+  (Id:'gdal:viewshed';Title:'Viewshed';
+   Group:'Raster analysis';
+   Descr:'Computes the pixels visible from an observer point (line of sight).')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -153,7 +210,107 @@ Const
   (A:16;Name:'RESAMPLING';Typ:'enum';Desc:'0 = nearest neighbour, 1 = bilinear';Def:'0'),
   (A:16;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
   (A:16;Name:'TARGET_RESOLUTION';Typ:'number';Desc:'Output pixel size in target CRS units';Def:'*'),
-  (A:16;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:'')
+  (A:16;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:17;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:17;Name:'NEAR';Typ:'number';Desc:'Search tolerance around black (0-255)';Def:'15'),
+  (A:17;Name:'WHITE';Typ:'boolean';Desc:'Search for near white instead of near black';Def:'false'),
+  (A:17;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:18;Name:'INPUT';Typ:'vector';Desc:'Input line GeoJSON file';Def:''),
+  (A:18;Name:'DISTANCE';Typ:'number';Desc:'Offset distance in layer units (positive = left)';Def:'10'),
+  (A:18;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:19;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:19;Name:'SUMMARY_ONLY';Typ:'boolean';Desc:'Display the summary only (no feature list)';Def:'true'),
+  (A:19;Name:'OUTPUT';Typ:'fileDestination';Desc:'Text file receiving the information';Def:'*'),
+  (A:20;Name:'INPUT';Typ:'vector';Desc:'Input line GeoJSON file';Def:''),
+  (A:20;Name:'DISTANCE';Typ:'number';Desc:'Buffer distance in layer units';Def:'10'),
+  (A:20;Name:'BUFFER_SIDE';Typ:'enum';Desc:'0 = left, 1 = right';Def:'0'),
+  (A:20;Name:'SEGMENTS';Typ:'number';Desc:'Segments used to approximate a quarter circle';Def:'5'),
+  (A:20;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:21;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:21;Name:'LEVELS';Typ:'string';Desc:'Overview levels separated by spaces';Def:'2 4 8 16'),
+  (A:21;Name:'RESAMPLING';Typ:'enum';Desc:'0 = nearest neighbour, 1 = average';Def:'0'),
+  (A:21;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Base name of the OUTPUT.ovrN.asc files';Def:''),
+  (A:22;Name:'SPECTRAL';Typ:'raster';Desc:'Spectral ASCII grids (1 to 4) separated by ;';Def:''),
+  (A:22;Name:'PANCHROMATIC';Typ:'raster';Desc:'Panchromatic ASCII grid (.asc)';Def:''),
+  (A:22;Name:'RESAMPLING';Typ:'enum';Desc:'0 = nearest neighbour, 1 = bilinear';Def:'1'),
+  (A:22;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output (OUTPUT_n.asc when several bands)';Def:''),
+  (A:23;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:23;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:23;Name:'FIELD';Typ:'string';Desc:'Name of the field receiving the pixel value';Def:'DN'),
+  (A:23;Name:'EIGHT_CONNECTEDNESS';Typ:'boolean';Desc:'Use 8-connectedness instead of 4';Def:'false'),
+  (A:23;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:24;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:24;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:24;Name:'VALUES';Typ:'string';Desc:'Target pixel values (default: all non-zero)';Def:'*'),
+  (A:24;Name:'UNITS';Typ:'enum';Desc:'0 = georeferenced units, 1 = pixels';Def:'0'),
+  (A:24;Name:'MAX_DISTANCE';Typ:'number';Desc:'Maximum distance (0 = unlimited)';Def:'0'),
+  (A:24;Name:'REPLACE';Typ:'number';Desc:'Value given to the target pixels';Def:'*'),
+  (A:24;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'0'),
+  (A:24;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:25;Name:'INPUT_A';Typ:'raster';Desc:'Input ASCII grid A';Def:''),
+  (A:25;Name:'INPUT_B';Typ:'raster';Desc:'Input ASCII grid B';Def:'*'),
+  (A:25;Name:'INPUT_C';Typ:'raster';Desc:'Input ASCII grid C';Def:'*'),
+  (A:25;Name:'INPUT_D';Typ:'raster';Desc:'Input ASCII grid D';Def:'*'),
+  (A:25;Name:'INPUT_E';Typ:'raster';Desc:'Input ASCII grid E';Def:'*'),
+  (A:25;Name:'INPUT_F';Typ:'raster';Desc:'Input ASCII grid F';Def:'*'),
+  (A:25;Name:'FORMULA';Typ:'string';Desc:'Formula, e.g. (A-B)/(A+B) or sqrt(A**2+B**2)';Def:''),
+  (A:25;Name:'NO_DATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
+  (A:25;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:26;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:26;Name:'FIELD';Typ:'string';Desc:'Numeric attribute to burn (default: BURN)';Def:'*'),
+  (A:26;Name:'BURN';Typ:'number';Desc:'Fixed value to burn';Def:'0'),
+  (A:26;Name:'UNITS';Typ:'enum';Desc:'0 = pixels, 1 = georeferenced units';Def:'0'),
+  (A:26;Name:'WIDTH';Typ:'number';Desc:'Width (pixels) or pixel size (georeferenced units)';Def:'0'),
+  (A:26;Name:'HEIGHT';Typ:'number';Desc:'Height (pixels) or pixel size (georeferenced units)';Def:'0'),
+  (A:26;Name:'EXTENT';Typ:'extent';Desc:'Output extent: xmin,xmax,ymin,ymax (default: layer)';Def:'*'),
+  (A:26;Name:'NODATA';Typ:'number';Desc:'Nodata value / background';Def:'0'),
+  (A:26;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:27;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:27;Name:'INPUT_RASTER';Typ:'raster';Desc:'Raster to modify (.asc)';Def:''),
+  (A:27;Name:'FIELD';Typ:'string';Desc:'Numeric attribute to burn';Def:''),
+  (A:27;Name:'ADD';Typ:'boolean';Desc:'Add the values to the existing pixels';Def:'false'),
+  (A:27;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output (default: modifies INPUT_RASTER in place)';Def:'*'),
+  (A:28;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:28;Name:'INPUT_RASTER';Typ:'raster';Desc:'Raster to modify (.asc)';Def:''),
+  (A:28;Name:'BURN';Typ:'number';Desc:'Value to burn';Def:'255'),
+  (A:28;Name:'ADD';Typ:'boolean';Desc:'Add the value to the existing pixels';Def:'false'),
+  (A:28;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output (default: modifies INPUT_RASTER in place)';Def:'*'),
+  (A:29;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:29;Name:'TILE_SIZE_X';Typ:'number';Desc:'Tile width in pixels';Def:'256'),
+  (A:29;Name:'TILE_SIZE_Y';Typ:'number';Desc:'Tile height in pixels';Def:'256'),
+  (A:29;Name:'OVERLAP';Typ:'number';Desc:'Overlap between tiles in pixels';Def:'0'),
+  (A:29;Name:'OUTPUT';Typ:'folderDestination';Desc:'Output directory';Def:''),
+  (A:30;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:30;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:30;Name:'COMPUTE_EDGES';Typ:'boolean';Desc:'Compute the values at the raster edges';Def:'false'),
+  (A:30;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:31;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:31;Name:'THRESHOLD';Typ:'number';Desc:'Minimum region size in pixels';Def:'10'),
+  (A:31;Name:'EIGHT_CONNECTEDNESS';Typ:'boolean';Desc:'Use 8-connectedness instead of 4';Def:'false'),
+  (A:31;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:32;Name:'INPUT';Typ:'raster';Desc:'Elevation ASCII grid (.asc)';Def:''),
+  (A:32;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:32;Name:'SCALE';Typ:'number';Desc:'Ratio of vertical to horizontal units';Def:'1'),
+  (A:32;Name:'AS_PERCENT';Typ:'boolean';Desc:'Slope as percent instead of degrees';Def:'false'),
+  (A:32;Name:'COMPUTE_EDGES';Typ:'boolean';Desc:'Compute the values at the raster edges';Def:'false'),
+  (A:32;Name:'ZEVENBERGEN';Typ:'boolean';Desc:'Use Zevenbergen-Thorne instead of Horn';Def:'false'),
+  (A:32;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:33;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grids separated by ;';Def:''),
+  (A:33;Name:'FIELD_NAME';Typ:'string';Desc:'Field holding the file name';Def:'location'),
+  (A:33;Name:'ABSOLUTE_PATH';Typ:'boolean';Desc:'Store absolute paths';Def:'false'),
+  (A:33;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:34;Name:'INPUT';Typ:'raster';Desc:'Input ASCII grid (.asc)';Def:''),
+  (A:34;Name:'NODATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
+  (A:34;Name:'DATA_TYPE';Typ:'enum';Desc:'0 = input, 1 Byte, 2 Int16, 3 UInt16, 4 UInt32, 5 Int32, 6 Float32, 7 Float64';Def:'0'),
+  (A:34;Name:'EXTRA';Typ:'string';Desc:'-projwin ulx uly lrx lry, -outsize w h, -a_nodata v';Def:'*'),
+  (A:34;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
+  (A:35;Name:'INPUT';Typ:'raster';Desc:'Elevation ASCII grid (.asc)';Def:''),
+  (A:35;Name:'BAND';Typ:'number';Desc:'Band number (only 1 is available)';Def:'1'),
+  (A:35;Name:'OBSERVER';Typ:'point';Desc:'Observer position: x,y [EPSG:code]';Def:''),
+  (A:35;Name:'OBSERVER_HEIGHT';Typ:'number';Desc:'Height of the observer above the ground';Def:'1'),
+  (A:35;Name:'TARGET_HEIGHT';Typ:'number';Desc:'Height of the targets above the ground';Def:'0'),
+  (A:35;Name:'MAX_DISTANCE';Typ:'number';Desc:'Maximum visibility distance';Def:'10000'),
+  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid: 255 visible, 0 hidden';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -185,7 +342,26 @@ Const
   (A:13;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Lines layer'),
   (A:14;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Points layer'),
   (A:15;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Clipped raster'),
-  (A:16;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Reprojected raster')
+  (A:16;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Reprojected raster'),
+  (A:17;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Raster without black borders'),
+  (A:18;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Offset lines'),
+  (A:19;Name:'OUTPUT';Typ:'fileDestination';Desc:'Information (text file)'),
+  (A:20;Name:'OUTPUT';Typ:'vectorDestination';Desc:'One side buffer'),
+  (A:21;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Overview base name'),
+  (A:22;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Sharpened raster'),
+  (A:23;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Polygons'),
+  (A:24;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Proximity raster'),
+  (A:25;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Calculated raster'),
+  (A:26;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Rasterized layer'),
+  (A:27;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Modified raster'),
+  (A:28;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Modified raster'),
+  (A:29;Name:'OUTPUT';Typ:'folderDestination';Desc:'Tiles directory'),
+  (A:30;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Roughness raster'),
+  (A:31;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Sieved raster'),
+  (A:32;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Slope raster'),
+  (A:33;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Tile index'),
+  (A:34;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Translated raster'),
+  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Viewshed raster')
  );
 
 Type
@@ -370,7 +546,10 @@ Begin
  T:='"';
  For I:=1 to Length(S)do Begin
   If(S[I]='"')or(S[I]='\')Then T:=T+'\';
-  T:=T+S[I];
+  If S[I]=#10Then T:=T+'\n' Else
+  If S[I]=#13Then Begin End Else
+  If S[I]=#9Then T:=T+'\t'
+            Else T:=T+S[I];
  End;
  JsonStr:=T+'"';
 End;
@@ -1160,6 +1339,7 @@ End;
 Var
  SB:PEdges;
  SP:PPts;
+ SLab:PLongs;
  SMode:Integer;
 
 Function CmpR(A,B:Real):Integer;Begin
@@ -1189,6 +1369,19 @@ Begin
    If C=0Then C:=CmpR(SB^[A].Y1,SB^[B].Y1);
   End;
   3:C:=CmpR(SB^[A].X1,SB^[B].X1);
+  5:Begin
+   If SLab^[A]<SLab^[B]Then C:=-1 Else
+   If SLab^[A]>SLab^[B]Then C:=1 Else
+   If A<B Then C:=-1 Else
+   If A>B Then C:=1 Else C:=0;
+  End;
+  4:Begin
+   If SLab^[A]<SLab^[B]Then C:=-1 Else
+   If SLab^[A]>SLab^[B]Then C:=1 Else Begin
+    C:=CmpR(SB^[A].X1,SB^[B].X1);
+    If C=0Then C:=CmpR(SB^[A].Y1,SB^[B].Y1);
+   End;
+  End;
  End;
  CmpIdx:=C;
 End;
@@ -1796,6 +1989,83 @@ Begin
  End;
 End;
 
+{ Points du joint, au sommet V, de la courbe decalee a droite de A->V->B.
+  Trick : en virage interieur sans croisement, la courbe passe par le sommet. }
+Procedure RightJoin(Ax,Ay,Vx,Vy,Bx,By,D:Real;Seg:Integer;Trick:Boolean;Out:PPts;Var ON:LongInt);
+Var
+ K,Mm:LongInt;
+ L0,L1,D0x,D0y,D1x,D1y,N0x,N0y,N1x,N1y,Cr,Dt,A0,A1,Sw,Ix,Iy:Real;
+
+ Procedure Emit(X,Y:Real);Begin
+  Out^[ON].X:=X;Out^[ON].Y:=Y;
+  Inc(ON);
+ End;
+
+Begin
+ L0:=Sqrt(Sqr(Vx-Ax)+Sqr(Vy-Ay));
+ L1:=Sqrt(Sqr(Bx-Vx)+Sqr(By-Vy));
+ D0x:=(Vx-Ax)/L0;D0y:=(Vy-Ay)/L0;
+ D1x:=(Bx-Vx)/L1;D1y:=(By-Vy)/L1;
+ N0x:=D0y*D;N0y:=-D0x*D;
+ N1x:=D1y*D;N1y:=-D1x*D;
+ Cr:=D0x*D1y-D0y*D1x;
+ Dt:=D0x*D1x+D0y*D1y;
+ If(Cr>1E-12)or((Cr>=-1E-12)and(Dt<0))Then Begin
+  { virage exterieur (ou demi-tour) : arc de cercle autour du sommet }
+  A0:=Atan2(N0y,N0x);
+  A1:=Atan2(N1y,N1x);
+  Sw:=A1-A0;
+  While Sw<0do Sw:=Sw+2*Pi;
+  While Sw>=2*Pi do Sw:=Sw-2*Pi;
+  If(Abs(Cr)<=1E-12)and(Dt<0)Then Sw:=Pi;
+  Mm:=Trunc(Sw/(Pi/2)*Seg+0.999999);
+  If Mm<1Then Mm:=1;
+  Emit(Vx+N0x,Vy+N0y);
+  For K:=1 to Mm-1do
+   Emit(Vx+D*Cos(A0+Sw*K/Mm),Vy+D*Sin(A0+Sw*K/Mm));
+  Emit(Vx+N1x,Vy+N1y);
+ End
+  Else
+ If Cr<-1E-12Then Begin
+  { virage interieur : les decalages se croisent }
+  If SegCross(Ax+N0x,Ay+N0y,Vx+N0x,Vy+N0y,Vx+N1x,Vy+N1y,Bx+N1x,By+N1y,Ix,Iy)Then
+   Emit(Ix,Iy)
+  Else Begin
+   Emit(Vx+N0x,Vy+N0y);
+   If Trick Then Emit(Vx,Vy);
+   Emit(Vx+N1x,Vy+N1y);
+  End;
+ End
+  Else
+ Emit(Vx+N0x,Vy+N0y);
+End;
+
+{ Sommets d'un chemin sans doublons consecutifs (a liberer par l'appelant) }
+Function UniquePts(P:PPath;Var M:LongInt):PPts;
+Var
+ Q:PPts;
+ I:LongInt;
+Begin
+ Q:=AllocBlock(P^.N*SizeOf(TPt));
+ M:=0;
+ For I:=0 to P^.N-1do
+  If(M=0)or(P^.Pts^[I].X<>Q^[M-1].X)or(P^.Pts^[I].Y<>Q^[M-1].Y)Then Begin
+   Q^[M]:=P^.Pts^[I];
+   Inc(M);
+  End;
+ UniquePts:=Q;
+End;
+
+Procedure ReversePts(Q:PPts;N:LongInt);
+Var
+ I:LongInt;
+ T:TPt;
+Begin
+ For I:=0 to N div 2-1do Begin
+  T:=Q^[I];Q^[I]:=Q^[N-1-I];Q^[N-1-I]:=T;
+ End;
+End;
+
 { Courbe de decalage brute d'une ligne : la ligne est parcourue aller puis retour
   et decalee a droite du sens de parcours (joints et extremites arrondis), ce qui
   donne un anneau ferme. Ses auto-intersections sont eliminees ensuite par
@@ -1804,30 +2074,16 @@ End;
 Procedure OffsetPath(Var G:TGeom;P:PPath;D:Real;Seg:Integer;Poly:Integer);
 Var
  Q,Cyc,Out:PPts;
- M,I,K,CN,ON,Mm:LongInt;
- Ax,Ay,Vx,Vy,Bx,By,L0,L1,D0x,D0y,D1x,D1y,N0x,N0y,N1x,N1y,Cr,Dt,A0,A1,Sw,Ix,Iy:Real;
+ M,I,K,CN,ON:LongInt;
  Pa:PPath;
-
- Procedure Emit(X,Y:Real);Begin
-  Out^[ON].X:=X;Out^[ON].Y:=Y;
-  Inc(ON);
- End;
-
 Begin
  If D<=0Then Exit;
- Q:=AllocBlock(P^.N*SizeOf(TPt));
- M:=0;
- For I:=0 to P^.N-1do
-  If(M=0)or(P^.Pts^[I].X<>Q^[M-1].X)or(P^.Pts^[I].Y<>Q^[M-1].Y)Then Begin
-   Q^[M]:=P^.Pts^[I];
-   Inc(M);
-  End;
+ Q:=UniquePts(P,M);
  If M=1Then Begin
   AddCircle(G,Q^[0].X,Q^[0].Y,D,Seg,Poly);
   FreeMem(Q,P^.N*SizeOf(TPt));
   Exit;
  End;
- { chemin cyclique : aller puis retour }
  CN:=2*M-2;
  Cyc:=AllocBlock(CN*SizeOf(TPt));
  For I:=0 to M-1do Cyc^[I]:=Q^[I];
@@ -1836,46 +2092,8 @@ Begin
  ON:=0;
  For I:=0 to CN-1do Begin
   K:=(I+CN-1)mod CN;
-  Ax:=Cyc^[K].X;Ay:=Cyc^[K].Y;
-  Vx:=Cyc^[I].X;Vy:=Cyc^[I].Y;
-  K:=(I+1)mod CN;
-  Bx:=Cyc^[K].X;By:=Cyc^[K].Y;
-  L0:=Sqrt(Sqr(Vx-Ax)+Sqr(Vy-Ay));
-  L1:=Sqrt(Sqr(Bx-Vx)+Sqr(By-Vy));
-  D0x:=(Vx-Ax)/L0;D0y:=(Vy-Ay)/L0;
-  D1x:=(Bx-Vx)/L1;D1y:=(By-Vy)/L1;
-  N0x:=D0y*D;N0y:=-D0x*D;
-  N1x:=D1y*D;N1y:=-D1x*D;
-  Cr:=D0x*D1y-D0y*D1x;
-  Dt:=D0x*D1x+D0y*D1y;
-  If(Cr>1E-12)or((Cr>=-1E-12)and(Dt<0))Then Begin
-   { virage exterieur (ou demi-tour) : arc de cercle autour du sommet }
-   A0:=Atan2(N0y,N0x);
-   A1:=Atan2(N1y,N1x);
-   Sw:=A1-A0;
-   While Sw<0do Sw:=Sw+2*Pi;
-   While Sw>=2*Pi do Sw:=Sw-2*Pi;
-   If(Abs(Cr)<=1E-12)and(Dt<0)Then Sw:=Pi;
-   Mm:=Trunc(Sw/(Pi/2)*Seg+0.999999);
-   If Mm<1Then Mm:=1;
-   Emit(Vx+N0x,Vy+N0y);
-   For K:=1 to Mm-1do
-    Emit(Vx+D*Cos(A0+Sw*K/Mm),Vy+D*Sin(A0+Sw*K/Mm));
-   Emit(Vx+N1x,Vy+N1y);
-  End
-   Else
-  If Cr<-1E-12Then Begin
-   { virage interieur : les decalages se croisent }
-   If SegCross(Ax+N0x,Ay+N0y,Vx+N0x,Vy+N0y,Vx+N1x,Vy+N1y,Bx+N1x,By+N1y,Ix,Iy)Then
-    Emit(Ix,Iy)
-   Else Begin
-    Emit(Vx+N0x,Vy+N0y);
-    Emit(Vx,Vy);
-    Emit(Vx+N1x,Vy+N1y);
-   End;
-  End
-   Else
-  Emit(Vx+N0x,Vy+N0y);
+  RightJoin(Cyc^[K].X,Cyc^[K].Y,Cyc^[I].X,Cyc^[I].Y,Cyc^[(I+1)mod CN].X,Cyc^[(I+1)mod CN].Y,
+            D,Seg,True,Out,ON);
  End;
  Pa:=NewPath(G,ON+1,Poly);
  Move(Out^,Pa^.Pts^,ON*SizeOf(TPt));
@@ -1883,6 +2101,106 @@ Begin
  Pa^.N:=ON+1;
  FreeMem(Out,(CN*(4*Seg+4)+2)*SizeOf(TPt));
  FreeMem(Cyc,CN*SizeOf(TPt));
+ FreeMem(Q,P^.N*SizeOf(TPt));
+End;
+
+{ Courbe decalee d'une ligne (Dist > 0 : a gauche, Dist < 0 : a droite) }
+Procedure OffsetCurve(Var G:TGeom;P:PPath;Dist:Real;Seg:Integer);
+Var
+ Q,Out:PPts;
+ M,I,ON:LongInt;
+ D,Dx,Dy,L:Real;
+ Pa:PPath;
+Begin
+ If Dist=0Then Exit;
+ Q:=UniquePts(P,M);
+ If M<2Then Begin
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ D:=Abs(Dist);
+ { a gauche = a droite du chemin inverse }
+ If Dist>0Then ReversePts(Q,M);
+ Out:=AllocBlock((M*(4*Seg+4)+2)*SizeOf(TPt));
+ ON:=0;
+ For I:=0 to M-1do Begin
+  If I=0Then Begin
+   Dx:=Q^[1].X-Q^[0].X;Dy:=Q^[1].Y-Q^[0].Y;
+   L:=Sqrt(Dx*Dx+Dy*Dy);
+   Out^[ON].X:=Q^[0].X+Dy/L*D;Out^[ON].Y:=Q^[0].Y-Dx/L*D;
+   Inc(ON);
+  End
+   Else
+  If I=M-1Then Begin
+   Dx:=Q^[I].X-Q^[I-1].X;Dy:=Q^[I].Y-Q^[I-1].Y;
+   L:=Sqrt(Dx*Dx+Dy*Dy);
+   Out^[ON].X:=Q^[I].X+Dy/L*D;Out^[ON].Y:=Q^[I].Y-Dx/L*D;
+   Inc(ON);
+  End
+   Else
+  RightJoin(Q^[I-1].X,Q^[I-1].Y,Q^[I].X,Q^[I].Y,Q^[I+1].X,Q^[I+1].Y,D,Seg,False,Out,ON);
+ End;
+ If Dist>0Then ReversePts(Out,ON);
+ Pa:=NewPath(G,ON,0);
+ Move(Out^,Pa^.Pts^,ON*SizeOf(TPt));
+ Pa^.N:=ON;
+ FreeMem(Out,(M*(4*Seg+4)+2)*SizeOf(TPt));
+ FreeMem(Q,P^.N*SizeOf(TPt));
+End;
+
+{ Pieces (rectangles et secteurs) du tampon d'un seul cote d'une ligne }
+Procedure SidePieces(Var G:TGeom;P:PPath;Dist:Real;Right:Boolean;Seg:Integer;Var K:Integer);
+Var
+ Q:PPts;
+ M,I,J,Mm:LongInt;
+ Dx,Dy,L,L1,Nx,Ny,N1x,N1y,O1x,O1y,A0,A1,Sw,Cr:Real;
+ Pa:PPath;
+Begin
+ Q:=UniquePts(P,M);
+ If M>=2Then Begin
+  If Right Then ReversePts(Q,M);
+  For I:=0 to M-2do Begin
+   Dx:=Q^[I+1].X-Q^[I].X;Dy:=Q^[I+1].Y-Q^[I].Y;
+   L:=Sqrt(Dx*Dx+Dy*Dy);
+   Nx:=-Dy/L*Dist;Ny:=Dx/L*Dist;
+   Pa:=NewPath(G,5,K);
+   Inc(K);
+   Pa^.Pts^[0]:=Q^[I];
+   Pa^.Pts^[1]:=Q^[I+1];
+   Pa^.Pts^[2].X:=Q^[I+1].X+Nx;Pa^.Pts^[2].Y:=Q^[I+1].Y+Ny;
+   Pa^.Pts^[3].X:=Q^[I].X+Nx;Pa^.Pts^[3].Y:=Q^[I].Y+Ny;
+   Pa^.Pts^[4]:=Pa^.Pts^[0];
+   { secteur de cercle si le virage est a droite (exterieur du cote gauche) }
+   If I<M-2Then Begin
+    N1x:=Q^[I+2].X-Q^[I+1].X;
+    Cr:=Dx*(Q^[I+2].Y-Q^[I+1].Y)-Dy*N1x;
+    If Cr<-1E-12*L Then Begin
+     N1y:=Q^[I+2].Y-Q^[I+1].Y;
+     L1:=Sqrt(N1x*N1x+N1y*N1y);
+     O1x:=Q^[I+1].X-N1y/L1*Dist;O1y:=Q^[I+1].Y+N1x/L1*Dist;
+     A0:=Atan2(Ny,Nx);
+     A1:=Atan2(N1x/L1*Dist,-N1y/L1*Dist);
+     Sw:=A1-A0;
+     While Sw>0do Sw:=Sw-2*Pi;
+     While Sw<=-2*Pi do Sw:=Sw+2*Pi;
+     Mm:=Trunc(-Sw/(Pi/2)*Seg+0.999999);
+     If Mm<1Then Mm:=1;
+     Pa:=NewPath(G,Mm+3,K);
+     Inc(K);
+     Pa^.Pts^[0]:=Q^[I+1];
+     For J:=0 to Mm do Begin
+      Pa^.Pts^[1+J].X:=Q^[I+1].X+Dist*Cos(A1+(A0-A1)*J/Mm);
+      Pa^.Pts^[1+J].Y:=Q^[I+1].Y+Dist*Sin(A1+(A0-A1)*J/Mm);
+     End;
+     { extremites identiques a celles des rectangles voisins }
+     Pa^.Pts^[1].X:=O1x;Pa^.Pts^[1].Y:=O1y;
+     Pa^.Pts^[Mm+1].X:=Q^[I+1].X+Nx;Pa^.Pts^[Mm+1].Y:=Q^[I+1].Y+Ny;
+     Pa^.Pts^[Mm+2]:=Pa^.Pts^[0];
+     Pa^.N:=Mm+3;
+    End;
+   End;
+  End;
+ End;
  FreeMem(Q,P^.N*SizeOf(TPt));
 End;
 
@@ -2732,6 +3050,7 @@ Var
  RF:Text;
  RBuf:Array[0..16383]of Char;
  RTok:String;
+ RasterHeaderOnly:Boolean;
 
 Function RTokNext:Boolean;
 Var
@@ -2806,6 +3125,11 @@ Begin
  If Total>MaxCells Then Fail('Error: raster is too large');
  If CenterX Then R.XLL:=R.XLL-R.Cell/2;
  If CenterY Then R.YLL:=R.YLL-R.Cell/2;
+ If RasterHeaderOnly Then Begin
+  Close(RF);
+  R.Data:=Nil;
+  Exit;
+ End;
  R.Data:=AllocBlock(Total*SizeOf(Real));
  For I:=0 to Total-1do Begin
   If I>0Then Begin
@@ -3610,22 +3934,1630 @@ Begin
  If(X2<=X1)or(Y2<=Y1)Then Fail('Error: invalid EXTENT (max must be greater than min)');
 End;
 
-Procedure RunClipRaster(A:Integer);
+{ ------------------------------------------------------------------ }
+{ Utilitaires communs aux nouveaux algorithmes                        }
+{ ------------------------------------------------------------------ }
+
 Var
- R,O:TRaster;
- X1,X2,Y1,Y2,YTop,NewNd:Real;
- C0,C1,R0,R1,I,J:LongInt;
+ ListItems:Array[1..40]of String;
+ ListCount:Integer;
+ InfoLines:Array[1..400]of String;
+ InfoCount:Integer;
+
+{ Decoupe S selon les separateurs Seps }
+Procedure SplitList(S:String;Seps:String);
+Var
+ I:Integer;
+ T:String;
+Begin
+ ListCount:=0;
+ T:='';
+ For I:=1 to Length(S)+1do Begin
+  If(I>Length(S))or(Pos(S[I],Seps)>0)Then Begin
+   If T<>''Then Begin
+    If ListCount>=40Then Fail('Error: too many list items');
+    Inc(ListCount);
+    ListItems[ListCount]:=T;
+   End;
+   T:='';
+  End
+   Else
+  T:=T+S[I];
+ End;
+End;
+
+Function NeedBool(A:Integer;Name:String):Boolean;
+Var
+ V:String;
+Begin
+ V:=StrUpper(NeedStr(A,Name));
+ If(V='TRUE')or(V='1')or(V='YES')or(V='T')Then NeedBool:=True Else
+ If(V='FALSE')or(V='0')or(V='NO')or(V='F')or(V='')Then NeedBool:=False
+  Else
+ Fail('Error: invalid boolean value for parameter '+Name+': '+V);
+End;
+
+Function CeilL(X:Real):LongInt;Begin
+ CeilL:=-FloorL(-X);
+End;
+
+Procedure CheckBand(A:Integer);Begin
+ If Round(NeedReal(A,'BAND'))<>1Then Fail('Error: only band 1 is available');
+End;
+
+Procedure NewRaster(Var R:TRaster;NC,NR:LongInt;XLL,YLL,Cell,Nd:Real);
+Var
+ I,T:LongInt;
+Begin
+ If(NC<1)or(NR<1)Then Fail('Error: invalid raster size');
+ If(NC*1.0)*NR>MaxCells Then Fail('Error: raster is too large');
+ R.NC:=NC;R.NR:=NR;R.XLL:=XLL;R.YLL:=YLL;R.Cell:=Cell;R.NoData:=Nd;
+ T:=NC*NR;
+ R.Data:=AllocBlock(T*SizeOf(Real));
+ For I:=0 to T-1do R.Data^[I]:=Nd;
+End;
+
+Function RasterTop(Var R:TRaster):Real;Begin
+ RasterTop:=R.YLL+R.NR*R.Cell;
+End;
+
+{ Echantillonne un raster en (X,Y) : Mode 0 voisin le plus proche, 1 bilineaire }
+Function SampleRaster(Var R:TRaster;X,Y:Real;Mode:Integer;Var V:Real):Boolean;
+Var
+ Col,Row,Fx,Fy,Wx,Wy,Sum,Wt,W:Real;
+ Cc,Rr,Q,Cx,Cy:LongInt;
+ Z:Real;
+Begin
+ SampleRaster:=False;
+ Col:=(X-R.XLL)/R.Cell;
+ Row:=(RasterTop(R)-Y)/R.Cell;
+ If(Col<0)or(Col>=R.NC)or(Row<0)or(Row>=R.NR)Then Exit;
+ If Mode=0Then Begin
+  Z:=R.Data^[FloorL(Row)*R.NC+FloorL(Col)];
+  If IsNoData(R,Z)Then Exit;
+  V:=Z;
+  SampleRaster:=True;
+  Exit;
+ End;
+ Fx:=Col-0.5;Fy:=Row-0.5;
+ Cc:=FloorL(Fx);Rr:=FloorL(Fy);
+ Wx:=Fx-Cc;Wy:=Fy-Rr;
+ Sum:=0;Wt:=0;
+ For Q:=0 to 3do Begin
+  If Q and 1=0Then W:=1-Wx Else W:=Wx;
+  If Q and 2=0Then W:=W*(1-Wy) Else W:=W*Wy;
+  Cx:=Cc+(Q and 1);
+  Cy:=Rr+(Q shr 1);
+  If(Cx>=0)and(Cx<R.NC)and(Cy>=0)and(Cy<R.NR)Then Begin
+   Z:=R.Data^[Cy*R.NC+Cx];
+   If Not IsNoData(R,Z)Then Begin
+    Sum:=Sum+Z*W;
+    Wt:=Wt+W;
+   End;
+  End;
+ End;
+ If Wt>0Then Begin
+  V:=Sum/Wt;
+  SampleRaster:=True;
+ End;
+End;
+
+{ Nom de fichier sans repertoire ni extension }
+Function BaseName(S:String):String;
+Var
+ I:Integer;
+Begin
+ For I:=Length(S)downto 1do
+  If S[I]in['/','\',':']Then Begin
+   S:=Copy(S,I+1,255);
+   Break;
+  End;
+ I:=Length(S);
+ While(I>0)and(S[I]<>'.')do Dec(I);
+ If I>1Then S:=Copy(S,1,I-1);
+ BaseName:=S;
+End;
+
+{ ------------------------------------------------------------------ }
+{ Algorithmes vectoriels                                              }
+{ ------------------------------------------------------------------ }
+
+Procedure RunOffsetCurve(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,R:TGeom;
+ P:PPath;
+ Dist:Real;
  Out:String;
- SetNd:Boolean;
- V:Real;
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ Dist:=NeedReal(A,'DISTANCE');
+ Out:=NeedStr(A,'OUTPUT');
+ Arr:=LayerFeatures(Root);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Flatten(JFind(F,'geometry'),G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(R);
+   R.Cls:=2;
+   P:=G.First;
+   While P<>Nil do Begin
+    OffsetCurve(R,P,Dist,5);
+    P:=P^.Next;
+   End;
+   SetGeom(F,BuildLines(R));
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveLayer(Out,Root);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunOneSideBuffer(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G,Pc,B,R:TGeom;
+ P:PPath;
+ Dist:Real;
+ Side,Seg,K:Integer;
+ Out:String;
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ Dist:=NeedReal(A,'DISTANCE');
+ Side:=Round(NeedReal(A,'BUFFER_SIDE'));
+ Seg:=Round(NeedReal(A,'SEGMENTS'));
+ If(Seg<1)or(Seg>64)Then Fail('Error: SEGMENTS must be between 1 and 64');
+ If(Side<>0)and(Side<>1)Then Fail('Error: BUFFER_SIDE must be 0 (left) or 1 (right)');
+ Out:=NeedStr(A,'OUTPUT');
+ Arr:=LayerFeatures(Root);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Flatten(JFind(F,'geometry'),G);
+  If G.Cls<>0Then Begin
+   If G.Cls<>2Then Fail('Error: the input layer must contain lines');
+   InitGeom(Pc);InitGeom(B);
+   Pc.Cls:=3;B.Cls:=3;
+   K:=0;
+   If Dist>0Then Begin
+    P:=G.First;
+    While P<>Nil do Begin
+     SidePieces(Pc,P,Dist,Side=1,Seg,K);
+     P:=P^.Next;
+    End;
+   End;
+   InitGeom(R);
+   If Pc.First<>Nil Then Begin
+    KeepOrient:=True;
+    Overlay(0,Pc,B,R);
+    KeepOrient:=False;
+   End;
+   SetGeom(F,BuildPolygons(R));
+   FreeGeom(R);FreeGeom(Pc);FreeGeom(B);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveLayer(Out,Root);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure Info(S:String);Begin
+ If InfoCount<400Then Begin
+  Inc(InfoCount);
+  InfoLines[InfoCount]:=S;
+ End
+  Else
+ If InfoCount=400Then Begin
+  Inc(InfoCount);
+  InfoLines[400]:='... (truncated)';
+ End;
+End;
+
+Procedure RunOgrInfo(A:Integer);
+Var
+ FileName,Out,Name,GT:String;
+ Root,Arr,F,Pr,V:PJ;
+ G:TGeom;
+ P:PPath;
+ I,J,N,NF,Idx:LongInt;
+ Summary,Have:Boolean;
+ MinX,MinY,MaxX,MaxY:Real;
+ FNames,FTypes:Array[1..64]of String;
+ T:Text;
+Begin
+ FNames[1]:='';
+ FileName:=NeedStr(A,'INPUT');
+ Summary:=NeedBool(A,'SUMMARY_ONLY');
+ Out:=NeedStr(A,'OUTPUT');
+ Root:=LoadLayer(FileName);
+ Arr:=LayerFeatures(Root);
+ InfoCount:=0;
+ N:=0;NF:=0;Have:=False;GT:='Unknown';
+ MinX:=0;MinY:=0;MaxX:=0;MaxY:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Inc(N);
+  Flatten(JFind(F,'geometry'),G);
+  If(G.Cls<>0)Then Begin
+   If GT='Unknown'Then GT:=JVal(JFind(JFind(F,'geometry'),'type'));
+   P:=G.First;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do
+     If Not Have Then Begin
+      MinX:=P^.Pts^[I].X;MaxX:=MinX;MinY:=P^.Pts^[I].Y;MaxY:=MinY;Have:=True;
+     End
+      Else
+     Begin
+      If P^.Pts^[I].X<MinX Then MinX:=P^.Pts^[I].X;
+      If P^.Pts^[I].X>MaxX Then MaxX:=P^.Pts^[I].X;
+      If P^.Pts^[I].Y<MinY Then MinY:=P^.Pts^[I].Y;
+      If P^.Pts^[I].Y>MaxY Then MaxY:=P^.Pts^[I].Y;
+     End;
+    P:=P^.Next;
+   End;
+  End;
+  FreeGeom(G);
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+   V:=Pr^.First;
+   While V<>Nil do Begin
+    Idx:=0;
+    For J:=1 to NF do If FNames[J]=JKey(V)Then Idx:=J;
+    If(Idx=0)and(NF<64)Then Begin
+     Inc(NF);Idx:=NF;
+     FNames[NF]:=JKey(V);
+     FTypes[NF]:='';
+    End;
+    If(Idx>0)and(FTypes[Idx]='')Then Begin
+     Case V^.Kind of
+      1:FTypes[Idx]:='Boolean';
+      2:If(Pos('.',JVal(V))>0)or(Pos('e',JVal(V))>0)or(Pos('E',JVal(V))>0)Then FTypes[Idx]:='Real'
+                                                                         Else FTypes[Idx]:='Integer';
+      3:FTypes[Idx]:='String';
+     End;
+    End;
+    V:=V^.Next;
+   End;
+  End;
+  F:=F^.Next;
+ End;
+ Name:=BaseName(FileName);
+ Info('INFO: Open of `'+FileName+'''');
+ Info('      using driver `GeoJSON'' successful.');
+ Info('');
+ Info('Layer name: '+Name);
+ Info('Geometry: '+GT);
+ Info('Feature Count: '+IntToStr(N));
+ If Have Then Info('Extent: ('+NumStr(MinX)+', '+NumStr(MinY)+') - ('+NumStr(MaxX)+', '+NumStr(MaxY)+')');
+ Info('Layer SRS: EPSG:'+IntToStr(LayerCrs(Root)));
+ For J:=1 to NF do
+  If FTypes[J]<>''Then Info(FNames[J]+': '+FTypes[J])
+                  Else Info(FNames[J]+': String');
+ If Not Summary Then Begin
+  I:=0;
+  F:=Arr^.First;
+  While F<>Nil do Begin
+   Info('');
+   Info('OGRFeature('+Name+'):'+IntToStr(I));
+   Pr:=JFind(F,'properties');
+   If(Pr<>Nil)and(Pr^.Kind=5)Then Begin
+    V:=Pr^.First;
+    While V<>Nil do Begin
+     Info('  '+JKey(V)+' = '+JVal(V));
+     V:=V^.Next;
+    End;
+   End;
+   V:=JFind(F,'geometry');
+   If(V<>Nil)and(V^.Kind=5)Then Info('  '+JVal(JFind(V,'type')))
+                           Else Info('  (null)');
+   Inc(I);
+   F:=F^.Next;
+  End;
+ End;
+ If Out<>''Then Begin
+  {$I-}
+  Assign(T,Out);
+  Rewrite(T);
+  {$I+}
+  If IOResult<>0Then Fail('Error: unable to create output file '+Out);
+  For I:=1 to InfoCount do WriteLn(T,InfoLines[I]);
+  Close(T);
+  AddRes('OUTPUT',Out);
+ End;
+End;
+
+{ ------------------------------------------------------------------ }
+{ Rasterisation                                                       }
+{ ------------------------------------------------------------------ }
+
+Procedure BurnCell(Var R:TRaster;Col,Row:LongInt;V:Real;AddMode:Boolean);
+Var
+ K:LongInt;
+Begin
+ If(Col<0)or(Col>=R.NC)or(Row<0)or(Row>=R.NR)Then Exit;
+ K:=Row*R.NC+Col;
+ If AddMode Then Begin
+  If IsNoData(R,R.Data^[K])Then R.Data^[K]:=V
+                           Else R.Data^[K]:=R.Data^[K]+V;
+ End
+  Else
+ R.Data^[K]:=V;
+End;
+
+{ Grave les entites d'une couche dans le raster }
+Procedure BurnLayer(Var R:TRaster;Root:PJ;Field:String;Fixed:Real;AddMode:Boolean);
+Var
+ Arr,F,Pr,Fv:PJ;
+ G:TGeom;
+ P:PPath;
+ V,Y,Xa,Xb,Tmp,X1,Y1,X2,Y2,Len,T:Real;
+ Xs:PReals;
+ NX,I,J,K,Cap,C0,C1,Row,Steps:LongInt;
+ E:Integer;
+Begin
+ Arr:=LayerFeatures(Root);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  V:=Fixed;
+  If Field<>''Then Begin
+   Pr:=JFind(F,'properties');
+   Fv:=JFind(Pr,Field);
+   If(Fv=Nil)or(Fv^.Kind<>2)Then V:=R.NoData
+    Else Val(JVal(Fv),V,E);
+  End;
+  Flatten(JFind(F,'geometry'),G);
+  If(G.Cls<>0)and Not((Field<>'')and IsNoData(R,V)and(Fv=Nil))Then Begin
+   Case G.Cls of
+    1:Begin
+     P:=G.First;
+     While P<>Nil do Begin
+      BurnCell(R,FloorL((P^.Pts^[0].X-R.XLL)/R.Cell),FloorL((RasterTop(R)-P^.Pts^[0].Y)/R.Cell),V,AddMode);
+      P:=P^.Next;
+     End;
+    End;
+    2:Begin
+     P:=G.First;
+     While P<>Nil do Begin
+      If P^.N=1Then
+       BurnCell(R,FloorL((P^.Pts^[0].X-R.XLL)/R.Cell),FloorL((RasterTop(R)-P^.Pts^[0].Y)/R.Cell),V,AddMode);
+      For I:=0 to P^.N-2do Begin
+       X1:=P^.Pts^[I].X;Y1:=P^.Pts^[I].Y;X2:=P^.Pts^[I+1].X;Y2:=P^.Pts^[I+1].Y;
+       Len:=Sqrt(Sqr(X2-X1)+Sqr(Y2-Y1));
+       Steps:=CeilL(Len/(R.Cell/2))+1;
+       For J:=0 to Steps do Begin
+        T:=J/Steps;
+        BurnCell(R,FloorL((X1+T*(X2-X1)-R.XLL)/R.Cell),FloorL((RasterTop(R)-(Y1+T*(Y2-Y1)))/R.Cell),V,AddMode);
+       End;
+      End;
+      P:=P^.Next;
+     End;
+    End;
+    3:Begin
+     { remplissage par balayage, regle pair/impair, centres de pixels }
+     Cap:=0;
+     P:=G.First;
+     While P<>Nil do Begin Inc(Cap,P^.N);P:=P^.Next;End;
+     Xs:=AllocBlock((Cap+2)*SizeOf(Real));
+     For Row:=0 to R.NR-1do Begin
+      Y:=RasterTop(R)-(Row+0.5)*R.Cell;
+      NX:=0;
+      P:=G.First;
+      While P<>Nil do Begin
+       For I:=0 to P^.N-1do Begin
+        K:=I+1;
+        If K>=P^.N Then K:=0;
+        X1:=P^.Pts^[I].X;Y1:=P^.Pts^[I].Y;X2:=P^.Pts^[K].X;Y2:=P^.Pts^[K].Y;
+        If(Y1<=Y)<>(Y2<=Y)Then Begin
+         Xs^[NX]:=X1+(Y-Y1)*(X2-X1)/(Y2-Y1);
+         Inc(NX);
+        End;
+       End;
+       P:=P^.Next;
+      End;
+      { tri par insertion }
+      For I:=1 to NX-1do Begin
+       Tmp:=Xs^[I];
+       K:=I-1;
+       While(K>=0)and(Xs^[K]>Tmp)do Begin Xs^[K+1]:=Xs^[K];Dec(K);End;
+       Xs^[K+1]:=Tmp;
+      End;
+      I:=0;
+      While I+1<NX do Begin
+       Xa:=Xs^[I];Xb:=Xs^[I+1];
+       C0:=CeilL((Xa-R.XLL)/R.Cell-0.5);
+       C1:=CeilL((Xb-R.XLL)/R.Cell-0.5)-1;
+       If C0<0Then C0:=0;
+       If C1>=R.NC Then C1:=R.NC-1;
+       For J:=C0 to C1 do BurnCell(R,J,Row,V,AddMode);
+       Inc(I,2);
+      End;
+     End;
+     FreeMem(Xs,(Cap+2)*SizeOf(Real));
+    End;
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+End;
+
+Procedure RunRasterize(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ P:PPath;
+ R:TRaster;
+ Fld,Out:String;
+ Burn,Nd,MinX,MinY,MaxX,MaxY,W,H,Cw,Ch,Cell:Real;
+ Units,NC,NR,I:LongInt;
+ Have:Boolean;
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ Fld:=NeedStr(A,'FIELD');
+ Burn:=NeedReal(A,'BURN');
+ Units:=Round(NeedReal(A,'UNITS'));
+ W:=NeedReal(A,'WIDTH');
+ H:=NeedReal(A,'HEIGHT');
+ Nd:=NeedReal(A,'NODATA');
+ Out:=NeedStr(A,'OUTPUT');
+ If(W<=0)or(H<=0)Then Fail('Error: WIDTH and HEIGHT must be greater than 0');
+ If HasArg('EXTENT')Then ParseExtent(NeedStr(A,'EXTENT'),MinX,MaxX,MinY,MaxY)
+  Else
+ Begin
+  Have:=False;
+  MinX:=0;MaxX:=0;MinY:=0;MaxY:=0;
+  Arr:=LayerFeatures(Root);
+  F:=Arr^.First;
+  While F<>Nil do Begin
+   Flatten(JFind(F,'geometry'),G);
+   P:=G.First;
+   While P<>Nil do Begin
+    For I:=0 to P^.N-1do
+     If Not Have Then Begin
+      MinX:=P^.Pts^[I].X;MaxX:=MinX;MinY:=P^.Pts^[I].Y;MaxY:=MinY;Have:=True;
+     End
+      Else
+     Begin
+      If P^.Pts^[I].X<MinX Then MinX:=P^.Pts^[I].X;
+      If P^.Pts^[I].X>MaxX Then MaxX:=P^.Pts^[I].X;
+      If P^.Pts^[I].Y<MinY Then MinY:=P^.Pts^[I].Y;
+      If P^.Pts^[I].Y>MaxY Then MaxY:=P^.Pts^[I].Y;
+     End;
+    P:=P^.Next;
+   End;
+   FreeGeom(G);
+   F:=F^.Next;
+  End;
+  If(Not Have)or(MaxX<=MinX)or(MaxY<=MinY)Then Fail('Error: unable to compute the extent, use EXTENT');
+ End;
+ If Units=0Then Begin
+  Cw:=(MaxX-MinX)/W;Ch:=(MaxY-MinY)/H;
+  If Abs(Cw-Ch)>1E-6*Cw Then Fail('Error: non-square pixels are not supported');
+  Cell:=Cw;
+  NC:=Round(W);NR:=Round(H);
+ End
+  Else
+ Begin
+  If Abs(W-H)>1E-9*W Then Fail('Error: non-square pixels are not supported');
+  Cell:=W;
+  NC:=CeilL((MaxX-MinX)/Cell-1E-9);
+  NR:=CeilL((MaxY-MinY)/Cell-1E-9);
+ End;
+ NewRaster(R,NC,NR,MinX,MaxY-NR*Cell,Cell,Nd);
+ BurnLayer(R,Root,Fld,Burn,False);
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Variantes "rasterize_over" : Mode 0 champ, 1 valeur fixe }
+Procedure RunRasterizeOver(A:Integer;Fixed:Boolean);
+Var
+ Root:PJ;
+ R:TRaster;
+ Out,InR:String;
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ InR:=NeedStr(A,'INPUT_RASTER');
+ ReadRaster(InR,R);
+ Out:=NeedStr(A,'OUTPUT');
+ If Out=''Then Out:=InR;   { comme QGIS : le raster est modifie sur place }
+ If Fixed Then BurnLayer(R,Root,'',NeedReal(A,'BURN'),NeedBool(A,'ADD'))
+          Else BurnLayer(R,Root,NeedStr(A,'FIELD'),0,NeedBool(A,'ADD'));
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+{ ------------------------------------------------------------------ }
+{ Algorithmes raster                                                  }
+{ ------------------------------------------------------------------ }
+
+Procedure RunNearBlack(A:Integer);
+Var
+ R:TRaster;
+ Near,Th,V:Real;
+ White:Boolean;
+ Stack:PLongs;
+ Seen:PBools;
+ Sp,N,K,I,J,Nc,Nr:LongInt;
+ Out:String;
+
+ Function Hit(Q:LongInt):Boolean;Begin
+  Hit:=False;
+  If Seen^[Q]Then Exit;
+  V:=R.Data^[Q];
+  If IsNoData(R,V)Then Exit;
+  If White Then Hit:=V>=Th Else Hit:=V<=Th;
+ End;
+
+ Procedure Push(Q:LongInt);Begin
+  If Hit(Q)Then Begin
+   Seen^[Q]:=True;
+   Stack^[Sp]:=Q;
+   Inc(Sp);
+  End;
+ End;
+
 Begin
  ReadRaster(NeedStr(A,'INPUT'),R);
- ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Near:=NeedReal(A,'NEAR');
+ White:=NeedBool(A,'WHITE');
  Out:=NeedStr(A,'OUTPUT');
- SetNd:=HasArg('NODATA');
- NewNd:=R.NoData;
- If SetNd Then NewNd:=NeedReal(A,'NODATA');
- YTop:=R.YLL+R.NR*R.Cell;
+ Nc:=R.NC;Nr:=R.NR;
+ N:=Nc*Nr;
+ Stack:=AllocBlock(N*SizeOf(LongInt));
+ Seen:=AllocBlock(N*SizeOf(Boolean));
+ For K:=0 to N-1do Seen^[K]:=False;
+ If White Then Th:=255-Near Else Th:=Near;
+ Sp:=0;
+ For J:=0 to Nc-1do Begin Push(J);Push((Nr-1)*Nc+J);End;
+ For I:=0 to Nr-1do Begin Push(I*Nc);Push(I*Nc+Nc-1);End;
+ While Sp>0do Begin
+  Dec(Sp);
+  K:=Stack^[Sp];
+  If White Then R.Data^[K]:=255 Else R.Data^[K]:=0;
+  I:=K div Nc;J:=K mod Nc;
+  If I>0Then Push(K-Nc);
+  If I<Nr-1Then Push(K+Nc);
+  If J>0Then Push(K-1);
+  If J<Nc-1Then Push(K+1);
+ End;
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunOverviews(A:Integer);
+Var
+ R,O:TRaster;
+ Out,Name:String;
+ Resamp,L,K,I,J,Ii,Jj,Cnt:LongInt;
+ C:Integer;
+ Sum,V:Real;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ Resamp:=Round(NeedReal(A,'RESAMPLING'));
+ If(Resamp<>0)and(Resamp<>1)Then Fail('Error: RESAMPLING must be 0 (nearest) or 1 (average)');
+ SplitList(NeedStr(A,'LEVELS'),' ,;');
+ Out:=NeedStr(A,'OUTPUT');
+ If ListCount=0Then Fail('Error: LEVELS is empty');
+ For K:=1 to ListCount do Begin
+  Val(ListItems[K],L,C);
+  If(C<>0)or(L<2)Then Fail('Error: invalid overview level '+ListItems[K]);
+  NewRaster(O,CeilL(R.NC/L),CeilL(R.NR/L),R.XLL,RasterTop(R)-CeilL(R.NR/L)*R.Cell*L,R.Cell*L,R.NoData);
+  For I:=0 to O.NR-1do
+   For J:=0 to O.NC-1do Begin
+    If Resamp=0Then Begin
+     Ii:=I*L+L div 2;Jj:=J*L+L div 2;
+     If Ii>=R.NR Then Ii:=R.NR-1;
+     If Jj>=R.NC Then Jj:=R.NC-1;
+     O.Data^[I*O.NC+J]:=R.Data^[Ii*R.NC+Jj];
+    End
+     Else
+    Begin
+     Sum:=0;Cnt:=0;
+     For Ii:=I*L to I*L+L-1do
+      For Jj:=J*L to J*L+L-1do
+       If(Ii<R.NR)and(Jj<R.NC)Then Begin
+        V:=R.Data^[Ii*R.NC+Jj];
+        If Not IsNoData(R,V)Then Begin Sum:=Sum+V;Inc(Cnt);End;
+       End;
+     If Cnt>0Then O.Data^[I*O.NC+J]:=Sum/Cnt;
+    End;
+   End;
+  Name:=Out+'.ovr'+IntToStr(L)+'.asc';
+  WriteRaster(Name,O);
+  AddRes('OVERVIEW_'+IntToStr(L),Name);
+ End;
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunPanSharp(A:Integer);
+Var
+ Ms:Array[1..4]of TRaster;
+ O:Array[1..4]of TRaster;
+ Pan:TRaster;
+ Out,Name:String;
+ N,K,I,J,Mode:LongInt;
+ X,Y,S,Pv:Real;
+ Vals:Array[1..4]of Real;
+ Ok:Boolean;
+Begin
+ SplitList(NeedStr(A,'SPECTRAL'),';');
+ N:=ListCount;
+ If(N<1)or(N>4)Then Fail('Error: SPECTRAL must list between 1 and 4 rasters separated by ;');
+ For K:=1 to N do ReadRaster(ListItems[K],Ms[K]);
+ ReadRaster(NeedStr(A,'PANCHROMATIC'),Pan);
+ Mode:=Round(NeedReal(A,'RESAMPLING'));
+ If(Mode<>0)and(Mode<>1)Then Fail('Error: RESAMPLING must be 0 (nearest) or 1 (bilinear)');
+ Out:=NeedStr(A,'OUTPUT');
+ For K:=1 to N do
+  If(Abs(Ms[K].XLL-Pan.XLL)>Pan.Cell)or(Abs(RasterTop(Ms[K])-RasterTop(Pan))>Pan.Cell)Then
+   Fail('Error: the spectral and panchromatic rasters must cover the same area');
+ For K:=1 to N do NewRaster(O[K],Pan.NC,Pan.NR,Pan.XLL,Pan.YLL,Pan.Cell,-9999);
+ { Brovey : sortie_k = spectral_k * pan / moyenne des bandes spectrales }
+ For I:=0 to Pan.NR-1do
+  For J:=0 to Pan.NC-1do Begin
+   Pv:=Pan.Data^[I*Pan.NC+J];
+   If Not IsNoData(Pan,Pv)Then Begin
+    X:=Pan.XLL+(J+0.5)*Pan.Cell;
+    Y:=RasterTop(Pan)-(I+0.5)*Pan.Cell;
+    Ok:=True;
+    S:=0;
+    For K:=1 to N do
+     If SampleRaster(Ms[K],X,Y,Mode,Vals[K])Then S:=S+Vals[K]/N
+                                           Else Ok:=False;
+    If Ok Then
+     For K:=1 to N do
+      If S<>0Then O[K].Data^[I*Pan.NC+J]:=Vals[K]*Pv/S
+             Else O[K].Data^[I*Pan.NC+J]:=0;
+   End;
+  End;
+ For K:=1 to N do Begin
+  If N=1Then Name:=Out
+        Else Name:=Out+'_'+IntToStr(K)+'.asc';
+  WriteRaster(Name,O[K]);
+  If K=1Then AddRes('OUTPUT',Name)
+        Else AddRes('OUTPUT_'+IntToStr(K),Name);
+ End;
+End;
+
+{ Polygonisation : une ou plusieurs regions de valeur identique -> polygone }
+Procedure RunPolygonize(A:Integer);
+Var
+ R:TRaster;
+ Lab,Stack,EL,Idx:PLongs;
+ LabVal:PReals;
+ Edges:PEdges;
+ Used:PBools;
+ RB:PPts;
+ Fld,Out:String;
+ Eight:Boolean;
+ N,K,I,J,Nl,Sp,L,Cur,Ne,Lo,Hi,Best,Q,RN,Pos,Cnt,Qq,Nr,Nc,Mid:LongInt;
+ V,Ang,BestAng,Dx,Dy,Mx,My,Ar,Ox,Oy:Real;
+ F:Text;
+ G:TGeom;
+ Pa,Pb,Hp:PPath;
+ EG,HG:TGeom;
+ First,Closed:Boolean;
+ Feat,Props:PJ;
+ Sx,Sy,Ex,Ey:Real;
+ Own,Owner:Integer;
+ BestArea:Real;
+ HArr:^PPathArr;
+ HN:LongInt;
+ Dr,Dc,Rr,Cc:LongInt;
+ NbOk:Boolean;
+
+ Procedure Flood(Seed:LongInt;Lb:LongInt);
+ Var
+  Kk,Ri,Ci,Dr2,Dc2,R2,C2,Q2:LongInt;
+  V0:Real;
+ Begin
+  V0:=R.Data^[Seed];
+  Lab^[Seed]:=Lb;
+  Sp:=0;
+  Stack^[Sp]:=Seed;Inc(Sp);
+  While Sp>0do Begin
+   Dec(Sp);
+   Kk:=Stack^[Sp];
+   Ri:=Kk div Nc;Ci:=Kk mod Nc;
+   For Dr2:=-1 to 1do
+    For Dc2:=-1 to 1do
+     If((Dr2<>0)or(Dc2<>0))and(Eight or(Dr2=0)or(Dc2=0))Then Begin
+      R2:=Ri+Dr2;C2:=Ci+Dc2;
+      If(R2>=0)and(R2<Nr)and(C2>=0)and(C2<Nc)Then Begin
+       Q2:=R2*Nc+C2;
+       If(Lab^[Q2]=-1)and(Not IsNoData(R,R.Data^[Q2]))and(R.Data^[Q2]=V0)Then Begin
+        Lab^[Q2]:=Lb;
+        Stack^[Sp]:=Q2;Inc(Sp);
+       End;
+      End;
+     End;
+  End;
+ End;
+
+ Function LabAt(Rw,Cl:LongInt):LongInt;Begin
+  If(Rw<0)or(Rw>=Nr)or(Cl<0)or(Cl>=Nc)Then LabAt:=-1
+                                        Else LabAt:=Lab^[Rw*Nc+Cl];
+ End;
+
+ Procedure AddEdge(Lb:LongInt;X1,Y1,X2,Y2:Real);Begin
+  Edges^[Ne].X1:=X1;Edges^[Ne].Y1:=Y1;Edges^[Ne].X2:=X2;Edges^[Ne].Y2:=Y2;
+  EL^[Ne]:=Lb;
+  Inc(Ne);
+ End;
+
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ Fld:=NeedStr(A,'FIELD');
+ Eight:=NeedBool(A,'EIGHT_CONNECTEDNESS');
+ Out:=NeedStr(A,'OUTPUT');
+ Nc:=R.NC;Nr:=R.NR;
+ N:=Nc*Nr;
+ Lab:=AllocBlock(N*SizeOf(LongInt));
+ Stack:=AllocBlock(N*SizeOf(LongInt));
+ For K:=0 to N-1do Lab^[K]:=-1;
+ LabVal:=AllocBlock((N+1)*SizeOf(Real));
+ Nl:=0;
+ For K:=0 to N-1do
+  If(Lab^[K]=-1)and Not IsNoData(R,R.Data^[K])Then Begin
+   LabVal^[Nl]:=R.Data^[K];
+   Flood(K,Nl);
+   Inc(Nl);
+  End;
+ { aretes de frontiere, interieur a gauche }
+ Edges:=AllocBlock((4*N+1)*SizeOf(TEdge));
+ EL:=AllocBlock((4*N+1)*SizeOf(LongInt));
+ Ne:=0;
+ For I:=0 to Nr-1do
+  For J:=0 to Nc-1do Begin
+   L:=Lab^[I*Nc+J];
+   If L>=0Then Begin
+    If LabAt(I+1,J)<>L Then AddEdge(L,J,Nr-I-1,J+1,Nr-I-1);
+    If LabAt(I,J+1)<>L Then AddEdge(L,J+1,Nr-I-1,J+1,Nr-I);
+    If LabAt(I-1,J)<>L Then AddEdge(L,J+1,Nr-I,J,Nr-I);
+    If LabAt(I,J-1)<>L Then AddEdge(L,J,Nr-I,J,Nr-I-1);
+   End;
+  End;
+ Idx:=AllocBlock((Ne+1)*SizeOf(LongInt));
+ For K:=0 to Ne-1do Idx^[K]:=K;
+ SB:=Edges;SLab:=EL;SMode:=4;
+ If Ne>1Then SortIdx(Idx,0,Ne-1);
+ Used:=AllocBlock((Ne+1)*SizeOf(Boolean));
+ For K:=0 to Ne-1do Used^[K]:=False;
+ RB:=AllocBlock((Ne+2)*SizeOf(TPt));
+ {$I-}
+ Assign(F,Out);
+ Rewrite(F);
+ {$I+}
+ If IOResult<>0Then Fail('Error: unable to create output file '+Out);
+ WriteLn(F,'{"type":"FeatureCollection","features":[');
+ First:=True;
+ Pos:=0;
+ While Pos<Ne do Begin
+  { plage des aretes de l'etiquette courante }
+  L:=EL^[Idx^[Pos]];
+  Lo:=Pos;Hi:=Pos;
+  While(Hi<Ne)and(EL^[Idx^[Hi]]=L)do Inc(Hi);
+  Pos:=Hi;
+  InitGeom(EG);InitGeom(HG);
+  For Q:=Lo to Hi-1do Begin
+   If Not Used^[Idx^[Q]]Then Begin
+    Cur:=Idx^[Q];
+    Sx:=Edges^[Cur].X1;Sy:=Edges^[Cur].Y1;
+    RN:=0;
+    Closed:=False;
+    Repeat
+     Used^[Cur]:=True;
+     RB^[RN].X:=Edges^[Cur].X1;RB^[RN].Y:=Edges^[Cur].Y1;
+     Inc(RN);
+     Ex:=Edges^[Cur].X2;Ey:=Edges^[Cur].Y2;
+     If(Ex=Sx)and(Ey=Sy)Then Closed:=True
+      Else
+     Begin
+      Dx:=Ex-Edges^[Cur].X1;Dy:=Ey-Edges^[Cur].Y1;
+      Best:=-1;
+      If Eight Then BestAng:=10 Else BestAng:=-10;
+      { aretes de meme etiquette partant de (Ex,Ey) }
+      Qq:=Lo;Mid:=Hi;
+      While Qq<Mid do Begin
+       J:=(Qq+Mid)div 2;
+       If(Edges^[Idx^[J]].X1<Ex)or((Edges^[Idx^[J]].X1=Ex)and(Edges^[Idx^[J]].Y1<Ey))Then Qq:=J+1
+                                                                                    Else Mid:=J;
+      End;
+      While(Qq<Hi)and(Edges^[Idx^[Qq]].X1=Ex)and(Edges^[Idx^[Qq]].Y1=Ey)do Begin
+       K:=Idx^[Qq];
+       If Not Used^[K]Then Begin
+        Mx:=Edges^[K].X2-Ex;My:=Edges^[K].Y2-Ey;
+        Ang:=Atan2(Dx*My-Dy*Mx,Dx*Mx+Dy*My);
+        If Eight Then Begin
+         If Ang<BestAng Then Begin BestAng:=Ang;Best:=K;End;
+        End
+         Else
+        If Ang>BestAng Then Begin BestAng:=Ang;Best:=K;End;
+       End;
+       Inc(Qq);
+      End;
+      If Best<0Then Cur:=-1 Else Cur:=Best;
+     End;
+    Until Closed or(Cur<0);
+    If Closed and(RN>=4)Then Begin
+     { simplification : on retire les sommets alignes }
+     Pa:=NewPath(EG,RN+1,0);
+     Cnt:=0;
+     For K:=0 to RN-1do Begin
+      I:=(K+RN-1)mod RN;J:=(K+1)mod RN;
+      If((RB^[K].X-RB^[I].X)*(RB^[J].Y-RB^[K].Y)-(RB^[K].Y-RB^[I].Y)*(RB^[J].X-RB^[K].X))<>0Then Begin
+       Pa^.Pts^[Cnt].X:=R.XLL+RB^[K].X*R.Cell;
+       Pa^.Pts^[Cnt].Y:=R.YLL+RB^[K].Y*R.Cell;
+       Inc(Cnt);
+      End;
+     End;
+     Pa^.Pts^[Cnt]:=Pa^.Pts^[0];
+     Pa^.N:=Cnt+1;
+     Pa^.Area:=RingArea(Pa);
+    End;
+   End;
+  End;
+  { exterieurs (aire > 0) et trous }
+  Pa:=EG.First;
+  EG.First:=Nil;EG.Last:=Nil;EG.Count:=0;
+  While Pa<>Nil do Begin
+   Pb:=Pa^.Next;
+   If Pa^.Area>0Then LinkPath(EG,Pa) Else LinkPath(HG,Pa);
+   Pa:=Pb;
+  End;
+  Hp:=HG.First;
+  While Hp<>Nil do Begin
+   Hp^.Poly:=-1;
+   BestArea:=0;
+   Own:=0;
+   Pa:=EG.First;
+   While Pa<>Nil do Begin
+    If(Pa^.Area>Abs(Hp^.Area))and((Hp^.Poly<0)or(Pa^.Area<BestArea))Then Begin
+     Cnt:=0;
+     Owner:=2;
+     While(Cnt<Hp^.N-1)and(Owner=2)do Begin
+      Owner:=PointInRing(Pa,Hp^.Pts^[Cnt].X,Hp^.Pts^[Cnt].Y,R.Cell*1E-6);
+      Inc(Cnt);
+     End;
+     If Owner=1Then Begin
+      Hp^.Poly:=Own;
+      BestArea:=Pa^.Area;
+     End;
+    End;
+    Inc(Own);
+    Pa:=Pa^.Next;
+   End;
+   Hp:=Hp^.Next;
+  End;
+  InitGeom(G);
+  G.Cls:=3;
+  HN:=HG.Count;
+  HArr:=AllocBlock((HN+1)*SizeOf(PPath));
+  K:=0;
+  Hp:=HG.First;
+  While Hp<>Nil do Begin HArr^[K]:=Hp;Inc(K);Hp:=Hp^.Next;End;
+  Own:=0;
+  Pa:=EG.First;
+  While Pa<>Nil do Begin
+   Pb:=Pa^.Next;
+   Pa^.Poly:=Own;
+   LinkPath(G,Pa);
+   For K:=0 to HN-1do
+    If HArr^[K]^.Poly=Own Then LinkPath(G,HArr^[K]);
+   Inc(Own);
+   Pa:=Pb;
+  End;
+  FreeMem(HArr,(HN+1)*SizeOf(PPath));
+  If G.First<>Nil Then Begin
+   Feat:=NewJ(5);
+   JAddKV(Feat,'type',JText('Feature'));
+   Props:=NewJ(5);
+   JAddKV(Props,Fld,JNum(LabVal^[L]));
+   JAddKV(Feat,'properties',Props);
+   JAddKV(Feat,'geometry',BuildPolygons(G));
+   If Not First Then WriteLn(F,',');
+   First:=False;
+   WriteJ(F,Feat);
+  End;
+ End;
+ WriteLn(F);
+ WriteLn(F,']}');
+ Close(F);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Transformee de distance euclidienne exacte (Felzenszwalb) }
+Procedure Edt1D(F,D:PReals;N:LongInt;V:PLongs;Z:PReals);
+Var
+ K,Q:LongInt;
+ S:Real;
+Begin
+ K:=0;
+ V^[0]:=0;
+ Z^[0]:=-1E30;Z^[1]:=1E30;
+ For Q:=1 to N-1do Begin
+  While True do Begin
+   S:=((F^[Q]+Q*1.0*Q)-(F^[V^[K]]+V^[K]*1.0*V^[K]))/(2.0*Q-2.0*V^[K]);
+   If(S<=Z^[K])and(K>0)Then Dec(K) Else Break;
+  End;
+  If S<=Z^[K]Then Begin
+   { la parabole precedente est entierement masquee }
+   V^[K]:=Q;
+  End
+   Else
+  Begin
+   Inc(K);
+   V^[K]:=Q;
+   Z^[K]:=S;
+  End;
+  Z^[K+1]:=1E30;
+ End;
+ K:=0;
+ For Q:=0 to N-1do Begin
+  While Z^[K+1]<Q do Inc(K);
+  D^[Q]:=Sqr(Q-V^[K])+F^[V^[K]];
+ End;
+End;
+
+Procedure RunProximity(A:Integer);
+Var
+ R,O:TRaster;
+ Targets:Array[1..40]of Real;
+ NT,I,J,K,M:LongInt;
+ AllNonZero,InPixels,DoReplace:Boolean;
+ MaxD,Rep,Nd,V,Dist:Real;
+ Fv,Dv,Zv:PReals;
+ Vv:PLongs;
+ Out:String;
+ IsT:Boolean;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ AllNonZero:=Not HasArg('VALUES');
+ NT:=0;
+ If Not AllNonZero Then Begin
+  SplitList(NeedStr(A,'VALUES'),' ,;');
+  For K:=1 to ListCount do Begin
+   Inc(NT);
+   RNum(ListItems[K],Targets[NT]);
+  End;
+ End;
+ InPixels:=Round(NeedReal(A,'UNITS'))=1;
+ MaxD:=NeedReal(A,'MAX_DISTANCE');
+ DoReplace:=HasArg('REPLACE');
+ Rep:=0;
+ If DoReplace Then Rep:=NeedReal(A,'REPLACE');
+ Nd:=NeedReal(A,'NODATA');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,Nd);
+ M:=R.NC;
+ If R.NR>M Then M:=R.NR;
+ Fv:=AllocBlock((M+2)*SizeOf(Real));
+ Dv:=AllocBlock((M+2)*SizeOf(Real));
+ Zv:=AllocBlock((M+3)*SizeOf(Real));
+ Vv:=AllocBlock((M+2)*SizeOf(LongInt));
+ { 1e12 : pas de cible }
+ For I:=0 to R.NR*R.NC-1do Begin
+  V:=R.Data^[I];
+  IsT:=False;
+  If Not IsNoData(R,V)Then Begin
+   If AllNonZero Then IsT:=V<>0
+    Else
+   For K:=1 to NT do If V=Targets[K]Then IsT:=True;
+  End;
+  If IsT Then O.Data^[I]:=0 Else O.Data^[I]:=1E12;
+ End;
+ For J:=0 to R.NC-1do Begin
+  For I:=0 to R.NR-1do Fv^[I]:=O.Data^[I*R.NC+J];
+  Edt1D(Fv,Dv,R.NR,Vv,Zv);
+  For I:=0 to R.NR-1do O.Data^[I*R.NC+J]:=Dv^[I];
+ End;
+ For I:=0 to R.NR-1do Begin
+  For J:=0 to R.NC-1do Fv^[J]:=O.Data^[I*R.NC+J];
+  Edt1D(Fv,Dv,R.NC,Vv,Zv);
+  For J:=0 to R.NC-1do Begin
+   If Dv^[J]>=1E11Then Dist:=-1 Else Dist:=Sqrt(Dv^[J]);
+   V:=R.Data^[I*R.NC+J];
+   If IsNoData(R,V)Then Dist:=-1;
+   If Dist>=0Then Begin
+    If Not InPixels Then Dist:=Dist*R.Cell;
+    If(MaxD>0)and(Dist>MaxD)Then Dist:=-1;
+   End;
+   If Dist<0Then O.Data^[I*R.NC+J]:=Nd
+    Else
+   Begin
+    O.Data^[I*R.NC+J]:=Dist;
+    If DoReplace and(Dist=0)Then O.Data^[I*R.NC+J]:=Rep;
+   End;
+  End;
+ End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+{ ---- calculatrice raster ---- }
+Const
+ MaxCode=200;
+Var
+ CalcS:String;
+ CalcP:Integer;
+ CodeOp:Array[1..MaxCode]of Byte;
+ CodeV:Array[1..MaxCode]of Real;
+ CodeN:Integer;
+
+Procedure CFail(Msg:String);Begin
+ Fail('Error: invalid formula ('+Msg+') near position '+IntToStr(CalcP));
+End;
+
+Procedure CEmit(Op:Byte;V:Real);Begin
+ If CodeN>=MaxCode Then CFail('formula too long');
+ Inc(CodeN);
+ CodeOp[CodeN]:=Op;
+ CodeV[CodeN]:=V;
+End;
+
+Procedure CSkip;Begin
+ While(CalcP<=Length(CalcS))and(CalcS[CalcP]=' ')do Inc(CalcP);
+End;
+
+Function COp(S:String):Boolean;Begin
+ CSkip;
+ COp:=False;
+ If Copy(CalcS,CalcP,Length(S))=S Then Begin
+  Inc(CalcP,Length(S));
+  COp:=True;
+ End;
+End;
+
+Procedure CExpr;Forward;
+
+Procedure CPrimary;
+Var
+ Start:Integer;
+ Name:String;
+ V:Real;
+ E:Integer;
+ Op:Byte;
+ Two:Boolean;
+Begin
+ CSkip;
+ If CalcP>Length(CalcS)Then CFail('unexpected end');
+ If CalcS[CalcP]='('Then Begin
+  Inc(CalcP);
+  CExpr;
+  If Not COp(')')Then CFail('")" expected');
+ End
+  Else
+ If CalcS[CalcP]in['0'..'9','.']Then Begin
+  Start:=CalcP;
+  While(CalcP<=Length(CalcS))and(CalcS[CalcP]in['0'..'9','.'])do Inc(CalcP);
+  If(CalcP<=Length(CalcS))and(CalcS[CalcP]in['e','E'])Then Begin
+   Inc(CalcP);
+   If(CalcP<=Length(CalcS))and(CalcS[CalcP]in['+','-'])Then Inc(CalcP);
+   While(CalcP<=Length(CalcS))and(CalcS[CalcP]in['0'..'9'])do Inc(CalcP);
+  End;
+  Val(Copy(CalcS,Start,CalcP-Start),V,E);
+  If E<>0Then CFail('invalid number');
+  CEmit(1,V);
+ End
+  Else
+ If UpCase(CalcS[CalcP])in['A'..'Z']Then Begin
+  Start:=CalcP;
+  While(CalcP<=Length(CalcS))and(UpCase(CalcS[CalcP])in['A'..'Z','0'..'9','_'])do Inc(CalcP);
+  Name:=StrUpper(Copy(CalcS,Start,CalcP-Start));
+  CSkip;
+  If(CalcP<=Length(CalcS))and(CalcS[CalcP]='(')Then Begin
+   Inc(CalcP);
+   Two:=False;
+   Op:=0;
+   If Name='SQRT'Then Op:=20 Else If Name='ABS'Then Op:=21 Else
+   If Name='SIN'Then Op:=22 Else If Name='COS'Then Op:=23 Else
+   If Name='TAN'Then Op:=24 Else If Name='EXP'Then Op:=25 Else
+   If(Name='LOG')or(Name='LN')Then Op:=26 Else If Name='LOG10'Then Op:=27 Else
+   If Name='FLOOR'Then Op:=28 Else If Name='CEIL'Then Op:=29 Else
+   If Name='ROUND'Then Op:=30 Else If(Name='MAXIMUM')or(Name='MAX')Then Begin Op:=31;Two:=True;End Else
+   If(Name='MINIMUM')or(Name='MIN')Then Begin Op:=32;Two:=True;End Else
+   If Name='ATAN'Then Op:=33
+    Else
+   CFail('unknown function '+Name);
+   CExpr;
+   If Two Then Begin
+    If Not COp(',')Then CFail('"," expected');
+    CExpr;
+   End;
+   If Not COp(')')Then CFail('")" expected');
+   CEmit(Op,0);
+  End
+   Else
+  Begin
+   If(Length(Name)<>1)or(Name[1]>'F')Then CFail('unknown variable '+Name);
+   CEmit(2,Ord(Name[1])-Ord('A'));
+  End;
+ End
+  Else
+ CFail('unexpected character "'+CalcS[CalcP]+'"');
+End;
+
+Procedure CUnary;Forward;
+
+Procedure CPow;Begin
+ CPrimary;
+ If COp('**')or COp('^')Then Begin
+  CUnary;
+  CEmit(7,0);
+ End;
+End;
+
+Procedure CUnary;Begin
+ If COp('-')Then Begin
+  CUnary;
+  CEmit(8,0);
+ End
+  Else
+ CPow;
+End;
+
+Procedure CMul;
+Var
+ Op:Byte;
+Begin
+ CUnary;
+ While True do Begin
+  CSkip;
+  If(CalcP<=Length(CalcS))and(CalcS[CalcP]='*')and(Copy(CalcS,CalcP,2)<>'**')Then Op:=5 Else
+  If(CalcP<=Length(CalcS))and(CalcS[CalcP]='/')Then Op:=6
+                                               Else Break;
+  Inc(CalcP);
+  CUnary;
+  CEmit(Op,0);
+ End;
+End;
+
+Procedure CAdd;
+Var
+ Op:Byte;
+Begin
+ CMul;
+ While True do Begin
+  If COp('+')Then Op:=3 Else
+  If COp('-')Then Op:=4 Else Break;
+  CMul;
+  CEmit(Op,0);
+ End;
+End;
+
+Procedure CExpr;
+Var
+ Op:Byte;
+Begin
+ CAdd;
+ Op:=0;
+ If COp('<=')Then Op:=11 Else If COp('>=')Then Op:=12 Else
+ If COp('==')Then Op:=13 Else If COp('!=')Then Op:=14 Else
+ If COp('<')Then Op:=9 Else If COp('>')Then Op:=10;
+ If Op>0Then Begin
+  CAdd;
+  CEmit(Op,0);
+ End;
+End;
+
+{ Evalue le code compile ; Faux si le resultat n'est pas un nombre fini }
+Function CEval(Var Vars:Array of Real;Var Res:Real):Boolean;
+Var
+ St:Array[1..64]of Real;
+ Sp,I:Integer;
+ X,Y:Real;
+Begin
+ Sp:=0;
+ CEval:=False;
+ For I:=1 to CodeN do Begin
+  Case CodeOp[I]of
+   1:Begin Inc(Sp);St[Sp]:=CodeV[I];End;
+   2:Begin Inc(Sp);St[Sp]:=Vars[Round(CodeV[I])];End;
+   8:St[Sp]:=-St[Sp];
+   20..30,33:Begin
+    X:=St[Sp];
+    Case CodeOp[I]of
+     20:If X<0Then Exit Else X:=Sqrt(X);
+     21:X:=Abs(X);
+     22:X:=Sin(X);
+     23:X:=Cos(X);
+     24:If Cos(X)=0Then Exit Else X:=Sin(X)/Cos(X);
+     25:If X>700Then Exit Else X:=Exp(X);
+     26:If X<=0Then Exit Else X:=Ln(X);
+     27:If X<=0Then Exit Else X:=Ln(X)/Ln(10);
+     28:X:=FloorR(X);
+     29:X:=-FloorR(-X);
+     30:X:=FloorR(X+0.5);
+     33:X:=ArcTan(X);
+    End;
+    St[Sp]:=X;
+   End;
+   Else Begin
+    Y:=St[Sp];Dec(Sp);
+    X:=St[Sp];
+    Case CodeOp[I]of
+     3:X:=X+Y;
+     4:X:=X-Y;
+     5:X:=X*Y;
+     6:If Y=0Then Exit Else X:=X/Y;
+     7:Begin
+      If X=0Then Begin
+       If Y<0Then Exit Else If Y=0Then X:=1 Else X:=0;
+      End
+       Else
+      If X<0Then Begin
+       If Y<>Int(Y)Then Exit;
+       X:=Exp(Y*Ln(-X));
+       If Odd(Round(Y))Then X:=-X;
+      End
+       Else
+      X:=Exp(Y*Ln(X));
+     End;
+     9:If X<Y Then X:=1 Else X:=0;
+     10:If X>Y Then X:=1 Else X:=0;
+     11:If X<=Y Then X:=1 Else X:=0;
+     12:If X>=Y Then X:=1 Else X:=0;
+     13:If X=Y Then X:=1 Else X:=0;
+     14:If X<>Y Then X:=1 Else X:=0;
+     31:If Y>X Then X:=Y;
+     32:If Y<X Then X:=Y;
+    End;
+    St[Sp]:=X;
+   End;
+  End;
+ End;
+ Res:=St[1];
+ CEval:=Abs(Res)<1E300;
+End;
+
+Procedure RunRasterCalc(A:Integer);
+Var
+ Rs:Array[0..5]of TRaster;
+ Have:Array[0..5]of Boolean;
+ Names:String;
+ O:TRaster;
+ Vars:Array[0..5]of Real;
+ I,K,N:LongInt;
+ Out:String;
+ Nd,V:Real;
+ Ok:Boolean;
+Begin
+ Names:='ABCDEF';
+ For K:=0 to 5do Begin
+  Have[K]:=(K=0)or HasArg('INPUT_'+Names[K+1]);
+  If Have[K]Then ReadRaster(NeedStr(A,'INPUT_'+Names[K+1]),Rs[K]);
+  Vars[K]:=0;
+ End;
+ For K:=1 to 5do
+  If Have[K]Then
+   If(Rs[K].NC<>Rs[0].NC)or(Rs[K].NR<>Rs[0].NR)Then
+    Fail('Error: all input rasters must have the same size');
+ CalcS:=NeedStr(A,'FORMULA');
+ CalcP:=1;CodeN:=0;
+ CExpr;
+ CSkip;
+ If CalcP<=Length(CalcS)Then CFail('unexpected token');
+ { variables utilisees mais non fournies }
+ For I:=1 to CodeN do
+  If CodeOp[I]=2Then
+   If Not Have[Round(CodeV[I])]Then Fail('Error: the formula uses '+Names[Round(CodeV[I])+1]+' but INPUT_'+Names[Round(CodeV[I])+1]+' is not set');
+ Out:=NeedStr(A,'OUTPUT');
+ Nd:=Rs[0].NoData;
+ If HasArg('NO_DATA')Then Nd:=NeedReal(A,'NO_DATA');
+ NewRaster(O,Rs[0].NC,Rs[0].NR,Rs[0].XLL,Rs[0].YLL,Rs[0].Cell,Nd);
+ N:=Rs[0].NC*Rs[0].NR;
+ For I:=0 to N-1do Begin
+  Ok:=True;
+  For K:=0 to 5do
+   If Have[K]Then Begin
+    Vars[K]:=Rs[K].Data^[I];
+    If IsNoData(Rs[K],Vars[K])Then Ok:=False;
+   End;
+  If Ok and CEval(Vars,V)Then O.Data^[I]:=V;
+ End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunRetile(A:Integer);
+Var
+ R,O:TRaster;
+ Dir,Base,Name:String;
+ Tx,Ty,Ov,I,J,Ti,Tj,R0,C0,Nr,Nc,Count:LongInt;
+Begin
+ SplitList(NeedStr(A,'INPUT'),';');
+ If ListCount<>1Then Fail('Error: exactly one input raster is supported');
+ Base:=BaseName(ListItems[1]);
+ ReadRaster(ListItems[1],R);
+ Tx:=Round(NeedReal(A,'TILE_SIZE_X'));
+ Ty:=Round(NeedReal(A,'TILE_SIZE_Y'));
+ Ov:=Round(NeedReal(A,'OVERLAP'));
+ If(Tx<1)or(Ty<1)or(Ov<0)or(Ov>=Tx)or(Ov>=Ty)Then Fail('Error: invalid tile size or overlap');
+ Dir:=NeedStr(A,'OUTPUT');
+ If Dir=''Then Fail('Error: OUTPUT must be a directory');
+ If(Dir[Length(Dir)]='/')or(Dir[Length(Dir)]='\')Then Dir:=Copy(Dir,1,Length(Dir)-1);
+ {$I-}
+ MkDir(Dir);
+ If IOResult<>0Then Begin End;
+ {$I+}
+ Count:=0;
+ Ti:=0;
+ R0:=0;
+ While R0<R.NR do Begin
+  Tj:=0;
+  C0:=0;
+  While C0<R.NC do Begin
+   Nr:=Ty;
+   If R0+Nr>R.NR Then Nr:=R.NR-R0;
+   Nc:=Tx;
+   If C0+Nc>R.NC Then Nc:=R.NC-C0;
+   NewRaster(O,Nc,Nr,R.XLL+C0*R.Cell,RasterTop(R)-(R0+Nr)*R.Cell,R.Cell,R.NoData);
+   For I:=0 to Nr-1do
+    For J:=0 to Nc-1do O.Data^[I*Nc+J]:=R.Data^[(R0+I)*R.NC+C0+J];
+   Name:=Dir+'/'+Base+'_'+IntToStr(Ti+1)+'_'+IntToStr(Tj+1)+'.asc';
+   WriteRaster(Name,O);
+   Inc(Count);
+   Inc(Tj);
+   C0:=C0+Tx-Ov;
+  End;
+  Inc(Ti);
+  R0:=R0+Ty-Ov;
+ End;
+ AddRes('OUTPUT',Dir);
+ AddRes('TILE_COUNT',IntToStr(Count));
+End;
+
+{ Voisinage 3x3 : valeur en (I+Di,J+Dj), le centre remplace les valeurs absentes }
+Function Nb(Var R:TRaster;I,J,Di,Dj:LongInt):Real;
+Var
+ Ri,Cj:LongInt;
+ V:Real;
+Begin
+ Ri:=I+Di;Cj:=J+Dj;
+ If(Ri<0)or(Ri>=R.NR)or(Cj<0)or(Cj>=R.NC)Then Nb:=R.Data^[I*R.NC+J]
+  Else
+ Begin
+  V:=R.Data^[Ri*R.NC+Cj];
+  If IsNoData(R,V)Then V:=R.Data^[I*R.NC+J];
+  Nb:=V;
+ End;
+End;
+
+Procedure RunRoughness(A:Integer);
+Var
+ R,O:TRaster;
+ Edges:Boolean;
+ I,J,Di,Dj:LongInt;
+ Mn,Mx,V:Real;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ Edges:=NeedBool(A,'COMPUTE_EDGES');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
+ For I:=0 to R.NR-1do
+  For J:=0 to R.NC-1do
+   If Not IsNoData(R,R.Data^[I*R.NC+J])Then
+    If Edges or((I>0)and(J>0)and(I<R.NR-1)and(J<R.NC-1))Then Begin
+     Mn:=R.Data^[I*R.NC+J];Mx:=Mn;
+     For Di:=-1 to 1do
+      For Dj:=-1 to 1do Begin
+       V:=Nb(R,I,J,Di,Dj);
+       If V<Mn Then Mn:=V;
+       If V>Mx Then Mx:=V;
+      End;
+     O.Data^[I*R.NC+J]:=Mx-Mn;
+    End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunSlope(A:Integer);
+Var
+ R,O:TRaster;
+ Edges,Percent,Zev:Boolean;
+ I,J:LongInt;
+ Sc,Dzdx,Dzdy,S:Real;
+ Z:Array[1..9]of Real;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ Sc:=NeedReal(A,'SCALE');
+ If Sc<=0Then Fail('Error: SCALE must be greater than 0');
+ Percent:=NeedBool(A,'AS_PERCENT');
+ Edges:=NeedBool(A,'COMPUTE_EDGES');
+ Zev:=NeedBool(A,'ZEVENBERGEN');
+ Out:=NeedStr(A,'OUTPUT');
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
+ For I:=0 to R.NR-1do
+  For J:=0 to R.NC-1do
+   If Not IsNoData(R,R.Data^[I*R.NC+J])Then
+    If Edges or((I>0)and(J>0)and(I<R.NR-1)and(J<R.NC-1))Then Begin
+     { Z[1..9] : a b c / d e f / g h i }
+     Z[1]:=Nb(R,I,J,-1,-1);Z[2]:=Nb(R,I,J,-1,0);Z[3]:=Nb(R,I,J,-1,1);
+     Z[4]:=Nb(R,I,J,0,-1);Z[5]:=Nb(R,I,J,0,0);Z[6]:=Nb(R,I,J,0,1);
+     Z[7]:=Nb(R,I,J,1,-1);Z[8]:=Nb(R,I,J,1,0);Z[9]:=Nb(R,I,J,1,1);
+     If Zev Then Begin
+      Dzdx:=(Z[6]-Z[4])/(2*R.Cell);
+      Dzdy:=(Z[8]-Z[2])/(2*R.Cell);
+     End
+      Else
+     Begin
+      Dzdx:=((Z[3]+2*Z[6]+Z[9])-(Z[1]+2*Z[4]+Z[7]))/(8*R.Cell);
+      Dzdy:=((Z[7]+2*Z[8]+Z[9])-(Z[1]+2*Z[2]+Z[3]))/(8*R.Cell);
+     End;
+     S:=Sqrt(Dzdx*Dzdx+Dzdy*Dzdy)/Sc;
+     If Percent Then O.Data^[I*R.NC+J]:=100*S
+                Else O.Data^[I*R.NC+J]:=Rad2Deg(ArcTan(S));
+    End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunSieve(A:Integer);
+Var
+ R:TRaster;
+ Lab,Stack,Size,Ord:PLongs;
+ LabVal:PReals;
+ N,K,I,J,Nl,Sp,Thr,L,Pass,BestL,BestSz,Q,Dr,Dc,R2,C2,Oi:LongInt;
+ Eight,Changed:Boolean;
+ Out:String;
+ V0:Real;
+ Nrr,Ncc:LongInt;
+
+ Procedure Flood(Seed,Lb:LongInt);
+ Var
+  Kk,Ri,Ci,D1,D2,Rr,Cc,Qq:LongInt;
+ Begin
+  V0:=R.Data^[Seed];
+  Lab^[Seed]:=Lb;
+  Sp:=0;
+  Stack^[Sp]:=Seed;Inc(Sp);
+  While Sp>0do Begin
+   Dec(Sp);
+   Kk:=Stack^[Sp];
+   Ri:=Kk div Ncc;Ci:=Kk mod Ncc;
+   For D1:=-1 to 1do
+    For D2:=-1 to 1do
+     If((D1<>0)or(D2<>0))and(Eight or(D1=0)or(D2=0))Then Begin
+      Rr:=Ri+D1;Cc:=Ci+D2;
+      If(Rr>=0)and(Rr<Nrr)and(Cc>=0)and(Cc<Ncc)Then Begin
+       Qq:=Rr*Ncc+Cc;
+       If(Lab^[Qq]=-1)and(Not IsNoData(R,R.Data^[Qq]))and(R.Data^[Qq]=V0)Then Begin
+        Lab^[Qq]:=Lb;
+        Stack^[Sp]:=Qq;Inc(Sp);
+       End;
+      End;
+     End;
+  End;
+ End;
+
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ Thr:=Round(NeedReal(A,'THRESHOLD'));
+ Eight:=NeedBool(A,'EIGHT_CONNECTEDNESS');
+ Out:=NeedStr(A,'OUTPUT');
+ If Thr<1Then Fail('Error: THRESHOLD must be at least 1');
+ Nrr:=R.NR;Ncc:=R.NC;
+ N:=Nrr*Ncc;
+ Lab:=AllocBlock(N*SizeOf(LongInt));
+ Stack:=AllocBlock(N*SizeOf(LongInt));
+ Size:=AllocBlock((N+1)*SizeOf(LongInt));
+ LabVal:=AllocBlock((N+1)*SizeOf(Real));
+ For Pass:=1 to 100do Begin
+  For K:=0 to N-1do Lab^[K]:=-1;
+  Nl:=0;
+  For K:=0 to N-1do
+   If(Lab^[K]=-1)and Not IsNoData(R,R.Data^[K])Then Begin
+    LabVal^[Nl]:=R.Data^[K];
+    Flood(K,Nl);
+    Inc(Nl);
+   End;
+  For L:=0 to Nl-1do Size^[L]:=0;
+  For K:=0 to N-1do If Lab^[K]>=0Then Inc(Size^[Lab^[K]]);
+  Changed:=False;
+  { chaque petite region (la plus petite d'abord) est fusionnee avec son plus grand voisin }
+  Ord:=AllocBlock((Nl+1)*SizeOf(LongInt));
+  For L:=0 to Nl-1do Ord^[L]:=L;
+  SLab:=Size;SMode:=5;
+  If Nl>1Then SortIdx(Ord,0,Nl-1);
+  For Oi:=0 to Nl-1do Begin
+   L:=Ord^[Oi];
+   If Size^[L]<Thr Then Begin
+    BestL:=-1;BestSz:=0;
+    For K:=0 to N-1do
+     If Lab^[K]=L Then Begin
+      I:=K div Ncc;J:=K mod Ncc;
+      For Dr:=-1 to 1do
+       For Dc:=-1 to 1do
+        If((Dr<>0)or(Dc<>0))and(Eight or(Dr=0)or(Dc=0))Then Begin
+         R2:=I+Dr;C2:=J+Dc;
+         If(R2>=0)and(R2<Nrr)and(C2>=0)and(C2<Ncc)Then Begin
+          Q:=Lab^[R2*Ncc+C2];
+          If(Q>=0)and(Q<>L)and(Size^[Q]>BestSz)Then Begin BestSz:=Size^[Q];BestL:=Q;End;
+         End;
+        End;
+     End;
+    If BestL>=0Then Begin
+     For K:=0 to N-1do If Lab^[K]=L Then Begin
+      R.Data^[K]:=LabVal^[BestL];
+      Lab^[K]:=BestL;
+     End;
+     Size^[BestL]:=Size^[BestL]+Size^[L];
+     Size^[L]:=N+1;   { region fusionnee : ne sera plus traitee }
+     Changed:=True;
+    End;
+   End;
+  End;
+  FreeMem(Ord,(Nl+1)*SizeOf(LongInt));
+  If Not Changed Then Break;
+ End;
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunTileIndex(A:Integer);
+Var
+ R:TRaster;
+ Root,Arr,F,Props,Gm,Ring,Poly:PJ;
+ Fld,Out,Path,Dir:String;
+ K:Integer;
+ Absolute:Boolean;
+ X1,Y1,X2,Y2:Real;
+Begin
+ SplitList(NeedStr(A,'INPUT'),';');
+ If ListCount=0Then Fail('Error: INPUT is empty');
+ Fld:=NeedStr(A,'FIELD_NAME');
+ Absolute:=NeedBool(A,'ABSOLUTE_PATH');
+ Out:=NeedStr(A,'OUTPUT');
+ Root:=NewJ(5);
+ JAddKV(Root,'type',JText('FeatureCollection'));
+ Arr:=NewJ(4);
+ JAddKV(Root,'features',Arr);
+ RasterHeaderOnly:=True;
+ For K:=1 to ListCount do Begin
+  ReadRaster(ListItems[K],R);
+  X1:=R.XLL;Y1:=R.YLL;X2:=R.XLL+R.NC*R.Cell;Y2:=R.YLL+R.NR*R.Cell;
+  Path:=ListItems[K];
+  If Absolute and Not((Path[1]in['/','\'])or((Length(Path)>1)and(Path[2]=':')))Then Begin
+   GetDir(0,Dir);
+   Path:=Dir+'/'+Path;
+  End;
+  F:=NewJ(5);
+  JAddKV(F,'type',JText('Feature'));
+  Props:=NewJ(5);
+  JAddKV(Props,Fld,JText(Path));
+  JAddKV(F,'properties',Props);
+  Poly:=NewJ(4);
+  Ring:=NewJ(4);
+  JAdd(Ring,CoordNode(X1,Y1));JAdd(Ring,CoordNode(X2,Y1));
+  JAdd(Ring,CoordNode(X2,Y2));JAdd(Ring,CoordNode(X1,Y2));
+  JAdd(Ring,CoordNode(X1,Y1));
+  JAdd(Poly,Ring);
+  Gm:=GeomNode('Polygon',Poly);
+  JAddKV(F,'geometry',Gm);
+  JAdd(Arr,F);
+ End;
+ RasterHeaderOnly:=False;
+ SaveLayer(Out,Root);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Recadrage a des limites georeferencees (comme gdal_translate -projwin) }
+Procedure CropRaster(Var R:TRaster;X1,X2,Y1,Y2:Real;Var O:TRaster);
+Var
+ YTop:Real;
+ C0,C1,R0,R1,I,J:LongInt;
+Begin
+ YTop:=RasterTop(R);
  C0:=RoundL((X1-R.XLL)/R.Cell);
  C1:=RoundL((X2-R.XLL)/R.Cell);
  R0:=RoundL((YTop-Y2)/R.Cell);
@@ -3635,18 +5567,233 @@ Begin
  If C1>R.NC Then C1:=R.NC;
  If R1>R.NR Then R1:=R.NR;
  If(C1<=C0)or(R1<=R0)Then Fail('Error: the extent does not intersect the raster');
- O.NC:=C1-C0;O.NR:=R1-R0;
- O.XLL:=R.XLL+C0*R.Cell;
- O.YLL:=YTop-R1*R.Cell;
- O.Cell:=R.Cell;
- O.NoData:=NewNd;
- O.Data:=AllocBlock(O.NC*O.NR*SizeOf(Real));
+ NewRaster(O,C1-C0,R1-R0,R.XLL+C0*R.Cell,YTop-R1*R.Cell,R.Cell,R.NoData);
  For I:=0 to O.NR-1do
-  For J:=0 to O.NC-1do Begin
-   V:=R.Data^[(I+R0)*R.NC+J+C0];
-   If IsNoData(R,V)Then V:=NewNd;
-   O.Data^[I*O.NC+J]:=V;
+  For J:=0 to O.NC-1do O.Data^[I*O.NC+J]:=R.Data^[(I+R0)*R.NC+J+C0];
+End;
+
+Procedure ParsePoint(S:String;Var X,Y:Real);
+Var
+ P:Integer;
+ T:String;
+Begin
+ P:=Pos('[',S);
+ If P>0Then S:=Copy(S,1,P-1);
+ P:=Pos(',',S);
+ If P=0Then Fail('Error: invalid point, expected x,y [EPSG:code]');
+ T:=Copy(S,1,P-1);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
+ Val(T,X,P);
+ T:=Copy(S,Pos(',',S)+1,255);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
+ If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
+ Val(T,Y,P);
+End;
+
+Procedure RunTranslate(A:Integer);
+Var
+ R,O,T:TRaster;
+ Out,Tok:String;
+ Dtype,K,I,J,W,H,Si,Sj:LongInt;
+ X1,X2,Y1,Y2,Nd,V,Lo,Hi,Cw,Ch,Pc:Real;
+ HaveNd,HaveWin,HaveSize:Boolean;
+ Sv:Single;
+ Code:Integer;
+ Pct:Boolean;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ Dtype:=Round(NeedReal(A,'DATA_TYPE'));
+ If(Dtype<0)or(Dtype>7)Then Fail('Error: DATA_TYPE must be between 0 and 7');
+ Out:=NeedStr(A,'OUTPUT');
+ Nd:=R.NoData;
+ HaveNd:=HasArg('NODATA');
+ If HaveNd Then Nd:=NeedReal(A,'NODATA');
+ HaveWin:=False;HaveSize:=False;
+ X1:=0;X2:=0;Y1:=0;Y2:=0;W:=0;H:=0;Pct:=False;Pc:=0;
+ SplitList(NeedStr(A,'EXTRA'),' ');
+ K:=1;
+ While K<=ListCount do Begin
+  Tok:=ListItems[K];
+  If Tok='-projwin'Then Begin
+   If K+4>ListCount Then Fail('Error: -projwin needs ulx uly lrx lry');
+   RNum(ListItems[K+1],X1);RNum(ListItems[K+2],Y2);
+   RNum(ListItems[K+3],X2);RNum(ListItems[K+4],Y1);
+   HaveWin:=True;
+   Inc(K,5);
+  End
+   Else
+  If Tok='-outsize'Then Begin
+   If K+2>ListCount Then Fail('Error: -outsize needs width height');
+   If(ListItems[K+1][Length(ListItems[K+1])]='%')Then Begin
+    Pct:=True;
+    RNum(Copy(ListItems[K+1],1,Length(ListItems[K+1])-1),Pc);
+   End
+    Else
+   Begin
+    Val(ListItems[K+1],W,Code);
+    If Code<>0Then Fail('Error: invalid -outsize value');
+    Val(ListItems[K+2],H,Code);
+    If Code<>0Then Fail('Error: invalid -outsize value');
+   End;
+   HaveSize:=True;
+   Inc(K,3);
+  End
+   Else
+  If Tok='-a_nodata'Then Begin
+   If K+1>ListCount Then Fail('Error: -a_nodata needs a value');
+   RNum(ListItems[K+1],Nd);
+   HaveNd:=True;
+   Inc(K,2);
+  End
+   Else
+  If Tok='-b'Then Begin
+   If(K+1>ListCount)or(ListItems[K+1]<>'1')Then Fail('Error: only band 1 is available');
+   Inc(K,2);
+  End
+   Else
+  Fail('Error: unsupported option in EXTRA: '+Tok);
+ End;
+ If HaveWin Then Begin
+  If(X2<=X1)or(Y2<=Y1)Then Fail('Error: invalid -projwin');
+  CropRaster(R,X1,X2,Y1,Y2,T);
+  R:=T;
+ End;
+ If HaveSize Then Begin
+  If Pct Then Begin
+   W:=RoundL(R.NC*Pc/100);
+   H:=RoundL(R.NR*Pc/100);
+  End
+   Else
+  Begin
+   If(W=0)and(H>0)Then W:=RoundL(R.NC*H/R.NR);
+   If(H=0)and(W>0)Then H:=RoundL(R.NR*W/R.NC);
   End;
+  If(W<1)or(H<1)Then Fail('Error: invalid -outsize');
+  Cw:=R.Cell*R.NC/W;Ch:=R.Cell*R.NR/H;
+  If Abs(Cw-Ch)>1E-6*Cw Then Fail('Error: non-square pixels are not supported');
+  NewRaster(O,W,H,R.XLL,RasterTop(R)-H*Cw,Cw,R.NoData);
+  For I:=0 to H-1do
+   For J:=0 to W-1do Begin
+    Si:=FloorL((I+0.5)*R.NR/H);
+    Sj:=FloorL((J+0.5)*R.NC/W);
+    If Si>=R.NR Then Si:=R.NR-1;
+    If Sj>=R.NC Then Sj:=R.NC-1;
+    O.Data^[I*W+J]:=R.Data^[Si*R.NC+Sj];
+   End;
+  R:=O;
+ End;
+ { valeur de nodata et type de donnees }
+ If HaveNd Then Begin
+  For I:=0 to R.NR*R.NC-1do
+   If IsNoData(R,R.Data^[I])Then R.Data^[I]:=Nd;
+  R.NoData:=Nd;
+ End;
+ If Dtype>=1Then Begin
+  Lo:=0;Hi:=0;
+  Case Dtype of
+   1:Begin Lo:=0;Hi:=255;End;
+   2:Begin Lo:=-32768;Hi:=32767;End;
+   3:Begin Lo:=0;Hi:=65535;End;
+   4:Begin Lo:=0;Hi:=4294967295.0;End;
+   5:Begin Lo:=-2147483648.0;Hi:=2147483647.0;End;
+  End;
+  For I:=0 to R.NR*R.NC-1do Begin
+   V:=R.Data^[I];
+   If Not IsNoData(R,V)Then Begin
+    If Dtype<=5Then Begin
+     V:=FloorR(V+0.5);
+     If V<Lo Then V:=Lo;
+     If V>Hi Then V:=Hi;
+    End
+     Else
+    If Dtype=6Then Begin Sv:=V;V:=Sv;End;
+    R.Data^[I]:=V;
+   End;
+  End;
+ End;
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+Procedure RunViewshed(A:Integer);
+Var
+ R,O:TRaster;
+ ObsX,ObsY,H0,Ht,MaxD,Z0,Z,Zt,D,Slope,MaxS,Dist:Real;
+ Oc,Orow,Rad,Ri,Ci,Dr,Dc,Steps,S,Rr,Cc,I:LongInt;
+ Vis:Boolean;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ CheckBand(A);
+ ParsePoint(NeedStr(A,'OBSERVER'),ObsX,ObsY);
+ H0:=NeedReal(A,'OBSERVER_HEIGHT');
+ Ht:=NeedReal(A,'TARGET_HEIGHT');
+ MaxD:=NeedReal(A,'MAX_DISTANCE');
+ If MaxD<=0Then Fail('Error: MAX_DISTANCE must be greater than 0');
+ Out:=NeedStr(A,'OUTPUT');
+ Oc:=FloorL((ObsX-R.XLL)/R.Cell);
+ Orow:=FloorL((RasterTop(R)-ObsY)/R.Cell);
+ If(Oc<0)or(Oc>=R.NC)or(Orow<0)or(Orow>=R.NR)Then Fail('Error: the observer is outside the raster');
+ If IsNoData(R,R.Data^[Orow*R.NC+Oc])Then Fail('Error: the observer is on a nodata pixel');
+ Z0:=R.Data^[Orow*R.NC+Oc]+H0;
+ NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
+ For I:=0 to R.NR*R.NC-1do O.Data^[I]:=0;
+ Rad:=CeilL(MaxD/R.Cell);
+ For Ri:=Orow-Rad to Orow+Rad do
+  For Ci:=Oc-Rad to Oc+Rad do
+   If(Ri>=0)and(Ri<R.NR)and(Ci>=0)and(Ci<R.NC)Then Begin
+    Dr:=Ri-Orow;Dc:=Ci-Oc;
+    Dist:=Sqrt(Dr*1.0*Dr+Dc*1.0*Dc)*R.Cell;
+    If Dist<=MaxD Then Begin
+     Zt:=R.Data^[Ri*R.NC+Ci];
+     If Not IsNoData(R,Zt)Then Begin
+      If Dist=0Then Vis:=True
+       Else
+      Begin
+       MaxS:=-1E30;
+       Steps:=Abs(Dr);
+       If Abs(Dc)>Steps Then Steps:=Abs(Dc);
+       For S:=1 to Steps-1do Begin
+        Rr:=Orow+RoundL(Dr*S/Steps);
+        Cc:=Oc+RoundL(Dc*S/Steps);
+        Z:=R.Data^[Rr*R.NC+Cc];
+        If Not IsNoData(R,Z)Then Begin
+         D:=Sqrt((Rr-Orow)*1.0*(Rr-Orow)+(Cc-Oc)*1.0*(Cc-Oc))*R.Cell;
+         Slope:=(Z-Z0)/D;
+         If Slope>MaxS Then MaxS:=Slope;
+        End;
+       End;
+       Vis:=(Zt+Ht-Z0)/Dist>=MaxS;
+      End;
+      If Vis Then O.Data^[Ri*R.NC+Ci]:=255;
+     End;
+    End;
+   End;
+ WriteRaster(Out,O);
+ AddRes('OUTPUT',Out);
+End;
+
+
+Procedure RunClipRaster(A:Integer);
+Var
+ R,O:TRaster;
+ X1,X2,Y1,Y2,NewNd,V:Real;
+ I:LongInt;
+ Out:String;
+Begin
+ ReadRaster(NeedStr(A,'INPUT'),R);
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Out:=NeedStr(A,'OUTPUT');
+ NewNd:=R.NoData;
+ If HasArg('NODATA')Then NewNd:=NeedReal(A,'NODATA');
+ CropRaster(R,X1,X2,Y1,Y2,O);
+ For I:=0 to O.NR*O.NC-1do Begin
+  V:=O.Data^[I];
+  If IsNoData(O,V)Then O.Data^[I]:=NewNd;
+ End;
+ O.NoData:=NewNd;
  WriteRaster(Out,O);
  AddRes('OUTPUT',Out);
 End;
@@ -3787,6 +5934,25 @@ Begin
   14:RunPixelsToPoints(A);
   15:RunClipRaster(A);
   16:RunWarp(A);
+  17:RunNearBlack(A);
+  18:RunOffsetCurve(A);
+  19:RunOgrInfo(A);
+  20:RunOneSideBuffer(A);
+  21:RunOverviews(A);
+  22:RunPanSharp(A);
+  23:RunPolygonize(A);
+  24:RunProximity(A);
+  25:RunRasterCalc(A);
+  26:RunRasterize(A);
+  27:RunRasterizeOver(A,False);
+  28:RunRasterizeOver(A,True);
+  29:RunRetile(A);
+  30:RunRoughness(A);
+  31:RunSieve(A);
+  32:RunSlope(A);
+  33:RunTileIndex(A);
+  34:RunTranslate(A);
+  35:RunViewshed(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
