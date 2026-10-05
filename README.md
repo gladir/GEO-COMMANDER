@@ -74,7 +74,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>QGIS_PROCESS.PAS</b></td>
-      <td>Cette commande est un clone minimaliste de qgis_process : elle permet de lister (<code>list</code>), d'obtenir l'aide (<code>help</code>) et d'exécuter (<code>run</code>) des algorithmes géographiques (distance, azimut, point de destination, reprojection EPSG:4326/3857, étendue d'un fichier GeoJSON), avec l'option <code>--json</code>.</td>
+      <td>Cette commande est un clone minimaliste de qgis_process : elle permet de lister (<code>list</code>), d'obtenir l'aide (<code>help</code>) et d'exécuter (<code>run</code>) des algorithmes géographiques, avec l'option <code>--json</code>. Les couches vectorielles sont des fichiers GeoJSON et les rasters des fichiers ESRI ASCII Grid («.asc»). Algorithmes disponibles : <code>native:calculatedistance</code>, <code>native:calculatebearing</code>, <code>native:destinationpoint</code>, <code>native:reprojectpoint</code>, <code>native:layerextent</code>, <code>native:pointsonextent</code>, <code>native:buffer</code>, <code>native:centroids</code>, <code>native:clip</code>, <code>native:convexhull</code>, <code>native:extractbyexpression</code>, <code>native:reprojectlayer</code>, <code>native:polygonstolines</code>, <code>native:pixelstopoints</code>, <code>gdal:cliprasterbyextent</code> et <code>gdal:warpreproject</code> (reprojections limitées à EPSG:4326 et EPSG:3857).</td>
   </tr>
   <tr>
       <td><b>SIZE.PAS</b></td>
