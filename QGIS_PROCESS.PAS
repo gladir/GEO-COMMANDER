@@ -4941,6 +4941,11 @@ Begin
        SegmentsMeet:=True;
        Exit;
       End;
+      If(DistSeg(P^.Pts^[I].X,P^.Pts^[I].Y,Q^.Pts^[J].X,Q^.Pts^[J].Y,Q^.Pts^[J+1].X,Q^.Pts^[J+1].Y)<1E-12)or
+        (DistSeg(P^.Pts^[I+1].X,P^.Pts^[I+1].Y,Q^.Pts^[J].X,Q^.Pts^[J].Y,Q^.Pts^[J+1].X,Q^.Pts^[J+1].Y)<1E-12)Then Begin
+       SegmentsMeet:=True;
+       Exit;
+      End;
      End;
     End;
     Q:=Q^.Next;
@@ -5080,6 +5085,228 @@ Begin
 End;
 
 { Predicats : 0 intersecte, 1 contient, 2 disjoint, 3 egal, 4 touche, 5 chevauche, 6 est a l'interieur, 7 croise }
+{ ---- matrice DE-9IM ---- }
+
+Procedure NodeSegments(Var G:TGeom;Var Sub:PEdges;Var NU:LongInt;Var SubCap:LongInt);Forward;
+
+Function GeomDim(Var G:TGeom):Integer;Begin
+ GeomDim:=G.Cls-1;
+End;
+
+{ Points frontiere (regle mod 2) d'un ensemble de lignes }
+Procedure LineBoundary(Var G:TGeom;Var Pts:PPts;Var N:LongInt);
+Var
+ P:PPath;
+ Cnt,I,J,Tot:LongInt;
+ Cand:PPts;
+Begin
+ N:=0;
+ Tot:=0;
+ P:=G.First;
+ While P<>Nil do Begin Inc(Tot,2);P:=P^.Next;End;
+ Cand:=AllocBlock((Tot+1)*SizeOf(TPt));
+ Pts:=AllocBlock((Tot+1)*SizeOf(TPt));
+ Tot:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  If P^.N>=2Then Begin
+   Cand^[Tot]:=P^.Pts^[0];Inc(Tot);
+   Cand^[Tot]:=P^.Pts^[P^.N-1];Inc(Tot);
+  End;
+  P:=P^.Next;
+ End;
+ For I:=0 to Tot-1do Begin
+  Cnt:=0;
+  For J:=0 to Tot-1do
+   If(Abs(Cand^[I].X-Cand^[J].X)<=1E-12)and(Abs(Cand^[I].Y-Cand^[J].Y)<=1E-12)Then Inc(Cnt);
+  If Cnt mod 2=1Then Begin
+   Cnt:=0;
+   For J:=0 to N-1do
+    If(Abs(Pts^[J].X-Cand^[I].X)<=1E-12)and(Abs(Pts^[J].Y-Cand^[I].Y)<=1E-12)Then Inc(Cnt);
+   If Cnt=0Then Begin Pts^[N]:=Cand^[I];Inc(N);End;
+  End;
+ End;
+ FreeMem(Cand,(Tot+1)*SizeOf(TPt));
+End;
+
+{ Position d'un point par rapport a une geometrie : 0 interieur, 1 frontiere, 2 exterieur }
+Function GeomLoc(Var G:TGeom;Bnd:PPts;NB:LongInt;X,Y,Tol:Real):Integer;
+Var
+ I:LongInt;
+ P:PPath;
+ S:Integer;
+Begin
+ GeomLoc:=2;
+ Case G.Cls of
+  3:Begin
+   S:=PtInPolys(G,X,Y,Tol);
+   If S=1Then GeomLoc:=0 Else If S=2Then GeomLoc:=1;
+  End;
+  2:Begin
+   For I:=0 to NB-1do
+    If(Abs(Bnd^[I].X-X)<=Tol)and(Abs(Bnd^[I].Y-Y)<=Tol)Then Begin GeomLoc:=1;Exit;End;
+   If DistPtGeom(G,X,Y)<=Tol Then GeomLoc:=0;
+  End;
+  1:Begin
+   P:=G.First;
+   While P<>Nil do Begin
+    If(Abs(P^.Pts^[0].X-X)<=Tol)and(Abs(P^.Pts^[0].Y-Y)<=Tol)Then Begin GeomLoc:=0;Exit;End;
+    P:=P^.Next;
+   End;
+  End;
+ End;
+End;
+
+Function MaxDim(A,B:Integer):Integer;Begin
+ If A>B Then MaxDim:=A Else MaxDim:=B;
+End;
+
+{ Calcule la matrice DE-9IM (neuf caracteres F, 0, 1, 2) }
+Function RelateGeoms(Var A,B:TGeom):String;
+Var
+ M:Array[0..2,0..2]of Integer;
+ C:TGeom;
+ P,Q:PPath;
+ Sub:PEdges;
+ NU,SubCap,I,J,K,NbA,NbB:LongInt;
+ BA,BB:PPts;
+ MinX,MinY,MaxX,MaxY,X1,Y1,X2,Y2,Ext,Tol,Mx,My,Ar,Ia,Ib:Real;
+ La,Lb:Integer;
+ S:String;
+ Have:Boolean;
+
+ Procedure Upd(Pt,Qt,D:Integer);Begin
+  If D>M[Pt,Qt]Then M[Pt,Qt]:=D;
+ End;
+
+ Procedure Classify(X,Y:Real;D:Integer);Begin
+  Upd(GeomLoc(A,BA,NbA,X,Y,Tol),GeomLoc(B,BB,NbB,X,Y,Tol),D);
+ End;
+
+Begin
+ For I:=0 to 2do For J:=0 to 2do M[I,J]:=-1;
+ M[2,2]:=2;
+ If(A.First=Nil)or(B.First=Nil)Then Begin
+  { geometrie vide : tout est exterieur }
+  If A.First<>Nil Then Begin M[0,2]:=GeomDim(A);If A.Cls>1Then M[1,2]:=A.Cls-2;End;
+  If B.First<>Nil Then Begin M[2,0]:=GeomDim(B);If B.Cls>1Then M[2,1]:=B.Cls-2;End;
+ End
+  Else
+ Begin
+  Have:=GeomBBox(A,MinX,MinY,MaxX,MaxY);
+  If GeomBBox(B,X1,Y1,X2,Y2)Then Begin
+   If X1<MinX Then MinX:=X1;If Y1<MinY Then MinY:=Y1;
+   If X2>MaxX Then MaxX:=X2;If Y2>MaxY Then MaxY:=Y2;
+  End;
+  Ext:=MaxR(MaxX-MinX,MaxY-MinY);
+  If Ext<=0Then Ext:=1;
+  Tol:=Ext*1E-7;
+  BA:=Nil;BB:=Nil;NbA:=0;NbB:=0;
+  If A.Cls=2Then LineBoundary(A,BA,NbA);
+  If B.Cls=2Then LineBoundary(B,BB,NbB);
+  { points isoles }
+  If A.Cls=1Then Begin
+   P:=A.First;
+   While P<>Nil do Begin Classify(P^.Pts^[0].X,P^.Pts^[0].Y,0);P:=P^.Next;End;
+  End;
+  If B.Cls=1Then Begin
+   P:=B.First;
+   While P<>Nil do Begin Classify(P^.Pts^[0].X,P^.Pts^[0].Y,0);P:=P^.Next;End;
+  End;
+  { lignes de A et de B ensemble, noeudees }
+  If(A.Cls>1)or(B.Cls>1)Then Begin
+   InitGeom(C);C.Cls:=2;
+   If A.Cls>1Then Begin P:=A.First;While P<>Nil do Begin CopyPath(C,P,0);P:=P^.Next;End;End;
+   If B.Cls>1Then Begin P:=B.First;While P<>Nil do Begin CopyPath(C,P,0);P:=P^.Next;End;End;
+   NodeSegments(C,Sub,NU,SubCap);
+   For I:=0 to NU-1do Begin
+    Mx:=(Sub^[I].X1+Sub^[I].X2)/2;My:=(Sub^[I].Y1+Sub^[I].Y2)/2;
+    { evite un echantillon qui tombe sur un point isole }
+    If(A.Cls=1)or(B.Cls=1)Then Begin
+     For K:=1 to 3do Begin
+      Ar:=0.5;
+      If K=2Then Ar:=0.37;
+      If K=3Then Ar:=0.71;
+      Mx:=Sub^[I].X1+Ar*(Sub^[I].X2-Sub^[I].X1);My:=Sub^[I].Y1+Ar*(Sub^[I].Y2-Sub^[I].Y1);
+      If(GeomLoc(A,BA,NbA,Mx,My,Tol)<>0)or(A.Cls<>1)Then
+       If(GeomLoc(B,BB,NbB,Mx,My,Tol)<>0)or(B.Cls<>1)Then Break;
+     End;
+    End;
+    If Sqrt(Sqr(Sub^[I].X2-Sub^[I].X1)+Sqr(Sub^[I].Y2-Sub^[I].Y1))>Tol*20Then Classify(Mx,My,1);
+    Classify(Sub^[I].X1,Sub^[I].Y1,0);
+    Classify(Sub^[I].X2,Sub^[I].Y2,0);
+   End;
+   FreeGeom(C);
+   If NU>0Then FreeMem(Sub,(NU+1)*SizeOf(TEdge));
+  End;
+  { entrees de dimension 2 }
+  If(A.Cls=3)and(B.Cls=3)Then Begin
+   Ia:=OverlapArea(A,B);
+   Ar:=GeomArea(A);Ib:=GeomArea(B);
+   If Ia>1E-9*MaxR(Ar,Ib)Then M[0,0]:=2;
+   If Ar-Ia>1E-9*Ar Then M[0,2]:=2;
+   If Ib-Ia>1E-9*Ib Then M[2,0]:=2;
+  End Else
+  Begin
+   If A.Cls=3Then M[0,2]:=2;
+   If B.Cls=3Then M[2,0]:=2;
+  End;
+  If(A.Cls=2)and(B.Cls=1)Then M[0,2]:=1;
+  If(A.Cls=1)and(B.Cls=2)Then M[2,0]:=1;
+ End;
+ S:='';
+ For I:=0 to 2do For J:=0 to 2do
+  If M[I,J]<0Then S:=S+'F' Else S:=S+Chr(48+M[I,J]);
+ RelateGeoms:=S;
+End;
+
+{ Compare une matrice a un motif (T, F, *, 0, 1, 2) }
+Function RelateMatch(Const M,Pat:String):Boolean;
+Var
+ I:Integer;
+Begin
+ RelateMatch:=False;
+ If(Length(M)<>9)or(Length(Pat)<>9)Then Exit;
+ For I:=1 to 9do Begin
+  Case Pat[I]of
+   '*':;
+   'T','t':If M[I]='F'Then Exit;
+   'F','f':If M[I]<>'F'Then Exit;
+   Else If M[I]<>Pat[I]Then Exit;
+  End;
+ End;
+ RelateMatch:=True;
+End;
+
+{ Predicats nommes calcules sur la matrice }
+Function RelatePredicate(Pred:Integer;Var A,B:TGeom):Boolean;
+Var
+ M:String;
+ Da,Db:Integer;
+Begin
+ RelatePredicate:=False;
+ If(A.First=Nil)or(B.First=Nil)Then Exit;
+ M:=RelateGeoms(A,B);
+ Da:=GeomDim(A);Db:=GeomDim(B);
+ Case Pred of
+  3:RelatePredicate:=RelateMatch(M,'T*F**FFF*');
+  4:If Not((Da=0)and(Db=0))Then
+     RelatePredicate:=RelateMatch(M,'FT*******')or RelateMatch(M,'F**T*****')or RelateMatch(M,'F***T****');
+  5:If Da=Db Then Begin
+     If Da=1Then RelatePredicate:=RelateMatch(M,'1*T***T**')
+            Else RelatePredicate:=RelateMatch(M,'T*T***T**');
+    End;
+  7:Begin
+     If Da<Db Then RelatePredicate:=RelateMatch(M,'T*T******') Else
+     If Da>Db Then RelatePredicate:=RelateMatch(M,'T*****T**') Else
+     If(Da=1)and(Db=1)Then RelatePredicate:=RelateMatch(M,'0********');
+    End;
+  8:RelatePredicate:=RelateMatch(M,'T*****FF*')or RelateMatch(M,'*T****FF*')or RelateMatch(M,'***T**FF*')or RelateMatch(M,'****T*FF*');
+  9:RelatePredicate:=RelateMatch(M,'T*F**F***');
+  10:RelatePredicate:=RelateMatch(M,'T*****FF*');
+ End;
+End;
+
 Procedure ClipToPolys(Var G,B:TGeom;Var R:TGeom);Forward;
 
 Function GeomPredicate(Pred:Integer;Var A,B:TGeom):Boolean;
@@ -5096,68 +5323,22 @@ Begin
  GeomPredicate:=False;
  Case Pred of
   0:GeomPredicate:=GeomIntersects(A,B);
-  1:GeomPredicate:=GeomContains(A,B);
+  1:Begin
+   GeomPredicate:=GeomContains(A,B);
+   If GeomPredicate and Not((A.Cls=3)and(B.Cls=1))Then GeomPredicate:=RelatePredicate(10,A,B)
+    Else
+   If(Not GeomPredicate)and(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=RelatePredicate(10,A,B);
+  End;
   2:GeomPredicate:=Not GeomIntersects(A,B);
-  6:GeomPredicate:=GeomContains(B,A);
-  3:Begin
-   If A.Cls<>B.Cls Then Exit;
-   If A.Cls=3Then Begin
-    Aa:=GeomArea(A);Ab:=GeomArea(B);
-    Ia:=OverlapArea(A,B);
-    GeomPredicate:=(Abs(Aa-Ia)<=1E-9*MaxR(Aa,1E-300))and(Abs(Ab-Ia)<=1E-9*MaxR(Ab,1E-300));
-   End
+  6:Begin
+   GeomPredicate:=GeomContains(B,A);
+   If GeomPredicate and Not((B.Cls=3)and(A.Cls=1))Then GeomPredicate:=RelatePredicate(9,A,B)
     Else
-   GeomPredicate:=GeomContains(A,B)and GeomContains(B,A);
+   If(Not GeomPredicate)and(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=RelatePredicate(9,A,B);
   End;
-  4:Begin
+  3,4,5,7,8:Begin
    If Not GeomIntersects(A,B)Then Exit;
-   If(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=OverlapArea(A,B)<=1E-9*MaxR(GeomArea(A),GeomArea(B))
-    Else
-   If(A.Cls=3)or(B.Cls=3)Then Begin
-    { ligne ou point contre un polygone : aucun point strictement interieur }
-    If A.Cls=3Then Begin Buf:=A;P:=B.First;End Else Begin Buf:=B;P:=A.First;End;
-    Hit:=True;
-    While P<>Nil do Begin
-     For I:=0 to P^.N-1do Begin
-      If PtInPolys(Buf,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12)=1Then Hit:=False;
-      If(I<P^.N-1)and(P^.N>1)Then
-       If PtInPolys(Buf,(P^.Pts^[I].X+P^.Pts^[I+1].X)/2,(P^.Pts^[I].Y+P^.Pts^[I+1].Y)/2,1E-12)=1Then Hit:=False;
-     End;
-     P:=P^.Next;
-    End;
-    GeomPredicate:=Hit;
-   End
-    Else
-   If(A.Cls=2)and(B.Cls=2)Then GeomPredicate:=Not SegmentsMeet(A,B,True)
-    Else
-   GeomPredicate:=False;
-  End;
-  5:Begin
-   If A.Cls<>B.Cls Then Exit;
-   If Not GeomIntersects(A,B)Then Exit;
-   If A.Cls=3Then Begin
-    Ia:=OverlapArea(A,B);
-    GeomPredicate:=(Ia>1E-9*MaxR(GeomArea(A),GeomArea(B)))and Not GeomContains(A,B)and Not GeomContains(B,A);
-   End
-    Else
-   If A.Cls=2Then GeomPredicate:=Not GeomContains(A,B)and Not GeomContains(B,A)and Not SegmentsMeet(A,B,True)
-    Else
-   GeomPredicate:=False;
-  End;
-  7:Begin
-   If(A.Cls=2)and(B.Cls=2)Then GeomPredicate:=SegmentsMeet(A,B,True)
-    Else
-   If((A.Cls=2)and(B.Cls=3))or((A.Cls=3)and(B.Cls=2))Then Begin
-    If A.Cls=2Then Begin Buf:=B;LineG:=A;End Else Begin Buf:=A;LineG:=B;End;
-    ClipOutside:=False;
-    ClipToPolys(LineG,Buf,InG);
-    ClipOutside:=True;
-    ClipToPolys(LineG,Buf,OutG);
-    Ar:=GeomLength(LineG);
-    GeomPredicate:=(GeomLength(InG)>1E-9*Ar)and(GeomLength(OutG)>1E-9*Ar);
-    FreeGeom(InG);FreeGeom(OutG);
-    ClipOutside:=False;
-   End;
+   GeomPredicate:=RelatePredicate(Pred,A,B);
   End;
  End;
 End;
@@ -13252,7 +13433,7 @@ Const
  GeomFnNames2='BOUNDS_WIDTH,BOUNDS_HEIGHT,ENVELOPE,BOUNDS,ORIENTED_BBOX,CENTROID,POINT_ON_SURFACE,CONVEX_HULL,START_POINT,END_POINT,POINT_N,NODES_TO_POINTS,SEGMENTS_TO_LINES,';
  GeomFnNames3='EXTERIOR_RING,INTERIOR_RING_N,GEOMETRY_N,BOUNDARY,REVERSE,TRANSLATE,ROTATE,SCALE,AFFINE_TRANSFORM,BUFFER,SIMPLIFY,SIMPLIFY_VW,SMOOTH,DENSIFY_BY_COUNT,OFFSET_CURVE,EXTEND,';
  GeomFnNames4='LINE_INTERPOLATE_POINT,LINE_INTERPOLATE_ANGLE,LINE_SUBSTRING,LINE_LOCATE_POINT,STRAIGHT_DISTANCE_2D,SINUOSITY,PROJECT,AZIMUTH,ANGLE_AT_VERTEX,DISTANCE,CLOSEST_POINT,SHORTEST_LINE,';
- GeomFnNames5='INTERSECTS,CONTAINS,WITHIN,TOUCHES,CROSSES,OVERLAPS,DISJOINT,EQUALS,INTERSECTION,DIFFERENCE,COMBINE,SYM_DIFFERENCE,UNION,TRANSFORM,GEOM_TO_WKT,';
+ GeomFnNames5='INTERSECTS,CONTAINS,WITHIN,TOUCHES,CROSSES,OVERLAPS,DISJOINT,EQUALS,INTERSECTION,DIFFERENCE,COMBINE,SYM_DIFFERENCE,UNION,TRANSFORM,GEOM_TO_WKT,RELATE,';
 
 Function IsGeomFn(Const Nm:String):Boolean;
 Var
@@ -13873,6 +14054,14 @@ Begin
    If Ok Then FnGeom:=GRes(Res) Else FreeGeom(Res);
   End
    Else EFail('unknown coordinate reference system');
+ End Else
+ If Nm='RELATE'Then Begin
+  NeedArgs(Nm,N,2);
+  If G1<>Nil Then Begin
+   S:=RelateGeoms(Gp^,G1^);
+   If(N>2)and(A[2].K=2)Then FnGeom:=VBool(RelateMatch(S,A[2].S))
+                       Else FnGeom:=VStr(S);
+  End;
  End Else
  If Nm='GEOM_TO_WKT'Then Begin
   BufInit(B);
