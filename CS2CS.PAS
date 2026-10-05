@@ -226,7 +226,8 @@ Procedure ShowHelp;Begin
  Writeln('United States (US/USA/US-48). Limites = enveloppes, non frontieres.');
  Writeln('--bbox <W,S,E,N> filtre les points dans une emprise geographique.');
  Writeln('--authority <nom> restreint a EPSG (seule autorite integree).');
- Writeln('--accuracy, --only-best,');
+ Writeln('--accuracy <metres> accepte les tolerances de 1 m ou plus.');
+ Writeln('--only-best,');
  Writeln('--no-ballpark et --s_epoch/--t_epoch necessitent le moteur PROJ');
  Writeln('et sont refusees par cette implementation autonome.');
 End;
@@ -427,10 +428,12 @@ Var
  TempProj : TProjDef;
  Line, WorkLine, TokenX, TokenY, TokenZ, FormatString : String;
  ErrorText, CommentMark, Arg, AreaName, BBoxArg, AuthorityName : String;
+ AccuracyArg : String;
  Area, BBox : TAreaDef;
+ RequestedAccuracy : Real;
  Inverse, EchoInput, SwapInput, SwapOutput, Verbose : Boolean;
  DMSOutput, FixedDMS, Has3D, Failed, HasArea, HasBBox : Boolean;
- HasAuthority : Boolean;
+ HasAuthority, HasAccuracy : Boolean;
 
 BEGIN
  Decimals := 3;
@@ -449,9 +452,11 @@ BEGIN
  HasArea := False;
  HasBBox := False;
  HasAuthority := False;
+ HasAccuracy := False;
  AreaName := '';
  BBoxArg := '';
  AuthorityName := '';
+ AccuracyArg := '';
 
  I := 1;
  While I <= ParamCount Do Begin
@@ -526,6 +531,24 @@ BEGIN
    End;
    HasAuthority := True;
   End Else
+  If Arg = '--accuracy' Then Begin
+   Inc(I);
+   If I > ParamCount Then Begin
+    Writeln('Erreur: valeur manquante apres --accuracy.'); Halt(1);
+   End;
+   AccuracyArg := ParamStr(I);
+   If Not TryValue(AccuracyArg, RequestedAccuracy) Then Begin
+    Writeln('Erreur: --accuracy attend une valeur numerique en metres.'); Halt(1);
+   End;
+   HasAccuracy := True;
+  End Else
+  If Copy(Arg, 1, 11) = '--accuracy=' Then Begin
+   AccuracyArg := Copy(Arg, 12, Length(Arg) - 11);
+   If (AccuracyArg = '') Or (Not TryValue(AccuracyArg, RequestedAccuracy)) Then Begin
+    Writeln('Erreur: --accuracy attend une valeur numerique en metres.'); Halt(1);
+   End;
+   HasAccuracy := True;
+  End Else
   If Arg = '-f' Then Begin
    Inc(I);
    If I > ParamCount Then Begin Writeln('Erreur: format manquant apres -f.'); Halt(1); End;
@@ -556,8 +579,7 @@ BEGIN
     Writeln('Erreur: precision DMS invalide (0..10).'); Halt(1);
    End;
   End Else
-    If (Arg = '--accuracy') Or (Copy(Arg, 1, 11) = '--accuracy=') Or
-    (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
+    If (Arg = '--only-best') Or (Copy(Arg, 1, 12) = '--only-best=') Or
      (Arg = '--no-ballpark') Or (Arg = '--s_epoch') Or
      (Arg = '--t_epoch') Or (Copy(Arg, 1, 10) = '--s_epoch=') Or
      (Copy(Arg, 1, 10) = '--t_epoch=') Then Begin
@@ -606,6 +628,13 @@ BEGIN
  If HasAuthority And (UpperString(AuthorityName) <> 'EPSG') Then Begin
   Writeln('Erreur: autorite non prise en charge: ', AuthorityName);
   Writeln('Cette version autonome ne connait que les CRS WGS84 associes a EPSG.');
+  Halt(1);
+ End;
+ If HasAccuracy And (RequestedAccuracy < 0.0) Then Begin
+  Writeln('Erreur: --accuracy doit etre positive ou nulle.'); Halt(1);
+ End;
+ If HasAccuracy And (RequestedAccuracy < 1.0) Then Begin
+  Writeln('Erreur: precision demandee trop stricte; resolution nominale: 1 m.');
   Halt(1);
  End;
  If Verbose Then ShowVerbose(SourceProj, DestProj);
