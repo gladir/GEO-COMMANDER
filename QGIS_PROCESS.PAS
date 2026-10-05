@@ -14,6 +14,8 @@
 
 Program QGIS_PROCESS;
 
+Uses Dos;
+
 Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
@@ -1272,6 +1274,14 @@ Var
 Begin
  For I:=1 to Length(S)do S[I]:=UpCase(S[I]);
  StrUpper:=S;
+End;
+
+Function LowerStr(S:String):String;
+Var
+ I:Integer;
+Begin
+ For I:=1 to Length(S)do If S[I]in['A'..'Z']Then S[I]:=Chr(Ord(S[I])+32);
+ LowerStr:=S;
 End;
 
 Function RealToStr(R:Real):String;
@@ -7126,16 +7136,70 @@ Begin
 End;
 
 { Valide les arguments puis retourne la valeur finale du parametre }
+Var
+ TmpKey:Array[1..40]of String;
+ TmpPath:Array[1..40]of String;
+ TmpCount:Integer;
+
+{ Repertoire temporaire (TMPDIR, TEMP ou TMP, sinon le repertoire courant) }
+Function TempDir:String;
+Var
+ E:String;
+Begin
+ E:=GetEnv('TMPDIR');
+ If E=''Then E:=GetEnv('TEMP');
+ If E=''Then E:=GetEnv('TMP');
+ If E=''Then E:='.';
+ TempDir:=E;
+End;
+
+{ Chemin temporaire pour une sortie TEMPORARY_OUTPUT (le meme pour un parametre donne) }
+Function TempOutput(A:Integer;Name:String;Var P:ParamRec):String;
+Var
+ K:Integer;
+ Key,Ext,Dir,Path:String;
+Begin
+ Key:=IntToStr(A)+':'+Name;
+ For K:=1 to TmpCount do If TmpKey[K]=Key Then Begin TempOutput:=TmpPath[K];Exit;End;
+ If P.Typ='vectorDestination'Then Ext:='.geojson' Else
+ If P.Typ='rasterDestination'Then Ext:='.asc' Else
+ If P.Typ='folderDestination'Then Ext:=''
+                             Else Ext:='.txt';
+ Dir:=TempDir;
+ If(Dir<>'')and(Dir[Length(Dir)]<>'/')and(Dir[Length(Dir)]<>#92)Then Dir:=Dir+'/';
+ Repeat
+  Path:=Dir+'qgis_process_'+LowerStr(Name)+'_'+IntToStr(Random(900000)+100000)+Ext;
+ Until Not FileExists(Path);
+ If P.Typ='folderDestination'Then Begin
+  {$I-}
+  MkDir(Path);
+  If IOResult<>0Then Begin End;
+  {$I+}
+ End;
+ If TmpCount<40Then Begin
+  Inc(TmpCount);
+  TmpKey[TmpCount]:=Key;
+  TmpPath[TmpCount]:=Path;
+ End;
+ TempOutput:=Path;
+End;
+
 Function NeedStr(A:Integer;Name:String):String;
 Var
  V:String;
  P:ParamRec;
+ Dest,Given:Boolean;
 Begin
  If Not ParamDef(A,Name,P)Then Fail('Internal error: unknown parameter '+Name);
- If Not GetArg(Name,V)Then Begin
+ Dest:=(Length(P.Typ)>11)and(Copy(P.Typ,Length(P.Typ)-10,11)='Destination');
+ Given:=GetArg(Name,V);
+ If Not Given Then Begin
+  If(P.Def='')and Dest Then Begin NeedStr:=TempOutput(A,Name,P);Exit;End;
   If P.Def=''Then Fail('Error: missing required parameter '+Name);
   If P.Def='*'Then V:='' Else V:=P.Def;
- End;
+ End
+  Else
+ If Dest and((StrUpper(V)='TEMPORARY_OUTPUT')or(StrUpper(Copy(V,1,7))='MEMORY:'))Then V:=TempOutput(A,Name,P);
  NeedStr:=V;
 End;
 
@@ -13937,7 +14001,8 @@ Begin
   If Not ParamDef(A,ArgName[I],P)Then
    Fail('Error: unknown parameter '+ArgName[I]);
  For I:=1 to MaxParam do
-  If(Params[I].A=A)and(Params[I].Def='')and Not GetArg(Params[I].Name,Tmp)Then
+  If(Params[I].A=A)and(Params[I].Def='')and Not GetArg(Params[I].Name,Tmp)and
+    Not((Length(Params[I].Typ)>11)and(Copy(Params[I].Typ,Length(Params[I].Typ)-10,11)='Destination'))Then
    Fail('Error: missing required parameter '+Params[I].Name);
  ResCount:=0;
  If Not JsonMode Then Begin
@@ -14327,7 +14392,11 @@ End;
 Var
  A:Integer;
  Up:String;
+ Hh,Mm,Ss,Cs:Word;
 BEGIN
+ GetTime(Hh,Mm,Ss,Cs);
+ RandSeed:=((LongInt(Hh)*60+Mm)*60+Ss)*100+Cs;
+ TmpCount:=0;
  ParseArgs;
  If(Cmd='')or(Cmd='--help')Then ShowGeneralHelp Else
  If Cmd='--version'Then Begin
