@@ -18,9 +18,9 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=35;
- MaxParam=156;
- MaxOut=48;
+ MaxAlgo=58;
+ MaxParam=256;
+ MaxOut=73;
  MaxArg=30;
  MaxCells=40000000;
 
@@ -35,7 +35,7 @@ Type
   A:Byte;
   Name:String[20];
   Typ:String[18];
-  Desc:String[80];
+  Desc:String[105];
   Def:String[12];    { '' = obligatoire, '*' = facultatif }
  End;
  OutRec=Record
@@ -151,7 +151,76 @@ Const
    Descr:'Crops (-projwin), resizes (-outsize), sets nodata and converts the data type.'),
   (Id:'gdal:viewshed';Title:'Viewshed';
    Group:'Raster analysis';
-   Descr:'Computes the pixels visible from an observer point (line of sight).')
+   Descr:'Computes the pixels visible from an observer point (line of sight).'),
+  (Id:'native:addautoincrementalfield';Title:'Add autoincremental field';
+   Group:'Vector table';
+   Descr:'Adds an integer field with an incremental value (per group, optionally sorted).'),
+  (Id:'native:addfieldtoattributestable';Title:'Add field to attributes table';
+   Group:'Vector table';
+   Descr:'Adds an empty (null) field to the attributes table.'),
+  (Id:'native:adduniquevalueindexfield';Title:'Add unique value index field';
+   Group:'Vector table';
+   Descr:'Adds a field with a class index (from 0) for each unique value of a field.'),
+  (Id:'native:addxyfields';Title:'Add X/Y fields to layer';
+   Group:'Vector table';
+   Descr:'Adds the x and y fields of a point layer, in EPSG:4326 or EPSG:3857.'),
+  (Id:'native:affinetransform';Title:'Affine transform';
+   Group:'Vector geometry';
+   Descr:'Rotates (CCW, degrees), scales then translates the geometries.'),
+  (Id:'native:translategeometry';Title:'Translate';
+   Group:'Vector geometry';
+   Descr:'Moves the geometries by a vector.'),
+  (Id:'native:projectpointcartesian';Title:'Project points (Cartesian)';
+   Group:'Vector geometry';
+   Descr:'Moves points by a distance along a bearing (clockwise from north).'),
+  (Id:'native:rotatefeatures';Title:'Rotate';
+   Group:'Vector geometry';
+   Descr:'Rotates features clockwise around their centroid or a given anchor point.'),
+  (Id:'native:deletecolumn';Title:'Drop field(s)';
+   Group:'Vector table';
+   Descr:'Removes fields from the attributes table.'),
+  (Id:'native:dropgeometries';Title:'Drop geometries';
+   Group:'Vector general';
+   Descr:'Removes the geometry of the features (null geometry).'),
+  (Id:'native:extractbyattribute';Title:'Extract by attribute';
+   Group:'Vector selection';
+   Descr:'Extracts the features whose field satisfies a condition.'),
+  (Id:'native:fieldcalculator';Title:'Field calculator';
+   Group:'Vector table';
+   Descr:'Creates or updates a field from an expression.'),
+  (Id:'native:refactorfields';Title:'Refactor fields';
+   Group:'Vector table';
+   Descr:'Rebuilds the attributes table from name=expression items separated by semicolons.'),
+  (Id:'native:orderbyexpression';Title:'Order by expression';
+   Group:'Vector general';
+   Descr:'Sorts the features by the value of an expression.'),
+  (Id:'native:setlayerencoding';Title:'Set layer encoding';
+   Group:'Vector general';
+   Descr:'No-op: GeoJSON is always UTF-8. OUTPUT is the input file.'),
+  (Id:'native:createspatialindex';Title:'Create spatial index';
+   Group:'Vector general';
+   Descr:'No-op: GeoJSON files do not use a spatial index. OUTPUT is the input file.'),
+  (Id:'native:createattributeindex';Title:'Create attribute index';
+   Group:'Vector general';
+   Descr:'No-op: GeoJSON files do not use attribute indexes. OUTPUT is the input file.'),
+  (Id:'native:assignprojection';Title:'Assign projection';
+   Group:'Vector general';
+   Descr:'Sets the CRS of a layer (EPSG:4326 or EPSG:3857) without changing the coordinates.'),
+  (Id:'native:splitfeaturesbycharacter';Title:'Split features by character';
+   Group:'Vector table';
+   Descr:'Splits each feature into several features by cutting a text field at a character.'),
+  (Id:'native:forcerhr';Title:'Force right-hand-rule';
+   Group:'Vector geometry';
+   Descr:'Orients polygons: exterior rings clockwise, interior rings counter-clockwise.'),
+  (Id:'native:dropmzvalues';Title:'Drop M/Z values';
+   Group:'Vector geometry';
+   Descr:'Removes the Z values of the geometries (GeoJSON has no M values).'),
+  (Id:'native:setzvalue';Title:'Set Z value';
+   Group:'Vector geometry';
+   Descr:'Sets the Z value of all the vertices.'),
+  (Id:'native:filterverticesbyz';Title:'Filter vertices by Z value';
+   Group:'Vector geometry';
+   Descr:'Removes the vertices whose Z value is outside a range.')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -310,7 +379,107 @@ Const
   (A:35;Name:'OBSERVER_HEIGHT';Typ:'number';Desc:'Height of the observer above the ground';Def:'1'),
   (A:35;Name:'TARGET_HEIGHT';Typ:'number';Desc:'Height of the targets above the ground';Def:'0'),
   (A:35;Name:'MAX_DISTANCE';Typ:'number';Desc:'Maximum visibility distance';Def:'10000'),
-  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid: 255 visible, 0 hidden';Def:'')
+  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid: 255 visible, 0 hidden';Def:''),
+  (A:36;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:36;Name:'FIELD_NAME';Typ:'string';Desc:'Name of the new field';Def:'AUTO'),
+  (A:36;Name:'START';Typ:'number';Desc:'Initial value';Def:'0'),
+  (A:36;Name:'MODULUS';Typ:'number';Desc:'Modulus (0 = none)';Def:'0'),
+  (A:36;Name:'GROUP_FIELDS';Typ:'string';Desc:'Group fields separated by commas';Def:'*'),
+  (A:36;Name:'SORT_EXPRESSION';Typ:'expression';Desc:'Sort expression';Def:'*'),
+  (A:36;Name:'SORT_ASCENDING';Typ:'boolean';Desc:'Sort ascending';Def:'true'),
+  (A:36;Name:'SORT_NULLS_FIRST';Typ:'boolean';Desc:'Nulls first';Def:'false'),
+  (A:36;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:37;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:37;Name:'FIELD_NAME';Typ:'string';Desc:'Name of the new field';Def:''),
+  (A:37;Name:'FIELD_TYPE';Typ:'enum';Desc:'0 integer, 1 decimal, 2 text, 3 date, 6 boolean';Def:'0'),
+  (A:37;Name:'FIELD_LENGTH';Typ:'number';Desc:'Field length';Def:'10'),
+  (A:37;Name:'FIELD_PRECISION';Typ:'number';Desc:'Field precision';Def:'0'),
+  (A:37;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:38;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:38;Name:'FIELD';Typ:'string';Desc:'Field containing the classes';Def:''),
+  (A:38;Name:'FIELD_NAME';Typ:'string';Desc:'Name of the index field';Def:'NUM_FIELD'),
+  (A:38;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:38;Name:'SUMMARY_OUTPUT';Typ:'vectorDestination';Desc:'Optional summary table (GeoJSON)';Def:'*'),
+  (A:39;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:39;Name:'CRS';Typ:'crs';Desc:'CRS of the coordinates (EPSG:4326 or EPSG:3857)';Def:'EPSG:4326'),
+  (A:39;Name:'PREFIX';Typ:'string';Desc:'Field prefix';Def:'*'),
+  (A:39;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:40;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:40;Name:'DELTA_X';Typ:'number';Desc:'Translation in X';Def:'0'),
+  (A:40;Name:'DELTA_Y';Typ:'number';Desc:'Translation in Y';Def:'0'),
+  (A:40;Name:'DELTA_Z';Typ:'number';Desc:'Translation in Z (ignored)';Def:'0'),
+  (A:40;Name:'DELTA_M';Typ:'number';Desc:'Translation in M (ignored)';Def:'0'),
+  (A:40;Name:'SCALE_X';Typ:'number';Desc:'Scale factor in X';Def:'1'),
+  (A:40;Name:'SCALE_Y';Typ:'number';Desc:'Scale factor in Y';Def:'1'),
+  (A:40;Name:'SCALE_Z';Typ:'number';Desc:'Scale factor in Z (ignored)';Def:'1'),
+  (A:40;Name:'SCALE_M';Typ:'number';Desc:'Scale factor in M (ignored)';Def:'1'),
+  (A:40;Name:'ROTATION_Z';Typ:'number';Desc:'Rotation around Z (degrees, counter-clockwise)';Def:'0'),
+  (A:40;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:41;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:41;Name:'DELTA_X';Typ:'number';Desc:'Translation in X';Def:'0'),
+  (A:41;Name:'DELTA_Y';Typ:'number';Desc:'Translation in Y';Def:'0'),
+  (A:41;Name:'DELTA_Z';Typ:'number';Desc:'Translation in Z (ignored)';Def:'0'),
+  (A:41;Name:'DELTA_M';Typ:'number';Desc:'Translation in M (ignored)';Def:'0'),
+  (A:41;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:42;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:42;Name:'BEARING';Typ:'number';Desc:'Bearing in degrees';Def:''),
+  (A:42;Name:'DISTANCE';Typ:'number';Desc:'Distance in layer units';Def:''),
+  (A:42;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:43;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:43;Name:'ANGLE';Typ:'number';Desc:'Angle in degrees (clockwise)';Def:'0'),
+  (A:43;Name:'ANCHOR';Typ:'point';Desc:'Anchor x,y (default: centroid of each feature)';Def:'*'),
+  (A:43;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:44;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:44;Name:'COLUMN';Typ:'string';Desc:'Fields to drop, separated by commas';Def:''),
+  (A:44;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:45;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:45;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:46;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:46;Name:'FIELD';Typ:'string';Desc:'Field';Def:''),
+  (A:46;Name:'OPERATOR';Typ:'enum';Desc:'0 =, 1 !=, 2 >, 3 >=, 4 <, 5 <=, 6 begins with, 7 contains, 8 is null, 9 is not null, 10 does not contain';Def:'0'),
+  (A:46;Name:'VALUE';Typ:'string';Desc:'Value';Def:'*'),
+  (A:46;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Matching features';Def:''),
+  (A:46;Name:'FAIL_OUTPUT';Typ:'vectorDestination';Desc:'Non-matching features';Def:'*'),
+  (A:47;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:47;Name:'FIELD_NAME';Typ:'string';Desc:'Field name';Def:''),
+  (A:47;Name:'FIELD_TYPE';Typ:'enum';Desc:'0 decimal, 1 integer, 2 text';Def:'0'),
+  (A:47;Name:'FIELD_LENGTH';Typ:'number';Desc:'Field length';Def:'10'),
+  (A:47;Name:'FIELD_PRECISION';Typ:'number';Desc:'Field precision';Def:'3'),
+  (A:47;Name:'FORMULA';Typ:'expression';Desc:'Expression, e.g. "pop" * 2 or $area';Def:''),
+  (A:47;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:48;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:48;Name:'FIELDS_MAPPING';Typ:'string';Desc:'name=expression;name=expression;...';Def:''),
+  (A:48;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:49;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:49;Name:'EXPRESSION';Typ:'expression';Desc:'Sort expression';Def:''),
+  (A:49;Name:'ASCENDING';Typ:'boolean';Desc:'Sort ascending';Def:'true'),
+  (A:49;Name:'NULLS_FIRST';Typ:'boolean';Desc:'Nulls first';Def:'false'),
+  (A:49;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:50;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:50;Name:'ENCODING';Typ:'string';Desc:'Encoding (ignored)';Def:'UTF-8'),
+  (A:51;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:52;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:52;Name:'FIELD';Typ:'string';Desc:'Field (ignored)';Def:'*'),
+  (A:53;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:53;Name:'CRS';Typ:'crs';Desc:'CRS to assign (EPSG:4326 or EPSG:3857)';Def:''),
+  (A:53;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:54;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:54;Name:'FIELD';Typ:'string';Desc:'Field to split';Def:''),
+  (A:54;Name:'CHAR';Typ:'string';Desc:'Separator character';Def:','),
+  (A:54;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:55;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:55;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:56;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:56;Name:'DROP_M_VALUES';Typ:'boolean';Desc:'Drop M values (no effect)';Def:'false'),
+  (A:56;Name:'DROP_Z_VALUES';Typ:'boolean';Desc:'Drop Z values';Def:'false'),
+  (A:56;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:57;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:57;Name:'Z_VALUE';Typ:'number';Desc:'Z value';Def:'0'),
+  (A:57;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:''),
+  (A:58;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
+  (A:58;Name:'MIN';Typ:'number';Desc:'Minimum Z';Def:''),
+  (A:58;Name:'MAX';Typ:'number';Desc:'Maximum Z';Def:''),
+  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output GeoJSON file';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -361,7 +530,32 @@ Const
   (A:32;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Slope raster'),
   (A:33;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Tile index'),
   (A:34;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Translated raster'),
-  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Viewshed raster')
+  (A:35;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Viewshed raster'),
+  (A:36;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:37;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:38;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:38;Name:'SUMMARY_OUTPUT';Typ:'vectorDestination';Desc:'Summary table'),
+  (A:39;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:40;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:41;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:42;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:43;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:44;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:45;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:46;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Matching features'),
+  (A:46;Name:'FAIL_OUTPUT';Typ:'vectorDestination';Desc:'Non-matching features'),
+  (A:47;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:48;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:49;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:50;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Input layer'),
+  (A:51;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Input layer'),
+  (A:52;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Input layer'),
+  (A:53;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:54;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:55;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:56;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:57;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
+  (A:58;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer')
  );
 
 Type
@@ -402,15 +596,21 @@ Type
  PBools=^TBools;
  TBools=Array[0..8000000]of Boolean;
  PPathArr=Array[0..8000000]of PPath;
+ PStrs=^TStrs;
+ TStrs=Array[0..8000000]of PStr;
+ PBytes=^TBytes;
+ TBytes=Array[0..8000000]of Byte;
  TRaster=Record
   NC,NR:LongInt;
   XLL,YLL,Cell,NoData:Real;
   Data:PReals;
  End;
+ PGeom=^TGeom;
  TVal=Record
-  K:Byte;               { 0 nul, 1 nombre, 2 chaine, 3 booleen }
+  K:Byte;               { 0 nul, 1 nombre, 2 chaine, 3 booleen, 4 geometrie }
   N:Real;
   S:String;
+  G:PGeom;
  End;
 
 Var
@@ -1340,6 +1540,11 @@ Var
  SB:PEdges;
  SP:PPts;
  SLab:PLongs;
+ SAng:PReals;
+ SKey,SStrv:PStrs;
+ SNum:PReals;
+ SKind:PBytes;
+ SAsc,SNullFirst,SNoTie:Boolean;
  SMode:Integer;
 
 Function CmpR(A,B:Real):Integer;Begin
@@ -1369,6 +1574,32 @@ Begin
    If C=0Then C:=CmpR(SB^[A].Y1,SB^[B].Y1);
   End;
   3:C:=CmpR(SB^[A].X1,SB^[B].X1);
+  6:Begin
+   If SLab^[A]<SLab^[B]Then C:=-1 Else
+   If SLab^[A]>SLab^[B]Then C:=1 Else C:=CmpR(SAng^[A],SAng^[B]);
+  End;
+  7:Begin
+   If SKey<>Nil Then Begin
+    If SKey^[A]^<SKey^[B]^Then C:=-1 Else
+    If SKey^[A]^>SKey^[B]^Then C:=1;
+   End;
+   If C=0Then Begin
+    If(SKind^[A]=0)and(SKind^[B]=0)Then C:=0 Else
+    If SKind^[A]=0Then Begin If SNullFirst Then C:=-1 Else C:=1;End Else
+    If SKind^[B]=0Then Begin If SNullFirst Then C:=1 Else C:=-1;End
+     Else
+    Begin
+     If(SKind^[A]=1)and(SKind^[B]=1)Then C:=CmpR(SNum^[A],SNum^[B])
+      Else
+     If SStrv^[A]^<SStrv^[B]^Then C:=-1 Else
+     If SStrv^[A]^>SStrv^[B]^Then C:=1 Else C:=0;
+     If Not SAsc Then C:=-C;
+    End;
+   End;
+   If(C=0)and Not SNoTie Then Begin
+    If A<B Then C:=-1 Else If A>B Then C:=1;
+   End;
+  End;
   5:Begin
    If SLab^[A]<SLab^[B]Then C:=-1 Else
    If SLab^[A]>SLab^[B]Then C:=1 Else
@@ -1635,49 +1866,13 @@ Begin
  End;
 End;
 
-{ Mode 0 : union (nettoyage) de A, 1 : A inter B, 2 : A moins B }
-Procedure Overlay(Mode:Integer;Var A,B:TGeom;Var R:TGeom);
+{ Decoupe toutes les aretes de OvAll a leurs intersections et retourne la liste
+  des segments elementaires uniques (Sub, ordonnes par Idx[0..NU-1]). }
+Procedure NodeAll(NT:LongInt;MinY,MaxY:Real;WithSlabs:Boolean;Var Sub:PEdges;Var NS:LongInt;Var Idx:PLongs;Var NU:LongInt);
 Var
- NA,NB,NT,I,J,NS,NU,KN,Cur,Best,P,Q,Lo,Hi,Mid,RN,Cnt:LongInt;
- Wa,Wb:LongInt;
- MinX,MinY,MaxX,MaxY,Ext,Tol:Real;
- Have,InL,InR,Ok:Boolean;
- Sub,Kp:PEdges;
- Idx,Ord:PLongs;
- Used:PBools;
- RB:PPts;
+ I,J,P,Q:LongInt;
+ Tol,Px,Py:Real;
  S,Nx:PSplit;
- Px,Py,Mx,My,Dx,Dy,Len,Ep,Qx,Qy,Ang,BestAng,Ex,Ey,Sx,Sy:Real;
- EG,HG:TGeom;
- Pa,Pb,Hp:PPath;
- HArr:^PPathArr;
- HN:LongInt;
- Owner:Integer;
- BestArea:Real;
- K:Integer;
-
- Procedure Bounds(Var G:TGeom);
- Var
-  Pt:PPath;
-  Q:LongInt;
- Begin
-  Pt:=G.First;
-  While Pt<>Nil do Begin
-   For Q:=0 to Pt^.N-1do Begin
-    If Not Have Then Begin
-     MinX:=Pt^.Pts^[Q].X;MaxX:=MinX;MinY:=Pt^.Pts^[Q].Y;MaxY:=MinY;Have:=True;
-    End
-     Else
-    Begin
-     If Pt^.Pts^[Q].X<MinX Then MinX:=Pt^.Pts^[Q].X;
-     If Pt^.Pts^[Q].X>MaxX Then MaxX:=Pt^.Pts^[Q].X;
-     If Pt^.Pts^[Q].Y<MinY Then MinY:=Pt^.Pts^[Q].Y;
-     If Pt^.Pts^[Q].Y>MaxY Then MaxY:=Pt^.Pts^[Q].Y;
-    End;
-   End;
-   Pt:=Pt^.Next;
-  End;
- End;
 
  Procedure Emit(X1,Y1,X2,Y2:Real);
  Var
@@ -1692,39 +1887,8 @@ Var
   Inc(NS);
  End;
 
- Function Inside(Wa,Wb:LongInt):Boolean;Begin
-  Case Mode of
-   0:Inside:=Wa>0;
-   1:Inside:=(Wa>0)and(Wb>0);
-   Else Inside:=(Wa>0)and(Wb<=0);
-  End;
- End;
-
 Begin
- InitGeom(R);
- R.Cls:=3;
- Have:=False;
- Bounds(A);
- If Mode<>0Then Bounds(B);
- If Not Have Then Exit;
- Ext:=MaxR(MaxX-MinX,MaxY-MinY);
- If Ext<=0Then Exit;
- SnapQ:=Ext*1E-9;
- OvEps:=Ext*1E-8;
  Tol:=SnapQ*4;
- NT:=EdgeCount(A);
- If Mode<>0Then NT:=NT+EdgeCount(B);
- If NT<3Then Exit;
- OvAll:=AllocBlock(NT*SizeOf(TEdge));
- NA:=0;
- FillEdges(A,OvAll,NA);
- NT:=NA;
- If Mode<>0Then FillEdges(B,OvAll,NT);
- NB:=NT-NA;
- If NT<3Then Begin
-  FreeMem(OvAll,(NT+1)*SizeOf(TEdge));
-  Exit;
- End;
  { boites englobantes et decoupage }
  OvBox:=AllocBlock(NT*SizeOf(TEdge));
  OvSp:=AllocBlock(NT*SizeOf(PSplit));
@@ -1736,8 +1900,7 @@ Begin
   OvSp^[I]:=Nil;
  End;
  OvTot:=0;
- OvNA:=NA;
- BuildSlabs(NT,MinY,MaxY);
+ If WithSlabs Then BuildSlabs(NT,MinY,MaxY);
  { balayage selon X : seules les aretes dont les boites se chevauchent sont comparees }
  Idx:=AllocBlock(NT*SizeOf(LongInt));
  For I:=0 to NT-1do Idx^[I]:=I;
@@ -1786,6 +1949,87 @@ Begin
    Inc(NU);
   End;
  End;
+End;
+
+{ Mode 0 : union (nettoyage) de A, 1 : A inter B, 2 : A moins B }
+Procedure Overlay(Mode:Integer;Var A,B:TGeom;Var R:TGeom);
+Var
+ NA,NB,NT,I,J,NS,NU,KN,Cur,Best,P,Q,Lo,Hi,Mid,RN,Cnt:LongInt;
+ Wa,Wb:LongInt;
+ MinX,MinY,MaxX,MaxY,Ext,Tol:Real;
+ Have,InL,InR,Ok:Boolean;
+ Sub,Kp:PEdges;
+ Idx,Ord:PLongs;
+ Used:PBools;
+ RB:PPts;
+ S,Nx:PSplit;
+ Px,Py,Mx,My,Dx,Dy,Len,Ep,Qx,Qy,Ang,BestAng,Ex,Ey,Sx,Sy:Real;
+ EG,HG:TGeom;
+ Pa,Pb,Hp:PPath;
+ HArr:^PPathArr;
+ HN:LongInt;
+ Owner:Integer;
+ BestArea:Real;
+ K:Integer;
+
+ Procedure Bounds(Var G:TGeom);
+ Var
+  Pt:PPath;
+  Q:LongInt;
+ Begin
+  Pt:=G.First;
+  While Pt<>Nil do Begin
+   For Q:=0 to Pt^.N-1do Begin
+    If Not Have Then Begin
+     MinX:=Pt^.Pts^[Q].X;MaxX:=MinX;MinY:=Pt^.Pts^[Q].Y;MaxY:=MinY;Have:=True;
+    End
+     Else
+    Begin
+     If Pt^.Pts^[Q].X<MinX Then MinX:=Pt^.Pts^[Q].X;
+     If Pt^.Pts^[Q].X>MaxX Then MaxX:=Pt^.Pts^[Q].X;
+     If Pt^.Pts^[Q].Y<MinY Then MinY:=Pt^.Pts^[Q].Y;
+     If Pt^.Pts^[Q].Y>MaxY Then MaxY:=Pt^.Pts^[Q].Y;
+    End;
+   End;
+   Pt:=Pt^.Next;
+  End;
+ End;
+
+ Function Inside(Wa,Wb:LongInt):Boolean;Begin
+  Case Mode of
+   0:Inside:=Wa>0;
+   1:Inside:=(Wa>0)and(Wb>0);
+   Else Inside:=(Wa>0)and(Wb<=0);
+  End;
+ End;
+
+Begin
+ InitGeom(R);
+ R.Cls:=3;
+ Have:=False;
+ Bounds(A);
+ If Mode<>0Then Bounds(B);
+ If Not Have Then Exit;
+ Ext:=MaxR(MaxX-MinX,MaxY-MinY);
+ If Ext<=0Then Exit;
+ SnapQ:=Ext*1E-9;
+ OvEps:=Ext*1E-8;
+ Tol:=SnapQ*4;
+ NT:=EdgeCount(A);
+ If Mode<>0Then NT:=NT+EdgeCount(B);
+ If NT<3Then Exit;
+ OvAll:=AllocBlock(NT*SizeOf(TEdge));
+ NA:=0;
+ FillEdges(A,OvAll,NA);
+ NT:=NA;
+ If Mode<>0Then FillEdges(B,OvAll,NT);
+ NB:=NT-NA;
+ If NT<3Then Begin
+  FreeMem(OvAll,(NT+1)*SizeOf(TEdge));
+  Exit;
+ End;
+ OvNA:=NA;
+ NodeAll(NT,MinY,MaxY,True,Sub,NS,Idx,NU);
  { classement : on garde les segments entre l'interieur et l'exterieur }
  Kp:=AllocBlock((NU+1)*SizeOf(TEdge));
  KN:=0;
@@ -2563,6 +2807,1507 @@ Begin
 End;
 
 { ------------------------------------------------------------------ }
+{ Bibliotheque de geometries                                         }
+{ ------------------------------------------------------------------ }
+
+Function GeomBBox(Var G:TGeom;Var MinX,MinY,MaxX,MaxY:Real):Boolean;
+Var
+ P:PPath;
+ I:LongInt;
+ Have:Boolean;
+Begin
+ Have:=False;
+ MinX:=0;MinY:=0;MaxX:=0;MaxY:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-1do
+   If Not Have Then Begin
+    MinX:=P^.Pts^[I].X;MaxX:=MinX;MinY:=P^.Pts^[I].Y;MaxY:=MinY;Have:=True;
+   End
+    Else
+   Begin
+    If P^.Pts^[I].X<MinX Then MinX:=P^.Pts^[I].X;
+    If P^.Pts^[I].X>MaxX Then MaxX:=P^.Pts^[I].X;
+    If P^.Pts^[I].Y<MinY Then MinY:=P^.Pts^[I].Y;
+    If P^.Pts^[I].Y>MaxY Then MaxY:=P^.Pts^[I].Y;
+   End;
+  P:=P^.Next;
+ End;
+ GeomBBox:=Have;
+End;
+
+Procedure GeomCopy(Var S,D:TGeom);
+Var
+ P:PPath;
+Begin
+ InitGeom(D);
+ D.Cls:=S.Cls;
+ D.NPoly:=S.NPoly;
+ P:=S.First;
+ While P<>Nil do Begin
+  CopyPath(D,P,P^.Poly);
+  P:=P^.Next;
+ End;
+End;
+
+{ Ajoute (par copie) les chemins de S a D en renumerotant les polygones }
+Procedure GeomAppend(Var D:TGeom;Var S:TGeom);
+Var
+ P:PPath;
+Begin
+ If D.Cls=0Then D.Cls:=S.Cls;
+ P:=S.First;
+ While P<>Nil do Begin
+  CopyPath(D,P,P^.Poly+D.NPoly);
+  P:=P^.Next;
+ End;
+ D.NPoly:=D.NPoly+S.NPoly;
+End;
+
+Function PathLength(P:PPath):Real;
+Var
+ I:LongInt;
+ L:Real;
+Begin
+ L:=0;
+ For I:=0 to P^.N-2do
+  L:=L+Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+ PathLength:=L;
+End;
+
+{ Longueur des lignes ou perimetre des polygones }
+Function GeomLength(Var G:TGeom):Real;
+Var
+ P:PPath;
+ L:Real;
+Begin
+ L:=0;
+ If G.Cls>=2Then Begin
+  P:=G.First;
+  While P<>Nil do Begin
+   L:=L+PathLength(P);
+   If(G.Cls=3)and((P^.Pts^[0].X<>P^.Pts^[P^.N-1].X)or(P^.Pts^[0].Y<>P^.Pts^[P^.N-1].Y))Then
+    L:=L+Sqrt(Sqr(P^.Pts^[0].X-P^.Pts^[P^.N-1].X)+Sqr(P^.Pts^[0].Y-P^.Pts^[P^.N-1].Y));
+   P:=P^.Next;
+  End;
+ End;
+ GeomLength:=L;
+End;
+
+Function GeomArea(Var G:TGeom):Real;
+Var
+ P:PPath;
+ A:Real;
+ Prev:Integer;
+Begin
+ A:=0;
+ If G.Cls=3Then Begin
+  Prev:=-1;
+  P:=G.First;
+  While P<>Nil do Begin
+   If P^.Poly<>Prev Then A:=A+Abs(RingArea(P))
+                    Else A:=A-Abs(RingArea(P));
+   Prev:=P^.Poly;
+   P:=P^.Next;
+  End;
+ End;
+ GeomArea:=A;
+End;
+
+{ Remet les anneaux dans le sens exterieur anti-horaire / trou horaire }
+Procedure OrientPolygons(Var G:TGeom);
+Var
+ P:PPath;
+ Prev:Integer;
+ A:Real;
+Begin
+ If G.Cls<>3Then Exit;
+ Prev:=-1;
+ P:=G.First;
+ While P<>Nil do Begin
+  A:=RingArea(P);
+  If((P^.Poly<>Prev)and(A<0))or((P^.Poly=Prev)and(A>0))Then ReversePts(P^.Pts,P^.N);
+  Prev:=P^.Poly;
+  P:=P^.Next;
+ End;
+End;
+
+{ x' = m11 x + m12 y + tx ; y' = m21 x + m22 y + ty }
+Procedure AffineGeom(Var G:TGeom;M11,M12,M21,M22,Tx,Ty:Real);
+Var
+ P:PPath;
+ I:LongInt;
+ X,Y:Real;
+Begin
+ P:=G.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-1do Begin
+   X:=P^.Pts^[I].X;Y:=P^.Pts^[I].Y;
+   P^.Pts^[I].X:=M11*X+M12*Y+Tx;
+   P^.Pts^[I].Y:=M21*X+M22*Y+Ty;
+  End;
+  P:=P^.Next;
+ End;
+ If M11*M22-M12*M21<0Then OrientPolygons(G);
+End;
+
+{ Douglas-Peucker : Keep marque les sommets conserves }
+Procedure DPMark(Pts:PPts;Keep:PBools;First,Last:LongInt;Tol:Real);
+Var
+ Stack:PLongs;
+ Sp,I,A,B,Far:LongInt;
+ D,Best:Real;
+Begin
+ Stack:=AllocBlock((2*(Last-First+2))*SizeOf(LongInt));
+ Sp:=0;
+ Stack^[0]:=First;Stack^[1]:=Last;Sp:=2;
+ While Sp>0do Begin
+  B:=Stack^[Sp-1];A:=Stack^[Sp-2];
+  Dec(Sp,2);
+  Best:=-1;Far:=-1;
+  For I:=A+1 to B-1do Begin
+   D:=DistSeg(Pts^[I].X,Pts^[I].Y,Pts^[A].X,Pts^[A].Y,Pts^[B].X,Pts^[B].Y);
+   If D>Best Then Begin Best:=D;Far:=I;End;
+  End;
+  If(Far>=0)and(Best>Tol)Then Begin
+   Keep^[Far]:=True;
+   Stack^[Sp]:=A;Stack^[Sp+1]:=Far;Inc(Sp,2);
+   Stack^[Sp]:=Far;Stack^[Sp+1]:=B;Inc(Sp,2);
+  End;
+ End;
+ FreeMem(Stack,(2*(Last-First+2))*SizeOf(LongInt));
+End;
+
+{ Simplifie un chemin ; retourne Faux si le chemin disparait }
+Function SimplifyDP(P:PPath;Tol:Real;Closed:Boolean;Var G:TGeom;Poly:Integer):Boolean;
+Var
+ Q:PPts;
+ Keep:PBools;
+ M,I,K,Far,Cnt:LongInt;
+ D,Best:Real;
+ Pa:PPath;
+Begin
+ SimplifyDP:=False;
+ Q:=UniquePts(P,M);
+ If Closed and(M>1)and(Q^[0].X=Q^[M-1].X)and(Q^[0].Y=Q^[M-1].Y)Then Dec(M);
+ If M<2Then Begin
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ Keep:=AllocBlock(M*SizeOf(Boolean));
+ For I:=0 to M-1do Keep^[I]:=False;
+ Keep^[0]:=True;
+ If Closed Then Begin
+  { anneau : coupure au sommet le plus eloigne du premier }
+  Best:=-1;Far:=0;
+  For I:=1 to M-1do Begin
+   D:=Sqr(Q^[I].X-Q^[0].X)+Sqr(Q^[I].Y-Q^[0].Y);
+   If D>Best Then Begin Best:=D;Far:=I;End;
+  End;
+  Keep^[Far]:=True;
+  If Far>1Then DPMark(Q,Keep,0,Far,Tol);
+  If M-1>Far Then Begin
+   { seconde moitie : de Far a M puis retour au premier sommet }
+   Q^[M]:=Q^[0];
+   DPMark(Q,Keep,Far,M,Tol);
+  End;
+ End
+  Else
+ Begin
+  Keep^[M-1]:=True;
+  DPMark(Q,Keep,0,M-1,Tol);
+ End;
+ Cnt:=0;
+ For I:=0 to M-1do If Keep^[I]Then Inc(Cnt);
+ If(Closed and(Cnt<3))or((Not Closed)and(Cnt<2))Then Begin
+  FreeMem(Keep,M*SizeOf(Boolean));
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ If Closed Then Pa:=NewPath(G,Cnt+1,Poly) Else Pa:=NewPath(G,Cnt,Poly);
+ K:=0;
+ For I:=0 to M-1do If Keep^[I]Then Begin
+  Pa^.Pts^[K]:=Q^[I];
+  Inc(K);
+ End;
+ If Closed Then Begin Pa^.Pts^[K]:=Pa^.Pts^[0];Inc(K);End;
+ Pa^.N:=K;
+ FreeMem(Keep,M*SizeOf(Boolean));
+ FreeMem(Q,P^.N*SizeOf(TPt));
+ SimplifyDP:=True;
+End;
+
+{ Visvalingam : supprime les sommets dont le triangle est de plus petite aire }
+Function SimplifyVW(P:PPath;MinArea:Real;Closed:Boolean;Var G:TGeom;Poly:Integer):Boolean;
+Var
+ Q:PPts;
+ M,I,K,Cnt,Lo,Hi,Best:LongInt;
+ Ar,BestA:Real;
+ Alive:PBools;
+ Pa:PPath;
+
+ Function Prev(I:LongInt):LongInt;
+ Var J:LongInt;
+ Begin
+  J:=I-1;
+  While(J>=0)and Not Alive^[J]do Dec(J);
+  If(J<0)and Closed Then Begin
+   J:=M-1;
+   While(J>I)and Not Alive^[J]do Dec(J);
+  End;
+  Prev:=J;
+ End;
+
+ Function Next(I:LongInt):LongInt;
+ Var J:LongInt;
+ Begin
+  J:=I+1;
+  While(J<M)and Not Alive^[J]do Inc(J);
+  If(J>=M)and Closed Then Begin
+   J:=0;
+   While(J<I)and Not Alive^[J]do Inc(J);
+  End;
+  If J>=M Then J:=-1;
+  Next:=J;
+ End;
+
+Begin
+ SimplifyVW:=False;
+ Q:=UniquePts(P,M);
+ If Closed and(M>1)and(Q^[0].X=Q^[M-1].X)and(Q^[0].Y=Q^[M-1].Y)Then Dec(M);
+ If M<2Then Begin
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ Alive:=AllocBlock(M*SizeOf(Boolean));
+ For I:=0 to M-1do Alive^[I]:=True;
+ Cnt:=M;
+ Repeat
+  Best:=-1;BestA:=1E300;
+  For I:=0 to M-1do
+   If Alive^[I]Then Begin
+    Lo:=Prev(I);Hi:=Next(I);
+    If(Lo>=0)and(Hi>=0)and(Lo<>Hi)and((Closed and(Cnt>3))or((Not Closed)and(I>0)and(I<M-1)and(Cnt>2)))Then Begin
+     Ar:=Abs((Q^[I].X-Q^[Lo].X)*(Q^[Hi].Y-Q^[Lo].Y)-(Q^[Hi].X-Q^[Lo].X)*(Q^[I].Y-Q^[Lo].Y))/2;
+     If Ar<BestA Then Begin BestA:=Ar;Best:=I;End;
+    End;
+   End;
+  If(Best>=0)and(BestA<MinArea)Then Begin
+   Alive^[Best]:=False;
+   Dec(Cnt);
+  End
+   Else
+  Best:=-1;
+ Until Best<0;
+ If(Closed and(Cnt<3))or((Not Closed)and(Cnt<2))Then Begin
+  FreeMem(Alive,M*SizeOf(Boolean));
+  FreeMem(Q,P^.N*SizeOf(TPt));
+  Exit;
+ End;
+ If Closed Then Pa:=NewPath(G,Cnt+1,Poly) Else Pa:=NewPath(G,Cnt,Poly);
+ K:=0;
+ For I:=0 to M-1do If Alive^[I]Then Begin
+  Pa^.Pts^[K]:=Q^[I];
+  Inc(K);
+ End;
+ If Closed Then Begin Pa^.Pts^[K]:=Pa^.Pts^[0];Inc(K);End;
+ Pa^.N:=K;
+ FreeMem(Alive,M*SizeOf(Boolean));
+ FreeMem(Q,P^.N*SizeOf(TPt));
+ SimplifyVW:=True;
+End;
+
+{ Arrondit les sommets a une grille }
+Function SnapGridPath(P:PPath;Cell:Real;Closed:Boolean;Var G:TGeom;Poly:Integer):Boolean;
+Var
+ I,K,M:LongInt;
+ X,Y:Real;
+ Pa:PPath;
+ Q:PPts;
+Begin
+ SnapGridPath:=False;
+ Q:=AllocBlock(P^.N*SizeOf(TPt)+16);
+ M:=0;
+ For I:=0 to P^.N-1do Begin
+  X:=FloorR(P^.Pts^[I].X/Cell+0.5)*Cell;
+  Y:=FloorR(P^.Pts^[I].Y/Cell+0.5)*Cell;
+  If(M=0)or(X<>Q^[M-1].X)or(Y<>Q^[M-1].Y)Then Begin
+   Q^[M].X:=X;Q^[M].Y:=Y;Inc(M);
+  End;
+ End;
+ If(Closed and(M<4))or((Not Closed)and(M<2))Then Begin
+  FreeMem(Q,P^.N*SizeOf(TPt)+16);
+  Exit;
+ End;
+ Pa:=NewPath(G,M,Poly);
+ Move(Q^,Pa^.Pts^,M*SizeOf(TPt));
+ Pa^.N:=M;
+ FreeMem(Q,P^.N*SizeOf(TPt)+16);
+ SnapGridPath:=True;
+End;
+
+{ Ajoute Cnt sommets regulierement espaces sur chaque segment }
+Procedure DensifyPath(P:PPath;Cnt:LongInt;Var G:TGeom;Poly:Integer);
+Var
+ I,K,N:LongInt;
+ Pa:PPath;
+ T:Real;
+Begin
+ N:=(P^.N-1)*(Cnt+1)+1;
+ Pa:=NewPath(G,N,Poly);
+ K:=0;
+ For I:=0 to P^.N-2do Begin
+  For N:=0 to Cnt do Begin
+   T:=N/(Cnt+1);
+   Pa^.Pts^[K].X:=P^.Pts^[I].X+T*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+   Pa^.Pts^[K].Y:=P^.Pts^[I].Y+T*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+   Inc(K);
+  End;
+ End;
+ Pa^.Pts^[K]:=P^.Pts^[P^.N-1];
+ Pa^.N:=K+1;
+End;
+
+{ Lissage de Chaikin (iterations, decalage 0..0.5, angle maxi des noeuds lisses) }
+Procedure SmoothPath(P:PPath;Iter:Integer;Off,MaxAngle:Real;Closed:Boolean;Var G:TGeom;Poly:Integer);
+Var
+ Cur,Nxt:PPts;
+ N,M,I,K,It,J:LongInt;
+ Ax,Ay,Bx,By,Cx,Cy,L1,L2,Ang:Real;
+ Pa:PPath;
+ Smooth:Boolean;
+Begin
+ Cur:=UniquePts(P,N);
+ If Closed and(N>1)and(Cur^[0].X=Cur^[N-1].X)and(Cur^[0].Y=Cur^[N-1].Y)Then Dec(N);
+ For It:=1 to Iter do Begin
+  Nxt:=AllocBlock((2*N+3)*SizeOf(TPt));
+  M:=0;
+  If Not Closed Then Begin Nxt^[0]:=Cur^[0];M:=1;End;
+  For I:=0 to N-1do Begin
+   J:=(I+1)mod N;
+   If Closed or(I<N-1)Then Begin
+    { sommet I lisse ? (angle interieur entre les segments adjacents) }
+    Smooth:=True;
+    If Closed or(I>0)Then Begin
+     K:=(I+N-1)mod N;
+     Ax:=Cur^[K].X-Cur^[I].X;Ay:=Cur^[K].Y-Cur^[I].Y;
+     Bx:=Cur^[J].X-Cur^[I].X;By:=Cur^[J].Y-Cur^[I].Y;
+     L1:=Sqrt(Ax*Ax+Ay*Ay);L2:=Sqrt(Bx*Bx+By*By);
+     If(L1>0)and(L2>0)Then Begin
+      Cx:=(Ax*Bx+Ay*By)/(L1*L2);
+      If Cx>1Then Cx:=1;
+      If Cx<-1Then Cx:=-1;
+      Ang:=Rad2Deg(ArcSin(Sqrt(1-Cx*Cx)));
+      If Cx<0Then Ang:=180-Ang;
+      Smooth:=Ang<=MaxAngle;
+     End;
+    End;
+    If Smooth or(Not(Closed or(I>0)))Then Begin
+     If Not Closed and(I=0)Then Begin
+      Nxt^[M].X:=Cur^[I].X+(1-Off)*(Cur^[J].X-Cur^[I].X);Nxt^[M].Y:=Cur^[I].Y+(1-Off)*(Cur^[J].Y-Cur^[I].Y);
+      Inc(M);
+     End
+      Else
+     Begin
+      Nxt^[M].X:=Cur^[I].X+Off*(Cur^[J].X-Cur^[I].X);Nxt^[M].Y:=Cur^[I].Y+Off*(Cur^[J].Y-Cur^[I].Y);
+      Inc(M);
+      Nxt^[M].X:=Cur^[I].X+(1-Off)*(Cur^[J].X-Cur^[I].X);Nxt^[M].Y:=Cur^[I].Y+(1-Off)*(Cur^[J].Y-Cur^[I].Y);
+      Inc(M);
+     End;
+    End
+     Else
+    Begin
+     Nxt^[M]:=Cur^[I];Inc(M);
+    End;
+   End;
+  End;
+  If Not Closed Then Begin Nxt^[M]:=Cur^[N-1];Inc(M);End;
+  FreeMem(Cur,0);
+  Cur:=Nxt;
+  N:=M;
+ End;
+ If Closed Then Begin
+  Pa:=NewPath(G,N+1,Poly);
+  Move(Cur^,Pa^.Pts^,N*SizeOf(TPt));
+  Pa^.Pts^[N]:=Pa^.Pts^[0];
+  Pa^.N:=N+1;
+ End
+  Else
+ Begin
+  Pa:=NewPath(G,N,Poly);
+  Move(Cur^,Pa^.Pts^,N*SizeOf(TPt));
+  Pa^.N:=N;
+ End;
+End;
+
+{ Point a la distance D le long d'un chemin ; Ang = azimut du segment (degres, horaire depuis le nord) }
+Function PointAlong(P:PPath;D:Real;Var X,Y,Ang:Real):Boolean;
+Var
+ I:LongInt;
+ L,Acc:Real;
+Begin
+ PointAlong:=False;
+ If D<0Then Exit;
+ Acc:=0;
+ For I:=0 to P^.N-2do Begin
+  L:=Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+  If(D<=Acc+L)and(L>0)Then Begin
+   X:=P^.Pts^[I].X+(D-Acc)/L*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+   Y:=P^.Pts^[I].Y+(D-Acc)/L*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+   Ang:=NormDeg(Rad2Deg(Atan2(P^.Pts^[I+1].X-P^.Pts^[I].X,P^.Pts^[I+1].Y-P^.Pts^[I].Y)));
+   PointAlong:=True;
+   Exit;
+  End;
+  Acc:=Acc+L;
+ End;
+End;
+
+{ Portion d'un chemin entre les distances D1 et D2 }
+Function SubLine(P:PPath;D1,D2:Real;Var G:TGeom;Poly:Integer):Boolean;
+Var
+ Buf:PPts;
+ I,N:LongInt;
+ L,Acc,X,Y,A,T:Real;
+ Pa:PPath;
+Begin
+ SubLine:=False;
+ If D2<=D1 Then Exit;
+ Buf:=AllocBlock((P^.N+3)*SizeOf(TPt));
+ N:=0;
+ Acc:=0;
+ For I:=0 to P^.N-2do Begin
+  L:=Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+  If L>0Then Begin
+   If(D1>=Acc)and(D1<=Acc+L)and(N=0)Then Begin
+    T:=(D1-Acc)/L;
+    Buf^[N].X:=P^.Pts^[I].X+T*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+    Buf^[N].Y:=P^.Pts^[I].Y+T*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+    Inc(N);
+   End;
+   If(N>0)and(D2>=Acc)and(D2<=Acc+L)Then Begin
+    T:=(D2-Acc)/L;
+    Buf^[N].X:=P^.Pts^[I].X+T*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+    Buf^[N].Y:=P^.Pts^[I].Y+T*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+    Inc(N);
+    Break;
+   End;
+   If(N>0)and(Acc+L<D2)Then Begin
+    Buf^[N]:=P^.Pts^[I+1];
+    Inc(N);
+   End;
+  End;
+  Acc:=Acc+L;
+ End;
+ If N>=2Then Begin
+  Pa:=NewPath(G,N,Poly);
+  Move(Buf^,Pa^.Pts^,N*SizeOf(TPt));
+  Pa^.N:=N;
+  SubLine:=True;
+ End;
+ FreeMem(Buf,(P^.N+3)*SizeOf(TPt));
+End;
+
+{ ---- relations spatiales ---- }
+
+{ Point par rapport a un ensemble de polygones (regle pair/impair) : 0 dehors, 1 dedans, 2 sur le bord }
+Function PtInPolys(Var G:TGeom;X,Y,Tol:Real):Integer;
+Var
+ P:PPath;
+ Cnt,S:Integer;
+Begin
+ Cnt:=0;
+ P:=G.First;
+ While P<>Nil do Begin
+  S:=PointInRing(P,X,Y,Tol);
+  If S=2Then Begin PtInPolys:=2;Exit;End;
+  If S=1Then Inc(Cnt);
+  P:=P^.Next;
+ End;
+ If Odd(Cnt)Then PtInPolys:=1 Else PtInPolys:=0;
+End;
+
+{ Distance d'un point a une geometrie }
+Function DistPtGeom(Var G:TGeom;X,Y:Real):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ D,Best:Real;
+Begin
+ Best:=1E300;
+ If G.Cls=3Then Begin
+  If PtInPolys(G,X,Y,0)>0Then Begin DistPtGeom:=0;Exit;End;
+ End;
+ P:=G.First;
+ While P<>Nil do Begin
+  If P^.N=1Then Begin
+   D:=Sqrt(Sqr(X-P^.Pts^[0].X)+Sqr(Y-P^.Pts^[0].Y));
+   If D<Best Then Best:=D;
+  End
+   Else
+  For I:=0 to P^.N-2do Begin
+   D:=DistSeg(X,Y,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y);
+   If D<Best Then Best:=D;
+  End;
+  P:=P^.Next;
+ End;
+ DistPtGeom:=Best;
+End;
+
+{ Point le plus proche de (X,Y) sur le segment A-B }
+Procedure ClosestOnSeg(Px,Py,X1,Y1,X2,Y2:Real;Var Cx,Cy:Real);
+Var
+ Dx,Dy,L2,T:Real;
+Begin
+ Dx:=X2-X1;Dy:=Y2-Y1;
+ L2:=Dx*Dx+Dy*Dy;
+ If L2<=0Then T:=0
+  Else
+ Begin
+  T:=((Px-X1)*Dx+(Py-Y1)*Dy)/L2;
+  If T<0Then T:=0;
+  If T>1Then T:=1;
+ End;
+ Cx:=X1+T*Dx;Cy:=Y1+T*Dy;
+End;
+
+{ Point de G le plus proche de (X,Y) ; retourne la distance }
+Function NearestOnGeom(Var G:TGeom;X,Y:Real;Var Cx,Cy:Real):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ D,Best,Qx,Qy:Real;
+Begin
+ Best:=1E300;
+ Cx:=X;Cy:=Y;
+ If(G.Cls=3)and(PtInPolys(G,X,Y,0)>0)Then Begin NearestOnGeom:=0;Exit;End;
+ P:=G.First;
+ While P<>Nil do Begin
+  If P^.N=1Then Begin
+   D:=Sqrt(Sqr(X-P^.Pts^[0].X)+Sqr(Y-P^.Pts^[0].Y));
+   If D<Best Then Begin Best:=D;Cx:=P^.Pts^[0].X;Cy:=P^.Pts^[0].Y;End;
+  End
+   Else
+  For I:=0 to P^.N-2do Begin
+   ClosestOnSeg(X,Y,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y,Qx,Qy);
+   D:=Sqrt(Sqr(X-Qx)+Sqr(Y-Qy));
+   If D<Best Then Begin Best:=D;Cx:=Qx;Cy:=Qy;End;
+  End;
+  P:=P^.Next;
+ End;
+ NearestOnGeom:=Best;
+End;
+
+{ Paire de points la plus proche entre deux geometries ; retourne la distance }
+Function NearestPoints(Var A,B:TGeom;Var Ax,Ay,Bx,By:Real):Real;
+Var
+ P:PPath;
+ I:LongInt;
+ D,Best,Cx,Cy:Real;
+Begin
+ Best:=1E300;
+ Ax:=0;Ay:=0;Bx:=0;By:=0;
+ P:=A.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-1do Begin
+   D:=NearestOnGeom(B,P^.Pts^[I].X,P^.Pts^[I].Y,Cx,Cy);
+   If D<Best Then Begin Best:=D;Ax:=P^.Pts^[I].X;Ay:=P^.Pts^[I].Y;Bx:=Cx;By:=Cy;End;
+  End;
+  P:=P^.Next;
+ End;
+ P:=B.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-1do Begin
+   D:=NearestOnGeom(A,P^.Pts^[I].X,P^.Pts^[I].Y,Cx,Cy);
+   If D<Best Then Begin Best:=D;Bx:=P^.Pts^[I].X;By:=P^.Pts^[I].Y;Ax:=Cx;Ay:=Cy;End;
+  End;
+  P:=P^.Next;
+ End;
+ NearestPoints:=Best;
+End;
+
+{ Des segments (de lignes ou d'anneaux) de A et B se coupent-ils ? Cross : coupure franche seulement }
+Function SegmentsMeet(Var A,B:TGeom;Cross:Boolean):Boolean;
+Var
+ P,Q:PPath;
+ I,J:LongInt;
+ Ix,Iy,Rx,Ry,Sx,Sy,Den,T,U,E:Real;
+Begin
+ SegmentsMeet:=False;
+ If Cross Then E:=1E-12 Else E:=-1E-12;
+ P:=A.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-2do Begin
+   Q:=B.First;
+   While Q<>Nil do Begin
+    For J:=0 to Q^.N-2do Begin
+     Rx:=P^.Pts^[I+1].X-P^.Pts^[I].X;Ry:=P^.Pts^[I+1].Y-P^.Pts^[I].Y;
+     Sx:=Q^.Pts^[J+1].X-Q^.Pts^[J].X;Sy:=Q^.Pts^[J+1].Y-Q^.Pts^[J].Y;
+     Den:=Rx*Sy-Ry*Sx;
+     If Abs(Den)>1E-14*Sqrt(Rx*Rx+Ry*Ry)*Sqrt(Sx*Sx+Sy*Sy)Then Begin
+      T:=((Q^.Pts^[J].X-P^.Pts^[I].X)*Sy-(Q^.Pts^[J].Y-P^.Pts^[I].Y)*Sx)/Den;
+      U:=((Q^.Pts^[J].X-P^.Pts^[I].X)*Ry-(Q^.Pts^[J].Y-P^.Pts^[I].Y)*Rx)/Den;
+      If(T>=E)and(T<=1-E)and(U>=E)and(U<=1-E)Then Begin
+       SegmentsMeet:=True;
+       Exit;
+      End;
+     End
+      Else
+     If Not Cross Then Begin
+      { paralleles : se touchent-ils ? }
+      If(DistSeg(Q^.Pts^[J].X,Q^.Pts^[J].Y,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y)<1E-12)or
+        (DistSeg(Q^.Pts^[J+1].X,Q^.Pts^[J+1].Y,P^.Pts^[I].X,P^.Pts^[I].Y,P^.Pts^[I+1].X,P^.Pts^[I+1].Y)<1E-12)Then Begin
+       SegmentsMeet:=True;
+       Exit;
+      End;
+     End;
+    End;
+    Q:=Q^.Next;
+   End;
+  End;
+  P:=P^.Next;
+ End;
+End;
+
+Function BoxesTouch(Var A,B:TGeom):Boolean;
+Var
+ X1,Y1,X2,Y2,U1,V1,U2,V2:Real;
+Begin
+ BoxesTouch:=False;
+ If Not GeomBBox(A,X1,Y1,X2,Y2)Then Exit;
+ If Not GeomBBox(B,U1,V1,U2,V2)Then Exit;
+ BoxesTouch:=Not((U1>X2)or(U2<X1)or(V1>Y2)or(V2<Y1));
+End;
+
+Function GeomIntersects(Var A,B:TGeom):Boolean;
+Var
+ P:PPath;
+ I:LongInt;
+Begin
+ GeomIntersects:=False;
+ If(A.First=Nil)or(B.First=Nil)Then Exit;
+ If Not BoxesTouch(A,B)Then Exit;
+ If A.Cls=1Then Begin
+  P:=A.First;
+  While P<>Nil do Begin
+   If DistPtGeom(B,P^.Pts^[0].X,P^.Pts^[0].Y)<=1E-12Then Begin GeomIntersects:=True;Exit;End;
+   P:=P^.Next;
+  End;
+  Exit;
+ End;
+ If B.Cls=1Then Begin
+  P:=B.First;
+  While P<>Nil do Begin
+   If DistPtGeom(A,P^.Pts^[0].X,P^.Pts^[0].Y)<=1E-12Then Begin GeomIntersects:=True;Exit;End;
+   P:=P^.Next;
+  End;
+  Exit;
+ End;
+ If SegmentsMeet(A,B,False)Then Begin GeomIntersects:=True;Exit;End;
+ { un objet entierement a l'interieur d'un polygone de l'autre }
+ If B.Cls=3Then Begin
+  P:=A.First;
+  While P<>Nil do Begin
+   If PtInPolys(B,P^.Pts^[0].X,P^.Pts^[0].Y,1E-12)>0Then Begin GeomIntersects:=True;Exit;End;
+   P:=P^.Next;
+  End;
+ End;
+ If A.Cls=3Then Begin
+  P:=B.First;
+  While P<>Nil do Begin
+   If PtInPolys(A,P^.Pts^[0].X,P^.Pts^[0].Y,1E-12)>0Then Begin GeomIntersects:=True;Exit;End;
+   P:=P^.Next;
+  End;
+ End;
+End;
+
+{ A contient B (au sens OGC, a la precision numerique pres) }
+Function GeomContains(Var A,B:TGeom):Boolean;
+Var
+ P:PPath;
+ I:LongInt;
+ S:Integer;
+ Inside,Mx,My:Real;
+ AnyIn:Boolean;
+Begin
+ GeomContains:=False;
+ If(A.First=Nil)or(B.First=Nil)Then Exit;
+ If Not BoxesTouch(A,B)Then Exit;
+ AnyIn:=False;
+ If A.Cls=3Then Begin
+  P:=B.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    S:=PtInPolys(A,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12);
+    If S=0Then Exit;
+    If S=1Then AnyIn:=True;
+    If(I<P^.N-1)and(P^.N>1)Then Begin
+     Mx:=(P^.Pts^[I].X+P^.Pts^[I+1].X)/2;My:=(P^.Pts^[I].Y+P^.Pts^[I+1].Y)/2;
+     S:=PtInPolys(A,Mx,My,1E-12);
+     If S=0Then Exit;
+     If S=1Then AnyIn:=True;
+    End;
+   End;
+   P:=P^.Next;
+  End;
+  { un trou de A ne doit pas etre a l'interieur de B }
+  If B.Cls=3Then Begin
+   P:=A.First;
+   While P<>Nil do Begin
+    If(P<>A.First)and(P^.Poly=A.First^.Poly)Then
+     If PtInPolys(B,P^.Pts^[0].X,P^.Pts^[0].Y,1E-12)=1Then Exit;
+    P:=P^.Next;
+   End;
+  End;
+  GeomContains:=AnyIn;
+  Exit;
+ End;
+ If A.Cls=2Then Begin
+  If B.Cls=3Then Exit;
+  P:=B.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    If DistPtGeom(A,P^.Pts^[I].X,P^.Pts^[I].Y)>1E-12Then Exit;
+    If(I<P^.N-1)and(P^.N>1)Then
+     If DistPtGeom(A,(P^.Pts^[I].X+P^.Pts^[I+1].X)/2,(P^.Pts^[I].Y+P^.Pts^[I+1].Y)/2)>1E-12Then Exit;
+   End;
+   P:=P^.Next;
+  End;
+  GeomContains:=True;
+  Exit;
+ End;
+ { A est un ensemble de points }
+ If B.Cls<>1Then Exit;
+ P:=B.First;
+ While P<>Nil do Begin
+  If DistPtGeom(A,P^.Pts^[0].X,P^.Pts^[0].Y)>1E-12Then Exit;
+  P:=P^.Next;
+ End;
+ GeomContains:=True;
+End;
+
+{ Aire de l'intersection de deux geometries polygonales }
+Function OverlapArea(Var A,B:TGeom):Real;
+Var
+ R:TGeom;
+ X:Real;
+Begin
+ Overlay(1,A,B,R);
+ X:=GeomArea(R);
+ FreeGeom(R);
+ OverlapArea:=X;
+End;
+
+{ Predicats : 0 intersecte, 1 contient, 2 disjoint, 3 egal, 4 touche, 5 chevauche, 6 est a l'interieur, 7 croise }
+Function GeomPredicate(Pred:Integer;Var A,B:TGeom):Boolean;
+Var
+ Hit:Boolean;
+ Ar,Ia,Aa,Ab:Real;
+ P:PPath;
+ AnyIn,AnyOut:Boolean;
+ I:LongInt;
+ S:Integer;
+ Buf:TGeom;
+Begin
+ GeomPredicate:=False;
+ Case Pred of
+  0:GeomPredicate:=GeomIntersects(A,B);
+  1:GeomPredicate:=GeomContains(A,B);
+  2:GeomPredicate:=Not GeomIntersects(A,B);
+  6:GeomPredicate:=GeomContains(B,A);
+  3:Begin
+   If A.Cls<>B.Cls Then Exit;
+   If A.Cls=3Then Begin
+    Aa:=GeomArea(A);Ab:=GeomArea(B);
+    Ia:=OverlapArea(A,B);
+    GeomPredicate:=(Abs(Aa-Ia)<=1E-9*MaxR(Aa,1E-300))and(Abs(Ab-Ia)<=1E-9*MaxR(Ab,1E-300));
+   End
+    Else
+   GeomPredicate:=GeomContains(A,B)and GeomContains(B,A);
+  End;
+  4:Begin
+   If Not GeomIntersects(A,B)Then Exit;
+   If(A.Cls=3)and(B.Cls=3)Then GeomPredicate:=OverlapArea(A,B)<=1E-9*MaxR(GeomArea(A),GeomArea(B))
+    Else
+   If(A.Cls=3)or(B.Cls=3)Then Begin
+    { ligne ou point contre un polygone : aucun point strictement interieur }
+    If A.Cls=3Then Begin Buf:=A;P:=B.First;End Else Begin Buf:=B;P:=A.First;End;
+    Hit:=True;
+    While P<>Nil do Begin
+     For I:=0 to P^.N-1do Begin
+      If PtInPolys(Buf,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12)=1Then Hit:=False;
+      If(I<P^.N-1)and(P^.N>1)Then
+       If PtInPolys(Buf,(P^.Pts^[I].X+P^.Pts^[I+1].X)/2,(P^.Pts^[I].Y+P^.Pts^[I+1].Y)/2,1E-12)=1Then Hit:=False;
+     End;
+     P:=P^.Next;
+    End;
+    GeomPredicate:=Hit;
+   End
+    Else
+   If(A.Cls=2)and(B.Cls=2)Then GeomPredicate:=Not SegmentsMeet(A,B,True)
+    Else
+   GeomPredicate:=False;
+  End;
+  5:Begin
+   If A.Cls<>B.Cls Then Exit;
+   If Not GeomIntersects(A,B)Then Exit;
+   If A.Cls=3Then Begin
+    Ia:=OverlapArea(A,B);
+    GeomPredicate:=(Ia>1E-9*MaxR(GeomArea(A),GeomArea(B)))and Not GeomContains(A,B)and Not GeomContains(B,A);
+   End
+    Else
+   If A.Cls=2Then GeomPredicate:=Not GeomContains(A,B)and Not GeomContains(B,A)and Not SegmentsMeet(A,B,True)
+    Else
+   GeomPredicate:=False;
+  End;
+  7:Begin
+   If(A.Cls=2)and(B.Cls=2)Then GeomPredicate:=SegmentsMeet(A,B,True)
+    Else
+   If((A.Cls=2)and(B.Cls=3))or((A.Cls=3)and(B.Cls=2))Then Begin
+    If A.Cls=2Then Begin Buf:=B;P:=A.First;End Else Begin Buf:=A;P:=B.First;End;
+    AnyIn:=False;AnyOut:=False;
+    While P<>Nil do Begin
+     For I:=0 to P^.N-1do Begin
+      S:=PtInPolys(Buf,P^.Pts^[I].X,P^.Pts^[I].Y,1E-12);
+      If S=1Then AnyIn:=True;
+      If S=0Then AnyOut:=True;
+     End;
+     P:=P^.Next;
+    End;
+    GeomPredicate:=AnyIn and AnyOut;
+   End;
+  End;
+ End;
+End;
+
+{ Convertit une geometrie aplatie en noeud GeoJSON selon sa classe (Nil si vide) }
+Function BuildGeom(Var G:TGeom):PJ;Begin
+ Case G.Cls of
+  1:BuildGeom:=BuildPoints(G);
+  2:BuildGeom:=BuildLines(G);
+  3:BuildGeom:=BuildPolygons(G);
+  Else BuildGeom:=Nil;
+ End;
+End;
+
+Procedure PointGeom(Var G:TGeom;X,Y:Real);
+Var
+ P:PPath;
+Begin
+ InitGeom(G);
+ G.Cls:=1;
+ P:=NewPath(G,1,0);
+ P^.Pts^[0].X:=X;P^.Pts^[0].Y:=Y;
+End;
+
+{ Point garanti a l'interieur d'une geometrie }
+Procedure PointOnSurface(Var G:TGeom;Var X,Y:Real);
+Var
+ Cx,Cy,MinX,MinY,MaxX,MaxY,Yy,Best,Xa,Xb,Tmp,X1,Y1,X2,Y2:Real;
+ Ok:Boolean;
+ Xs:PReals;
+ P:PPath;
+ Cap,NX,I,K:LongInt;
+ Tries:Integer;
+Begin
+ X:=0;Y:=0;
+ If G.First=Nil Then Exit;
+ If G.Cls=1Then Begin X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;Exit;End;
+ If G.Cls=2Then Begin
+  Y1:=PathLength(G.First)/2;
+  If PointAlong(G.First,Y1,X,Y,X1)Then Exit;
+  X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;
+  Exit;
+ End;
+ CentroidGeom(G,Cx,Cy,Ok);
+ If Not GeomBBox(G,MinX,MinY,MaxX,MaxY)Then Exit;
+ If Ok and(PtInPolys(G,Cx,Cy,0)=1)Then Begin X:=Cx;Y:=Cy;Exit;End;
+ Cap:=0;
+ P:=G.First;
+ While P<>Nil do Begin Inc(Cap,P^.N);P:=P^.Next;End;
+ Xs:=AllocBlock((Cap+2)*SizeOf(Real));
+ Best:=-1;
+ X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;
+ { balayage horizontal a plusieurs hauteurs : on garde l'intervalle le plus long }
+ For Tries:=0 to 8do Begin
+  If Tries=0Then Yy:=Cy Else Yy:=MinY+(MaxY-MinY)*Tries/9;
+  NX:=0;
+  P:=G.First;
+  While P<>Nil do Begin
+   For I:=0 to P^.N-1do Begin
+    K:=I+1;
+    If K>=P^.N Then K:=0;
+    X1:=P^.Pts^[I].X;Y1:=P^.Pts^[I].Y;X2:=P^.Pts^[K].X;Y2:=P^.Pts^[K].Y;
+    If(Y1<=Yy)<>(Y2<=Yy)Then Begin
+     Xs^[NX]:=X1+(Yy-Y1)*(X2-X1)/(Y2-Y1);
+     Inc(NX);
+    End;
+   End;
+   P:=P^.Next;
+  End;
+  For I:=1 to NX-1do Begin
+   Tmp:=Xs^[I];K:=I-1;
+   While(K>=0)and(Xs^[K]>Tmp)do Begin Xs^[K+1]:=Xs^[K];Dec(K);End;
+   Xs^[K+1]:=Tmp;
+  End;
+  I:=0;
+  While I+1<NX do Begin
+   Xa:=Xs^[I];Xb:=Xs^[I+1];
+   If Xb-Xa>Best Then Begin Best:=Xb-Xa;X:=(Xa+Xb)/2;Y:=Yy;End;
+   Inc(I,2);
+  End;
+ End;
+ FreeMem(Xs,(Cap+2)*SizeOf(Real));
+End;
+
+{ Rectangle englobant oriente d'aire minimale ; Ang = azimut du grand cote }
+Procedure MinOrientedBox(Var G:TGeom;Var R:TGeom;Var Area,Ang,W,H:Real);
+Var
+ Hull:TGeom;
+ P:PPath;
+ I,J,N:LongInt;
+ Dx,Dy,L,Ux,Uy,Vx,Vy,MinU,MaxU,MinV,MaxV,U,V,A,BestA,Bu0,Bu1,Bv0,Bv1,Bux,Buy:Real;
+ Pa:PPath;
+Begin
+ InitGeom(R);
+ Area:=0;Ang:=0;W:=0;H:=0;
+ HullGeom(G,Hull);
+ If Hull.Cls<>3Then Begin FreeGeom(Hull);Exit;End;
+ P:=Hull.First;
+ N:=P^.N-1;
+ BestA:=1E300;
+ Bux:=1;Buy:=0;Bu0:=0;Bu1:=0;Bv0:=0;Bv1:=0;
+ For I:=0 to N-1do Begin
+  J:=(I+1)mod N;
+  Dx:=P^.Pts^[J].X-P^.Pts^[I].X;Dy:=P^.Pts^[J].Y-P^.Pts^[I].Y;
+  L:=Sqrt(Dx*Dx+Dy*Dy);
+  If L>0Then Begin
+   Ux:=Dx/L;Uy:=Dy/L;Vx:=-Uy;Vy:=Ux;
+   MinU:=1E300;MaxU:=-1E300;MinV:=1E300;MaxV:=-1E300;
+   For J:=0 to N-1do Begin
+    U:=P^.Pts^[J].X*Ux+P^.Pts^[J].Y*Uy;
+    V:=P^.Pts^[J].X*Vx+P^.Pts^[J].Y*Vy;
+    If U<MinU Then MinU:=U;If U>MaxU Then MaxU:=U;
+    If V<MinV Then MinV:=V;If V>MaxV Then MaxV:=V;
+   End;
+   A:=(MaxU-MinU)*(MaxV-MinV);
+   If A<BestA Then Begin
+    BestA:=A;Bux:=Ux;Buy:=Uy;Bu0:=MinU;Bu1:=MaxU;Bv0:=MinV;Bv1:=MaxV;
+   End;
+  End;
+ End;
+ R.Cls:=3;R.NPoly:=1;
+ Pa:=NewPath(R,5,0);
+ { sommets du rectangle (anti-horaire) }
+ Pa^.Pts^[0].X:=Bu0*Bux-Bv0*Buy;Pa^.Pts^[0].Y:=Bu0*Buy+Bv0*Bux;
+ Pa^.Pts^[1].X:=Bu1*Bux-Bv0*Buy;Pa^.Pts^[1].Y:=Bu1*Buy+Bv0*Bux;
+ Pa^.Pts^[2].X:=Bu1*Bux-Bv1*Buy;Pa^.Pts^[2].Y:=Bu1*Buy+Bv1*Bux;
+ Pa^.Pts^[3].X:=Bu0*Bux-Bv1*Buy;Pa^.Pts^[3].Y:=Bu0*Buy+Bv1*Bux;
+ Pa^.Pts^[4]:=Pa^.Pts^[0];
+ Area:=BestA;
+ W:=Bu1-Bu0;H:=Bv1-Bv0;
+ Ang:=NormDeg(Rad2Deg(Atan2(Bux,Buy)));
+ If H>W Then Begin
+  A:=W;W:=H;H:=A;
+  Ang:=NormDeg(Ang+90);
+ End;
+ Ang:=Ang-180*Int(Ang/180);
+ FreeGeom(Hull);
+End;
+
+{ Triangulation de Delaunay (Bowyer-Watson), O(n^2). Tri : triplets d'index. }
+Procedure Delaunay(Pts:PPts;N:LongInt;Var Tri:PLongs;Var NTri:LongInt);
+Var
+ X:PPts;
+ TA,TB,TC:PLongs;
+ Cx,Cy,R2:PReals;
+ Nt,Cap,I,J,K,Nb:LongInt;
+ MinX,MinY,MaxX,MaxY,D,Mx,My,Ax,Ay,Bx,By,Cx1,Cy1,Dd,Ux,Uy:Real;
+ Bad:PBools;
+ EA,EB:PLongs;
+ Ne:LongInt;
+ Dup:Boolean;
+
+ Procedure Circ(T:LongInt);
+ Var
+  A,B,C:LongInt;
+ Begin
+  A:=TA^[T];B:=TB^[T];C:=TC^[T];
+  Ax:=X^[A].X;Ay:=X^[A].Y;Bx:=X^[B].X;By:=X^[B].Y;Cx1:=X^[C].X;Cy1:=X^[C].Y;
+  Dd:=2*(Ax*(By-Cy1)+Bx*(Cy1-Ay)+Cx1*(Ay-By));
+  If Dd=0Then Begin
+   Cx^[T]:=1E30;Cy^[T]:=1E30;R2^[T]:=1E300;
+  End
+   Else
+  Begin
+   Ux:=((Ax*Ax+Ay*Ay)*(By-Cy1)+(Bx*Bx+By*By)*(Cy1-Ay)+(Cx1*Cx1+Cy1*Cy1)*(Ay-By))/Dd;
+   Uy:=((Ax*Ax+Ay*Ay)*(Cx1-Bx)+(Bx*Bx+By*By)*(Ax-Cx1)+(Cx1*Cx1+Cy1*Cy1)*(Bx-Ax))/Dd;
+   Cx^[T]:=Ux;Cy^[T]:=Uy;
+   R2^[T]:=Sqr(Ax-Ux)+Sqr(Ay-Uy);
+  End;
+ End;
+
+Begin
+ Tri:=Nil;NTri:=0;
+ If N<3Then Exit;
+ X:=AllocBlock((N+3)*SizeOf(TPt));
+ For I:=0 to N-1do X^[I]:=Pts^[I];
+ MinX:=X^[0].X;MaxX:=MinX;MinY:=X^[0].Y;MaxY:=MinY;
+ For I:=1 to N-1do Begin
+  If X^[I].X<MinX Then MinX:=X^[I].X;If X^[I].X>MaxX Then MaxX:=X^[I].X;
+  If X^[I].Y<MinY Then MinY:=X^[I].Y;If X^[I].Y>MaxY Then MaxY:=X^[I].Y;
+ End;
+ D:=MaxR(MaxX-MinX,MaxY-MinY);
+ If D<=0Then D:=1;
+ Mx:=(MinX+MaxX)/2;My:=(MinY+MaxY)/2;
+ X^[N].X:=Mx-20*D;X^[N].Y:=My-D;
+ X^[N+1].X:=Mx;X^[N+1].Y:=My+20*D;
+ X^[N+2].X:=Mx+20*D;X^[N+2].Y:=My-D;
+ Cap:=2*N+10;
+ TA:=AllocBlock(Cap*SizeOf(LongInt));TB:=AllocBlock(Cap*SizeOf(LongInt));TC:=AllocBlock(Cap*SizeOf(LongInt));
+ Cx:=AllocBlock(Cap*SizeOf(Real));Cy:=AllocBlock(Cap*SizeOf(Real));R2:=AllocBlock(Cap*SizeOf(Real));
+ Bad:=AllocBlock(Cap*SizeOf(Boolean));
+ EA:=AllocBlock(Cap*6*SizeOf(LongInt));EB:=AllocBlock(Cap*6*SizeOf(LongInt));
+ Nt:=1;
+ TA^[0]:=N;TB^[0]:=N+1;TC^[0]:=N+2;
+ Circ(0);
+ For I:=0 to N-1do Begin
+  { triangles dont le cercle circonscrit contient le point }
+  Ne:=0;
+  For J:=0 to Nt-1do Begin
+   Bad^[J]:=Sqr(X^[I].X-Cx^[J])+Sqr(X^[I].Y-Cy^[J])<R2^[J]*(1-1E-12);
+   If Bad^[J]Then Begin
+    EA^[Ne]:=TA^[J];EB^[Ne]:=TB^[J];Inc(Ne);
+    EA^[Ne]:=TB^[J];EB^[Ne]:=TC^[J];Inc(Ne);
+    EA^[Ne]:=TC^[J];EB^[Ne]:=TA^[J];Inc(Ne);
+   End;
+  End;
+  { retrait des triangles mauvais }
+  K:=0;
+  For J:=0 to Nt-1do
+   If Not Bad^[J]Then Begin
+    TA^[K]:=TA^[J];TB^[K]:=TB^[J];TC^[K]:=TC^[J];
+    Cx^[K]:=Cx^[J];Cy^[K]:=Cy^[J];R2^[K]:=R2^[J];
+    Inc(K);
+   End;
+  Nt:=K;
+  { aretes du contour du trou : celles qui n'apparaissent qu'une fois }
+  For J:=0 to Ne-1do Begin
+   Dup:=False;
+   For K:=0 to Ne-1do
+    If(K<>J)and(((EA^[J]=EA^[K])and(EB^[J]=EB^[K]))or((EA^[J]=EB^[K])and(EB^[J]=EA^[K])))Then Dup:=True;
+   If Not Dup Then Begin
+    If Nt>=Cap Then Begin Dup:=True;End
+     Else
+    Begin
+     TA^[Nt]:=EA^[J];TB^[Nt]:=EB^[J];TC^[Nt]:=I;
+     Circ(Nt);
+     Inc(Nt);
+    End;
+   End;
+  End;
+ End;
+ { sortie : on retire les triangles qui touchent le super-triangle }
+ Tri:=AllocBlock((Nt*3+3)*SizeOf(LongInt));
+ NTri:=0;
+ For J:=0 to Nt-1do
+  If(TA^[J]<N)and(TB^[J]<N)and(TC^[J]<N)Then Begin
+   Tri^[3*NTri]:=TA^[J];Tri^[3*NTri+1]:=TB^[J];Tri^[3*NTri+2]:=TC^[J];
+   Inc(NTri);
+  End;
+ FreeMem(EA,Cap*6*SizeOf(LongInt));FreeMem(EB,Cap*6*SizeOf(LongInt));
+ FreeMem(Bad,Cap*SizeOf(Boolean));
+ FreeMem(R2,Cap*SizeOf(Real));FreeMem(Cy,Cap*SizeOf(Real));FreeMem(Cx,Cap*SizeOf(Real));
+ FreeMem(TC,Cap*SizeOf(LongInt));FreeMem(TB,Cap*SizeOf(LongInt));FreeMem(TA,Cap*SizeOf(LongInt));
+ FreeMem(X,(N+3)*SizeOf(TPt));
+End;
+
+{ Enveloppe concave a partir d'un ensemble de points (Ratio 0 = tres concave, 1 = enveloppe convexe) }
+Procedure ConcaveHullPts(Pts:PPts;N:LongInt;Ratio:Real;Var R:TGeom);
+Var
+ Tri:PLongs;
+ NT,I,J,K,E,Best,Bc,Opp:LongInt;
+ Alive:PBools;
+ Nbr:PLongs;
+ LenMax,Thr,Lo,Hi,L,BestL:Real;
+ VB:PLongs;
+ A,B,C:LongInt;
+ T:TGeom;
+ Pa:PPath;
+ Empty:TGeom;
+ Vx1,Vx2:LongInt;
+
+ Function EdgeLen(U,V:LongInt):Real;Begin
+  EdgeLen:=Sqrt(Sqr(Pts^[U].X-Pts^[V].X)+Sqr(Pts^[U].Y-Pts^[V].Y));
+ End;
+
+ Function TriV(Tt,Ee:LongInt):LongInt;Begin
+  TriV:=Tri^[3*Tt+Ee];
+ End;
+
+Begin
+ InitGeom(R);
+ Delaunay(Pts,N,Tri,NT);
+ If NT=0Then Exit;
+ Alive:=AllocBlock(NT*SizeOf(Boolean));
+ Nbr:=AllocBlock(NT*3*SizeOf(LongInt));
+ LenMax:=0;
+ Lo:=1E300;Hi:=0;
+ For I:=0 to NT-1do Begin
+  Alive^[I]:=True;
+  L:=MaxR(EdgeLen(TriV(I,0),TriV(I,1)),MaxR(EdgeLen(TriV(I,1),TriV(I,2)),EdgeLen(TriV(I,2),TriV(I,0))));
+  If L<Lo Then Lo:=L;
+  If L>Hi Then Hi:=L;
+ End;
+ Thr:=Lo+Ratio*(Hi-Lo);
+ { voisins : arete e du triangle i = (v[e],v[e+1]) }
+ For I:=0 to NT-1do
+  For E:=0 to 2do Begin
+   Nbr^[3*I+E]:=-1;
+   Vx1:=TriV(I,E);Vx2:=TriV(I,(E+1)mod 3);
+   For J:=0 to NT-1do
+    If J<>I Then
+     For K:=0 to 2do
+      If(TriV(J,K)=Vx2)and(TriV(J,(K+1)mod 3)=Vx1)Then Nbr^[3*I+E]:=J;
+  End;
+ VB:=AllocBlock((N+1)*SizeOf(LongInt));
+ Repeat
+  { nombre d'aretes de bord incidentes a chaque sommet }
+  For I:=0 to N-1do VB^[I]:=0;
+  For I:=0 to NT-1do
+   If Alive^[I]Then
+    For E:=0 to 2do
+     If(Nbr^[3*I+E]<0)or Not Alive^[Nbr^[3*I+E]]Then Begin
+      Inc(VB^[TriV(I,E)]);
+      Inc(VB^[TriV(I,(E+1)mod 3)]);
+     End;
+  Best:=-1;BestL:=Thr;
+  For I:=0 to NT-1do
+   If Alive^[I]Then Begin
+    L:=MaxR(EdgeLen(TriV(I,0),TriV(I,1)),MaxR(EdgeLen(TriV(I,1),TriV(I,2)),EdgeLen(TriV(I,2),TriV(I,0))));
+    If L>BestL Then Begin
+     Bc:=0;Opp:=-1;
+     For E:=0 to 2do
+      If(Nbr^[3*I+E]<0)or Not Alive^[Nbr^[3*I+E]]Then Begin
+       Inc(Bc);
+       Opp:=TriV(I,(E+2)mod 3);
+      End;
+     If Bc=1Then Begin
+      If VB^[Opp]=0Then Begin Best:=I;BestL:=L;End;
+     End
+      Else
+     If Bc=2Then Begin Best:=I;BestL:=L;End;
+    End;
+   End;
+  If Best>=0Then Alive^[Best]:=False;
+ Until Best<0;
+ FreeMem(VB,(N+1)*SizeOf(LongInt));
+ InitGeom(T);
+ T.Cls:=3;
+ K:=0;
+ For I:=0 to NT-1do
+  If Alive^[I]Then Begin
+   Pa:=NewPath(T,4,K);
+   A:=TriV(I,0);B:=TriV(I,1);C:=TriV(I,2);
+   Pa^.Pts^[0]:=Pts^[A];Pa^.Pts^[1]:=Pts^[B];Pa^.Pts^[2]:=Pts^[C];Pa^.Pts^[3]:=Pts^[A];
+   If RingArea(Pa)<0Then Begin Pa^.Pts^[1]:=Pts^[C];Pa^.Pts^[2]:=Pts^[B];End;
+   Inc(K);
+  End;
+ T.NPoly:=K;
+ InitGeom(Empty);
+ KeepOrient:=True;
+ Overlay(0,T,Empty,R);
+ KeepOrient:=False;
+ FreeGeom(T);
+ FreeMem(Nbr,NT*3*SizeOf(LongInt));
+ FreeMem(Alive,NT*SizeOf(Boolean));
+ FreeMem(Tri,(NT*3+3)*SizeOf(LongInt));
+End;
+
+{ ---- extraction de faces (polygonize) ---- }
+
+{ Ajoute les segments d'une geometrie (lignes ou anneaux) a E }
+Procedure FillSegments(Var G:TGeom;E:PEdges;Var N:LongInt);
+Var
+ P:PPath;
+ I:LongInt;
+ X1,Y1,X2,Y2:Real;
+Begin
+ P:=G.First;
+ While P<>Nil do Begin
+  For I:=0 to P^.N-2do Begin
+   X1:=Snap(P^.Pts^[I].X);Y1:=Snap(P^.Pts^[I].Y);X2:=Snap(P^.Pts^[I+1].X);Y2:=Snap(P^.Pts^[I+1].Y);
+   If(X1<>X2)or(Y1<>Y2)Then Begin
+    E^[N].X1:=X1;E^[N].Y1:=Y1;E^[N].X2:=X2;E^[N].Y2:=Y2;
+    Inc(N);
+   End;
+  End;
+  P:=P^.Next;
+ End;
+End;
+
+{ Rattache les trous (aire negative) a l'exterieur le plus petit qui les contient }
+Procedure AssembleRings(Var EG,HG:TGeom;Tol:Real;Var R:TGeom);
+Var
+ Hp,Pa,Pb:PPath;
+ HArr:^PPathArr;
+ HN,K,I,Cnt:LongInt;
+ Own:Integer;
+ BestArea:Real;
+ Owner:Integer;
+Begin
+ Hp:=HG.First;
+ While Hp<>Nil do Begin
+  Hp^.Poly:=-1;
+  BestArea:=0;
+  Own:=0;
+  Pa:=EG.First;
+  While Pa<>Nil do Begin
+   If(Pa^.Area>Abs(Hp^.Area))and((Hp^.Poly<0)or(Pa^.Area<BestArea))Then Begin
+    Cnt:=0;
+    Owner:=2;
+    While(Cnt<Hp^.N-1)and(Owner=2)do Begin
+     Owner:=PointInRing(Pa,Hp^.Pts^[Cnt].X,Hp^.Pts^[Cnt].Y,Tol);
+     Inc(Cnt);
+    End;
+    If Owner=1Then Begin Hp^.Poly:=Own;BestArea:=Pa^.Area;End;
+   End;
+   Inc(Own);
+   Pa:=Pa^.Next;
+  End;
+  Hp:=Hp^.Next;
+ End;
+ HN:=HG.Count;
+ HArr:=AllocBlock((HN+1)*SizeOf(PPath));
+ K:=0;
+ Hp:=HG.First;
+ While Hp<>Nil do Begin HArr^[K]:=Hp;Inc(K);Hp:=Hp^.Next;End;
+ InitGeom(R);
+ R.Cls:=3;
+ Own:=0;
+ Pa:=EG.First;
+ While Pa<>Nil do Begin
+  Pb:=Pa^.Next;
+  Pa^.Poly:=Own;
+  LinkPath(R,Pa);
+  For I:=0 to HN-1do
+   If HArr^[I]^.Poly=Own Then LinkPath(R,HArr^[I]);
+  Inc(Own);
+  Pa:=Pb;
+ End;
+ R.NPoly:=Own;
+ FreeMem(HArr,(HN+1)*SizeOf(PPath));
+End;
+
+{ Sommets uniques tries (X puis Y) des aretes non supprimees, avec leur degre }
+Procedure BuildVerts(U:PEdges;Kill:PBools;NU:LongInt;Var Vs:PPts;Var Deg:PLongs;Var Nv:LongInt);
+Var
+ Raw:PPts;
+ Idx:PLongs;
+ I,M,Cnt:LongInt;
+Begin
+ Raw:=AllocBlock((2*NU+2)*SizeOf(TPt));
+ Cnt:=0;
+ For I:=0 to NU-1do
+  If Not Kill^[I]Then Begin
+   Raw^[Cnt].X:=U^[I].X1;Raw^[Cnt].Y:=U^[I].Y1;Inc(Cnt);
+   Raw^[Cnt].X:=U^[I].X2;Raw^[Cnt].Y:=U^[I].Y2;Inc(Cnt);
+  End;
+ Vs:=AllocBlock((Cnt+1)*SizeOf(TPt));
+ Deg:=AllocBlock((Cnt+1)*SizeOf(LongInt));
+ Nv:=0;
+ If Cnt>0Then Begin
+  Idx:=AllocBlock(Cnt*SizeOf(LongInt));
+  For I:=0 to Cnt-1do Idx^[I]:=I;
+  SP:=Raw;SMode:=1;
+  If Cnt>1Then SortIdx(Idx,0,Cnt-1);
+  M:=0;
+  For I:=0 to Cnt-1do Begin
+   If(I=0)or(CmpIdx(Idx^[I],Idx^[I-1])<>0)Then Begin
+    Vs^[M]:=Raw^[Idx^[I]];Deg^[M]:=0;Inc(M);
+   End;
+   Inc(Deg^[M-1]);
+  End;
+  Nv:=M;
+  FreeMem(Idx,Cnt*SizeOf(LongInt));
+ End;
+ FreeMem(Raw,(2*NU+2)*SizeOf(TPt));
+End;
+
+Function VertexIndex(Vs:PPts;Nv:LongInt;X,Y:Real):LongInt;
+Var
+ Lo,Hi,Mid:LongInt;
+Begin
+ Lo:=0;Hi:=Nv;
+ While Lo<Hi do Begin
+  Mid:=(Lo+Hi)div 2;
+  If(Vs^[Mid].X<X)or((Vs^[Mid].X=X)and(Vs^[Mid].Y<Y))Then Lo:=Mid+1 Else Hi:=Mid;
+ End;
+ VertexIndex:=Lo;
+End;
+
+{ Faces du graphe planaire forme par les aretes U (sans croisement) }
+Procedure FacesFromEdges(U:PEdges;NU:LongInt;Tol:Real;Var R:TGeom);
+Var
+ Kill:PBools;
+ Vs:PPts;
+ Deg,HOrg,Ord,Pos,GStart,GCnt:PLongs;
+ Ang:PReals;
+ Used:PBools;
+ Nv,I,E,Ne,H,Cur,Q,Pv,RN:LongInt;
+ Changed:Boolean;
+ Alive:PEdges;
+ RB:PPts;
+ All,EG,HG:TGeom;
+ Pa,Pb:PPath;
+Begin
+ InitGeom(R);
+ R.Cls:=3;
+ Kill:=AllocBlock((NU+1)*SizeOf(Boolean));
+ For I:=0 to NU-1do Kill^[I]:=False;
+ { elimination iterative des impasses (sommets de degre 1) }
+ Repeat
+  Changed:=False;
+  BuildVerts(U,Kill,NU,Vs,Deg,Nv);
+  For I:=0 to NU-1do
+   If Not Kill^[I]Then
+    If(Deg^[VertexIndex(Vs,Nv,U^[I].X1,U^[I].Y1)]<2)or(Deg^[VertexIndex(Vs,Nv,U^[I].X2,U^[I].Y2)]<2)Then Begin
+     Kill^[I]:=True;
+     Changed:=True;
+    End;
+  FreeMem(Deg,(Nv+1)*SizeOf(LongInt));
+  FreeMem(Vs,(Nv+1)*SizeOf(TPt));
+ Until Not Changed;
+ Ne:=0;
+ For I:=0 to NU-1do If Not Kill^[I]Then Inc(Ne);
+ If Ne<3Then Begin
+  FreeMem(Kill,(NU+1)*SizeOf(Boolean));
+  Exit;
+ End;
+ Alive:=AllocBlock(Ne*SizeOf(TEdge));
+ Ne:=0;
+ For I:=0 to NU-1do If Not Kill^[I]Then Begin Alive^[Ne]:=U^[I];Inc(Ne);End;
+ FreeMem(Kill,(NU+1)*SizeOf(Boolean));
+ Kill:=AllocBlock((Ne+1)*SizeOf(Boolean));
+ For I:=0 to Ne-1do Kill^[I]:=False;
+ BuildVerts(Alive,Kill,Ne,Vs,Deg,Nv);
+ FreeMem(Kill,(Ne+1)*SizeOf(Boolean));
+ { demi-aretes : 2k = (X1,Y1)->(X2,Y2), 2k+1 = sens inverse }
+ HOrg:=AllocBlock(2*Ne*SizeOf(LongInt));
+ Ang:=AllocBlock(2*Ne*SizeOf(Real));
+ For E:=0 to Ne-1do Begin
+  HOrg^[2*E]:=VertexIndex(Vs,Nv,Alive^[E].X1,Alive^[E].Y1);
+  HOrg^[2*E+1]:=VertexIndex(Vs,Nv,Alive^[E].X2,Alive^[E].Y2);
+  Ang^[2*E]:=Atan2(Alive^[E].Y2-Alive^[E].Y1,Alive^[E].X2-Alive^[E].X1);
+  Ang^[2*E+1]:=Atan2(Alive^[E].Y1-Alive^[E].Y2,Alive^[E].X1-Alive^[E].X2);
+ End;
+ Ord:=AllocBlock(2*Ne*SizeOf(LongInt));
+ For H:=0 to 2*Ne-1do Ord^[H]:=H;
+ SLab:=HOrg;SAng:=Ang;SMode:=6;
+ SortIdx(Ord,0,2*Ne-1);
+ Pos:=AllocBlock(2*Ne*SizeOf(LongInt));
+ GStart:=AllocBlock((Nv+1)*SizeOf(LongInt));
+ GCnt:=AllocBlock((Nv+1)*SizeOf(LongInt));
+ For I:=0 to Nv-1do Begin GStart^[I]:=-1;GCnt^[I]:=0;End;
+ For Q:=0 to 2*Ne-1do Begin
+  Pos^[Ord^[Q]]:=Q;
+  If GStart^[HOrg^[Ord^[Q]]]<0Then GStart^[HOrg^[Ord^[Q]]]:=Q;
+  Inc(GCnt^[HOrg^[Ord^[Q]]]);
+ End;
+ { parcours : apres h, on prend l'arete sortante qui suit le jumeau dans le sens horaire }
+ Used:=AllocBlock(2*Ne*SizeOf(Boolean));
+ For H:=0 to 2*Ne-1do Used^[H]:=False;
+ RB:=AllocBlock((2*Ne+2)*SizeOf(TPt));
+ InitGeom(All);
+ For H:=0 to 2*Ne-1do
+  If Not Used^[H]Then Begin
+   Cur:=H;RN:=0;
+   Repeat
+    Used^[Cur]:=True;
+    RB^[RN]:=Vs^[HOrg^[Cur]];Inc(RN);
+    Q:=Pos^[Cur xor 1];
+    Pv:=HOrg^[Cur xor 1];
+    If Q>GStart^[Pv]Then Dec(Q) Else Q:=GStart^[Pv]+GCnt^[Pv]-1;
+    Cur:=Ord^[Q];
+   Until(Cur=H)or Used^[Cur];
+   If(Cur=H)and(RN>=3)Then Begin
+    Pa:=NewPath(All,RN+1,0);
+    Move(RB^,Pa^.Pts^,RN*SizeOf(TPt));
+    Pa^.Pts^[RN]:=Pa^.Pts^[0];
+    Pa^.N:=RN+1;
+    Pa^.Area:=RingArea(Pa);
+   End;
+  End;
+ { exterieurs (aire > 0) et trous (aire < 0) }
+ InitGeom(EG);InitGeom(HG);
+ Pa:=All.First;
+ While Pa<>Nil do Begin
+  Pb:=Pa^.Next;
+  If Pa^.Area>0Then LinkPath(EG,Pa)
+   Else
+  If Pa^.Area<0Then LinkPath(HG,Pa);
+  Pa:=Pb;
+ End;
+ AssembleRings(EG,HG,Tol,R);
+ FreeMem(RB,(2*Ne+2)*SizeOf(TPt));
+ FreeMem(Used,2*Ne*SizeOf(Boolean));
+ FreeMem(GCnt,(Nv+1)*SizeOf(LongInt));
+ FreeMem(GStart,(Nv+1)*SizeOf(LongInt));
+ FreeMem(Pos,2*Ne*SizeOf(LongInt));
+ FreeMem(Ord,2*Ne*SizeOf(LongInt));
+ FreeMem(Ang,2*Ne*SizeOf(Real));
+ FreeMem(HOrg,2*Ne*SizeOf(LongInt));
+ FreeMem(Deg,(Nv+1)*SizeOf(LongInt));
+ FreeMem(Vs,(Nv+1)*SizeOf(TPt));
+ FreeMem(Alive,Ne*SizeOf(TEdge));
+End;
+
+{ Decoupe un reseau de lignes aux intersections puis en extrait les polygones }
+Procedure NodeSegments(Var G:TGeom;Var Sub:PEdges;Var NU:LongInt;Var SubCap:LongInt);
+Var
+ MinX,MinY,MaxX,MaxY,Ext:Real;
+ NT,NS:LongInt;
+ Idx:PLongs;
+ I:LongInt;
+ Raw:PEdges;
+Begin
+ Sub:=Nil;NU:=0;SubCap:=0;
+ If Not GeomBBox(G,MinX,MinY,MaxX,MaxY)Then Exit;
+ Ext:=MaxR(MaxX-MinX,MaxY-MinY);
+ If Ext<=0Then Exit;
+ SnapQ:=Ext*1E-9;
+ OvEps:=Ext*1E-8;
+ NT:=EdgeCount(G);
+ OvAll:=AllocBlock(NT*SizeOf(TEdge));
+ NS:=0;
+ FillSegments(G,OvAll,NS);
+ NT:=NS;
+ If NT<1Then Begin FreeMem(OvAll,EdgeCount(G)*SizeOf(TEdge));Exit;End;
+ OvNA:=NT;
+ NodeAll(NT,MinY,MaxY,False,Raw,NS,Idx,NU);
+ SubCap:=NT+OvTot;
+ { copie ordonnee des segments uniques }
+ Sub:=AllocBlock((NU+1)*SizeOf(TEdge));
+ For I:=0 to NU-1do Sub^[I]:=Raw^[Idx^[I]];
+ FreeMem(Idx,NS*SizeOf(LongInt));
+ FreeMem(Raw,SubCap*SizeOf(TEdge));
+ FreeMem(OvAll,NT*SizeOf(TEdge));
+End;
+
+Procedure PolygonizeLines(Var G:TGeom;Var R:TGeom);
+Var
+ Sub:PEdges;
+ NU,Cap:LongInt;
+Begin
+ InitGeom(R);
+ R.Cls:=3;
+ NodeSegments(G,Sub,NU,Cap);
+ If NU<3Then Exit;
+ FacesFromEdges(Sub,NU,SnapQ*4,R);
+ FreeMem(Sub,(NU+1)*SizeOf(TEdge));
+End;
+
+
+{ ------------------------------------------------------------------ }
 { Expressions (native:extractbyexpression)                            }
 { ------------------------------------------------------------------ }
 
@@ -2570,6 +4315,8 @@ Var
  ExprS:String;
  ExprP:Integer;
  ExprProps:PJ;
+ ExprGeom:TGeom;
+ ExprId:LongInt;
 
 Procedure EFail(Msg:String);Begin
  Fail('Error: invalid expression ('+Msg+') near position '+IntToStr(ExprP));
@@ -2577,20 +4324,20 @@ End;
 
 Function VNull:TVal;
 Var V:TVal;
-Begin V.K:=0;V.N:=0;V.S:='';VNull:=V;End;
+Begin V.K:=0;V.N:=0;V.G:=Nil;V.S:='';VNull:=V;End;
 
 Function VNum(R:Real):TVal;
 Var V:TVal;
-Begin V.K:=1;V.N:=R;V.S:='';VNum:=V;End;
+Begin V.K:=1;V.N:=R;V.G:=Nil;V.S:='';VNum:=V;End;
 
 Function VStr(S:String):TVal;
 Var V:TVal;
-Begin V.K:=2;V.N:=0;V.S:=S;VStr:=V;End;
+Begin V.K:=2;V.N:=0;V.G:=Nil;V.S:=S;VStr:=V;End;
 
 Function VBool(B:Boolean):TVal;
 Var V:TVal;
 Begin
- V.K:=3;V.S:='';
+ V.K:=3;V.S:='';V.G:=Nil;
  If B Then V.N:=1 Else V.N:=0;
  VBool:=V;
 End;
@@ -2732,15 +4479,246 @@ End;
 
 Function EvalOr:TVal;Forward;
 
+Function VGeom(Var G:TGeom):TVal;
+Var
+ V:TVal;
+Begin
+ V.K:=4;V.N:=0;V.S:='';
+ New(V.G);
+ GeomCopy(G,V.G^);
+ VGeom:=V;
+End;
+
+Function NumArg(Var A:Array of TVal;I:Integer;Var R:Real):Boolean;Begin
+ NumArg:=False;
+ If(I<=High(A))and(A[I].K<>0)and(A[I].K<>4)Then NumArg:=ToNum(A[I],R);
+End;
+
+Function CallFunc(Name:String;Var A:Array of TVal;N:Integer):TVal;
+Var
+ R,R2,Cx,Cy,W:Real;
+ S,T,Out:String;
+ I,P,L:Integer;
+ Res:TGeom;
+ Ok:Boolean;
+ Px:PPath;
+Begin
+ CallFunc:=VNull;
+ If(Name='LOWER')or(Name='UPPER')Then Begin
+  If A[0].K=0Then Exit;
+  S:=ToStr(A[0]);
+  If Name='UPPER'Then S:=StrUpper(S)
+   Else
+  For I:=1 to Length(S)do If S[I]in['A'..'Z']Then S[I]:=Chr(Ord(S[I])+32);
+  CallFunc:=VStr(S);
+ End Else
+ If(Name='LENGTH')or(Name='LEN')Then Begin
+  If A[0].K=0Then Exit;
+  If A[0].K=4Then CallFunc:=VNum(GeomLength(A[0].G^))
+             Else CallFunc:=VNum(Length(ToStr(A[0])));
+ End Else
+ If Name='CONCAT'Then Begin
+  S:='';
+  For I:=0 to N-1do If A[I].K<>0Then S:=S+ToStr(A[I]);
+  CallFunc:=VStr(S);
+ End Else
+ If Name='SUBSTR'Then Begin
+  If(A[0].K=0)or Not NumArg(A,1,R)Then Exit;
+  S:=ToStr(A[0]);
+  P:=Round(R);
+  If P<1Then P:=1;
+  L:=255;
+  If NumArg(A,2,R2)Then L:=Round(R2);
+  CallFunc:=VStr(Copy(S,P,L));
+ End Else
+ If Name='REPLACE'Then Begin
+  If(A[0].K=0)or(N<3)Then Exit;
+  S:=ToStr(A[0]);T:=ToStr(A[1]);
+  Out:='';
+  I:=1;
+  While I<=Length(S)do Begin
+   If(T<>'')and(Copy(S,I,Length(T))=T)Then Begin
+    Out:=Out+ToStr(A[2]);
+    Inc(I,Length(T));
+   End
+    Else
+   Begin
+    Out:=Out+S[I];
+    Inc(I);
+   End;
+  End;
+  CallFunc:=VStr(Out);
+ End Else
+ If Name='TRIM'Then Begin
+  If A[0].K=0Then Exit;
+  S:=ToStr(A[0]);
+  While(S<>'')and(S[1]=' ')do S:=Copy(S,2,255);
+  While(S<>'')and(S[Length(S)]=' ')do S:=Copy(S,1,Length(S)-1);
+  CallFunc:=VStr(S);
+ End Else
+ If(Name='LEFT')or(Name='RIGHT')Then Begin
+  If(A[0].K=0)or Not NumArg(A,1,R)Then Exit;
+  S:=ToStr(A[0]);
+  L:=Round(R);
+  If L<0Then L:=0;
+  If L>Length(S)Then L:=Length(S);
+  If Name='LEFT'Then CallFunc:=VStr(Copy(S,1,L))
+                Else CallFunc:=VStr(Copy(S,Length(S)-L+1,L));
+ End Else
+ If Name='TO_STRING'Then Begin
+  If A[0].K<>0Then CallFunc:=VStr(ToStr(A[0]));
+ End Else
+ If(Name='TO_REAL')or(Name='TO_INT')Then Begin
+  If(A[0].K<>0)and(A[0].K<>4)and ToNum(A[0],R)Then Begin
+   If Name='TO_INT'Then R:=Int(R);
+   CallFunc:=VNum(R);
+  End;
+ End Else
+ If Name='ABS'Then Begin
+  If NumArg(A,0,R)Then CallFunc:=VNum(Abs(R));
+ End Else
+ If Name='SQRT'Then Begin
+  If NumArg(A,0,R)and(R>=0)Then CallFunc:=VNum(Sqrt(R));
+ End Else
+ If Name='ROUND'Then Begin
+  If NumArg(A,0,R)Then Begin
+   If NumArg(A,1,R2)Then Begin
+    W:=1;
+    For I:=1 to Round(R2)do W:=W*10;
+    CallFunc:=VNum(FloorR(R*W+0.5)/W);
+   End
+    Else
+   CallFunc:=VNum(FloorR(R+0.5));
+  End;
+ End Else
+ If Name='FLOOR'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(FloorR(R));End Else
+ If Name='CEIL'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(-FloorR(-R));End Else
+ If Name='SIN'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(Sin(R));End Else
+ If Name='COS'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(Cos(R));End Else
+ If Name='TAN'Then Begin If NumArg(A,0,R)and(Cos(R)<>0)Then CallFunc:=VNum(Sin(R)/Cos(R));End Else
+ If Name='ATAN'Then Begin If NumArg(A,0,R)Then CallFunc:=VNum(ArcTan(R));End Else
+ If Name='EXP'Then Begin If NumArg(A,0,R)and(R<700)Then CallFunc:=VNum(Exp(R));End Else
+ If(Name='LN')or(Name='LOG')Then Begin If NumArg(A,0,R)and(R>0)Then CallFunc:=VNum(Ln(R));End Else
+ If Name='LOG10'Then Begin If NumArg(A,0,R)and(R>0)Then CallFunc:=VNum(Ln(R)/Ln(10));End Else
+ If Name='PI'Then CallFunc:=VNum(Pi) Else
+ If Name='POWER'Then Begin
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
+   If R>0Then CallFunc:=VNum(Exp(R2*Ln(R))) Else
+   If(R=0)and(R2>0)Then CallFunc:=VNum(0);
+  End;
+ End Else
+ If(Name='MIN')or(Name='MAX')Then Begin
+  Ok:=False;R:=0;
+  For I:=0 to N-1do
+   If NumArg(A,I,R2)Then Begin
+    If Not Ok or((Name='MIN')and(R2<R))or((Name='MAX')and(R2>R))Then R:=R2;
+    Ok:=True;
+   End;
+  If Ok Then CallFunc:=VNum(R);
+ End Else
+ If Name='COALESCE'Then Begin
+  For I:=0 to N-1do
+   If A[I].K<>0Then Begin CallFunc:=A[I];Exit;End;
+ End Else
+ If Name='IF'Then Begin
+  If(N>=3)and(A[0].K<>0)Then
+   If A[0].N<>0Then CallFunc:=A[1] Else CallFunc:=A[2];
+ End Else
+ If Name='MAKE_POINT'Then Begin
+  If NumArg(A,0,R)and NumArg(A,1,R2)Then Begin
+   PointGeom(Res,R,R2);
+   CallFunc:=VGeom(Res);
+   FreeGeom(Res);
+  End;
+ End Else
+ If A[0].K=4Then Begin
+  { fonctions de geometrie }
+  If Name='AREA'Then CallFunc:=VNum(GeomArea(A[0].G^)) Else
+  If Name='PERIMETER'Then CallFunc:=VNum(GeomLength(A[0].G^)) Else
+  If Name='NUM_POINTS'Then Begin
+   R:=0;
+   Px:=A[0].G^.First;
+   While Px<>Nil do Begin R:=R+Px^.N;Px:=Px^.Next;End;
+   CallFunc:=VNum(R);
+  End Else
+  If(Name='X')or(Name='Y')Then Begin
+   CentroidGeom(A[0].G^,Cx,Cy,Ok);
+   If Ok Then Begin
+    If Name='X'Then CallFunc:=VNum(Cx) Else CallFunc:=VNum(Cy);
+   End;
+  End Else
+  If Name='CENTROID'Then Begin
+   CentroidGeom(A[0].G^,Cx,Cy,Ok);
+   If Ok Then Begin PointGeom(Res,Cx,Cy);CallFunc:=VGeom(Res);FreeGeom(Res);End;
+  End Else
+  If Name='POINT_ON_SURFACE'Then Begin
+   PointOnSurface(A[0].G^,Cx,Cy);
+   PointGeom(Res,Cx,Cy);CallFunc:=VGeom(Res);FreeGeom(Res);
+  End Else
+  If Name='CONVEX_HULL'Then Begin
+   HullGeom(A[0].G^,Res);
+   If Res.Cls<>0Then CallFunc:=VGeom(Res);
+   FreeGeom(Res);
+  End Else
+  If Name='ENVELOPE'Then Begin
+   If GeomBBox(A[0].G^,Cx,Cy,R,R2)Then Begin
+    InitGeom(Res);Res.Cls:=3;Res.NPoly:=1;
+    Px:=NewPath(Res,5,0);
+    Px^.Pts^[0].X:=Cx;Px^.Pts^[0].Y:=Cy;Px^.Pts^[1].X:=R;Px^.Pts^[1].Y:=Cy;
+    Px^.Pts^[2].X:=R;Px^.Pts^[2].Y:=R2;Px^.Pts^[3].X:=Cx;Px^.Pts^[3].Y:=R2;
+    Px^.Pts^[4]:=Px^.Pts^[0];
+    CallFunc:=VGeom(Res);FreeGeom(Res);
+   End;
+  End Else
+  If Name='TRANSLATE'Then Begin
+   If NumArg(A,1,R)and NumArg(A,2,R2)Then Begin
+    GeomCopy(A[0].G^,Res);
+    AffineGeom(Res,1,0,0,1,R,R2);
+    CallFunc:=VGeom(Res);FreeGeom(Res);
+   End;
+  End Else
+  If Name='BUFFER'Then Begin
+   If NumArg(A,1,R)Then Begin
+    L:=5;
+    If NumArg(A,2,R2)Then L:=Round(R2);
+    BufferGeom(A[0].G^,R,L,Res);
+    If Res.First<>Nil Then CallFunc:=VGeom(Res);
+    FreeGeom(Res);
+   End;
+  End Else
+  If Name='SIMPLIFY'Then Begin
+   If NumArg(A,1,R)Then Begin
+    InitGeom(Res);Res.Cls:=A[0].G^.Cls;
+    Px:=A[0].G^.First;
+    While Px<>Nil do Begin
+     If A[0].G^.Cls=1Then CopyPath(Res,Px,0)
+      Else
+     Ok:=SimplifyDP(Px,R,A[0].G^.Cls=3,Res,Px^.Poly);
+     Px:=Px^.Next;
+    End;
+    Res.NPoly:=A[0].G^.NPoly;
+    If Res.First<>Nil Then CallFunc:=VGeom(Res);
+    FreeGeom(Res);
+   End;
+  End;
+ End
+  Else
+ EFail('unknown function '+Name);
+End;
+
 Function EvalPrimary:TVal;
 Var
- V,W:TVal;
+ V:TVal;
  S,Name:String;
  C:Char;
- R,Ra:Real;
+ R:Real;
  E:Integer;
- Start:Integer;
+ Start,NA:Integer;
+ Args:Array[0..5]of TVal;
+ Cx,Cy:Real;
+ Ok:Boolean;
 Begin
+ EvalPrimary:=VNull;
  ESkip;
  If ExprP>Length(ExprS)Then EFail('unexpected end of expression');
  C:=ExprS[ExprP];
@@ -2799,6 +4777,34 @@ Begin
   EvalPrimary:=PropVal(Name);
  End
   Else
+ If C='$'Then Begin
+  Inc(ExprP);
+  Start:=ExprP;
+  While(ExprP<=Length(ExprS))and(UpCase(ExprS[ExprP])in['A'..'Z','0'..'9','_'])do Inc(ExprP);
+  Name:=StrUpper(Copy(ExprS,Start,ExprP-Start));
+  If Name='GEOMETRY'Then Begin
+   If ExprGeom.First=Nil Then EvalPrimary:=VNull Else EvalPrimary:=VGeom(ExprGeom);
+  End Else
+  If Name='AREA'Then EvalPrimary:=VNum(GeomArea(ExprGeom)) Else
+  If Name='LENGTH'Then Begin
+   If ExprGeom.Cls=2Then EvalPrimary:=VNum(GeomLength(ExprGeom)) Else EvalPrimary:=VNull;
+  End Else
+  If Name='PERIMETER'Then Begin
+   If ExprGeom.Cls=3Then EvalPrimary:=VNum(GeomLength(ExprGeom)) Else EvalPrimary:=VNull;
+  End Else
+  If Name='ID'Then EvalPrimary:=VNum(ExprId) Else
+  If(Name='X')or(Name='Y')Then Begin
+   CentroidGeom(ExprGeom,Cx,Cy,Ok);
+   If Ok Then Begin
+    If Name='X'Then EvalPrimary:=VNum(Cx) Else EvalPrimary:=VNum(Cy);
+   End
+    Else
+   EvalPrimary:=VNull;
+  End
+   Else
+  EFail('unknown variable $'+Name);
+ End
+  Else
  If UpCase(C)in['A'..'Z','_']Then Begin
   Start:=ExprP;
   While(ExprP<=Length(ExprS))and(UpCase(ExprS[ExprP])in['A'..'Z','0'..'9','_'])do Inc(ExprP);
@@ -2811,47 +4817,20 @@ Begin
    ESkip;
    If(ExprP<=Length(ExprS))and(ExprS[ExprP]='(')Then Begin
     Inc(ExprP);
-    V:=EvalOr;
-    W:=VNull;
-    If EOp(',')Then W:=EvalOr;
-    If Not EOp(')')Then EFail('")" expected');
-    Name:=StrUpper(Name);
-    If Name='LOWER'Then Begin
-     If V.K=0Then EvalPrimary:=V
-      Else
-     Begin
-      S:=ToStr(V);
-      For E:=1 to Length(S)do If S[E]in['A'..'Z']Then S[E]:=Chr(Ord(S[E])+32);
-      EvalPrimary:=VStr(S);
-     End;
-    End Else
-    If Name='UPPER'Then Begin
-     If V.K=0Then EvalPrimary:=V Else EvalPrimary:=VStr(StrUpper(ToStr(V)));
-    End Else
-    If(Name='LENGTH')or(Name='LEN')Then Begin
-     If V.K=0Then EvalPrimary:=V Else EvalPrimary:=VNum(Length(ToStr(V)));
-    End Else
-    If Name='ABS'Then Begin
-     If ToNum(V,R)and(V.K<>0)Then EvalPrimary:=VNum(Abs(R)) Else EvalPrimary:=VNull;
-    End Else
-    If Name='SQRT'Then Begin
-     If ToNum(V,R)and(V.K<>0)and(R>=0)Then EvalPrimary:=VNum(Sqrt(R)) Else EvalPrimary:=VNull;
-    End Else
-    If Name='ROUND'Then Begin
-     If ToNum(V,R)and(V.K<>0)Then Begin
-      If W.K=0Then EvalPrimary:=VNum(FloorR(R+0.5))
-       Else
-      Begin
-       Ra:=1;
-       For E:=1 to Round(W.N)do Ra:=Ra*10;
-       EvalPrimary:=VNum(FloorR(R*Ra+0.5)/Ra);
-      End;
-     End
-      Else
-     EvalPrimary:=VNull;
-    End
+    NA:=0;
+    Args[0]:=VNull;
+    ESkip;
+    If(ExprP<=Length(ExprS))and(ExprS[ExprP]=')')Then Inc(ExprP)
      Else
-    EFail('unknown function '+Name);
+    Begin
+     Repeat
+      If NA>5Then EFail('too many arguments');
+      Args[NA]:=EvalOr;
+      Inc(NA);
+     Until Not EOp(',');
+     If Not EOp(')')Then EFail('")" expected');
+    End;
+    EvalPrimary:=CallFunc(StrUpper(Name),Args,NA);
    End
     Else
    EvalPrimary:=PropVal(Name);
@@ -5905,6 +7884,848 @@ Begin
  AddRes('OUTPUT',Out);
 End;
 
+{ ------------------------------------------------------------------ }
+{ Utilitaires de couches et d'attributs                              }
+{ ------------------------------------------------------------------ }
+
+Function JTextEsc(S:String):PJ;
+Var
+ I:Integer;
+ T:String;
+Begin
+ T:='';
+ For I:=1 to Length(S)do Begin
+  If Length(T)>=248Then Break;
+  Case S[I]of
+   '"':T:=T+'\"';
+   '\':T:=T+'\\';
+   #10:T:=T+'\n';
+   #13:T:=T+'\r';
+   #9:T:=T+'\t';
+   Else T:=T+S[I];
+  End;
+ End;
+ JTextEsc:=JText(T);
+End;
+
+Function JBool(B:Boolean):PJ;
+Var
+ N:PJ;
+Begin
+ N:=NewJ(1);
+ If B Then N^.Val:=MkStr('true') Else N^.Val:=MkStr('false');
+ JBool:=N;
+End;
+
+{ Nouvelle couche vide ; le SCR de Src est conserve }
+Function NewLayerLike(Src:PJ;Var Arr:PJ):PJ;
+Var
+ Root,C:PJ;
+Begin
+ Root:=NewJ(5);
+ JAddKV(Root,'type',JText('FeatureCollection'));
+ If Src<>Nil Then Begin
+  C:=JFind(Src,'crs');
+  If C<>Nil Then JAddKV(Root,'crs',JClone(C));
+ End;
+ Arr:=NewJ(4);
+ JAddKV(Root,'features',Arr);
+ NewLayerLike:=Root;
+End;
+
+{ Objet properties d'une entite (cree s'il manque ou s'il est nul) }
+Function PropsOf(F:PJ):PJ;
+Var
+ Pr:PJ;
+Begin
+ Pr:=JFind(F,'properties');
+ If(Pr=Nil)or(Pr^.Kind<>5)Then Begin
+  If Pr=Nil Then Begin
+   Pr:=NewJ(5);
+   JAddKV(F,'properties',Pr);
+  End
+   Else
+  Begin
+   Pr:=NewJ(5);
+   JReplace(F,JFind(F,'properties'),Pr);
+  End;
+ End;
+ PropsOf:=Pr;
+End;
+
+Procedure PutProp(F:PJ;Name:String;V:PJ);
+Var
+ Pr,Old:PJ;
+Begin
+ Pr:=PropsOf(F);
+ Old:=JFind(Pr,Name);
+ If Old=Nil Then JAddKV(Pr,Name,V)
+            Else JReplace(Pr,Old,V);
+End;
+
+Function GetProp(F:PJ;Name:String):PJ;Begin
+ GetProp:=JFind(JFind(F,'properties'),Name);
+End;
+
+Function NodeText(N:PJ):String;Begin
+ If N=Nil Then NodeText:='' Else
+ Case N^.Kind of
+  3:NodeText:=Unesc(JVal(N));
+  1,2:NodeText:=JVal(N);
+  Else NodeText:='';
+ End;
+End;
+
+Function PropText(F:PJ;Name:String):String;Begin
+ PropText:=NodeText(GetProp(F,Name));
+End;
+
+Function PropReal(F:PJ;Name:String;Var R:Real):Boolean;
+Var
+ N:PJ;
+ E:Integer;
+Begin
+ PropReal:=False;
+ N:=GetProp(F,Name);
+ If(N=Nil)or Not(N^.Kind in[2,3])Then Exit;
+ Val(JVal(N),R,E);
+ PropReal:=(E=0)and(JVal(N)<>'');
+End;
+
+Function NewFeature(Props,Geom:PJ):PJ;
+Var
+ F:PJ;
+Begin
+ F:=NewJ(5);
+ JAddKV(F,'type',JText('Feature'));
+ If Props=Nil Then Props:=NewJ(5);
+ JAddKV(F,'properties',Props);
+ If Geom=Nil Then Geom:=NewJ(0);
+ JAddKV(F,'geometry',Geom);
+ NewFeature:=F;
+End;
+
+Function PropsClone(F:PJ):PJ;
+Var
+ Pr:PJ;
+Begin
+ Pr:=JFind(F,'properties');
+ If(Pr=Nil)or(Pr^.Kind<>5)Then PropsClone:=NewJ(5)
+                          Else PropsClone:=JClone(Pr);
+End;
+
+{ Copie les proprietes de Src vers Dst avec un prefixe ; Skip : liste de noms a ignorer (separes par ;) }
+Procedure CopyProps(Src,Dst:PJ;Prefix:String);
+Var
+ Pr,C:PJ;
+Begin
+ Pr:=JFind(Src,'properties');
+ If(Pr=Nil)or(Pr^.Kind<>5)Then Exit;
+ C:=Pr^.First;
+ While C<>Nil do Begin
+  PutProp(Dst,Prefix+JKey(C),JClone(C));
+  C:=C^.Next;
+ End;
+End;
+
+Procedure FlattenFeature(F:PJ;Var G:TGeom);Begin
+ Flatten(JFind(F,'geometry'),G);
+End;
+
+Function ValToJ(V:TVal):PJ;Begin
+ Case V.K of
+  1:ValToJ:=JNum(V.N);
+  2:ValToJ:=JTextEsc(V.S);
+  3:ValToJ:=JBool(V.N<>0);
+  Else ValToJ:=NewJ(0);
+ End;
+End;
+
+{ Evalue une expression sur une entite }
+Function EvalOn(Expr:String;F:PJ;Id:LongInt):TVal;
+Var
+ V:TVal;
+Begin
+ FreeGeom(ExprGeom);
+ Flatten(JFind(F,'geometry'),ExprGeom);
+ ExprId:=Id;
+ ExprS:=Expr;
+ ExprP:=1;
+ ExprProps:=JFind(F,'properties');
+ V:=EvalOr;
+ ESkip;
+ If ExprP<=Length(ExprS)Then EFail('unexpected token');
+ EvalOn:=V;
+End;
+
+{ Entites d'une couche dans un tableau }
+Type
+ PJArr=^TJArr;
+ TJArr=Array[0..8000000]of PJ;
+
+Function FeatureArray(Arr:PJ;Var N:LongInt):PJArr;
+Var
+ F:PJ;
+ P:PJArr;
+Begin
+ N:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin Inc(N);F:=F^.Next;End;
+ P:=AllocBlock((N+1)*SizeOf(PJ));
+ N:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin P^[N]:=F;Inc(N);F:=F^.Next;End;
+ FeatureArray:=P;
+End;
+
+{ Remet les entites dans Arr selon l'ordre Ord }
+Procedure RebuildArray(Arr:PJ;FA:PJArr;Ord:PLongs;N:LongInt);
+Var
+ I:LongInt;
+Begin
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ For I:=0 to N-1do JAdd(Arr,FA^[Ord^[I]]);
+End;
+
+{ Tri des entites : cle de groupe (texte), puis valeur de l'expression }
+Procedure SortFeatures(FA:PJArr;N:LongInt;Expr,GroupFields:String;Asc,NullsFirst:Boolean;Ord:PLongs);
+Var
+ Keys,Strs:PStrs;
+ Nums:PReals;
+ Kinds:PBytes;
+ I,K:LongInt;
+ V:TVal;
+ Key:String;
+Begin
+ Keys:=AllocBlock((N+1)*SizeOf(PStr));
+ Strs:=AllocBlock((N+1)*SizeOf(PStr));
+ Nums:=AllocBlock((N+1)*SizeOf(Real));
+ Kinds:=AllocBlock((N+1)*SizeOf(Byte));
+ SplitList(GroupFields,';,');
+ For I:=0 to N-1do Begin
+  Key:='';
+  For K:=1 to ListCount do Key:=Key+#1+PropText(FA^[I],ListItems[K]);
+  Keys^[I]:=MkStr(Key);
+  Kinds^[I]:=0;Nums^[I]:=0;Strs^[I]:=MkStr('');
+  If Expr<>''Then Begin
+   V:=EvalOn(Expr,FA^[I],I);
+   Case V.K of
+    1:Begin Kinds^[I]:=1;Nums^[I]:=V.N;End;
+    2,3:Begin Kinds^[I]:=2;Strs^[I]:=MkStr(ToStr(V));End;
+   End;
+  End;
+  Ord^[I]:=I;
+ End;
+ SKey:=Keys;SStrv:=Strs;SNum:=Nums;SKind:=Kinds;SAsc:=Asc;SNullFirst:=NullsFirst;SNoTie:=False;
+ SMode:=7;
+ If N>1Then SortIdx(Ord,0,N-1);
+End;
+
+Procedure LoadIn(A:Integer;Name:String;Var Root,Arr:PJ);Begin
+ Root:=LoadLayer(NeedStr(A,Name));
+ Arr:=LayerFeatures(Root);
+End;
+
+{ Ecrit la couche et enregistre le resultat }
+Procedure SaveOut(A:Integer;Name:String;Root:PJ);
+Var
+ Out:String;
+Begin
+ Out:=NeedStr(A,Name);
+ SaveLayer(Out,Root);
+ AddRes(Name,Out);
+End;
+
+{ ------------------------------------------------------------------ }
+{ Algorithmes : attributs                                             }
+{ ------------------------------------------------------------------ }
+
+Procedure RunAutoIncremental(A:Integer);
+Var
+ Root,Arr:PJ;
+ FA:PJArr;
+ Ord:PLongs;
+ N,I,Cnt,Start,Md:LongInt;
+ Fld,PrevKey:String;
+ Grp:String;
+ Vals:PLongs;
+ V:LongInt;
+ Keys:PStrs;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD_NAME');
+ Start:=Round(NeedReal(A,'START'));
+ Md:=Round(NeedReal(A,'MODULUS'));
+ Grp:=NeedStr(A,'GROUP_FIELDS');
+ FA:=FeatureArray(Arr,N);
+ Ord:=AllocBlock((N+1)*SizeOf(LongInt));
+ SortFeatures(FA,N,NeedStr(A,'SORT_EXPRESSION'),Grp,NeedBool(A,'SORT_ASCENDING'),NeedBool(A,'SORT_NULLS_FIRST'),Ord);
+ Keys:=SKey;
+ Vals:=AllocBlock((N+1)*SizeOf(LongInt));
+ Cnt:=0;
+ For I:=0 to N-1do Begin
+  If(I>0)and(Keys^[Ord^[I]]^<>Keys^[Ord^[I-1]]^)Then Cnt:=0;
+  V:=Start+Cnt;
+  If Md>0Then V:=Start+(Cnt mod Md);
+  Vals^[Ord^[I]]:=V;
+  Inc(Cnt);
+ End;
+ For I:=0 to N-1do PutProp(FA^[I],Fld,JNum(Vals^[I]));
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunAddField(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ Fld:String;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD_NAME');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  PutProp(F,Fld,NewJ(0));
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunUniqueIndex(A:Integer);
+Var
+ Root,Arr,Sum,SumArr,F:PJ;
+ FA:PJArr;
+ Ord:PLongs;
+ N,I,K,Idx:LongInt;
+ Fld,Outf,Prev,Cur,SumFile:String;
+ Strs:PStrs;
+ Nums:PReals;
+ Kinds:PBytes;
+ AllNum:Boolean;
+ R:Real;
+ Idxs:PLongs;
+ Counts:PLongs;
+ Cnt:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD');
+ Outf:=NeedStr(A,'FIELD_NAME');
+ SumFile:=NeedStr(A,'SUMMARY_OUTPUT');
+ FA:=FeatureArray(Arr,N);
+ Ord:=AllocBlock((N+1)*SizeOf(LongInt));
+ Strs:=AllocBlock((N+1)*SizeOf(PStr));
+ Nums:=AllocBlock((N+1)*SizeOf(Real));
+ Kinds:=AllocBlock((N+1)*SizeOf(Byte));
+ AllNum:=True;
+ For I:=0 to N-1do Begin
+  Cur:=PropText(FA^[I],Fld);
+  Strs^[I]:=MkStr(Cur);
+  Ord^[I]:=I;
+  Kinds^[I]:=2;
+  If PropReal(FA^[I],Fld,R)Then Begin Nums^[I]:=R;Kinds^[I]:=1;End
+   Else
+  If Cur<>''Then AllNum:=False;
+  If(GetProp(FA^[I],Fld)=Nil)or(GetProp(FA^[I],Fld)^.Kind=0)Then Kinds^[I]:=0;
+ End;
+ If Not AllNum Then
+  For I:=0 to N-1do If Kinds^[I]=1Then Kinds^[I]:=2;
+ SKey:=Nil;SStrv:=Strs;SNum:=Nums;SKind:=Kinds;SAsc:=True;SNullFirst:=True;SNoTie:=True;
+ SMode:=7;
+ If N>1Then SortIdx(Ord,0,N-1);
+ Idxs:=AllocBlock((N+1)*SizeOf(LongInt));
+ Counts:=AllocBlock((N+1)*SizeOf(LongInt));
+ Idx:=-1;
+ For I:=0 to N-1do Begin
+  K:=Ord^[I];
+  If(I=0)or(CmpIdx(Ord^[I],Ord^[I-1])<>0)Then Begin
+   Inc(Idx);
+   Counts^[Idx]:=0;
+  End;
+  Idxs^[K]:=Idx;
+  Inc(Counts^[Idx]);
+ End;
+ For I:=0 to N-1do PutProp(FA^[I],Outf,JNum(Idxs^[I]));
+ SaveOut(A,'OUTPUT',Root);
+ If SumFile<>''Then Begin
+  Sum:=NewLayerLike(Nil,SumArr);
+  Idx:=-1;
+  For I:=0 to N-1do
+   If(I=0)or(CmpIdx(Ord^[I],Ord^[I-1])<>0)Then Begin
+    Inc(Idx);
+    F:=NewFeature(Nil,Nil);
+    PutProp(F,Fld,JTextEsc(Strs^[Ord^[I]]^));
+    PutProp(F,Outf,JNum(Idx));
+    PutProp(F,'count',JNum(Counts^[Idx]));
+    JAdd(SumArr,F);
+   End;
+  SaveLayer(SumFile,Sum);
+  AddRes('SUMMARY_OUTPUT',SumFile);
+ End;
+End;
+
+Procedure RunAddXY(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ Dst,Src:Integer;
+ Pre:String;
+ X,Y:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Dst:=ParseEpsg(NeedStr(A,'CRS'),'CRS');
+ Src:=LayerCrs(Root);
+ Pre:=NeedStr(A,'PREFIX');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=1Then Begin
+   X:=G.First^.Pts^[0].X;Y:=G.First^.Pts^[0].Y;
+   TransformPt(Src,Dst,X,Y);
+   PutProp(F,Pre+'x',JNum(X));
+   PutProp(F,Pre+'y',JNum(Y));
+  End
+   Else
+  If G.Cls<>0Then Fail('Error: the input layer must contain points')
+   Else
+  Begin
+   PutProp(F,Pre+'x',NewJ(0));
+   PutProp(F,Pre+'y',NewJ(0));
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunDeleteColumn(A:Integer);
+Var
+ Root,Arr,F,Pr:PJ;
+ K:Integer;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ SplitList(NeedStr(A,'COLUMN'),';,');
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Pr:=JFind(F,'properties');
+  If(Pr<>Nil)and(Pr^.Kind=5)Then
+   For K:=1 to ListCount do JRemoveKey(Pr,ListItems[K]);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunDropGeometries(A:Integer);
+Var
+ Root,Arr,F:PJ;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  SetGeom(F,Nil);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunExtractByAttribute(A:Integer);
+Var
+ Root,Arr,F,Nx,FailRoot,FailArr:PJ;
+ Fld,Val0,Cur,OutFail:String;
+ Op,E:Integer;
+ Hit,WantFail,NumCmp:Boolean;
+ Rv,Rc:Real;
+ N:PJ;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD');
+ Op:=Round(NeedReal(A,'OPERATOR'));
+ Val0:=NeedStr(A,'VALUE');
+ OutFail:=NeedStr(A,'FAIL_OUTPUT');
+ WantFail:=OutFail<>'';
+ FailRoot:=NewLayerLike(Root,FailArr);
+ NumCmp:=IsNumber(Val0);
+ Val(Val0,Rv,E);
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  N:=GetProp(F,Fld);
+  Cur:=NodeText(N);
+  Hit:=False;
+  If Op=8Then Hit:=(N=Nil)or(N^.Kind=0) Else
+  If Op=9Then Hit:=(N<>Nil)and(N^.Kind<>0) Else
+  If(N<>Nil)and(N^.Kind<>0)Then Begin
+   If(Op>=0)and(Op<=5)Then Begin
+    If NumCmp and PropReal(F,Fld,Rc)Then Begin
+     Case Op of
+      0:Hit:=Rc=Rv;
+      1:Hit:=Rc<>Rv;
+      2:Hit:=Rc>Rv;
+      3:Hit:=Rc>=Rv;
+      4:Hit:=Rc<Rv;
+      5:Hit:=Rc<=Rv;
+     End;
+    End
+     Else
+    Case Op of
+     0:Hit:=Cur=Val0;
+     1:Hit:=Cur<>Val0;
+     2:Hit:=Cur>Val0;
+     3:Hit:=Cur>=Val0;
+     4:Hit:=Cur<Val0;
+     5:Hit:=Cur<=Val0;
+    End;
+   End
+    Else
+   If Op=6Then Hit:=Copy(Cur,1,Length(Val0))=Val0 Else
+   If Op=7Then Hit:=Pos(Val0,Cur)>0 Else
+   If Op=10Then Hit:=Pos(Val0,Cur)=0
+    Else
+   Fail('Error: OPERATOR must be between 0 and 10');
+  End;
+  If Hit Then JAdd(Arr,F)
+   Else
+  If WantFail Then JAdd(FailArr,F);
+  F:=Nx;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+ If WantFail Then Begin
+  SaveLayer(OutFail,FailRoot);
+  AddRes('FAIL_OUTPUT',OutFail);
+ End;
+End;
+
+{ Convertit une valeur selon FIELD_TYPE : 0 reel, 1 entier, 2 texte }
+Function CastValue(V:TVal;Typ:Integer):PJ;
+Var
+ R:Real;
+Begin
+ CastValue:=NewJ(0);
+ If(V.K=0)or(V.K=4)Then Exit;
+ Case Typ of
+  0:If ToNum(V,R)Then CastValue:=JNum(R);
+  1:If ToNum(V,R)Then CastValue:=JNum(Int(R));
+  Else CastValue:=JTextEsc(ToStr(V));
+ End;
+End;
+
+Procedure RunFieldCalculator(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ Fld,Expr:String;
+ Typ,I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD_NAME');
+ Typ:=Round(NeedReal(A,'FIELD_TYPE'));
+ Expr:=NeedStr(A,'FORMULA');
+ I:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  PutProp(F,Fld,CastValue(EvalOn(Expr,F,I),Typ));
+  Inc(I);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Decoupe une chaine en elements separes par Sep, hors guillemets }
+Procedure SplitQuoted(S:String;Sep:Char);
+Var
+ I:Integer;
+ T:String;
+ Q:Char;
+Begin
+ ListCount:=0;
+ T:='';
+ Q:=#0;
+ For I:=1 to Length(S)+1do Begin
+  If I>Length(S)Then Begin
+   If T<>''Then Begin Inc(ListCount);ListItems[ListCount]:=T;End;
+  End
+   Else
+  Begin
+   If Q<>#0Then Begin
+    If S[I]=Q Then Q:=#0;
+    T:=T+S[I];
+   End
+    Else
+   If(S[I]='''')or(S[I]='"')Then Begin Q:=S[I];T:=T+S[I];End
+    Else
+   If S[I]=Sep Then Begin
+    If T<>''Then Begin
+     If ListCount>=40Then Fail('Error: too many list items');
+     Inc(ListCount);ListItems[ListCount]:=T;
+    End;
+    T:='';
+   End
+    Else
+   T:=T+S[I];
+  End;
+ End;
+End;
+
+Procedure RunRefactorFields(A:Integer);
+Var
+ Root,Arr,F,NewP:PJ;
+ Names,Exprs:Array[1..40]of String;
+ N,K,P,I:Integer;
+ Items:Array[1..40]of String;
+ Idx:LongInt;
+ V:TVal;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ SplitQuoted(NeedStr(A,'FIELDS_MAPPING'),';');
+ N:=ListCount;
+ For K:=1 to N do Items[K]:=ListItems[K];
+ For K:=1 to N do Begin
+  P:=Pos('=',Items[K]);
+  If P=0Then Fail('Error: FIELDS_MAPPING items must look like name=expression');
+  Names[K]:=Copy(Items[K],1,P-1);
+  Exprs[K]:=Copy(Items[K],P+1,255);
+ End;
+ Idx:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  NewP:=NewJ(5);
+  For K:=1 to N do Begin
+   V:=EvalOn(Exprs[K],F,Idx);
+   JAddKV(NewP,Names[K],ValToJ(V));
+  End;
+  JReplace(F,PropsOf(F),NewP);
+  Inc(Idx);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunOrderByExpression(A:Integer);
+Var
+ Root,Arr:PJ;
+ FA:PJArr;
+ Ord:PLongs;
+ N:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ FA:=FeatureArray(Arr,N);
+ Ord:=AllocBlock((N+1)*SizeOf(LongInt));
+ SortFeatures(FA,N,NeedStr(A,'EXPRESSION'),'',NeedBool(A,'ASCENDING'),NeedBool(A,'NULLS_FIRST'),Ord);
+ RebuildArray(Arr,FA,Ord,N);
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunNoOp(A:Integer);
+Var
+ Src:String;
+Begin
+ Src:=NeedStr(A,'INPUT');
+ LoadLayer(Src);   { verifie que le fichier est lisible }
+ AddRes('OUTPUT',Src);
+End;
+
+Procedure RunAssignProjection(A:Integer);
+Var
+ Root,Arr:PJ;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ SetLayerCrs(Root,ParseEpsg(NeedStr(A,'CRS'),'CRS'));
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+Procedure RunSplitByChar(A:Integer);
+Var
+ Root,Arr,F,Nx,Out,OutArr,C:PJ;
+ Fld,Ch,S,T:String;
+ P:Integer;
+ First:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD');
+ Ch:=NeedStr(A,'CHAR');
+ If Length(Ch)<>1Then Fail('Error: CHAR must be a single character');
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  S:=PropText(F,Fld);
+  First:=True;
+  Repeat
+   P:=Pos(Ch,S);
+   If P>0Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End
+         Else Begin T:=S;S:='';End;
+   C:=NewFeature(PropsClone(F),JClone(JFind(F,'geometry')));
+   PutProp(C,Fld,JTextEsc(T));
+   JAdd(OutArr,C);
+   First:=False;
+  Until P=0;
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ ------------------------------------------------------------------ }
+{ Algorithmes : transformations simples de geometries                 }
+{ ------------------------------------------------------------------ }
+
+{ Applique un traitement a chaque geometrie : Mode 0 translation, 1 affine, 2 projection cartesienne }
+Procedure MapGeometries(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ Dx,Dy,Sx,Sy,Ang,Ca,Sa,Ax,Ay,Cx,Cy,Br,Dist:Real;
+ Ok,UseAnchor:Boolean;
+ Aa:String;
+ I:LongInt;
+ P:PPath;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ UseAnchor:=False;
+ Dx:=0;Dy:=0;Sx:=1;Sy:=1;Ang:=0;Ax:=0;Ay:=0;Br:=0;Dist:=0;
+ Case Mode of
+  0:Begin Dx:=NeedReal(A,'DELTA_X');Dy:=NeedReal(A,'DELTA_Y');End;
+  1:Begin
+   Dx:=NeedReal(A,'DELTA_X');Dy:=NeedReal(A,'DELTA_Y');
+   Sx:=NeedReal(A,'SCALE_X');Sy:=NeedReal(A,'SCALE_Y');
+   Ang:=NeedReal(A,'ROTATION_Z');
+  End;
+  2:Begin Br:=Deg2Rad(NeedReal(A,'BEARING'));Dist:=NeedReal(A,'DISTANCE');End;
+  3:Begin
+   Ang:=NeedReal(A,'ANGLE');
+   If HasArg('ANCHOR')Then Begin
+    ParsePoint(NeedStr(A,'ANCHOR'),Ax,Ay);
+    UseAnchor:=True;
+   End;
+  End;
+ End;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   Case Mode of
+    0:AffineGeom(G,1,0,0,1,Dx,Dy);
+    1:Begin
+     { rotation, puis mise a l'echelle, puis translation }
+     Ca:=Cos(Deg2Rad(Ang));Sa:=Sin(Deg2Rad(Ang));
+     AffineGeom(G,Sx*Ca,-Sx*Sa,Sy*Sa,Sy*Ca,Dx,Dy);
+    End;
+    2:Begin
+     If G.Cls<>1Then Fail('Error: the input layer must contain points');
+     AffineGeom(G,1,0,0,1,Dist*Sin(Br),Dist*Cos(Br));
+    End;
+    3:Begin
+     If Not UseAnchor Then Begin
+      CentroidGeom(G,Cx,Cy,Ok);
+      If Not Ok Then Begin Cx:=0;Cy:=0;End;
+     End
+      Else
+     Begin Cx:=Ax;Cy:=Ay;End;
+     { rotation horaire (comme l'azimut), autour de l'ancre }
+     Ca:=Cos(Deg2Rad(-Ang));Sa:=Sin(Deg2Rad(-Ang));
+     AffineGeom(G,Ca,-Sa,Sa,Ca,Cx-Ca*Cx+Sa*Cy,Cy-Sa*Cx-Ca*Cy);
+    End;
+   End;
+   SetGeom(F,BuildGeom(G));
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Orientation : Mode 0 regle de la main droite (exterieur horaire) }
+Procedure RunForceRHR(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ P:PPath;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls=3Then Begin
+   OrientPolygons(G);
+   P:=G.First;
+   While P<>Nil do Begin ReversePts(P^.Pts,P^.N);P:=P^.Next;End;
+   SetGeom(F,BuildGeom(G));
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Valeurs Z : mode 0 supprimer Z, 1 fixer Z, 2 filtrer par Z }
+Procedure ZWalk(N:PJ;Mode:Integer;Z,Lo,Hi:Real);
+Var
+ C,Prev,Nx:PJ;
+ R:Real;
+ E:Integer;
+Begin
+ If(N=Nil)or(N^.Kind<>4)Then Exit;
+ C:=N^.First;
+ If C=Nil Then Exit;
+ If C^.Kind=2Then Begin
+  { une position }
+  Case Mode of
+   0:Begin If C^.Next<>Nil Then C^.Next^.Next:=Nil;N^.Last:=C^.Next;End;
+   1:Begin
+    If(C^.Next<>Nil)and(C^.Next^.Next<>Nil)Then JReplace(N,C^.Next^.Next,JNum(Z))
+     Else
+    If C^.Next<>Nil Then JAdd(N,JNum(Z));
+   End;
+  End;
+  Exit;
+ End;
+ If(Mode=2)and(C^.Kind=4)and(C^.First<>Nil)and(C^.First^.Kind=2)Then Begin
+  { liste de positions : filtrage }
+  Prev:=Nil;
+  While C<>Nil do Begin
+   Nx:=C^.Next;
+   R:=0;
+   E:=1;
+   If(C^.First<>Nil)and(C^.First^.Next<>Nil)and(C^.First^.Next^.Next<>Nil)Then Val(JVal(C^.First^.Next^.Next),R,E);
+   If(E<>0)or(R<Lo)or(R>Hi)Then Begin
+    If Prev=Nil Then N^.First:=Nx Else Prev^.Next:=Nx;
+    If N^.Last=C Then N^.Last:=Prev;
+   End
+    Else
+   Prev:=C;
+   C:=Nx;
+  End;
+  Exit;
+ End;
+ While C<>Nil do Begin
+  ZWalk(C,Mode,Z,Lo,Hi);
+  C:=C^.Next;
+ End;
+End;
+
+Procedure RunZValues(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F,Gn:PJ;
+ Z,Lo,Hi:Real;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Z:=0;Lo:=0;Hi:=0;
+ Case Mode of
+  0:If NeedBool(A,'DROP_M_VALUES')and Not NeedBool(A,'DROP_Z_VALUES')Then
+     Begin End;
+  1:Z:=NeedReal(A,'Z_VALUE');
+  2:Begin Lo:=NeedReal(A,'MIN');Hi:=NeedReal(A,'MAX');End;
+ End;
+ If(Mode=0)and Not NeedBool(A,'DROP_Z_VALUES')Then Begin
+  { rien a supprimer : GeoJSON ne porte pas de valeurs M }
+  SaveOut(A,'OUTPUT',Root);
+  Exit;
+ End;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  Gn:=JFind(F,'geometry');
+  If(Gn<>Nil)and(Gn^.Kind=5)Then ZWalk(JFind(Gn,'coordinates'),Mode,Z,Lo,Hi);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+
 Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
@@ -5953,6 +8774,29 @@ Begin
   33:RunTileIndex(A);
   34:RunTranslate(A);
   35:RunViewshed(A);
+  36:RunAutoIncremental(A);
+  37:RunAddField(A);
+  38:RunUniqueIndex(A);
+  39:RunAddXY(A);
+  40:MapGeometries(A,1);
+  41:MapGeometries(A,0);
+  42:MapGeometries(A,2);
+  43:MapGeometries(A,3);
+  44:RunDeleteColumn(A);
+  45:RunDropGeometries(A);
+  46:RunExtractByAttribute(A);
+  47:RunFieldCalculator(A);
+  48:RunRefactorFields(A);
+  49:RunOrderByExpression(A);
+  50:RunNoOp(A);
+  51:RunNoOp(A);
+  52:RunNoOp(A);
+  53:RunAssignProjection(A);
+  54:RunSplitByChar(A);
+  55:RunForceRHR(A);
+  56:RunZValues(A,0);
+  57:RunZValues(A,1);
+  58:RunZValues(A,2);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
