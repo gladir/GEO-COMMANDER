@@ -1,8 +1,8 @@
 { @author: Sylvain Maltais (support@gladir.com)
   @created: 2026
   @website(https://www.gladir.com/geo-commander)
-  @abstract: Standalone vector converter/processor
-  @description: Turbo Pascal 7 / Free Pascal compatible; no external backend.
+  @abstract(Target: Turbo Pascal 7, Free Pascal 3.2)
+  @description: Convertisseur/processeur vectoriel autonome
 }
 Program Ogr2Ogr;
 
