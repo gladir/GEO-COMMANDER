@@ -842,7 +842,8 @@ End;
 
 Procedure ShowHelp;
 Begin
- WriteLn('CCT - Transformations de coordonnees et pipelines autonomes.');
+ WriteLn('CCT - Cette commande permet d''effectuer des transformations de coordonn'+#130+'es ',
+         'et pipelines autonomes.');
  WriteLn;
  WriteLn('Syntaxe: CCT [options] +proj=pipeline +step +proj=... [fichier]');
  WriteLn;
