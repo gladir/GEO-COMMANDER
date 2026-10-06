@@ -81,6 +81,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de demander la population d'un pays.</td>
   </tr>
   <tr>
+	  <td><b>PROJ.PAS</b></td>
+	  <td>Cette commande permet d'effectuer une projection cartographique directe/inverse autonome.</td>
+  </tr>
+  <tr>
       <td><b>QGIS_PROCESS.PAS</b></td>
       <td>Cette commande est un clone de qgis_process.</td>
   </tr>
