@@ -77,6 +77,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
 	  <td>Cette commande permet de retourner les informations sur la montagne spécifié.</td>
   </tr>
   <tr>
+	  <td><b>OGR2OGR.PAS</b></td>
+	  <td>Cette commande permet d'effectuer des operations de conversion, reprojection et filtres vectoriels.</td>
+  </tr>
+  <tr>
       <td><b>PARIS2G.PAS</b></td>
       <td>Cette commande permet de convertir le méridien de Paris en méridien de Greenwich.</td>
   </tr>
