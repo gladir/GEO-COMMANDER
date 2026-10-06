@@ -50,7 +50,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
 		<td><b>GEO.PAS</b></td>
-	  <td>Cette commande permet d'inspecter des données géographiques, de convertir et reprojeter des couches, de lancer des traitements raster et d'obtenir des distances.</td>td
+	  <td>Cette commande permet d'inspecter des données géographiques, de convertir et reprojeter des couches, de lancer des traitements raster et d'obtenir des distances.</td>
   </tr>
   <tr>
       <td><b>GEODELTA.PAS</b></td>
