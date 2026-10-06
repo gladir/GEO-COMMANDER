@@ -97,6 +97,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande est un clone de qgis_process.</td>
   </tr>
   <tr>
+	<td><b>SHP2IMG.PAS</b></td>
+	  <td>Cette commande permet d'effectuer un rendu autonome d'un sous-ensemble Mapfile MapServer.</td>
+  </tr>
+  <tr>
       <td><b>SIZE.PAS</b></td>
       <td>Cette commande permet de retourner la taille d'un pays en Km<sup>2</sup>.</td>
   </tr>
