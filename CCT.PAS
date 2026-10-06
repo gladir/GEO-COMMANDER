@@ -4,7 +4,8 @@
   @abstract(Target: Turbo Pascal 7, Free Pascal 3.2)
   @description: CCT - Coordinate Conversion and Transformation
   Pipeline subset: unitconvert, axisswap, affine, helmert (3/7 params),
-  cart, UTM, Mercator, Transverse Mercator and longlat.
+  cart, NTv2 horizontal grids, GTX vertical grids, UTM, Mercator,
+  Transverse Mercator, longlat and noop.
 }
 Program Cct;
 
@@ -17,7 +18,8 @@ Const
 
 Type
  TOp = (opNone, opUnitConvert, opAxisSwap, opAffine, opHelmert,
-        opCart, opUTM, opMerc, opTMerc, opLongLat);
+   opCart, opUTM, opMerc, opTMerc, opLongLat,
+  opHGridShift, opVGridShift, opGeogOffset, opVertOffset, opNoop);
  TStep = Record
   Op : TOp;
   Inverse, OmitForward, OmitInverse : Boolean;
@@ -26,12 +28,27 @@ Type
   Zone : Integer;
   South : Boolean;
   A, F, K0, Lat0, Lon0, X0, Y0 : Real;
-  DX, DY, DZ, RX, RY, RZ, Scale : Real;
+  DX, DY, DZ, DLat, DLon, DH, SlopeLat, SlopeLon, RX, RY, RZ, Scale : Real;
   RateX, RateY, RateZ, RateRX, RateRY, RateRZ, RateScale : Real;
   Epoch : Real;
   HasEpoch : Boolean;
+  GridName : String[255];
+  GridMultiplier : Real;
+  GridOptional : Boolean;
+  HasGridParam : Boolean;
   Order : String[16];
   Affine : Array[1..4] Of Real;
+ End;
+ TNTRecord = Packed Record
+  Key : Array[1..8] Of Char;
+  Value : Array[1..8] Of Char;
+ End;
+ TNTNode = Packed Record
+  LatShift, LonShift, LatAccuracy, LonAccuracy : Single;
+ End;
+ TGTXHeader = Packed Record
+  LatOrigin, LonOrigin, LatStep, LonStep : Double;
+  Rows, Cols : LongInt;
  End;
  TTokens = Array[1..MaxTokens] Of String[255];
 
@@ -87,6 +104,199 @@ Begin
  Atan2R := A;
 End;
 
+Function SwapLong(V : LongInt) : LongInt;
+Var B : Array[1..4] Of Byte; T : Byte;
+Begin
+ Move(V,B,4); T:=B[1]; B[1]:=B[4]; B[4]:=T; T:=B[2]; B[2]:=B[3]; B[3]:=T;
+ Move(B,V,4); SwapLong:=V;
+End;
+
+Function SwapSingle(V : Single) : Single;
+Var B : Array[1..4] Of Byte; T : Byte;
+Begin
+ Move(V,B,4); T:=B[1]; B[1]:=B[4]; B[4]:=T; T:=B[2]; B[2]:=B[3]; B[3]:=T;
+ Move(B,V,4); SwapSingle:=V;
+End;
+
+Function SwapDouble(V : Double) : Double;
+Var B : Array[1..8] Of Byte; I : Integer; T : Byte;
+Begin
+ Move(V,B,8);
+ For I:=1 To 4 Do Begin T:=B[I]; B[I]:=B[9-I]; B[9-I]:=T; End;
+ Move(B,V,8); SwapDouble:=V;
+End;
+
+Function NTKey(R : TNTRecord) : String;
+Var I : Integer; S : String;
+Begin
+ S:=''; For I:=1 To 8 Do If R.Key[I]<>#0 Then S:=S+R.Key[I];
+ While (S<>'') And (S[Length(S)]=' ') Do Delete(S,Length(S),1);
+ NTKey:=S;
+End;
+
+Function NTInt(R : TNTRecord; BigEndian : Boolean) : LongInt;
+Var V : LongInt;
+Begin Move(R.Value[1],V,4); If BigEndian Then V:=SwapLong(V); NTInt:=V; End;
+
+Function NTDouble(R : TNTRecord; BigEndian : Boolean) : Real;
+Var V : Double;
+Begin Move(R.Value[1],V,8); If BigEndian Then V:=SwapDouble(V); NTDouble:=V; End;
+
+Function NTFloat(V : Single; BigEndian : Boolean) : Real;
+Begin If BigEndian Then V:=SwapSingle(V); NTFloat:=V; End;
+
+Function ReadNTv2Shift(FileName : String; LonRad, LatRad : Real;
+                       Var DLonDeg, DLatDeg : Real) : Boolean;
+Var
+ F : File; R : TNTRecord; N00,N10,N01,N11 : TNTNode;
+ N, I, NumOverview, NumSub, GSCount, BestRows, BestCols : LongInt;
+ DataPos, BestPos, PosNow : LongInt;
+ SouthLat, NorthLat, EastLong, WestLong, LatInc, LonInc : Real;
+ BestSouth, BestEast, BestLatInc, BestLonInc, LonDeg, LatDeg : Real;
+ ColF, RowF, FX, FY, V : Real; C0,R0 : LongInt;
+ BigEndian, HeaderOK, HS,HN,HE,HW,HI,HO : Boolean;
+ Key : String;
+Begin
+ ReadNTv2Shift:=False; DLonDeg:=0; DLatDeg:=0;
+ BestLatInc:=1.0E30; BestPos:=-1;
+ Assign(F,FileName);
+ {$I-} Reset(F,1); I:=IOResult; {$I+}
+ If I<>0 Then Exit;
+ BlockRead(F,R,SizeOf(R),N); If N<>SizeOf(R) Then Begin Close(F); Exit; End;
+ If NTKey(R)<>'NUM_OREC' Then Begin Close(F); Exit; End;
+ NumOverview:=NTInt(R,False); BigEndian:=False;
+ If NumOverview<>11 Then Begin
+  If SwapLong(NumOverview)=11 Then Begin BigEndian:=True; NumOverview:=11; End;
+ End;
+ If NumOverview<>11 Then Begin Close(F); Exit; End;
+ Seek(F,0);
+ BlockRead(F,R,SizeOf(R),N); If N<>SizeOf(R) Then Begin Close(F); Exit; End;
+ BlockRead(F,R,SizeOf(R),N); If N<>SizeOf(R) Then Begin Close(F); Exit; End;
+ NumSub:=NTInt(R,BigEndian);
+ If (NumSub<11) Or (NumSub>32) Then Begin Close(F); Exit; End;
+ DataPos:=NumOverview*SizeOf(TNTRecord);
+ Seek(F,DataPos);
+ While Not EOF(F) Do Begin
+  SouthLat:=0; NorthLat:=0; EastLong:=0; WestLong:=0;
+  LatInc:=0; LonInc:=0; GSCount:=0;
+  HS:=False; HN:=False; HE:=False; HW:=False; HI:=False; HO:=False; HeaderOK:=True;
+  For I:=1 To NumSub Do Begin
+  BlockRead(F,R,SizeOf(R),N); If N<>SizeOf(R) Then Begin HeaderOK:=False; Break; End;
+   Key:=NTKey(R);
+   If Key='S_LAT' Then Begin SouthLat:=NTDouble(R,BigEndian); HS:=True; End Else
+   If Key='N_LAT' Then Begin NorthLat:=NTDouble(R,BigEndian); HN:=True; End Else
+   If Key='E_LONG' Then Begin EastLong:=NTDouble(R,BigEndian); HE:=True; End Else
+   If Key='W_LONG' Then Begin WestLong:=NTDouble(R,BigEndian); HW:=True; End Else
+   If Key='LAT_INC' Then Begin LatInc:=NTDouble(R,BigEndian); HI:=True; End Else
+   If Key='LONG_INC' Then Begin LonInc:=NTDouble(R,BigEndian); HO:=True; End Else
+   If Key='GS_COUNT' Then GSCount:=NTInt(R,BigEndian);
+  End;
+  If Not HeaderOK Then Break;
+  PosNow:=FilePos(F);
+  LatDeg:=R2D(LatRad); LonDeg:=R2D(LonRad);
+  If HS And HN And HE And HW And HI And HO And (GSCount>0) And
+     (LatInc>0) And (LonInc>0) And (LatDeg*3600>=SouthLat) And
+     (LatDeg*3600<=NorthLat) And (LonDeg*3600>=-WestLong) And
+     (LonDeg*3600<=-EastLong) Then Begin
+   If LatInc<BestLatInc Then Begin
+    BestLatInc:=LatInc; BestLonInc:=LonInc; BestSouth:=SouthLat; BestEast:=-EastLong;
+    BestCols:=Trunc((WestLong-EastLong)/LonInc+0.5)+1;
+    BestRows:=Trunc((NorthLat-SouthLat)/LatInc+0.5)+1;
+    BestPos:=PosNow;
+   End;
+  End;
+  Seek(F,PosNow+GSCount*SizeOf(TNTNode));
+ End;
+ If BestPos<0 Then Begin Close(F); Exit; End;
+ ColF:=(BestEast-LonDeg*3600)/BestLonInc;
+ RowF:=(LatDeg*3600-BestSouth)/BestLatInc;
+ C0:=Trunc(ColF); R0:=Trunc(RowF);
+ If C0>=BestCols-1 Then Begin C0:=BestCols-2; ColF:=BestCols-1; End;
+ If R0>=BestRows-1 Then Begin R0:=BestRows-2; RowF:=BestRows-1; End;
+ If (C0<0) Or (R0<0) Or (BestCols<2) Or (BestRows<2) Then Begin Close(F); Exit; End;
+ FX:=ColF-C0; FY:=RowF-R0;
+ Seek(F,BestPos+(R0*BestCols+C0)*SizeOf(TNTNode)); BlockRead(F,N00,SizeOf(N00),N);
+ Seek(F,BestPos+(R0*BestCols+C0+1)*SizeOf(TNTNode)); BlockRead(F,N10,SizeOf(N10),N);
+ Seek(F,BestPos+((R0+1)*BestCols+C0)*SizeOf(TNTNode)); BlockRead(F,N01,SizeOf(N01),N);
+ Seek(F,BestPos+((R0+1)*BestCols+C0+1)*SizeOf(TNTNode)); BlockRead(F,N11,SizeOf(N11),N);
+ Close(F);
+ V:=NTFloat(N00.LonShift,BigEndian)*(1-FX)*(1-FY)+NTFloat(N10.LonShift,BigEndian)*FX*(1-FY)+NTFloat(N01.LonShift,BigEndian)*(1-FX)*FY+NTFloat(N11.LonShift,BigEndian)*FX*FY;
+ DLonDeg:=V/3600.0;
+ V:=NTFloat(N00.LatShift,BigEndian)*(1-FX)*(1-FY)+NTFloat(N10.LatShift,BigEndian)*FX*(1-FY)+NTFloat(N01.LatShift,BigEndian)*(1-FX)*FY+NTFloat(N11.LatShift,BigEndian)*FX*FY;
+ DLatDeg:=V/3600.0;
+ ReadNTv2Shift:=True;
+End;
+
+Function ReadGTX(FileName : String; LonRad,LatRad : Real;
+                 Var Offset : Real) : Boolean;
+Var F : File; H : TGTXHeader; N : Word; I : Integer;
+ Lat0,Lon0,DLat,DLon,RowF,ColF,FX,FY : Real;
+ V00,V10,V01,V11 : Single;
+ R0,C0 : LongInt; BigEndian : Boolean;
+Begin
+ ReadGTX:=False; Offset:=0;
+ Assign(F,FileName); {$I-} Reset(F,1); I:=IOResult; {$I+}
+ If I<>0 Then Exit;
+ BlockRead(F,H,SizeOf(H),N); If N<>SizeOf(H) Then Begin Close(F); Exit; End;
+ BigEndian:=True;
+ H.LatOrigin:=SwapDouble(H.LatOrigin); H.LonOrigin:=SwapDouble(H.LonOrigin);
+ H.LatStep:=SwapDouble(H.LatStep); H.LonStep:=SwapDouble(H.LonStep);
+ H.Rows:=SwapLong(H.Rows); H.Cols:=SwapLong(H.Cols);
+ If (H.Rows<2) Or (H.Cols<2) Or (H.LatStep<=0) Or (H.LonStep<=0) Then Begin Close(F); Exit; End;
+ Lat0:=H.LatOrigin; Lon0:=H.LonOrigin; DLat:=H.LatStep; DLon:=H.LonStep;
+ ColF:=(R2D(LonRad)-Lon0)/DLon; RowF:=(Lat0+((H.Rows-1)*DLat)-R2D(LatRad))/DLat;
+ C0:=Trunc(ColF); R0:=Trunc(RowF);
+ If (C0<0) Or (C0>=H.Cols-1) Or (R0<0) Or (R0>=H.Rows-1) Then Begin Close(F); Exit; End;
+ FX:=ColF-C0; FY:=RowF-R0;
+ Seek(F,40+(R0*H.Cols+C0)*4); BlockRead(F,V00,4,N);
+ Seek(F,40+(R0*H.Cols+C0+1)*4); BlockRead(F,V10,4,N);
+ Seek(F,40+((R0+1)*H.Cols+C0)*4); BlockRead(F,V01,4,N);
+ Seek(F,40+((R0+1)*H.Cols+C0+1)*4); BlockRead(F,V11,4,N);
+ Close(F);
+ If BigEndian Then Begin V00:=SwapSingle(V00); V10:=SwapSingle(V10); V01:=SwapSingle(V01); V11:=SwapSingle(V11); End;
+ Offset:=V00*(1-FX)*(1-FY)+V10*FX*(1-FY)+V01*(1-FX)*FY+V11*FX*FY;
+ If Abs(Offset+88.8888)<0.0001 Then Begin Offset:=0; Exit; End;
+ ReadGTX:=True;
+End;
+
+Function NextGridName(Var List : String; Var OptionalGrid : Boolean) : String;
+Var I : Integer; S : String;
+Begin
+ I:=Pos(',',List);
+ If I=0 Then Begin S:=List; List:=''; End
+ Else Begin S:=Copy(List,1,I-1); Delete(List,1,I); End;
+ OptionalGrid:=(S<>'') And (S[1]='@');
+ If OptionalGrid Then Delete(S,1,1);
+ NextGridName:=S;
+End;
+
+Function FindNTv2Shift(GridList : String; LonRad,LatRad : Real;
+                       Var DLonDeg,DLatDeg : Real) : Boolean;
+Var Name : String; OptionalGrid, Found : Boolean;
+Begin
+ FindNTv2Shift:=False;
+ While GridList<>'' Do Begin
+  Name:=NextGridName(GridList,OptionalGrid);
+  If (Name<>'') And (UpperString(Name)<>'NULL') Then Begin
+   Found:=ReadNTv2Shift(Name,LonRad,LatRad,DLonDeg,DLatDeg);
+   If Found Then Begin FindNTv2Shift:=True; Exit; End;
+  End;
+ End;
+End;
+
+Function FindGTX(GridList : String; LonRad,LatRad : Real; Var Offset : Real) : Boolean;
+Var Name : String; OptionalGrid, Found : Boolean;
+Begin
+ FindGTX:=False;
+ While GridList<>'' Do Begin
+  Name:=NextGridName(GridList,OptionalGrid);
+  If (Name<>'') And (UpperString(Name)<>'NULL') Then Begin
+   Found:=ReadGTX(Name,LonRad,LatRad,Offset);
+   If Found Then Begin FindGTX:=True; Exit; End;
+  End;
+ End;
+End;
+
 Procedure InitStep(Var S : TStep);
 Var I : Integer;
 Begin
@@ -95,10 +305,14 @@ Begin
  S.HasXYIn := False; S.HasXYOut := False; S.HasZIn := False; S.HasZOut := False;
  S.Zone := 0; S.South := False; S.A := 6378137.0; S.F := 1.0 / 298.257223563;
  S.K0 := 1.0; S.Lat0 := 0.0; S.Lon0 := 0.0; S.X0 := 0.0; S.Y0 := 0.0;
- S.DX := 0.0; S.DY := 0.0; S.DZ := 0.0; S.RX := 0.0; S.RY := 0.0; S.RZ := 0.0;
+ S.DX := 0.0; S.DY := 0.0; S.DZ := 0.0; S.DLat := 0.0; S.DLon := 0.0; S.DH := 0.0;
+ S.SlopeLat := 0.0; S.SlopeLon := 0.0;
+ S.RX := 0.0; S.RY := 0.0; S.RZ := 0.0;
  S.Scale := 0.0; S.RateX := 0.0; S.RateY := 0.0; S.RateZ := 0.0;
  S.RateRX := 0.0; S.RateRY := 0.0; S.RateRZ := 0.0; S.RateScale := 0.0;
  S.Epoch := 0.0; S.HasEpoch := False; S.Order := '1,2';
+ S.GridName := ''; S.GridMultiplier := -1.0; S.GridOptional := False;
+ S.HasGridParam := False;
  For I := 1 To 4 Do S.Affine[I] := 0.0;
  S.Affine[1] := 1.0; S.Affine[4] := 1.0;
 End;
@@ -121,6 +335,11 @@ Begin
   If U = 'affine' Then S.Op := opAffine Else
   If U = 'helmert' Then S.Op := opHelmert Else
   If U = 'cart' Then S.Op := opCart Else
+  If (U = 'hgridshift') Or (U = 'nadgrids') Then S.Op := opHGridShift Else
+  If (U = 'vgridshift') Or (U = 'geoidgrids') Then S.Op := opVGridShift Else
+  If U = 'geogoffset' Then S.Op := opGeogOffset Else
+  If U = 'vertoffset' Then S.Op := opVertOffset Else
+  If U = 'noop' Then S.Op := opNoop Else
   If U = 'utm' Then S.Op := opUTM Else
   If U = 'merc' Then S.Op := opMerc Else
   If U = 'tmerc' Then S.Op := opTMerc Else
@@ -148,6 +367,11 @@ Begin
  V := GetParam(Arg, '+x='); If (V <> '') And ParseReal(V, R) Then S.DX := R;
  V := GetParam(Arg, '+y='); If (V <> '') And ParseReal(V, R) Then S.DY := R;
  V := GetParam(Arg, '+z='); If (V <> '') And ParseReal(V, R) Then S.DZ := R;
+ V := GetParam(Arg, '+dlon='); If (V <> '') And ParseReal(V, R) Then S.DLon := R;
+ V := GetParam(Arg, '+dlat='); If (V <> '') And ParseReal(V, R) Then S.DLat := R;
+ V := GetParam(Arg, '+dh='); If (V <> '') And ParseReal(V, R) Then S.DH := R;
+ V := GetParam(Arg, '+slope_lat='); If (V <> '') And ParseReal(V, R) Then S.SlopeLat := R;
+ V := GetParam(Arg, '+slope_lon='); If (V <> '') And ParseReal(V, R) Then S.SlopeLon := R;
  V := GetParam(Arg, '+rx='); If (V <> '') And ParseReal(V, R) Then S.RX := R;
  V := GetParam(Arg, '+ry='); If (V <> '') And ParseReal(V, R) Then S.RY := R;
  V := GetParam(Arg, '+rz='); If (V <> '') And ParseReal(V, R) Then S.RZ := R;
@@ -160,6 +384,15 @@ Begin
  V := GetParam(Arg, '+drz='); If (V <> '') And ParseReal(V, R) Then S.RateRZ := R;
  V := GetParam(Arg, '+ds='); If (V <> '') And ParseReal(V, R) Then S.RateScale := R;
  V := GetParam(Arg, '+t_epoch='); If (V <> '') And ParseReal(V, R) Then Begin S.Epoch := R; S.HasEpoch := True; End;
+ V := GetParam(Arg, '+grids='); If V = '' Then V := GetParam(Arg, '+nadgrids=');
+ If V = '' Then V := GetParam(Arg, '+geoidgrids=');
+ If V <> '' Then Begin
+  S.HasGridParam := True;
+  S.GridName := V;
+  S.GridOptional := V[1] = '@';
+  If (UpperString(V) = 'NULL') Or (UpperString(V) = '@NULL') Then S.GridName := '';
+ End;
+ V := GetParam(Arg, '+multiplier='); If (V <> '') And ParseReal(V,R) Then S.GridMultiplier := R;
  V := GetParam(Arg, '+convention='); If V <> '' Then S.Order := V;
  V := GetParam(Arg, '+xy_in='); If V <> '' Then Begin S.HasXYIn := True; S.XYInRad := V = 'rad'; End;
  V := GetParam(Arg, '+xy_out='); If V <> '' Then Begin S.HasXYOut := True; S.XYOutRad := V = 'rad'; End;
@@ -177,15 +410,17 @@ End;
 
 Procedure ShowHelp;
 Begin
- WriteLn('CCT - Cette commande permet d''effectuer des transformations de coordonn'+#130+'es et ',
-         'pipelines (subset autonome).');
+ WriteLn('CCT - Transformations de coordonnees et pipelines autonomes.');
  WriteLn;
  WriteLn('Syntaxe: CCT [options] +proj=pipeline +step +proj=... [fichier]');
  WriteLn;
  WriteLn('Options: -c colonnes -d n -z valeur -t valeur -I -o fichier -v -vv -V -h');
  WriteLn('Coordonnees traitees: X Y [Z [T]]. Operations: unitconvert, axisswap, affine,');
- WriteLn('helmert, cart, utm, merc, tmerc, longlat.');
- WriteLn('Les grilles datum et les autres operations ne sont pas disponibles.');
+ WriteLn('helmert, cart, geogoffset, vertoffset, hgridshift (NTv2 .gsb),');
+ WriteLn('vgridshift (GTX), utm, merc, tmerc, longlat, noop.');
+ WriteLn('Les listes prioritaires +grids= sont acceptees pour NTv2/GTX.');
+ WriteLn('GeoTIFF grids, deformation, xyzgridshift et projections azimutales');
+ WriteLn('restent absents de ce moteur autonome.');
 End;
 
 Procedure ParseColumns(S : String);
@@ -297,9 +532,13 @@ End;
 
 Procedure ApplyStep(Var S : TStep; Var X, Y, Z, T : Real; Backward : Boolean; Var OK : Boolean);
 Var A, B, C, D, F, M, Det, RX, RY, RZ, Scale, DX, DY, DZ : Real;
+ E2, Rho, Nu, VerticalOffset : Real;
  TX, TY, TZ, TT : Real;
+ ShiftLon, ShiftLat, SourceLon, SourceLat, Offset : Real;
+ I : Integer; GridOK : Boolean;
 Begin
  OK := True;
+ If S.Op = opNoop Then Exit;
  If S.Op = opUnitConvert Then Begin
   If Backward Then Begin
    If S.HasXYOut And (Not S.XYOutRad) Then Begin X := X*DEG; Y := Y*DEG; End;
@@ -352,6 +591,51 @@ Begin
     Y := DY+Scale*(RZ*A-RX*C+B);
     Z := DZ+Scale*(-RY*A+RX*B+C);
   End;
+  Exit;
+ End;
+ If S.Op = opGeogOffset Then Begin
+  If Backward Then Begin
+   X:=X-S.DLon*ARCSEC; Y:=Y-S.DLat*ARCSEC; Z:=Z-S.DH;
+  End Else Begin
+   X:=X+S.DLon*ARCSEC; Y:=Y+S.DLat*ARCSEC; Z:=Z+S.DH;
+  End;
+  Exit;
+ End;
+ If S.Op = opVertOffset Then Begin
+  E2:=S.F*(2-S.F);
+  Nu:=S.A/Sqrt(1-E2*Sqr(Sin(D2R(S.Lat0))));
+  Rho:=S.A*(1-E2)/PowerR(1-E2*Sqr(Sin(D2R(S.Lat0))),1.5);
+  VerticalOffset:=S.DH+S.SlopeLat*ARCSEC*Rho*(Y-D2R(S.Lat0))+
+   S.SlopeLon*ARCSEC*Nu*(X-D2R(S.Lon0))*Cos(Y);
+  If Backward Then Z:=Z-VerticalOffset Else Z:=Z+VerticalOffset;
+  Exit;
+ End;
+ If S.Op = opHGridShift Then Begin
+  If S.GridName = '' Then Exit;
+  If Not Backward Then Begin
+  GridOK := FindNTv2Shift(S.GridName,X,Y,ShiftLon,ShiftLat);
+   If GridOK Then Begin X:=X-ShiftLon*DEG; Y:=Y+ShiftLat*DEG; End;
+  End Else Begin
+   SourceLon:=X; SourceLat:=Y; GridOK:=True;
+   For I:=1 To 8 Do Begin
+   If Not FindNTv2Shift(S.GridName,SourceLon,SourceLat,ShiftLon,ShiftLat) Then Begin GridOK:=False; Break; End;
+    SourceLon:=X+ShiftLon*DEG; SourceLat:=Y-ShiftLat*DEG;
+   End;
+   If GridOK Then Begin X:=SourceLon; Y:=SourceLat; End;
+  End;
+  If Not GridOK And S.GridOptional Then GridOK:=True;
+  OK:=GridOK;
+  Exit;
+ End;
+ If S.Op = opVGridShift Then Begin
+  If S.GridName = '' Then Exit;
+  GridOK:=FindGTX(S.GridName,X,Y,Offset);
+  If GridOK Then Begin
+   If Backward Then Z:=Z-Offset*S.GridMultiplier
+   Else Z:=Z+Offset*S.GridMultiplier;
+  End;
+  If Not GridOK And S.GridOptional Then GridOK:=True;
+  OK:=GridOK;
   Exit;
  End;
  If S.Op = opCart Then Begin
@@ -504,7 +788,13 @@ BEGIN
   Inc(I);
  End;
  If StepCount=0 Then Begin WriteLn('Erreur: operation +proj absente.'); ShowHelp; Halt(1); End;
- For I:=1 To StepCount Do If Steps[I].Op=opNone Then Begin WriteLn('Erreur: operation de pipeline inconnue a l''etape ',I); Halt(1); End;
+ For I:=1 To StepCount Do Begin
+  If Steps[I].Op=opNone Then Begin WriteLn('Erreur: operation de pipeline inconnue a l''etape ',I); Halt(1); End;
+  If ((Steps[I].Op=opHGridShift) Or (Steps[I].Op=opVGridShift)) And
+     (Not Steps[I].HasGridParam) Then Begin
+   WriteLn('Erreur: l''etape de grille ',I,' exige +grids=<fichier>.'); Halt(1);
+  End;
+ End;
  If Verbose Then Begin
   WriteLn('Etapes: ',StepCount);
   If VeryVerbose Then For I:=1 To StepCount Do WriteLn('  ',I,': ',Ord(Steps[I].Op),' inverse=',Steps[I].Inverse);
