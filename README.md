@@ -17,6 +17,10 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
       <td>Cette commande permet de retourner la capitale d'un pays.</td>
   </tr>
   <tr>
+	  <td><b>CCT.PAS</b></td>
+	  <td>Cette commande permet d'effectuer des transformations de coordonnées et pipelines autonomes.</td>
+  </tr>
+  <tr>
       <td><b>CONTINEN.PAS</b></td>
       <td>Cette commande permet de retourner le continent d'un pays.</td>
   </tr>
