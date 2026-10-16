@@ -39,8 +39,8 @@ Const
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
  MaxAlgo=188;
- MaxParam=836;
- MaxOut=273;
+ MaxParam=840;
+ MaxOut=274;
  MaxArg=30;
  MaxCells=40000000;
 
@@ -455,8 +455,8 @@ Const
    Group:'Vector geometry';
    Descr:'Sets the M value of all the vertices.'),
   (Id:'native:package';Title:'Package layers';
-   Group:'Not supported';
-   Descr:'NOT SUPPORTED: packaging several layers in one GeoPackage is not available'),
+   Group:'Database';
+   Descr:'Writes several layers into one GeoPackage.'),
   (Id:'native:writevectortiles_mbtiles';Title:'Write vector tiles (MBTiles)';
    Group:'Not supported';
    Descr:'NOT SUPPORTED: MBTiles/vector tile encoding is not available'),
@@ -1210,8 +1210,12 @@ Const
   (A:129;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
   (A:129;Name:'M_VALUE';Typ:'number';Desc:'M value';Def:'0'),
   (A:129;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer';Def:''),
-  (A:130;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
-  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:130;Name:'LAYERS';Typ:'vector';Desc:'Input layers separated by ;';Def:''),
+  (A:130;Name:'OUTPUT';Typ:'fileDestination';Desc:'Destination GeoPackage';Def:''),
+  (A:130;Name:'OVERWRITE';Typ:'boolean';Desc:'Overwrite an existing GeoPackage';Def:'false'),
+  (A:130;Name:'SAVE_STYLES';Typ:'boolean';Desc:'Save layer styles (ignored)';Def:'false'),
+  (A:130;Name:'SAVE_METADATA';Typ:'boolean';Desc:'Save layer metadata (ignored)';Def:'false'),
+  (A:130;Name:'SELECTED_FEATURES_ONLY';Typ:'boolean';Desc:'Save only selected features (ignored)';Def:'false'),
   (A:131;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
   (A:131;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
   (A:132;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
@@ -1630,7 +1634,8 @@ Const
   (A:127;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:128;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:129;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
-  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:130;Name:'OUTPUT';Typ:'fileDestination';Desc:'Destination GeoPackage'),
+  (A:130;Name:'OUTPUT_LAYERS';Typ:'string';Desc:'Layers written'),
   (A:131;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:132;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:133;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
@@ -12697,11 +12702,15 @@ Begin
  End;
 End;
 
-Procedure SaveGpkg(FileName,LName:String;Root:PJ);
+Type
+ TGpNames=Array[1..32]of String[60];
+ TGpRoots=Array[1..32]of PJ;
+
+Procedure SaveGpkgN(FileName:String;NL:Integer;Var LNames:TGpNames;Var Roots:TGpRoots);
 Const
  MaxCols=300;
 Var
- Feats,F,Pr,C,V:PJ;
+ Feats,F,Pr,C,V,Root:PJ;
  Cols:Array[1..MaxCols]of String[60];
  ColTyp:Array[1..MaxCols]of Byte;  { 1 entier, 2 reel, 3 texte, 4 booleen }
  NC,J:Integer;
@@ -12723,12 +12732,18 @@ Var
  Fmt:String;
  Ids:PLongs;
  Sr:Real;
- Rid:Array[1..4]of LongInt;
- Wkt1,Wkt2:String;
  MRows:Integer;
- MOff,MLen:Array[1..8]of LongInt;
+ MOff,MLen:Array[1..200]of LongInt;
  CE,Sz:LongInt;
  CTmp:TCrs;
+ Li:Integer;
+ LTbl:TGpNames;
+ LGT:Array[1..32]of String[24];
+ LCrs,LNF,LRoot:Array[1..32]of LongInt;
+ LHave,LZ,LM:Array[1..32]of Boolean;
+ LX1,LY1,LX2,LY2:Array[1..32]of Real;
+ LSql:Array[1..32]of TBuf;
+ LName:String;
 
  Function TwoD(V:Integer):String;
  Var S:String;
@@ -12740,6 +12755,7 @@ Var
 
  Procedure MasterRow(Typ,Name,TblName:String;RootPg:LongInt;Var SqlB:TBuf);
  Begin
+  If MRows>=200Then Fail('Error: GeoPackage schema too large');
   WrClear;
   WrText(Typ);WrText(Name);WrText(TblName);WrInt(RootPg);WrTextBuf(SqlB);
   MOff[MRows+1]:=Master.N;
@@ -12754,6 +12770,13 @@ Var
  End;
 
 Begin
+ If(NL<1)or(NL>32)Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+ If NL>1Then SqPS:=16384 Else SqPS:=4096;
+ BufInit(SqB);
+ SqNewPage;                       { page 1 : sqlite_master }
+ For Li:=1 to NL do Begin
+ Root:=Roots[Li];
+ LName:=LNames[Li];
  Feats:=JFind(Root,'features');
  Tbl:=LName;
  If Tbl=''Then Tbl:=BaseNoExt(FileName);
@@ -12872,6 +12895,7 @@ Begin
   Inc(K);
   F:=F^.Next;
  End;
+
  { type de geometrie }
  If Not AnyGeom Or Mixed Then GT:='GEOMETRY' Else
  Case ClsAll of
@@ -12880,27 +12904,55 @@ Begin
   2:If MultiAny Then GT:='MULTILINESTRING' Else GT:='LINESTRING';
   Else If MultiAny Then GT:='MULTIPOLYGON' Else GT:='POLYGON';
  End;
- { fichier }
- SqPS:=4096;
- BufInit(SqB);
- SqNewPage;                       { page 1 : sqlite_master }
+ { table des entites }
  RootF:=SqBuildTable(Recs,RowOff,RowLen,Nil,NF);
+ LTbl[Li]:=Tbl;LGT[Li]:=GT;LCrs[Li]:=Crs;LNF[Li]:=NF;LRoot[Li]:=RootF;
+ LHave[Li]:=Have;LZ[Li]:=ZAny;LM[Li]:=MAny;LX1[Li]:=X1;LY1[Li]:=Y1;LX2[Li]:=X2;LY2[Li]:=Y2;
+ BufInit(LSql[Li]);
+ BufText(LSql[Li],'CREATE TABLE "'+Tbl+'" (fid INTEGER PRIMARY KEY AUTOINCREMENT, geom '+GT);
+ For J:=1 to NC do Begin
+  Nm:=Cols[J];
+  For I:=1 to Length(Nm)do If Nm[I]='"'Then Nm[I]:='_';
+  BufText(LSql[Li],', "'+Nm+'" ');
+  Case ColTyp[J]of
+   1:BufText(LSql[Li],'INTEGER');
+   2:BufText(LSql[Li],'REAL');
+   4:BufText(LSql[Li],'BOOLEAN');
+   Else BufText(LSql[Li],'TEXT');
+  End;
+ End;
+ BufText(LSql[Li],')');
+ End;
  { sqlite_sequence }
  Recs.N:=0;
- WrClear;WrText(Tbl);WrInt(NF);
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootSeq:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
- { gpkg_spatial_ref_sys }
+ BufInit(Recs);BufInit(WBody);BufInit(Tmp);
+ RowOff:=AllocBlock((NL+8)*SizeOf(LongInt));
+ RowLen:=AllocBlock((NL+8)*SizeOf(LongInt));
+ For Li:=1 to NL do Begin
+  WrClear;WrText(LTbl[Li]);WrInt(LNF[Li]);
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootSeq:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
+ { gpkg_spatial_ref_sys : SCR indefinis, WGS 84 et SCR des couches (identifiants croissants) }
  Recs.N:=0;
- Ids:=AllocBlock(6*SizeOf(LongInt));
+ Ids:=AllocBlock((NL+8)*SizeOf(LongInt));
  Ids^[0]:=-1;Ids^[1]:=0;Ids^[2]:=4326;
  MRows:=3;
- If(Crs>0)and(Crs<>4326)Then Begin Ids^[3]:=Crs;MRows:=4;End;
- If(MRows=4)and(Ids^[3]<4326)Then Begin
-  Ids^[3]:=4326;Ids^[2]:=Crs;
+ For Li:=1 to NL do
+  If(LCrs[Li]>0)and(LCrs[Li]<>4326)Then Begin
+   Found:=False;
+   For J:=0 to MRows-1do If Ids^[J]=LCrs[Li]Then Found:=True;
+   If Not Found Then Begin Ids^[MRows]:=LCrs[Li];Inc(MRows);End;
+  End;
+ For I:=1 to MRows-1do Begin
+  K:=Ids^[I];J:=I-1;
+  While(J>=0)and(Ids^[J]>K)do Begin Ids^[J+1]:=Ids^[J];Dec(J);End;
+  Ids^[J+1]:=K;
  End;
+ RowOff:=AllocBlock((MRows+NL+8)*SizeOf(LongInt));
+ RowLen:=AllocBlock((MRows+NL+8)*SizeOf(LongInt));
  For J:=0 to MRows-1do Begin
   WrClear;
   Tmp.N:=0;
@@ -12944,25 +12996,30 @@ Begin
  Recs.N:=0;
  GetDate(Y,Mo,D,Dw);GetTime(H,Mi,S,S100);
  Fmt:=IntToStr(Y)+'-'+TwoD(Mo)+'-'+TwoD(D)+'T'+TwoD(H)+':'+TwoD(Mi)+':'+TwoD(S)+'.000Z';
- WrClear;
- WrText(Tbl);WrText('features');WrText(Tbl);WrText('');WrText(Fmt);
- If Have Then Begin WrReal(X1);WrReal(Y1);WrReal(X2);WrReal(Y2);End
-         Else Begin WrNull;WrNull;WrNull;WrNull;End;
- WrInt(Crs);
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootCont:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ For Li:=1 to NL do Begin
+  WrClear;
+  WrText(LTbl[Li]);WrText('features');WrText(LTbl[Li]);WrText('');WrText(Fmt);
+  If LHave[Li]Then Begin WrReal(LX1[Li]);WrReal(LY1[Li]);WrReal(LX2[Li]);WrReal(LY2[Li]);End
+              Else Begin WrNull;WrNull;WrNull;WrNull;End;
+  WrInt(LCrs[Li]);
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootCont:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
  { gpkg_geometry_columns }
  Recs.N:=0;
- WrClear;
- WrText(Tbl);WrText('geom');WrText(GT);WrInt(Crs);WrInt(Ord(ZAny));WrInt(Ord(MAny));
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootGc:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ For Li:=1 to NL do Begin
+  WrClear;
+  WrText(LTbl[Li]);WrText('geom');WrText(LGT[Li]);WrInt(LCrs[Li]);WrInt(Ord(LZ[Li]));WrInt(Ord(LM[Li]));
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootGc:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
  { sqlite_master }
  BufInit(Master);
+ BufInit(Sql);
  MRows:=0;
  Fmt:='CREATE TABLE gpkg_spatial_ref_sys (srs_name TEXT NOT NULL, srs_id INTEGER NOT NULL PRIMARY KEY, organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL, definition TEXT NOT NULL, description TEXT)';
  SqlSet(Fmt);
@@ -12972,21 +13029,7 @@ Begin
  MasterRow('table','gpkg_contents','gpkg_contents',RootCont,Sql);
  SqlSet('CREATE TABLE gpkg_geometry_columns (table_name TEXT NOT NULL, column_name TEXT NOT NULL, geometry_type_name TEXT NOT NULL, srs_id INTEGER NOT NULL, z TINYINT NOT NULL, m TINYINT NOT NULL)');
  MasterRow('table','gpkg_geometry_columns','gpkg_geometry_columns',RootGc,Sql);
- Sql.N:=0;
- BufText(Sql,'CREATE TABLE "'+Tbl+'" (fid INTEGER PRIMARY KEY AUTOINCREMENT, geom '+GT);
- For J:=1 to NC do Begin
-  Nm:=Cols[J];
-  For I:=1 to Length(Nm)do If Nm[I]='"'Then Nm[I]:='_';
-  BufText(Sql,', "'+Nm+'" ');
-  Case ColTyp[J]of
-   1:BufText(Sql,'INTEGER');
-   2:BufText(Sql,'REAL');
-   4:BufText(Sql,'BOOLEAN');
-   Else BufText(Sql,'TEXT');
-  End;
- End;
- BufText(Sql,')');
- MasterRow('table',Tbl,Tbl,RootF,Sql);
+ For Li:=1 to NL do MasterRow('table',LTbl[Li],LTbl[Li],LRoot[Li],LSql[Li]);
  SqlSet('CREATE TABLE sqlite_sequence(name,seq)');
  MasterRow('table','sqlite_sequence','sqlite_sequence',RootSeq,Sql);
  { page 1 : feuille de sqlite_master }
@@ -13022,6 +13065,54 @@ Begin
  PutBE32(92,1);
  PutBE32(96,3045000);
  BufSave(FileName,SqB);
+End;
+
+
+{ Ajoute ou remplace une couche dans un GeoPackage existant }
+Procedure SaveGpkgAppend(FileName,LName:String;Root:PJ);
+Var
+ Nm:TGpNames;
+ Rt:TGpRoots;
+ Names:Array[1..32]of String[60];
+ N,I,K,Cn:Integer;
+ Typs:Array[1..32]of String[24];
+Begin
+ Rt[1]:=Nil;
+ LoadGpkg(FileName,'');
+ Cn:=ContN;
+ For I:=1 to Cn do Begin
+  If I>32Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+  Names[I]:=Cont[I].Tbl;Typs[I]:=Cont[I].Typ;
+ End;
+ N:=0;
+ For I:=1 to Cn do
+  If(Typs[I]='features')or(Typs[I]='attributes')Then Begin
+   If LowerStr(Names[I])=LowerStr(LName)Then Begin
+    Inc(N);Nm[N]:=LName;Rt[N]:=Root;
+   End
+    Else
+   Begin
+    Inc(N);Nm[N]:=Names[I];Rt[N]:=LoadGpkg(FileName,Names[I]);
+   End;
+  End;
+ K:=0;
+ For I:=1 to N do If LowerStr(Nm[I])=LowerStr(LName)Then K:=I;
+ If K=0Then Begin
+  If N>=32Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+  Inc(N);Nm[N]:=LName;Rt[N]:=Root;
+ End;
+ SaveGpkgN(FileName,N,Nm,Rt);
+End;
+
+{ Une seule couche }
+Procedure SaveGpkg(FileName,LName:String;Root:PJ);
+Var
+ Nm:TGpNames;
+ Rt:TGpRoots;
+Begin
+ Nm[1]:=LName;
+ Rt[1]:=Root;
+ SaveGpkgN(FileName,1,Nm,Rt);
 End;
 
 { ---- fichiers de projet QGIS (.qgs / .qgz) : nom de couche -> source ---- }
@@ -13291,7 +13382,10 @@ Begin
  If(Ext='.GML')or(Ext='.XML')Then SaveGml(Path,Root) Else
  If Ext='.KML'Then SaveKml(Path,Root,False) Else
  If Ext='.KMZ'Then SaveKml(Path,Root,True) Else
- If Ext='.GPKG'Then SaveGpkg(Path,LName,Root)
+ If Ext='.GPKG'Then Begin
+  If(LName<>'')and FileExists(Path)Then SaveGpkgAppend(Path,LName,Root)
+                                  Else SaveGpkg(Path,LName,Root);
+ End
   Else
  Fail('Error: unsupported output vector format "'+Ext+'" (use .geojson, .shp, .gpkg, .csv, .gml, .kml or .kmz)');
 End;
@@ -29749,6 +29843,47 @@ Begin
 End;
 
 
+{ native:package : plusieurs couches dans un GeoPackage }
+Procedure RunPackage(A:Integer);
+Var
+ Out,L,Joined:String;
+ Nm:TGpNames;
+ Rt:TGpRoots;
+ N,K,I:Integer;
+ Path,LName,Subset:String;
+ Dup:Boolean;
+Begin
+ Out:=NeedStr(A,'OUTPUT');
+ If FileExt(Out)<>'.GPKG'Then Fail('Error: OUTPUT must be a .gpkg file');
+ If FileExists(Out)and Not NeedBool(A,'OVERWRITE')Then Fail('Error: '+Out+' already exists (use OVERWRITE=true)');
+ SplitList(NeedStr(A,'LAYERS'),';');
+ N:=0;
+ Joined:='';
+ For K:=1 to ListCount do Begin
+  If N>=32Then Fail('Error: at most 32 layers can be packaged');
+  L:=ListItems[K];
+  ParseUri(L,Path,LName,Subset);
+  If LName=''Then LName:=BaseNoExt(Path);
+  { noms uniques }
+  Dup:=True;
+  I:=1;
+  While Dup do Begin
+   Dup:=False;
+   For I:=1 to N do If LowerStr(Nm[I])=LowerStr(LName)Then Dup:=True;
+   If Dup Then LName:=LName+'_'+IntToStr(K);
+  End;
+  Inc(N);
+  Nm[N]:=LName;
+  Rt[N]:=LoadLayer(L);
+  If Joined<>''Then Joined:=Joined+';';
+  If Length(Joined)+Length(LName)<250Then Joined:=Joined+LName;
+ End;
+ If N<1Then Fail('Error: LAYERS is empty');
+ SaveGpkgN(Out,N,Nm,Rt);
+ AddRes('OUTPUT',Out);
+ AddRes('OUTPUT_LAYERS',Joined);
+End;
+
 Procedure RunUnsupported(A:Integer);Begin
  Fail('Error: '+Algos[A].Id+' is not supported by this clone ('+Algos[A].Descr+')');
 End;
@@ -30034,7 +30169,7 @@ Begin
   127:RunUnsupported(A);
   128:RunZValues(A,4);
   129:RunZValues(A,3);
-  130:RunUnsupported(A);
+  130:RunPackage(A);
   131:RunUnsupported(A);
   132:RunUnsupported(A);
   133:RunUnsupported(A);
