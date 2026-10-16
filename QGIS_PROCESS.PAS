@@ -38,9 +38,9 @@ Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=169;
- MaxParam=734;
- MaxOut=232;
+ MaxAlgo=188;
+ MaxParam=830;
+ MaxOut=273;
  MaxArg=30;
  MaxCells=40000000;
 
@@ -573,7 +573,64 @@ Const
    Descr:'Computes the (weighted) mean coordinates of the features, by group.'),
   (Id:'qgis:idwinterpolation';Title:'IDW interpolation';
    Group:'Interpolation';
-   Descr:'Inverse distance weighted interpolation of point values.')
+   Descr:'Inverse distance weighted interpolation of point values.'),
+  (Id:'native:randompointsinextent';Title:'Random points in extent';
+   Group:'Vector creation';
+   Descr:'Creates random points inside an extent.'),
+  (Id:'native:randompointsinpolygons';Title:'Random points in polygons';
+   Group:'Vector creation';
+   Descr:'Creates random points inside each polygon.'),
+  (Id:'native:randompointsonlines';Title:'Random points on lines';
+   Group:'Vector creation';
+   Descr:'Creates random points along each line.'),
+  (Id:'native:regularpoints';Title:'Create regular points';
+   Group:'Vector creation';
+   Descr:'Creates a regular grid of points inside an extent.'),
+  (Id:'native:rectanglesovalsdiamonds';Title:'Rectangles, ovals, diamonds';
+   Group:'Vector geometry';
+   Descr:'Creates shapes centred on the features.'),
+  (Id:'native:polygonfromlayerextent';Title:'Extent from layer';
+   Group:'Vector general';
+   Descr:'Creates the extent polygon of a layer.'),
+  (Id:'native:boundingboxes';Title:'Bounding boxes';
+   Group:'Vector geometry';
+   Descr:'Creates the bounding box of each feature.'),
+  (Id:'native:randomextract';Title:'Random extract';
+   Group:'Vector selection';
+   Descr:'Extracts a random sample of the features.'),
+  (Id:'native:rastersampling';Title:'Sample raster values';
+   Group:'Raster analysis';
+   Descr:'Adds the raster values at the points as fields.'),
+  (Id:'qgis:tininterpolation';Title:'TIN interpolation';
+   Group:'Interpolation';
+   Descr:'Linear triangulated irregular network interpolation.'),
+  (Id:'qgis:minimumboundinggeometry';Title:'Minimum bounding geometry';
+   Group:'Vector general';
+   Descr:'Envelope, oriented rectangle, circle or hull of the features, by group.'),
+  (Id:'qgis:distancematrix';Title:'Distance matrix';
+   Group:'Vector analysis';
+   Descr:'Distances between the points of two layers.'),
+  (Id:'qgis:basicstatisticsforfields';Title:'Basic statistics for fields';
+   Group:'Vector analysis';
+   Descr:'Statistics of one numeric or text field.'),
+  (Id:'qgis:statisticsbycategories';Title:'Statistics by categories';
+   Group:'Vector analysis';
+   Descr:'Statistics of a numeric field for each category.'),
+  (Id:'qgis:listuniquevalues';Title:'List unique values';
+   Group:'Vector analysis';
+   Descr:'Lists the unique values of a field.'),
+  (Id:'qgis:meancoordinates';Title:'Mean coordinate(s)';
+   Group:'Vector analysis';
+   Descr:'Computes the (weighted) mean coordinates of the features, by group.'),
+  (Id:'qgis:randomextract';Title:'Random extract';
+   Group:'Vector selection';
+   Descr:'Extracts a random sample of the features.'),
+  (Id:'qgis:regularpoints';Title:'Regular points';
+   Group:'Vector creation';
+   Descr:'Creates a regular grid of points inside an extent.'),
+  (Id:'qgis:polygonfromlayerextent';Title:'Polygon from layer extent';
+   Group:'Vector general';
+   Descr:'Creates the extent polygon of a layer.')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -1311,6 +1368,103 @@ Const
   (A:169;Name:'EXTENT';Typ:'string';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
   (A:169;Name:'PIXEL_SIZE';Typ:'number';Desc:'Output raster size';Def:'1'),
   (A:169;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated';Def:'')
+,
+  (A:170;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:170;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points';Def:'1'),
+  (A:170;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:170;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS';Def:'*'),
+  (A:170;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:170;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:171;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:171;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points per feature';Def:'1'),
+  (A:171;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:171;Name:'MIN_DISTANCE_GLOBAL';Typ:'number';Desc:'Global minimum distance';Def:'0'),
+  (A:171;Name:'MAX_TRIES_PER_POINT';Typ:'number';Desc:'Maximum tries per point';Def:'10'),
+  (A:171;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:171;Name:'INCLUDE_POLYGON_ATTRIBUTES';Typ:'boolean';Desc:'Include attributes';Def:'true'),
+  (A:171;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:172;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:172;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points per feature';Def:'1'),
+  (A:172;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:172;Name:'MIN_DISTANCE_GLOBAL';Typ:'number';Desc:'Global minimum distance';Def:'0'),
+  (A:172;Name:'MAX_TRIES_PER_POINT';Typ:'number';Desc:'Maximum tries per point';Def:'10'),
+  (A:172;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:172;Name:'INCLUDE_LINE_ATTRIBUTES';Typ:'boolean';Desc:'Include attributes';Def:'true'),
+  (A:172;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:173;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:173;Name:'SPACING';Typ:'number';Desc:'Point spacing or count';Def:'100'),
+  (A:173;Name:'INSET';Typ:'number';Desc:'Initial inset from corner';Def:'0'),
+  (A:173;Name:'RANDOMIZE';Typ:'boolean';Desc:'Randomize points';Def:'false'),
+  (A:173;Name:'IS_SPACING';Typ:'boolean';Desc:'Use point spacing (else count)';Def:'true'),
+  (A:173;Name:'CRS';Typ:'crs';Desc:'Output CRS';Def:'*'),
+  (A:173;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points';Def:''),
+  (A:174;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:174;Name:'SHAPE';Typ:'enum';Desc:'0 rectangles, 1 diamonds, 2 ovals';Def:'0'),
+  (A:174;Name:'WIDTH';Typ:'number';Desc:'Width';Def:'1'),
+  (A:174;Name:'HEIGHT';Typ:'number';Desc:'Height';Def:'1'),
+  (A:174;Name:'ROTATION';Typ:'number';Desc:'Rotation (degrees)';Def:'0'),
+  (A:174;Name:'SEGMENTS';Typ:'number';Desc:'Segments for ovals';Def:'36'),
+  (A:174;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Shapes';Def:''),
+  (A:175;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:175;Name:'ROUND_TO';Typ:'number';Desc:'Round values to';Def:'0'),
+  (A:175;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent';Def:''),
+  (A:176;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:176;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding boxes';Def:''),
+  (A:177;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:177;Name:'METHOD';Typ:'enum';Desc:'0 number of features, 1 percentage';Def:'0'),
+  (A:177;Name:'NUMBER';Typ:'number';Desc:'Number or percentage';Def:'10'),
+  (A:177;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:177;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)';Def:''),
+  (A:178;Name:'INPUT';Typ:'vector';Desc:'Input points';Def:''),
+  (A:178;Name:'RASTERCOPY';Typ:'raster';Desc:'Raster layer';Def:''),
+  (A:178;Name:'BAND';Typ:'number';Desc:'Band number (1 = first band)';Def:'1'),
+  (A:178;Name:'COLUMN_PREFIX';Typ:'string';Desc:'Output column prefix';Def:'rvalue'),
+  (A:178;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Sampled';Def:''),
+  (A:179;Name:'INTERPOLATION_DATA';Typ:'string';Desc:'Layer::~::0::~::attribute index::~::0';Def:''),
+  (A:179;Name:'METHOD';Typ:'enum';Desc:'0 linear (only method supported)';Def:'0'),
+  (A:179;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
+  (A:179;Name:'PIXEL_SIZE';Typ:'number';Desc:'Output raster size';Def:'1'),
+  (A:179;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated';Def:''),
+  (A:180;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:180;Name:'FIELD';Typ:'string';Desc:'Group field';Def:'*'),
+  (A:180;Name:'TYPE';Typ:'enum';Desc:'0 envelope, 1 oriented rectangle, 2 circle, 3 convex hull';Def:'0'),
+  (A:180;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding geometry';Def:''),
+  (A:181;Name:'INPUT';Typ:'vector';Desc:'Input points';Def:''),
+  (A:181;Name:'INPUT_FIELD';Typ:'string';Desc:'Input unique ID field';Def:'*'),
+  (A:181;Name:'TARGET';Typ:'vector';Desc:'Target points';Def:'*'),
+  (A:181;Name:'TARGET_FIELD';Typ:'string';Desc:'Target unique ID field';Def:'*'),
+  (A:181;Name:'MATRIX_TYPE';Typ:'enum';Desc:'0 linear, 1 standard, 2 summary';Def:'0'),
+  (A:181;Name:'NEAREST_POINTS';Typ:'number';Desc:'Use only the k nearest points (0 = all)';Def:'0'),
+  (A:181;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Distance matrix';Def:''),
+  (A:182;Name:'INPUT_LAYER';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:182;Name:'FIELD_NAME';Typ:'string';Desc:'Field to calculate statistics on';Def:''),
+  (A:182;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Statistics (HTML)';Def:'*'),
+  (A:183;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:183;Name:'VALUES_FIELD_NAME';Typ:'string';Desc:'Field to calculate statistics on';Def:'*'),
+  (A:183;Name:'CATEGORIES_FIELD_NAME';Typ:'string';Desc:'Category fields separated by commas';Def:''),
+  (A:183;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Statistics by category';Def:''),
+  (A:184;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:184;Name:'FIELDS';Typ:'string';Desc:'Field';Def:''),
+  (A:184;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'HTML report';Def:'*'),
+  (A:185;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:185;Name:'WEIGHT';Typ:'string';Desc:'Weight field';Def:'*'),
+  (A:185;Name:'UID';Typ:'string';Desc:'Unique ID field';Def:'*'),
+  (A:185;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates';Def:''),
+  (A:186;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:186;Name:'METHOD';Typ:'enum';Desc:'0 number of features, 1 percentage';Def:'0'),
+  (A:186;Name:'NUMBER';Typ:'number';Desc:'Number or percentage';Def:'10'),
+  (A:186;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:186;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)';Def:''),
+  (A:187;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:187;Name:'SPACING';Typ:'number';Desc:'Point spacing or count';Def:'100'),
+  (A:187;Name:'INSET';Typ:'number';Desc:'Initial inset from corner';Def:'0'),
+  (A:187;Name:'RANDOMIZE';Typ:'boolean';Desc:'Randomize points';Def:'false'),
+  (A:187;Name:'IS_SPACING';Typ:'boolean';Desc:'Use point spacing (else count)';Def:'true'),
+  (A:187;Name:'CRS';Typ:'crs';Desc:'Output CRS';Def:'*'),
+  (A:187;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points';Def:''),
+  (A:188;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:188;Name:'ROUND_TO';Typ:'number';Desc:'Round values to';Def:'0'),
+  (A:188;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -1546,6 +1700,48 @@ Const
   (A:167;Name:'UNIQUE_VALUES';Typ:'number';Desc:'Unique values'),
   (A:168;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates'),
   (A:169;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated')
+,
+  (A:170;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:171;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:172;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:173;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points'),
+  (A:174;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Shapes'),
+  (A:175;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent'),
+  (A:176;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding boxes'),
+  (A:177;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)'),
+  (A:178;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Sampled'),
+  (A:179;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated'),
+  (A:180;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding geometry'),
+  (A:181;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Distance matrix'),
+  (A:182;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Statistics'),
+  (A:182;Name:'COUNT';Typ:'number';Desc:'Count'),
+  (A:182;Name:'UNIQUE';Typ:'number';Desc:'Unique values'),
+  (A:182;Name:'EMPTY';Typ:'number';Desc:'Empty values'),
+  (A:182;Name:'FILLED';Typ:'number';Desc:'Filled values'),
+  (A:182;Name:'MIN';Typ:'number';Desc:'Minimum'),
+  (A:182;Name:'MAX';Typ:'number';Desc:'Maximum'),
+  (A:182;Name:'RANGE';Typ:'number';Desc:'Range'),
+  (A:182;Name:'SUM';Typ:'number';Desc:'Sum'),
+  (A:182;Name:'MEAN';Typ:'number';Desc:'Mean'),
+  (A:182;Name:'MEDIAN';Typ:'number';Desc:'Median'),
+  (A:182;Name:'STD_DEV';Typ:'number';Desc:'Standard deviation'),
+  (A:182;Name:'CV';Typ:'number';Desc:'Coefficient of variation'),
+  (A:182;Name:'MINORITY';Typ:'number';Desc:'Minority'),
+  (A:182;Name:'MAJORITY';Typ:'number';Desc:'Majority'),
+  (A:182;Name:'FIRSTQUARTILE';Typ:'number';Desc:'First quartile'),
+  (A:182;Name:'THIRDQUARTILE';Typ:'number';Desc:'Third quartile'),
+  (A:182;Name:'IQR';Typ:'number';Desc:'Interquartile range'),
+  (A:182;Name:'MIN_LENGTH';Typ:'number';Desc:'Minimum length'),
+  (A:182;Name:'MAX_LENGTH';Typ:'number';Desc:'Maximum length'),
+  (A:182;Name:'MEAN_LENGTH';Typ:'number';Desc:'Mean length'),
+  (A:183;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Statistics by category'),
+  (A:184;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'HTML report'),
+  (A:184;Name:'TOTAL_VALUES';Typ:'number';Desc:'Total values'),
+  (A:184;Name:'UNIQUE_VALUES';Typ:'number';Desc:'Unique values'),
+  (A:185;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates'),
+  (A:186;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)'),
+  (A:187;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points'),
+  (A:188;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent')
  );
 
 Type
@@ -27906,11 +28102,14 @@ Begin
   Rewrite(T);
   {$I+}
   If IOResult<>0Then Fail('Error: cannot write '+Out);
-  WriteLn(T,'<html><head><meta charset="utf-8"></head><body>');
-  WriteLn(T,'<p>Analyzed field: ',XmlEsc(Fld),'</p>');
+  WriteLn(T,'<!DOCTYPE html><html><head><meta charset="utf-8"><title>Basic statistics</title>');
+  WriteLn(T,'<style>body{font-family:sans-serif}table{border-collapse:collapse}td,th{border:1px solid #999;padding:3px 8px;text-align:left}th{background:#eee}</style></head><body>');
+  WriteLn(T,'<h1>Analyzed layer: ',XmlEsc(NeedStr(A,'INPUT_LAYER')),'</h1>');
+  WriteLn(T,'<h2>Analyzed field: ',XmlEsc(Fld),'</h2>');
+  WriteLn(T,'<table><tr><th>Statistic</th><th>Value</th></tr>');
   For I:=1 to ResCount do
-   If(ResName[I]<>'OUTPUT_HTML_FILE')Then WriteLn(T,'<p>',ResName[I],': ',XmlEsc(ResVal[I]),'</p>');
-  WriteLn(T,'</body></html>');
+   If(ResName[I]<>'OUTPUT_HTML_FILE')Then WriteLn(T,'<tr><td>',ResName[I],'</td><td>',XmlEsc(ResVal[I]),'</td></tr>');
+  WriteLn(T,'</table></body></html>');
   Close(T);
   AddRes('OUTPUT_HTML_FILE',Out);
  End;
@@ -28031,8 +28230,10 @@ Begin
   Rewrite(T);
   {$I+}
   If IOResult<>0Then Fail('Error: cannot write '+Out);
-  WriteLn(T,'<html><head><meta charset="utf-8"></head><body>');
-  WriteLn(T,'<p>Total unique values: ',Ns,'</p><p>Unique values: ',XmlEsc(Joined),'</p>');
+  WriteLn(T,'<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unique values</title>');
+  WriteLn(T,'<style>body{font-family:sans-serif}</style></head><body>');
+  WriteLn(T,'<h1>Analyzed layer: ',XmlEsc(NeedStr(A,'INPUT')),'</h1><h2>Field: ',XmlEsc(Fld),'</h2>');
+  WriteLn(T,'<p>Total values: ',Total,'</p><p>Total unique values: ',Ns,'</p><p>Unique values: ',XmlEsc(Joined),'</p>');
   WriteLn(T,'</body></html>');
   Close(T);
   AddRes('OUTPUT_HTML_FILE',Out);
@@ -28194,6 +28395,683 @@ Begin
  RunExtractVertices(A);
  VertFilter:=False;
 End;
+
+{ ------------------------------------------------------------------ }
+{ Couverture 2 : points aleatoires et reguliers, formes, TIN, matrice  }
+{ ------------------------------------------------------------------ }
+
+Var
+ RpX,RpY:PReals;
+ RpN,RpCap:LongInt;
+
+Procedure RpReset;Begin
+ RpN:=0;
+End;
+
+Procedure RpAdd(X,Y:Real);
+Var
+ Q:PReals;
+Begin
+ If RpX=Nil Then Begin RpCap:=256;RpX:=AllocBlock(RpCap*SizeOf(Real));RpY:=AllocBlock(RpCap*SizeOf(Real));End;
+ If RpN>=RpCap Then Begin
+  Q:=AllocBlock(RpCap*2*SizeOf(Real));Move(RpX^,Q^,RpN*SizeOf(Real));FreeMem(RpX,RpCap*SizeOf(Real));RpX:=Q;
+  Q:=AllocBlock(RpCap*2*SizeOf(Real));Move(RpY^,Q^,RpN*SizeOf(Real));FreeMem(RpY,RpCap*SizeOf(Real));RpY:=Q;
+  RpCap:=RpCap*2;
+ End;
+ RpX^[RpN]:=X;RpY^[RpN]:=Y;Inc(RpN);
+End;
+
+Function RpFar(X,Y,Md:Real;From:LongInt):Boolean;
+Var
+ I:LongInt;
+Begin
+ RpFar:=True;
+ If Md<=0Then Exit;
+ For I:=From to RpN-1do
+  If Sqr(RpX^[I]-X)+Sqr(RpY^[I]-Y)<Md*Md Then Begin RpFar:=False;Exit;End;
+End;
+
+Procedure RunRandomPointsExtent(A:Integer);
+Var
+ Out,OutArr,Nf:PJ;
+ X1,X2,Y1,Y2,Md,X,Y:Real;
+ N,I,Tries:LongInt;
+ Epsg:LongInt;
+Begin
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ N:=Round(NeedReal(A,'POINTS_NUMBER'));
+ Md:=NeedReal(A,'MIN_DISTANCE');
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ Out:=NewLayerLike(Nil,OutArr);
+ If HasArg('TARGET_CRS')Then Begin Epsg:=ParseEpsg(NeedStr(A,'TARGET_CRS'),'TARGET_CRS');SetLayerCrs(Out,Epsg);End;
+ RpReset;
+ Tries:=0;
+ While(RpN<N)and(Tries<N*20+100)do Begin
+  Inc(Tries);
+  X:=X1+Random*(X2-X1);Y:=Y1+Random*(Y2-Y1);
+  If RpFar(X,Y,Md,0)Then RpAdd(X,Y);
+ End;
+ For I:=0 to RpN-1do Begin
+  Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])));
+  PutProp(Nf,'id',JNum(I+1));
+  JAdd(OutArr,Nf);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Mode 0 : dans les polygones, 1 : le long des lignes }
+Procedure RunRandomPointsIn(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G:TGeom;
+ P:PPath;
+ N,Mt,I,Tries,MaxT,Gl,Start,Total:LongInt;
+ Md,MdG,X,Y,X1,Y1,X2,Y2,Len,D,Acc,L,T:Real;
+ Attrs:Boolean;
+ Id:LongInt;
+ Ok:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ N:=Round(NeedReal(A,'POINTS_NUMBER'));
+ Md:=NeedReal(A,'MIN_DISTANCE');
+ MdG:=NeedReal(A,'MIN_DISTANCE_GLOBAL');
+ MaxT:=Round(NeedReal(A,'MAX_TRIES_PER_POINT'));
+ If MaxT<1Then MaxT:=10;
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ If Mode=0Then Attrs:=NeedBool(A,'INCLUDE_POLYGON_ATTRIBUTES') Else Attrs:=NeedBool(A,'INCLUDE_LINE_ATTRIBUTES');
+ Out:=NewLayerLike(Root,OutArr);
+ RpReset;Id:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If((Mode=0)and(G.Cls=3))or((Mode=1)and(G.Cls=2))Then Begin
+   Start:=RpN;
+   Tries:=0;
+   If Mode=0Then Begin
+    If GeomBBox(G,X1,Y1,X2,Y2)Then
+     While((RpN-Start)<N)and(Tries<N*MaxT)do Begin
+      Inc(Tries);
+      X:=X1+Random*(X2-X1);Y:=Y1+Random*(Y2-Y1);
+      If PtInPolys(G,X,Y,0)=1Then
+       If RpFar(X,Y,Md,Start)and RpFar(X,Y,MdG,0)Then RpAdd(X,Y);
+     End;
+   End
+    Else
+   Begin
+    Total:=0;Len:=0;
+    P:=G.First;
+    While P<>Nil do Begin
+     For I:=0 to P^.N-2do Len:=Len+Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+     P:=P^.Next;
+    End;
+    While((RpN-Start)<N)and(Tries<N*MaxT)and(Len>0)do Begin
+     Inc(Tries);
+     D:=Random*Len;
+     Acc:=0;Ok:=False;
+     P:=G.First;
+     While(P<>Nil)and Not Ok do Begin
+      For I:=0 to P^.N-2do Begin
+       L:=Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+       If(Not Ok)and(Acc+L>=D)Then Begin
+        If L>0Then T:=(D-Acc)/L Else T:=0;
+        X:=P^.Pts^[I].X+T*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+        Y:=P^.Pts^[I].Y+T*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+        Ok:=True;
+       End;
+       Acc:=Acc+L;
+      End;
+      P:=P^.Next;
+     End;
+     If Ok Then
+      If RpFar(X,Y,Md,Start)and RpFar(X,Y,MdG,0)Then RpAdd(X,Y);
+    End;
+   End;
+   For I:=Start to RpN-1do Begin
+    Inc(Id);
+    If Attrs Then Nf:=NewFeature(PropsClone(F),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])))
+             Else Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])));
+    PutProp(Nf,'rand_point_id',JNum(Id));
+    JAdd(OutArr,Nf);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRegularPoints(A:Integer);
+Var
+ Out,OutArr,Nf:PJ;
+ X1,X2,Y1,Y2,Sp,Inset,X,Y,Ox,Oy:Real;
+ Id:LongInt;
+ Rnd,IsSp:Boolean;
+ Epsg:LongInt;
+Begin
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Sp:=NeedReal(A,'SPACING');
+ Inset:=NeedReal(A,'INSET');
+ Rnd:=NeedBool(A,'RANDOMIZE');
+ IsSp:=NeedBool(A,'IS_SPACING');
+ If Sp<=0Then Fail('Error: SPACING must be greater than 0');
+ If Not IsSp Then Sp:=Sqrt((X2-X1)*(Y2-Y1)/Sp);
+ If Sp<=0Then Fail('Error: invalid spacing');
+ Out:=NewLayerLike(Nil,OutArr);
+ If HasArg('CRS')Then Begin Epsg:=ParseEpsg(NeedStr(A,'CRS'),'CRS');SetLayerCrs(Out,Epsg);End;
+ Id:=0;
+ X:=X1+Inset;
+ While X<=X2+1E-9*Sp do Begin
+  Y:=Y2-Inset;
+  While Y>=Y1-1E-9*Sp do Begin
+   Ox:=X;Oy:=Y;
+   If Rnd Then Begin Ox:=X+(Random-0.5)*Sp;Oy:=Y+(Random-0.5)*Sp;End;
+   If(Ox>=X1)and(Ox<=X2)and(Oy>=Y1)and(Oy<=Y2)Then Begin
+    Inc(Id);
+    Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(Ox,Oy)));
+    PutProp(Nf,'id',JNum(Id));
+    JAdd(OutArr,Nf);
+   End;
+   Y:=Y-Sp;
+  End;
+  X:=X+Sp;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRectanglesOvals(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr:PJ;
+ G,R:TGeom;
+ Shape,Seg,K:LongInt;
+ W,H,Rot,Cx,Cy,X,Y,Ca,Sa:Real;
+ Pa:PPath;
+ Ok:Boolean;
+ Cnt:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Shape:=Round(NeedReal(A,'SHAPE'));
+ W:=NeedReal(A,'WIDTH');H:=NeedReal(A,'HEIGHT');Rot:=NeedReal(A,'ROTATION');
+ Seg:=Round(NeedReal(A,'SEGMENTS'));
+ If Seg<4Then Seg:=4;
+ Ca:=Cos(Deg2Rad(Rot));Sa:=Sin(Deg2Rad(Rot));
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   CentroidGeom(G,Cx,Cy,Ok);
+   If Ok Then Begin
+    InitGeom(R);R.Cls:=3;R.NPoly:=1;
+    If Shape=2Then Cnt:=Seg Else Cnt:=4;
+    Pa:=NewPath(R,Cnt+1,0);
+    For K:=0 to Cnt-1do Begin
+     Case Shape of
+      0:Begin
+        Case K of 0:Begin X:=-W/2;Y:=-H/2;End;1:Begin X:=-W/2;Y:=H/2;End;2:Begin X:=W/2;Y:=H/2;End;Else Begin X:=W/2;Y:=-H/2;End;End;
+       End;
+      1:Begin
+        Case K of 0:Begin X:=0;Y:=-H/2;End;1:Begin X:=-W/2;Y:=0;End;2:Begin X:=0;Y:=H/2;End;Else Begin X:=W/2;Y:=0;End;End;
+       End;
+      Else Begin X:=W/2*Cos(2*Pi*K/Cnt);Y:=H/2*Sin(2*Pi*K/Cnt);End;
+     End;
+     Pa^.Pts^[K].X:=Cx+X*Ca-Y*Sa;
+     Pa^.Pts^[K].Y:=Cy+X*Sa+Y*Ca;
+    End;
+    Pa^.Pts^[Cnt]:=Pa^.Pts^[0];
+    OrientPolygons(R);
+    JAdd(OutArr,NewFeature(PropsClone(F),BuildPolygons(R)));
+    FreeGeom(R);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure BoxGeom(X1,Y1,X2,Y2:Real;Var R:TGeom);
+Var
+ Pa:PPath;
+Begin
+ InitGeom(R);R.Cls:=3;R.NPoly:=1;
+ Pa:=NewPath(R,5,0);
+ Pa^.Pts^[0].X:=X1;Pa^.Pts^[0].Y:=Y1;Pa^.Pts^[1].X:=X2;Pa^.Pts^[1].Y:=Y1;
+ Pa^.Pts^[2].X:=X2;Pa^.Pts^[2].Y:=Y2;Pa^.Pts^[3].X:=X1;Pa^.Pts^[3].Y:=Y2;
+ Pa^.Pts^[4]:=Pa^.Pts^[0];
+End;
+
+Procedure RunPolygonFromExtent(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,R:TGeom;
+ X1,Y1,X2,Y2,Rt,Ax,Ay,Bx,By:Real;
+ Have:Boolean;
+ P:PPath;
+ I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Rt:=NeedReal(A,'ROUND_TO');
+ Have:=False;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If GeomBBox(G,Ax,Ay,Bx,By)Then Begin
+   If Not Have Then Begin X1:=Ax;Y1:=Ay;X2:=Bx;Y2:=By;Have:=True;End
+    Else Begin If Ax<X1 Then X1:=Ax;If Ay<Y1 Then Y1:=Ay;If Bx>X2 Then X2:=Bx;If By>Y2 Then Y2:=By;End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ If Not Have Then Fail('Error: the layer has no geometry');
+ If Rt>0Then Begin
+  X1:=FloorL(X1/Rt)*Rt;Y1:=FloorL(Y1/Rt)*Rt;
+  X2:=CeilL(X2/Rt)*Rt;Y2:=CeilL(Y2/Rt)*Rt;
+ End;
+ Out:=NewLayerLike(Root,OutArr);
+ BoxGeom(X1,Y1,X2,Y2,R);
+ Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+ PutProp(Nf,'MINX',JNum(X1));PutProp(Nf,'MINY',JNum(Y1));PutProp(Nf,'MAXX',JNum(X2));PutProp(Nf,'MAXY',JNum(Y2));
+ PutProp(Nf,'CNTX',JNum((X1+X2)/2));PutProp(Nf,'CNTY',JNum((Y1+Y2)/2));
+ PutProp(Nf,'AREA',JNum((X2-X1)*(Y2-Y1)));PutProp(Nf,'PERIM',JNum(2*((X2-X1)+(Y2-Y1))));
+ PutProp(Nf,'HEIGHT',JNum(Y2-Y1));PutProp(Nf,'WIDTH',JNum(X2-X1));
+ JAdd(OutArr,Nf);
+ FreeGeom(R);
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunBoundingBoxes(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,R:TGeom;
+ X1,Y1,X2,Y2:Real;
+ Id:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NewLayerLike(Root,OutArr);
+ Id:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If GeomBBox(G,X1,Y1,X2,Y2)Then Begin
+   Inc(Id);
+   BoxGeom(X1,Y1,X2,Y2,R);
+   Nf:=NewFeature(PropsClone(F),BuildPolygons(R));
+   PutProp(Nf,'id',JNum(Id));PutProp(Nf,'width',JNum(X2-X1));PutProp(Nf,'height',JNum(Y2-Y1));
+   PutProp(Nf,'area',JNum((X2-X1)*(Y2-Y1)));PutProp(Nf,'perimeter',JNum(2*((X2-X1)+(Y2-Y1))));
+   JAdd(OutArr,Nf);
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRandomExtract(A:Integer);
+Var
+ Root,Arr,F,Nx,Out,OutArr:PJ;
+ FA:PJArr;
+ N,I,K,Want:LongInt;
+ Pick:PBools;
+ Idx:PLongs;
+ T:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ FA:=FeatureArray(Arr,N);
+ Want:=Round(NeedReal(A,'NUMBER'));
+ If Round(NeedReal(A,'METHOD'))=1Then Want:=Round(N*Want/100);
+ If Want>N Then Fail('Error: the number of features to extract exceeds the layer size');
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ Idx:=AllocBlock((N+1)*SizeOf(LongInt));
+ For I:=0 to N-1do Idx^[I]:=I;
+ For I:=N-1 downto 1do Begin
+  K:=Random(I+1);T:=Idx^[I];Idx^[I]:=Idx^[K];Idx^[K]:=T;
+ End;
+ Pick:=AllocBlock((N+1)*SizeOf(Boolean));
+ FillChar(Pick^,(N+1)*SizeOf(Boolean),0);
+ For I:=0 to Want-1do Pick^[Idx^[I]]:=True;
+ Out:=NewLayerLike(Root,OutArr);
+ For I:=0 to N-1do
+  If Pick^[I]Then JAdd(OutArr,NewFeature(PropsClone(FA^[I]),JClone(JFind(FA^[I],'geometry'))));
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Interpolation TIN lineaire }
+Procedure RunTin(A:Integer);
+Var
+ Spec,Path,Part,Fname,Out:String;
+ Root,Arr,F,V:PJ;
+ G:TGeom;
+ P:PPath;
+ R:TRaster;
+ Pos,Fld,K,N,Cnt,Cap,T,I,J,Nc,Nr,I0,I1,J0,J1:LongInt;
+ X1,X2,Y1,Y2,Cs,X,Y,Det,L1,L2,L3:Real;
+ Px,Py,Pv:PReals;
+ Ia,Ib,Ic:LongInt;
+ Dup:Boolean;
+ Ox,Oy,Ov:PReals;
+ M:LongInt;
+Begin
+ Spec:=NeedStr(A,'INTERPOLATION_DATA');
+ Pos:=System.Pos('::~::',Spec);
+ If Pos=0Then Path:=Spec Else Path:=Copy(Spec,1,Pos-1);
+ Fld:=0;
+ If Pos>0Then Begin
+  Part:=Copy(Spec,Pos+5,255);
+  Pos:=System.Pos('::~::',Part);Part:=Copy(Part,Pos+5,255);
+  Pos:=System.Pos('::~::',Part);
+  If Pos>0Then Part:=Copy(Part,1,Pos-1);
+  Val(Part,Fld,K);
+  If K<>0Then Fld:=0;
+ End;
+ If Round(NeedReal(A,'METHOD'))<>0Then Fail('Error: only the linear TIN method (METHOD=0) is supported');
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Cs:=NeedReal(A,'PIXEL_SIZE');
+ If Cs<=0Then Fail('Error: PIXEL_SIZE must be greater than 0');
+ Out:=NeedStr(A,'OUTPUT');
+ Root:=LoadLayer(Path);
+ Arr:=LayerFeatures(Root);
+ Fname:='';
+ F:=Arr^.First;
+ If F<>Nil Then Begin
+  V:=JFind(F,'properties');
+  If(V<>Nil)and(V^.Kind=5)Then Begin
+   V:=V^.First;K:=0;
+   While(V<>Nil)and(K<Fld)do Begin V:=V^.Next;Inc(K);End;
+   If V<>Nil Then Fname:=JKey(V);
+  End;
+ End;
+ If Fname=''Then Fail('Error: invalid attribute index in INTERPOLATION_DATA');
+ Cap:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin Inc(Cap);F:=F^.Next;End;
+ Px:=AllocBlock((Cap+1)*SizeOf(Real));Py:=AllocBlock((Cap+1)*SizeOf(Real));Pv:=AllocBlock((Cap+1)*SizeOf(Real));
+ Cnt:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  V:=GetProp(F,Fname);
+  If(G.Cls=1)and IsNumericNode(V)Then Begin
+   P:=G.First;
+   While P<>Nil do Begin Px^[Cnt]:=P^.Pts^[0].X;Py^[Cnt]:=P^.Pts^[0].Y;Pv^[Cnt]:=NumOfProp(V);Inc(Cnt);P:=P^.Next;End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ { doublons exclus }
+ Ox:=AllocBlock((Cnt+1)*SizeOf(Real));Oy:=AllocBlock((Cnt+1)*SizeOf(Real));Ov:=AllocBlock((Cnt+1)*SizeOf(Real));
+ M:=0;
+ For I:=0 to Cnt-1do Begin
+  Dup:=False;
+  For J:=0 to M-1do If(Ox^[J]=Px^[I])and(Oy^[J]=Py^[I])Then Begin Dup:=True;Break;End;
+  If Not Dup Then Begin Ox^[M]:=Px^[I];Oy^[M]:=Py^[I];Ov^[M]:=Pv^[I];Inc(M);End;
+ End;
+ If M<3Then Fail('Error: at least 3 distinct points are required');
+ Nc:=CeilL((X2-X1)/Cs);Nr:=CeilL((Y2-Y1)/Cs);
+ NewRaster(R,Nc,Nr,X1,Y2-Nr*Cs,Cs,-9999);
+ For I:=0 to Nc*Nr-1do R.Data^[I]:=-9999;
+ DelaunayInit(M);
+ For I:=0 to M-1do Begin DlX^[I]:=Ox^[I];DlY^[I]:=Oy^[I];End;
+ DelaunayRun;
+ For T:=0 to DlT-1do Begin
+  Ia:=DlA^[T];Ib:=DlB^[T];Ic:=DlC^[T];
+  Det:=(DlY^[Ib]-DlY^[Ic])*(DlX^[Ia]-DlX^[Ic])+(DlX^[Ic]-DlX^[Ib])*(DlY^[Ia]-DlY^[Ic]);
+  If Abs(Det)<1E-300Then Continue;
+  X:=MinR(DlX^[Ia],MinR(DlX^[Ib],DlX^[Ic]));
+  J0:=FloorL((X-X1)/Cs-0.5);
+  X:=MaxR(DlX^[Ia],MaxR(DlX^[Ib],DlX^[Ic]));
+  J1:=CeilL((X-X1)/Cs-0.5);
+  Y:=MaxR(DlY^[Ia],MaxR(DlY^[Ib],DlY^[Ic]));
+  I0:=FloorL((Y2-Y)/Cs-0.5);
+  Y:=MinR(DlY^[Ia],MinR(DlY^[Ib],DlY^[Ic]));
+  I1:=CeilL((Y2-Y)/Cs-0.5);
+  If J0<0Then J0:=0;If I0<0Then I0:=0;
+  If J1>=Nc Then J1:=Nc-1;If I1>=Nr Then I1:=Nr-1;
+  For I:=I0 to I1 do
+   For J:=J0 to J1 do Begin
+    X:=X1+(J+0.5)*Cs;Y:=Y2-(I+0.5)*Cs;
+    L1:=((DlY^[Ib]-DlY^[Ic])*(X-DlX^[Ic])+(DlX^[Ic]-DlX^[Ib])*(Y-DlY^[Ic]))/Det;
+    L2:=((DlY^[Ic]-DlY^[Ia])*(X-DlX^[Ic])+(DlX^[Ia]-DlX^[Ic])*(Y-DlY^[Ic]))/Det;
+    L3:=1-L1-L2;
+    If(L1>=-1E-12)and(L2>=-1E-12)and(L3>=-1E-12)Then
+     R.Data^[I*Nc+J]:=L1*Ov^[Ia]+L2*Ov^[Ib]+L3*Ov^[Ic];
+   End;
+ End;
+ DelaunayFree;
+ R.Epsg:=SoftCrs(Root);
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Echantillonne un raster aux points }
+Procedure RunRasterSampling(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ R:TRaster;
+ V:Real;
+ Pref:String;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ ReadRaster(NeedStr(A,'RASTERCOPY'),R);
+ Pref:=NeedStr(A,'COLUMN_PREFIX');
+ If Pref=''Then Pref:='rvalue';
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If(G.Cls=1)and(G.First<>Nil)Then Begin
+   If SampleRaster(R,G.First^.Pts^[0].X,G.First^.Pts^[0].Y,0,V)and Not IsNoData(R,V)Then PutProp(F,Pref+'_'+IntToStr(BandSel),JNum(V))
+    Else PutProp(F,Pref+'_'+IntToStr(BandSel),NewJ(0));
+  End
+   Else
+  If G.Cls<>0Then Fail('Error: the input layer must contain points')
+   Else PutProp(F,Pref+'_'+IntToStr(BandSel),NewJ(0));
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Plus petite geometrie englobante par groupe }
+Procedure RunMinBoundGeometry(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf,V:PJ;
+ G,Acc,R:TGeom;
+ P:PPath;
+ Typ,I,N,K,Ng,Gi:LongInt;
+ Fld:String;
+ Keys:Array[1..400]of String;
+ FA:PJArr;
+ Key:String;
+ X1,Y1,X2,Y2,Ar,An,W,H,Cx,Cy,Rd:Real;
+ All:PPts;
+ NP:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD');
+ Typ:=Round(NeedReal(A,'TYPE'));
+ FA:=FeatureArray(Arr,N);
+ Ng:=0;
+ Out:=NewLayerLike(Root,OutArr);
+ For I:=0 to N-1do Begin
+  If Fld=''Then Key:='' Else Begin V:=GetProp(FA^[I],Fld);If V=Nil Then Key:='NULL' Else Key:=NodeText(V);End;
+  Gi:=0;
+  For K:=1 to Ng do If Keys[K]=Key Then Gi:=K;
+  If Gi=0Then Begin
+   If Ng>=400Then Fail('Error: too many groups');
+   Inc(Ng);Keys[Ng]:=Key;Gi:=Ng;
+  End;
+ End;
+ For K:=1 to Ng do Begin
+  InitGeom(Acc);
+  For I:=0 to N-1do Begin
+   If Fld=''Then Key:='' Else Begin V:=GetProp(FA^[I],Fld);If V=Nil Then Key:='NULL' Else Key:=NodeText(V);End;
+   If Key=Keys[K]Then Begin
+    FlattenFeature(FA^[I],G);
+    If G.Cls<>0Then Begin
+     If Acc.Cls=0Then Acc.Cls:=G.Cls;
+     P:=G.First;
+     While P<>Nil do Begin CopyPath(Acc,P,0);P:=P^.Next;End;
+    End;
+    FreeGeom(G);
+   End;
+  End;
+  If Acc.First<>Nil Then Begin
+   Acc.Cls:=Acc.Cls;
+   InitGeom(R);
+   Case Typ of
+    0:Begin
+      GeomBBox(Acc,X1,Y1,X2,Y2);
+      BoxGeom(X1,Y1,X2,Y2,R);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'width',JNum(X2-X1));PutProp(Nf,'height',JNum(Y2-Y1));
+     End;
+    1:Begin
+      MinOrientedBox(Acc,R,Ar,An,W,H);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'width',JNum(W));PutProp(Nf,'height',JNum(H));PutProp(Nf,'angle',JNum(An));
+     End;
+    2:Begin
+      NP:=0;
+      P:=Acc.First;
+      While P<>Nil do Begin Inc(NP,P^.N);P:=P^.Next;End;
+      All:=AllocBlock(NP*SizeOf(TPt));
+      NP:=0;
+      P:=Acc.First;
+      While P<>Nil do Begin Move(P^.Pts^,All^[NP],P^.N*SizeOf(TPt));Inc(NP,P^.N);P:=P^.Next;End;
+      MinCircle(All,NP,Cx,Cy,Rd);
+      FreeMem(All,NP*SizeOf(TPt));
+      CircleGeom(Cx,Cy,Rd,72,R);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'radius',JNum(Rd));PutProp(Nf,'diameter',JNum(2*Rd));
+     End;
+    Else Begin
+      HullGeom(Acc,R);
+      Nf:=NewFeature(NewJ(5),BuildGeom(R));
+     End;
+   End;
+   If R.Cls=3Then Begin
+    PutProp(Nf,'area',JNum(GeomArea(R)));PutProp(Nf,'perimeter',JNum(GeomLength(R)));
+   End;
+   If Fld<>''Then PutProp(Nf,Fld,JText(Keys[K])) Else PutProp(Nf,'id',JNum(K));
+   JAdd(OutArr,Nf);
+   FreeGeom(R);
+  End;
+  FreeGeom(Acc);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Matrice de distances entre deux couches de points }
+Procedure RunDistanceMatrix(A:Integer);
+Var
+ Root,Arr,Root2,Arr2,F,Out,OutArr,Nf,V:PJ;
+ FA,FB:PJArr;
+ Na,Nb,I,J,K,Mt,Nn,Cnt:LongInt;
+ Ax,Ay,Bx,By:PReals;
+ Dd:PReals;
+ Idf,Tdf:String;
+ Ia,It:String;
+ G:TGeom;
+ Ok,Geo:Boolean;
+ D,Mn,Mx,Sm,Sq:Real;
+ Ord:PLongs;
+ Cx,Cy:Real;
+
+ Function Dist(I1,J1:LongInt):Real;Begin
+  If Geo Then Dist:=Haversine(Ax^[I1],Ay^[I1],Bx^[J1],By^[J1])
+         Else Dist:=Sqrt(Sqr(Ax^[I1]-Bx^[J1])+Sqr(Ay^[I1]-By^[J1]));
+ End;
+
+ Procedure Load(Root0:PJ;Var Fa0:PJArr;Var N0:LongInt;Var X,Y:PReals);
+ Var
+  I0:LongInt;
+ Begin
+  Fa0:=FeatureArray(LayerFeatures(Root0),N0);
+  X:=AllocBlock((N0+1)*SizeOf(Real));Y:=AllocBlock((N0+1)*SizeOf(Real));
+  For I0:=0 to N0-1do Begin
+   FlattenFeature(Fa0^[I0],G);
+   If G.Cls=0Then Begin X^[I0]:=0;Y^[I0]:=0;End
+    Else Begin CentroidGeom(G,Cx,Cy,Ok);X^[I0]:=Cx;Y^[I0]:=Cy;End;
+   FreeGeom(G);
+  End;
+ End;
+
+ Function IdOf(Fe:PJ;Fn:String;N0:LongInt):String;
+ Var
+  P:PJ;
+ Begin
+  P:=GetProp(Fe,Fn);
+  If P=Nil Then IdOf:=IntToStr(N0) Else IdOf:=NodeText(P);
+ End;
+
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ Idf:=NeedStr(A,'INPUT_FIELD');
+ If HasArg('TARGET')Then Root2:=LoadLayer(NeedStr(A,'TARGET')) Else Root2:=Root;
+ Tdf:=NeedStr(A,'TARGET_FIELD');
+ If Tdf=''Then Tdf:=Idf;
+ Mt:=Round(NeedReal(A,'MATRIX_TYPE'));
+ Nn:=Round(NeedReal(A,'NEAREST_POINTS'));
+ Load(Root,FA,Na,Ax,Ay);
+ Load(Root2,FB,Nb,Bx,By);
+ Geo:=CrsIsGeographic(SoftCrs(Root));
+ Out:=NewLayerLike(Nil,OutArr);
+ Ord:=AllocBlock((Nb+1)*SizeOf(LongInt));
+ Dd:=AllocBlock((Nb+1)*SizeOf(Real));
+ For I:=0 to Na-1do Begin
+  Ia:=IdOf(FA^[I],Idf,I);
+  For J:=0 to Nb-1do Begin Dd^[J]:=Dist(I,J);Ord^[J]:=J;End;
+  { tri croissant }
+  For J:=1 to Nb-1do Begin
+   K:=Ord^[J];
+   Cnt:=J-1;
+   While(Cnt>=0)and(Dd^[Ord^[Cnt]]>Dd^[K])do Begin Ord^[Cnt+1]:=Ord^[Cnt];Dec(Cnt);End;
+   Ord^[Cnt+1]:=K;
+  End;
+  Mt:=Round(NeedReal(A,'MATRIX_TYPE'));
+  If Mt=0Then Begin
+   For J:=0 to Nb-1do Begin
+    If(Nn>0)and(J>=Nn)Then Break;
+    It:=IdOf(FB^[Ord^[J]],Tdf,Ord^[J]);
+    If(Root2=Root)and(Ord^[J]=I)and(Nn=0)Then Continue;
+    Nf:=NewFeature(NewJ(5),Nil);
+    PutProp(Nf,'InputID',JText(Ia));PutProp(Nf,'TargetID',JText(It));PutProp(Nf,'Distance',JNum(Dd^[Ord^[J]]));
+    JAdd(OutArr,Nf);
+   End;
+  End
+   Else
+  If Mt=1Then Begin
+   Nf:=NewFeature(NewJ(5),Nil);
+   PutProp(Nf,'ID',JText(Ia));
+   For J:=0 to Nb-1do Begin
+    It:=IdOf(FB^[J],Tdf,J);
+    PutProp(Nf,'Target_'+It,JNum(Dd^[J]));
+   End;
+   JAdd(OutArr,Nf);
+  End
+   Else
+  Begin
+   Sm:=0;Sq:=0;Mn:=1E300;Mx:=-1E300;Cnt:=0;
+   For J:=0 to Nb-1do Begin
+    If(Root2=Root)and(J=I)Then Continue;
+    D:=Dd^[J];Sm:=Sm+D;Sq:=Sq+D*D;Inc(Cnt);
+    If D<Mn Then Mn:=D;If D>Mx Then Mx:=D;
+   End;
+   Nf:=NewFeature(NewJ(5),Nil);
+   PutProp(Nf,'ID',JText(Ia));
+   PutProp(Nf,'COUNT',JNum(Cnt));
+   If Cnt>0Then Begin
+    PutProp(Nf,'MEAN',JNum(Sm/Cnt));
+    PutProp(Nf,'STDDEV',JNum(Sqrt(MaxR(0,Sq/Cnt-Sqr(Sm/Cnt)))));
+    PutProp(Nf,'MIN',JNum(Mn));PutProp(Nf,'MAX',JNum(Mx));
+   End;
+   JAdd(OutArr,Nf);
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
 
 Procedure RunUnsupported(A:Integer);Begin
  Fail('Error: '+Algos[A].Id+' is not supported by this clone ('+Algos[A].Descr+')');
@@ -28507,6 +29385,25 @@ Begin
   167:RunListUnique(A);
   168:RunMeanCoordinates(A);
   169:RunIdw(A);
+  170:RunRandomPointsExtent(A);
+  171:RunRandomPointsIn(A,0);
+  172:RunRandomPointsIn(A,1);
+  173:RunRegularPoints(A);
+  174:RunRectanglesOvals(A);
+  175:RunPolygonFromExtent(A);
+  176:RunBoundingBoxes(A);
+  177:RunRandomExtract(A);
+  178:RunRasterSampling(A);
+  179:RunTin(A);
+  180:RunMinBoundGeometry(A);
+  181:RunDistanceMatrix(A);
+  182:RunBasicStats(A);
+  183:RunStatsByCategories(A);
+  184:RunListUnique(A);
+  185:RunMeanCoordinates(A);
+  186:RunRandomExtract(A);
+  187:RunRegularPoints(A);
+  188:RunPolygonFromExtent(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
