@@ -23,7 +23,10 @@
   algorithmes, conservee en entree/sortie des formats), courbes circulaires linearisees a
   la lecture, predicats exacts (DE-9IM), tampon (extremites ronde/plate/carree, jointures
   ronde/mitre/biseau) et validation OGC (self-intersection, trous hors de l'exterieur...).
-  Limites : les polygones Shapefile Z/M perdent leurs valeurs Z/M a la lecture.
+  Les courbes (CIRCULARSTRING...) sont linearisees pour les algorithmes et conservees
+  telles quelles dans les sorties WKT, WKB et GeoPackage quand la geometrie n'est pas modifiee.
+  GeoPackage multicouche, GeoTIFF multibande (compressions LZW, Deflate, PackBits), grilles
+  de datum NTv2 (--datum_grid), try() capable de rattraper les erreurs (Free Pascal).
 
   Note : les algorithmes de couches et de rasters allouent de grands blocs de
   memoire (plus de 64 Ko) : utiliser Free Pascal (mode -Mtp possible) ou un
@@ -2871,12 +2874,173 @@ Begin
  CrsIsGeographic:=CrsDefine(Code,C)and(C.Kind=KGeo);
 End;
 
+{ ---- grilles de changement de datum NTv2 (.gsb) ---- }
+
+Type
+ TNtvGrid=Record
+  B:PBytes;
+  Size:LongInt;
+  Big:Boolean;
+  NSub:Integer;
+  SubOff:Array[1..64]of LongInt;
+  Ell:Byte;
+  Dx,Dy,Dz:Real;
+ End;
+
+Var
+ Ntv:Array[1..4]of TNtvGrid;
+ NtvN:Integer;
+
+Function NtvI32(Var G:TNtvGrid;Off:LongInt):LongInt;
+Var
+ V:LongInt;
+ T:Array[0..3]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 3do T[3-I]:=G.B^[Off+I]
+          Else For I:=0 to 3do T[I]:=G.B^[Off+I];
+ NtvI32:=V;
+End;
+
+Function NtvF32(Var G:TNtvGrid;Off:LongInt):Real;
+Var
+ V:Single;
+ T:Array[0..3]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 3do T[3-I]:=G.B^[Off+I]
+          Else For I:=0 to 3do T[I]:=G.B^[Off+I];
+ NtvF32:=V;
+End;
+
+Function NtvF64(Var G:TNtvGrid;Off:LongInt):Real;
+Var
+ V:Double;
+ T:Array[0..7]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 7do T[7-I]:=G.B^[Off+I]
+          Else For I:=0 to 7do T[I]:=G.B^[Off+I];
+ NtvF64:=V;
+End;
+
+Function LoadFileBytes(FileName:String;Var Size:LongInt):PBytes;Forward;
+
+{ Associe un fichier NTv2 au datum du SCR Code }
+Procedure LoadNtv(Code:LongInt;FileName:String);
+Var
+ G:^TNtvGrid;
+ C:TCrs;
+ K,Off,Cnt,NF:LongInt;
+Begin
+ If NtvN>=4Then Fail('Error: at most 4 datum grids are supported');
+ If Not CrsDefine(Code,C)Then Fail('Error: unsupported CRS EPSG:'+IntToStr(Code)+' for the datum grid');
+ Inc(NtvN);
+ G:=@Ntv[NtvN];
+ G^.B:=LoadFileBytes(FileName,G^.Size);
+ If G^.B=Nil Then Fail('Error: unable to open datum grid '+FileName);
+ If(G^.Size<176)or(G^.B^[0]<>Ord('N'))or(G^.B^[1]<>Ord('U'))Then Fail('Error: '+FileName+' is not an NTv2 grid');
+ G^.Big:=False;
+ If NtvI32(G^,8)<>11Then G^.Big:=True;
+ If NtvI32(G^,8)<>11Then Fail('Error: invalid NTv2 grid '+FileName);
+ NF:=NtvI32(G^,40);
+ If(NF<1)or(NF>64)Then Fail('Error: invalid NTv2 subgrid count in '+FileName);
+ G^.NSub:=0;
+ Off:=176;
+ For K:=1 to NF do Begin
+  If Off+176>G^.Size Then Fail('Error: truncated NTv2 grid '+FileName);
+  Inc(G^.NSub);G^.SubOff[G^.NSub]:=Off;
+  Cnt:=NtvI32(G^,Off+168);
+  Off:=Off+176+Cnt*16;
+ End;
+ G^.Ell:=C.Ell;G^.Dx:=C.Dx;G^.Dy:=C.Dy;G^.Dz:=C.Dz;
+End;
+
+Function GridOf(Var C:TCrs):Integer;
+Var
+ I:Integer;
+Begin
+ GridOf:=0;
+ For I:=1 to NtvN do
+  If(Ntv[I].Ell=C.Ell)and(Ntv[I].Dx=C.Dx)and(Ntv[I].Dy=C.Dy)and(Ntv[I].Dz=C.Dz)Then Begin GridOf:=I;Exit;End;
+End;
+
+{ Decalage (degres) a ajouter a (Lon, Lat) ; faux hors de la grille }
+Function NtvShift(I:Integer;Lon,Lat:Real;Var DLon,DLat:Real):Boolean;
+Var
+ G:^TNtvGrid;
+ K,Sb,Best,Nr,Nc,R0,C0:LongInt;
+ Slat,Nlat,Elon,Wlon,Li,Lo,La,Wl,Fy,Fx,A,B,C,D,Off,Pa:Real;
+ Hd,Ptr:LongInt;
+ Parent:String;
+ Fine:Boolean;
+
+ Function Node(R,Cc:LongInt;Which:Integer):Real;Begin
+  Node:=NtvF32(G^,Hd+176+(R*Nc+Cc)*16+Which*4);
+ End;
+
+Begin
+ NtvShift:=False;
+ G:=@Ntv[I];
+ La:=Lat*3600;
+ Wl:=-Lon*3600;
+ Best:=0;
+ For K:=1 to G^.NSub do Begin
+  Sb:=G^.SubOff[K];
+  Slat:=NtvF64(G^,Sb+72);Nlat:=NtvF64(G^,Sb+88);Elon:=NtvF64(G^,Sb+104);Wlon:=NtvF64(G^,Sb+120);
+  If(La>=Slat)and(La<=Nlat)and(Wl>=Elon)and(Wl<=Wlon)Then Begin
+   { le sous-grille le plus fin : celui dont le parent n'est pas "NONE" }
+   Fine:=Not((G^.B^[Sb+24]=Ord('N'))and(G^.B^[Sb+25]=Ord('O'))and(G^.B^[Sb+26]=Ord('N')));
+   If(Best=0)or Fine Then Best:=K;
+  End;
+ End;
+ If Best=0Then Exit;
+ Hd:=G^.SubOff[Best];
+ Slat:=NtvF64(G^,Hd+72);Nlat:=NtvF64(G^,Hd+88);Elon:=NtvF64(G^,Hd+104);Wlon:=NtvF64(G^,Hd+120);
+ Li:=NtvF64(G^,Hd+136);Lo:=NtvF64(G^,Hd+152);
+ If(Li<=0)or(Lo<=0)Then Exit;
+ Nr:=Round((Nlat-Slat)/Li)+1;
+ Nc:=Round((Wlon-Elon)/Lo)+1;
+ Fy:=(La-Slat)/Li;Fx:=(Wl-Elon)/Lo;
+ R0:=Trunc(Fy);C0:=Trunc(Fx);
+ If R0>=Nr-1Then R0:=Nr-2;
+ If C0>=Nc-1Then C0:=Nc-2;
+ If(R0<0)or(C0<0)Then Exit;
+ Fy:=Fy-R0;Fx:=Fx-C0;
+ { decalage en latitude (secondes) }
+ A:=Node(R0,C0,0);B:=Node(R0,C0+1,0);C:=Node(R0+1,C0,0);D:=Node(R0+1,C0+1,0);
+ DLat:=((A*(1-Fx)+B*Fx)*(1-Fy)+(C*(1-Fx)+D*Fx)*Fy)/3600;
+ { decalage en longitude (secondes, positif vers l'ouest) }
+ A:=Node(R0,C0,1);B:=Node(R0,C0+1,1);C:=Node(R0+1,C0,1);D:=Node(R0+1,C0+1,1);
+ DLon:=-((A*(1-Fx)+B*Fx)*(1-Fy)+(C*(1-Fx)+D*Fx)*Fy)/3600;
+ NtvShift:=True;
+End;
+
 { Changement de datum par translation geocentrique : Dir=1 de C vers WGS84, Dir=-1 de WGS84 vers C }
 Procedure DatumShift(Var C:TCrs;Dir:Integer;Var Lon,Lat:Real);
 Var
  A1,F1,E1,A2,F2,E2,P,L,Nn,X,Y,Z,Pn,Lt,Xs,Rxx,Ryy,Rzz,Xn,Yn,Zn2:Real;
- It:Integer;
+ It,Gi:Integer;
+ Dl,Dt,L0,T0,Gl,Gt:Real;
 Begin
+ Gi:=GridOf(C);
+ If Gi>0Then Begin
+  If Dir=1Then Begin
+   If NtvShift(Gi,Lon,Lat,Dl,Dt)Then Begin Lon:=Lon+Dl;Lat:=Lat+Dt;Exit;End;
+  End
+   Else
+  Begin
+   L0:=Lon;T0:=Lat;Gl:=L0;Gt:=T0;
+   If NtvShift(Gi,Gl,Gt,Dl,Dt)Then Begin
+    For It:=1 to 6do Begin
+     If Not NtvShift(Gi,Gl,Gt,Dl,Dt)Then Break;
+     Gl:=L0-Dl;Gt:=T0-Dt;
+    End;
+    Lon:=Gl;Lat:=Gt;
+    Exit;
+   End;
+  End;
+ End;
  If Dir=1Then Begin
   A1:=C.EA;F1:=1/C.EF;A2:=EllA[1];F2:=1/EllRf[1];
  End
@@ -2906,7 +3070,7 @@ Begin
 End;
 
 Function HasShift(Var C:TCrs):Boolean;Begin
- HasShift:=(C.Dx<>0)or(C.Dy<>0)or(C.Dz<>0)or(C.Sc<>0)or(C.Rx<>0)or(C.Ry<>0)or(C.Rz<>0);
+ HasShift:=(C.Dx<>0)or(C.Dy<>0)or(C.Dz<>0)or(C.Sc<>0)or(C.Rx<>0)or(C.Ry<>0)or(C.Rz<>0)or(GridOf(C)>0);
 End;
 
 Function TryTransform(Src,Dst:LongInt;Var X,Y:Real):Boolean;
@@ -19283,6 +19447,7 @@ Procedure ShowGeneralHelp;Begin
  WriteLn('                            square feet, square yards, square miles, hectares, acres, ...)');
  WriteLn('  --ellipsoid=NAME          NONE forces planar measures; any other value uses the sphere');
  WriteLn('  --project_path=PATH       Project file (must exist; its content is not used)');
+ WriteLn('  --datum_grid=CODE:FILE    NTv2 datum shift grid (.gsb) for the datum of EPSG:CODE (e.g. 4267:ntv2_0.gsb)');
  WriteLn('  --tiff_compress=MODE      GeoTIFF output compression: none (default), lzw, deflate or packbits');
  WriteLn('  --invalid_geometries=MODE ignore (default), skip (drop invalid features) or stop (error)');
  WriteLn;
@@ -30310,6 +30475,8 @@ End;
 Function SetGlobalOption(Name,Value:String):Boolean;
 Var
  T:Text;
+ K,E:Integer;
+ Cd:LongInt;
 Begin
  SetGlobalOption:=True;
  Name:=StrUpper(Name);
@@ -30320,6 +30487,13 @@ Begin
   If(Value='DEFLATE')or(Value='ZIP')Then TiffComp:=8 Else
   If Value='PACKBITS'Then TiffComp:=32773
    Else Fail('Error: invalid value for parameter tiff_compress: '+Value+' (use none, lzw, deflate or packbits)');
+ End Else
+ If Name='DATUM_GRID'Then Begin
+  K:=Pos(':',Value);
+  If K<2Then Fail('Error: datum_grid must be CODE:FILE (e.g. 4267:ntv2_0.gsb)');
+  Val(Copy(Value,1,K-1),Cd,E);
+  If E<>0Then Fail('Error: datum_grid must be CODE:FILE (e.g. 4267:ntv2_0.gsb)');
+  LoadNtv(Cd,Copy(Value,K+1,MaxStr));
  End Else
  If Name='INVALID_GEOMETRIES'Then Begin
   Value:=LowerStr(Value);
