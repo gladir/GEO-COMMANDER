@@ -7635,6 +7635,8 @@ End;
 { Polygones d'un enregistrement : imbrication paire = exterieur, impaire = trou }
 Function ShpPolygon(B:PBytes;P:LongInt):PJ;
 Var
+ ZOff,MOff:LongInt;
+ HasZ,HasM:Boolean;
  NParts,NPts,I,J,K,S0,S1:LongInt;
  Parts:PLongs;
  G,R,EG,HG:TGeom;
@@ -7648,6 +7650,15 @@ Begin
  NPts:=RdLE32(B,P+40);
  Parts:=AllocBlock((NParts+1)*SizeOf(LongInt));
  For I:=0 to NParts-1do Parts^[I]:=RdLE32(B,P+44+4*I);
+ ZOff:=P+44+4*NParts+16*NPts+16;
+ HasZ:=RdLE32(B,P)=15;
+ HasM:=False;
+ If HasZ Then Begin
+  MOff:=ZOff+8*NPts+16;
+  HasM:=MOff+8*NPts<=ShpRecEnd;
+ End
+  Else
+ If RdLE32(B,P)=25Then Begin MOff:=ZOff;HasM:=True;End;
  InitGeom(G);G.Cls:=3;
  For I:=0 to NParts-1do Begin
   S0:=Parts^[I];
@@ -7657,7 +7668,13 @@ Begin
    For J:=S0 to S1-1do Begin
     Pa^.Pts^[J-S0].X:=RdDouble(B,P+44+4*NParts+16*J);
     Pa^.Pts^[J-S0].Y:=RdDouble(B,P+44+4*NParts+16*J+8);
+    If HasZ Then Pa^.Pts^[J-S0].Z:=RdDouble(B,ZOff+8*J);
+    If HasM Then Begin
+     Pa^.Pts^[J-S0].M:=RdDouble(B,MOff+8*J);
+     If Pa^.Pts^[J-S0].M<=-9.9E37Then Pa^.Pts^[J-S0].M:=0;
+    End;
    End;
+   Pa^.HZ:=HasZ;Pa^.HM:=HasM;
    If(Pa^.Pts^[0].X<>Pa^.Pts^[S1-S0-1].X)or(Pa^.Pts^[0].Y<>Pa^.Pts^[S1-S0-1].Y)Then Begin
     Pa^.Pts^[S1-S0]:=Pa^.Pts^[0];Pa^.N:=S1-S0+1;
    End
@@ -7796,9 +7813,9 @@ Begin
    If NParts=1Then R:=GeomNode('LineString',Multi^.First)
               Else R:=GeomNode('MultiLineString',Multi);
   End;
-  5,15,25:R:=ShpPolygon(B,P);
+  5,15,25:Begin R:=ShpPolygon(B,P);HasM:=Typ=25;End;
  End;
- If(R<>Nil)and HasM and Not HasZ and Not(Typ in[5,15,25])Then JAddKV(R,'mOnly',JNum(1));
+ If(R<>Nil)and HasM and Not HasZ Then JAddKV(R,'mOnly',JNum(1));
  ShpGeometry:=R;
 End;
 
@@ -9491,7 +9508,167 @@ Begin
  Fail('Error: unsupported WKT geometry type '+T);
 End;
 
+{ ---- courbes conservees dans le DOM (cle "curve" de la geometrie linearisee) ---- }
+
+Function CurveCoord(X,Y:Real;HasZ:Boolean;Z:Real):PJ;
+Var
+ N:PJ;
+Begin
+ N:=NewJ(4);
+ JAdd(N,JNum(X));JAdd(N,JNum(Y));
+ If HasZ Then JAdd(N,JNum(Z));
+ CurveCoord:=N;
+End;
+
+{ "(x y [z] [m], ...)" -> tableau de positions }
+Function WktCurvePts:PJ;
+Var
+ A:PJ;
+ X,Y:Real;
+Begin
+ A:=NewJ(4);
+ WNeed('(');
+ Repeat
+  WCoord(X,Y);
+  JAdd(A,CurveCoord(X,Y,GcHZ,GcZ));
+ Until Not WCh(',');
+ WNeed(')');
+ WktCurvePts:=A;
+End;
+
+Function WktCurveNode(Plain:Boolean):PJ;Forward;
+
+{ Un element de courbe ; Plain : "(x y, ...)" sans mot-cle = ligne }
+Function WktCurveNode(Plain:Boolean):PJ;
+Var
+ T:String;
+ N,Arr:PJ;
+ Em:Boolean;
+ Sv:Integer;
+Begin
+ WktCurveNode:=Nil;
+ If WPeek=40Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('LineString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+  WktCurveNode:=N;
+  Exit;
+ End;
+ T:=WWord;
+ Sv:=WTag;
+ WTagWords(Em);
+ N:=NewJ(5);
+ If T='CIRCULARSTRING'Then Begin
+  JAddKV(N,'type',JText('CircularString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+ End Else
+ If T='LINESTRING'Then Begin
+  JAddKV(N,'type',JText('LineString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+ End Else
+ If T='COMPOUNDCURVE'Then Begin
+  JAddKV(N,'type',JText('CompoundCurve'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'curves',Arr);
+ End
+  Else
+ WFail;
+ WTag:=Sv;
+ WktCurveNode:=N;
+End;
+
+Function WktPolygonNode:PJ;
+Var
+ N,Arr:PJ;
+Begin
+ N:=NewJ(5);
+ JAddKV(N,'type',JText('Polygon'));
+ Arr:=NewJ(4);
+ WNeed('(');
+ Repeat JAdd(Arr,WktCurvePts);Until Not WCh(',');
+ WNeed(')');
+ JAddKV(N,'coordinates',Arr);
+ WktPolygonNode:=N;
+End;
+
+Function WktCurvePolygon:PJ;
+Var
+ N,Arr:PJ;
+Begin
+ N:=NewJ(5);
+ JAddKV(N,'type',JText('CurvePolygon'));
+ Arr:=NewJ(4);
+ WNeed('(');
+ Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+ WNeed(')');
+ JAddKV(N,'rings',Arr);
+ WktCurvePolygon:=N;
+End;
+
+{ Geometrie courbe de premier niveau (Nil si le texte n'en est pas une) }
+Function WktCurveDom(B:PBytes;S,E:LongInt):PJ;
+Var
+ T:String;
+ Em:Boolean;
+ N,Arr:PJ;
+Begin
+ WktCurveDom:=Nil;
+ WB:=B;WP:=S;WE:=E;
+ WSkip;
+ If(WE-WP>5)and(UpCase(Chr(WB^[WP]))='S')and(UpCase(Chr(WB^[WP+1]))='R')and(UpCase(Chr(WB^[WP+2]))='I')Then Begin
+  While(WP<WE)and(WB^[WP]<>59)do Inc(WP);
+  Inc(WP);
+ End;
+ T:=WWord;
+ WTag:=0;
+ WTagWords(Em);
+ If Em Then Exit;
+ If(T='CIRCULARSTRING')or(T='COMPOUNDCURVE')Then Begin
+  WP:=S;
+  WSkip;
+  If(WE-WP>5)and(UpCase(Chr(WB^[WP]))='S')and(UpCase(Chr(WB^[WP+1]))='R')and(UpCase(Chr(WB^[WP+2]))='I')Then Begin
+   While(WP<WE)and(WB^[WP]<>59)do Inc(WP);
+   Inc(WP);
+  End;
+  WTag:=0;
+  WktCurveDom:=WktCurveNode(False);
+ End Else
+ If T='CURVEPOLYGON'Then WktCurveDom:=WktCurvePolygon Else
+ If T='MULTICURVE'Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('MultiCurve'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'curves',Arr);
+  WktCurveDom:=N;
+ End Else
+ If T='MULTISURFACE'Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('MultiSurface'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat
+   If WPeek=40Then JAdd(Arr,WktPolygonNode)
+    Else Begin
+     WWord;
+     WTagWords(Em);
+     JAdd(Arr,WktCurvePolygon);
+    End;
+  Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'surfaces',Arr);
+  WktCurveDom:=N;
+ End;
+End;
+
 Function WktToGeom(B:PBytes;S,E:LongInt):PJ;
+Var
+ R,Cv:PJ;
 Begin
  WktToGeom:=Nil;
  WB:=B;WP:=S;WE:=E;
@@ -9503,7 +9680,12 @@ Begin
  End;
  GcInit;
  WGeom;
- WktToGeom:=GcResult;
+ R:=GcResult;
+ If R<>Nil Then Begin
+  Cv:=WktCurveDom(B,S,E);
+  If Cv<>Nil Then JAddKV(R,'curve',Cv);
+ End;
+ WktToGeom:=R;
 End;
 
 { ---- WKB ---- }
@@ -9717,12 +9899,234 @@ Begin
  KHasZ:=SvZ;KHasM:=SvM;
 End;
 
-Function WkbToGeom(B:PBytes;S,E:LongInt):PJ;Begin
+{ Courbes WKB -> DOM }
+Function KCurveCoords(LE:Boolean;N:LongInt):PJ;
+Var
+ A:PJ;
+ I:LongInt;
+ X,Y:Real;
+Begin
+ A:=NewJ(4);
+ If(N<0)or(KP+N*8*(2+Ord(KHasZ)+Ord(KHasM))>KE)Then KFail;
+ For I:=1 to N do Begin
+  KCoord(LE,X,Y);
+  JAdd(A,CurveCoord(X,Y,KHasZ,GcZ));
+ End;
+ KCurveCoords:=A;
+End;
+
+Function KCurveNode(Lvl:Integer):PJ;Forward;
+
+Function KCurveNode(Lvl:Integer):PJ;
+Var
+ LE:Boolean;
+ T,Hi,Base,N,I:LongInt;
+ Nd,Arr:PJ;
+ SvZ,SvM:Boolean;
+ Kind:String;
+Begin
+ If KP+5>KE Then KFail;
+ LE:=KB^[KP]=1;
+ Inc(KP);
+ If LE Then Begin T:=RdLE32(KB,KP)and $FFFF;Hi:=KB^[KP+3];End
+       Else Begin T:=RdBE32(KB,KP)and $FFFF;Hi:=KB^[KP];End;
+ Inc(KP,4);
+ SvZ:=KHasZ;SvM:=KHasM;
+ KHasZ:=((Hi and $80)<>0)or((T div 1000)in[1,3]);
+ KHasM:=((Hi and $40)<>0)or((T div 1000)in[2,3]);
+ If(Hi and $20)<>0Then KU32(LE);
+ Base:=T mod 1000;
+ N:=KU32(LE);
+ Nd:=NewJ(5);
+ Case Base of
+  2:Begin JAddKV(Nd,'type',JText('LineString'));JAddKV(Nd,'coordinates',KCurveCoords(LE,N));End;
+  8:Begin JAddKV(Nd,'type',JText('CircularString'));JAddKV(Nd,'coordinates',KCurveCoords(LE,N));End;
+  3:Begin
+   JAddKV(Nd,'type',JText('Polygon'));
+   Arr:=NewJ(4);
+   For I:=1 to N do JAdd(Arr,KCurveCoords(LE,KU32(LE)));
+   JAddKV(Nd,'coordinates',Arr);
+  End;
+  9,10,11,12:Begin
+   Case Base of 9:Kind:='CompoundCurve';10:Kind:='CurvePolygon';11:Kind:='MultiCurve';Else Kind:='MultiSurface';End;
+   JAddKV(Nd,'type',JText(Kind));
+   If(N<0)or(N>KE-KP)Then KFail;
+   Arr:=NewJ(4);
+   For I:=1 to N do JAdd(Arr,KCurveNode(Lvl+1));
+   Case Base of 10:JAddKV(Nd,'rings',Arr);12:JAddKV(Nd,'surfaces',Arr);Else JAddKV(Nd,'curves',Arr);End;
+  End;
+  Else KFail;
+ End;
+ KHasZ:=SvZ;KHasM:=SvM;
+ KCurveNode:=Nd;
+End;
+
+Function WkbToGeom(B:PBytes;S,E:LongInt):PJ;
+Var
+ R:PJ;
+ T:LongInt;
+ LE:Boolean;
+Begin
  KB:=B;KP:=S;KE:=E;
  GcInit;
  WkbGeom;
- WkbToGeom:=GcResult;
+ R:=GcResult;
+ If(R<>Nil)and(S+5<=E)Then Begin
+  LE:=B^[S]=1;
+  If LE Then T:=RdLE32(B,S+1)and $FFFF Else T:=RdBE32(B,S+1)and $FFFF;
+  T:=T mod 1000;
+  If(T>=8)and(T<=12)Then Begin
+   KP:=S;KHasZ:=False;KHasM:=False;
+   JAddKV(R,'curve',KCurveNode(0));
+  End;
+ End;
+ WkbToGeom:=R;
 End;
+
+{ Courbes DOM -> WKT }
+Function CurveHasZ(N:PJ):Boolean;
+Var
+ C:PJ;
+Begin
+ CurveHasZ:=False;
+ If(N=Nil)or(N^.Kind<>5)Then Exit;
+ C:=JFind(N,'coordinates');
+ If(C=Nil)Then Begin
+  C:=JFind(N,'curves');
+  If C=Nil Then C:=JFind(N,'rings');
+  If C=Nil Then C:=JFind(N,'surfaces');
+  If(C<>Nil)and(C^.First<>Nil)Then CurveHasZ:=CurveHasZ(C^.First);
+  Exit;
+ End;
+ { tableau de positions ou de tableaux de positions }
+ While(C<>Nil)and(C^.Kind=4)and(C^.First<>Nil)and(C^.First^.Kind=4)do C:=C^.First;
+ If(C<>Nil)and(C^.Kind=4)and(C^.First<>Nil)and(C^.First^.Next<>Nil)and(C^.First^.Next^.Next<>Nil)Then CurveHasZ:=True;
+End;
+
+Procedure CurvePtsWkt(Var B:TBuf;A:PJ;Z:Boolean);
+Var
+ C:PJ;
+ First:Boolean;
+ S:String;
+Begin
+ BufText(B,'(');
+ First:=True;
+ C:=A^.First;
+ While C<>Nil do Begin
+  If Not First Then BufText(B,', ');
+  First:=False;
+  S:=NumStr(NumOf(C^.First))+' '+NumStr(NumOf(C^.First^.Next));
+  If Z and(C^.First^.Next^.Next<>Nil)Then S:=S+' '+NumStr(NumOf(C^.First^.Next^.Next));
+  BufText(B,S);
+  C:=C^.Next;
+ End;
+ BufText(B,')');
+End;
+
+Procedure CurveWkt(Var B:TBuf;N:PJ;Keyword,Z:Boolean);
+Var
+ T,Zt:String;
+ C,R:PJ;
+ First:Boolean;
+Begin
+ T:=JVal(JFind(N,'type'));
+ If Z Then Zt:=' Z' Else Zt:='';
+ If T='LineString'Then Begin
+  If Keyword Then BufText(B,'LINESTRING'+Zt+' ');
+  CurvePtsWkt(B,JFind(N,'coordinates'),Z);
+ End Else
+ If T='CircularString'Then Begin
+  BufText(B,'CIRCULARSTRING'+Zt+' ');
+  CurvePtsWkt(B,JFind(N,'coordinates'),Z);
+ End Else
+ If T='Polygon'Then Begin
+  If Keyword Then BufText(B,'POLYGON'+Zt+' ');
+  BufText(B,'(');
+  First:=True;
+  R:=JFind(N,'coordinates')^.First;
+  While R<>Nil do Begin
+   If Not First Then BufText(B,', ');
+   First:=False;
+   CurvePtsWkt(B,R,Z);
+   R:=R^.Next;
+  End;
+  BufText(B,')');
+ End
+  Else
+ Begin
+  If T='CompoundCurve'Then BufText(B,'COMPOUNDCURVE'+Zt+' (') Else
+  If T='CurvePolygon'Then BufText(B,'CURVEPOLYGON'+Zt+' (') Else
+  If T='MultiCurve'Then BufText(B,'MULTICURVE'+Zt+' (')
+                   Else BufText(B,'MULTISURFACE'+Zt+' (');
+  C:=JFind(N,'curves');
+  If C=Nil Then C:=JFind(N,'rings');
+  If C=Nil Then C:=JFind(N,'surfaces');
+  First:=True;
+  If C<>Nil Then C:=C^.First;
+  While C<>Nil do Begin
+   If Not First Then BufText(B,', ');
+   First:=False;
+   If JVal(JFind(C,'type'))='CurvePolygon'Then CurveWkt(B,C,True,Z)
+    Else CurveWkt(B,C,False,Z);
+   C:=C^.Next;
+  End;
+  BufText(B,')');
+ End;
+End;
+
+{ Courbes DOM -> WKB }
+Procedure CurvePtsWkb(Var B:TBuf;A:PJ;Z:Boolean);
+Var
+ C:PJ;
+ N:LongInt;
+Begin
+ N:=0;
+ C:=A^.First;
+ While C<>Nil do Begin Inc(N);C:=C^.Next;End;
+ BufLE32(B,N);
+ C:=A^.First;
+ While C<>Nil do Begin
+  BufDouble(B,NumOf(C^.First));BufDouble(B,NumOf(C^.First^.Next));
+  If Z Then Begin
+   If C^.First^.Next^.Next<>Nil Then BufDouble(B,NumOf(C^.First^.Next^.Next))Else BufDouble(B,0);
+  End;
+  C:=C^.Next;
+ End;
+End;
+
+Procedure CurveWkb(Var B:TBuf;N:PJ;Z:Boolean);
+Var
+ T:String;
+ Code,Cnt:LongInt;
+ C,R:PJ;
+Begin
+ T:=JVal(JFind(N,'type'));
+ If T='LineString'Then Code:=2 Else If T='CircularString'Then Code:=8 Else If T='Polygon'Then Code:=3 Else
+ If T='CompoundCurve'Then Code:=9 Else If T='CurvePolygon'Then Code:=10 Else If T='MultiCurve'Then Code:=11 Else Code:=12;
+ If Z Then Inc(Code,1000);
+ BufByte(B,1);BufLE32(B,Code);
+ If Code mod 1000 in[2,8]Then CurvePtsWkb(B,JFind(N,'coordinates'),Z) Else
+ If Code mod 1000=3Then Begin
+  R:=JFind(N,'coordinates');
+  Cnt:=0;C:=R^.First;
+  While C<>Nil do Begin Inc(Cnt);C:=C^.Next;End;
+  BufLE32(B,Cnt);
+  C:=R^.First;
+  While C<>Nil do Begin CurvePtsWkb(B,C,Z);C:=C^.Next;End;
+ End
+  Else
+ Begin
+  R:=JFind(N,'curves');
+  If R=Nil Then R:=JFind(N,'rings');
+  If R=Nil Then R:=JFind(N,'surfaces');
+  Cnt:=0;C:=R^.First;
+  While C<>Nil do Begin Inc(Cnt);C:=C^.Next;End;
+  BufLE32(B,Cnt);
+  C:=R^.First;
+  While C<>Nil do Begin CurveWkb(B,C,Z);C:=C^.Next;End;
+ End;
+End;
+
 
 { ---- XML ---- }
 
@@ -10903,6 +11307,12 @@ Var
 Begin
  BufWktNode:=False;
  If(Geom=Nil)or(Geom^.Kind<>5)Then Exit;
+ C:=JFind(Geom,'curve');
+ If C<>Nil Then Begin
+  CurveWkt(B,C,True,CurveHasZ(C));
+  BufWktNode:=True;
+  Exit;
+ End;
  If JVal(JFind(Geom,'type'))='GeometryCollection'Then Begin
   C:=JFind(Geom,'geometries');
   If(C=Nil)or(C^.Kind<>4)or(C^.First=Nil)Then Exit;
@@ -11306,6 +11716,7 @@ Begin
  End
   Else
  If JFind(Gj,'coordinates')<>Nil Then TransformCoords(JFind(Gj,'coordinates'),Src,Dst);
+ JRemoveKey(Gj,'curve');
 End;
 
 { Ecrit le KML dans un tampon }
@@ -12219,6 +12630,12 @@ Var
 Begin
  WkbNode:=False;
  If(Geom=Nil)or(Geom^.Kind<>5)Then Exit;
+ C:=JFind(Geom,'curve');
+ If C<>Nil Then Begin
+  CurveWkb(B,C,CurveHasZ(C));
+  WkbNode:=True;
+  Exit;
+ End;
  If JVal(JFind(Geom,'type'))='GeometryCollection'Then Begin
   C:=JFind(Geom,'geometries');
   If(C=Nil)or(C^.Kind<>4)or(C^.First=Nil)Then Exit;
