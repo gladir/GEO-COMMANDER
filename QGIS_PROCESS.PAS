@@ -32,6 +32,8 @@
 
 Program QGIS_PROCESS;
 
+{$IFNDEF FPC_TP}{$MODESWITCH CLASS}{$MODESWITCH EXCEPTIONS}{$ENDIF}
+
 Uses Dos;
 
 Const
@@ -1996,7 +1998,18 @@ Function ErrorCode(Const Msg:String):Integer;Begin
    (Pos('unsupported raster',Msg)>0)or(Pos('unsupported output',Msg)>0)or(Pos('project file',Msg)>0)or(Pos('not found in',Msg)>0)Then ErrorCode:=4;
 End;
 
+{$IFNDEF FPC_TP}
+Type
+ ETryFail=class(TObject)
+ End;
+{$ENDIF}
+Var
+ TryDepth:Integer;     { > 0 : les erreurs sont levees comme exceptions (fonction try()) }
+
 Procedure Fail(Msg:String);Begin
+{$IFNDEF FPC_TP}
+ If TryDepth>0Then Raise ETryFail.Create;
+{$ENDIF}
  If JsonMode Then WriteLn('{"error":',JsonStr(Msg),'}')
              Else WriteLn(Msg);
  Halt(ErrorCode(Msg));
@@ -2953,25 +2966,25 @@ Var
  T:TCrs;
  I,Zn:Integer;
 
- Function Try(Code:LongInt):Boolean;Begin
-  Try:=CrsDefine(Code,T)and SameCrs(C,T);
+ Function TryCode(Code:LongInt):Boolean;Begin
+  TryCode:=CrsDefine(Code,T)and SameCrs(C,T);
  End;
 
 Begin
  MatchKnown:=0;
- For I:=1 to 23do If Try(Cand[I])Then Begin MatchKnown:=Cand[I];Exit;End;
+ For I:=1 to 23do If TryCode(Cand[I])Then Begin MatchKnown:=Cand[I];Exit;End;
  For Zn:=1 to 60do Begin
-  If Try(32600+Zn)Then Begin MatchKnown:=32600+Zn;Exit;End;
-  If Try(32700+Zn)Then Begin MatchKnown:=32700+Zn;Exit;End;
+  If TryCode(32600+Zn)Then Begin MatchKnown:=32600+Zn;Exit;End;
+  If TryCode(32700+Zn)Then Begin MatchKnown:=32700+Zn;Exit;End;
  End;
- For Zn:=1 to 23do If Try(26900+Zn)Then Begin MatchKnown:=26900+Zn;Exit;End;
- For Zn:=3 to 22do If Try(26700+Zn)Then Begin MatchKnown:=26700+Zn;Exit;End;
+ For Zn:=1 to 23do If TryCode(26900+Zn)Then Begin MatchKnown:=26900+Zn;Exit;End;
+ For Zn:=3 to 22do If TryCode(26700+Zn)Then Begin MatchKnown:=26700+Zn;Exit;End;
  For Zn:=28 to 38do Begin
-  If Try(25800+Zn)Then Begin MatchKnown:=25800+Zn;Exit;End;
-  If Try(23000+Zn)Then Begin MatchKnown:=23000+Zn;Exit;End;
+  If TryCode(25800+Zn)Then Begin MatchKnown:=25800+Zn;Exit;End;
+  If TryCode(23000+Zn)Then Begin MatchKnown:=23000+Zn;Exit;End;
  End;
- For Zn:=3 to 10do If Try(32180+Zn)Then Begin MatchKnown:=32180+Zn;Exit;End;
- If Try(4326)Then Begin MatchKnown:=4326;Exit;End;
+ For Zn:=3 to 10do If TryCode(32180+Zn)Then Begin MatchKnown:=32180+Zn;Exit;End;
+ If TryCode(4326)Then Begin MatchKnown:=4326;Exit;End;
 End;
 
 { "+proj=utm +zone=33 +datum=WGS84" -> code (0 si non gere) }
@@ -15979,7 +15992,9 @@ Begin
   If(A[0].K<>0)and(A[0].K<>4)and(A[0].K<>5)and(A[0].K<>6)and ToNum(A[0],R)Then Begin
    If Nm='TO_INT'Then R:=Int(R);
    FnMisc:=VNum(R);
-  End;
+  End
+   Else
+  If(TryDepth>0)and(A[0].K<>0)Then EFail('cannot convert value to a number');
  End Else
  If Nm='TO_BOOL'Then Begin
   NeedArgs(Nm,N,1);
@@ -17597,6 +17612,8 @@ End;
 
 Function EvalLazy(Name:String;Var Done:Boolean):TVal;
 Var
+ SvS:String;
+ SvP,SvV,SvD:Integer;
  Sp,Ep:Array[0..11]of Integer;
  Txt:Array[0..11]of String;
  Nm:Array[0..11]of String;
@@ -17623,7 +17640,22 @@ Begin
  For I:=0 to Cnt-1do Txt[I]:=EvalNamedArg(Copy(ExprS,Sp[I],Ep[I]-Sp[I]),Nm[I]);
  If Name='TRY'Then Begin
   If Cnt<1Then EFail('function TRY needs an argument');
+{$IFNDEF FPC_TP}
+  SvS:=ExprS;SvP:=ExprP;SvV:=VarN;SvD:=ExprDepth;
+  Inc(TryDepth);
+  Try
+   EvalLazy:=EvalSub(Txt[0]);
+   Dec(TryDepth);
+  Except
+   On ETryFail Do Begin
+    Dec(TryDepth);
+    ExprS:=SvS;ExprP:=SvP;VarN:=SvV;ExprDepth:=SvD;
+    If Cnt>1Then EvalLazy:=EvalSub(Txt[1]) Else EvalLazy:=VNull;
+   End;
+  End;
+{$ELSE}
   EvalLazy:=EvalSub(Txt[0]);
+{$ENDIF}
  End Else
  If Name='WITH_VARIABLE'Then Begin
   If Cnt<3Then EFail('function WITH_VARIABLE needs 3 arguments');
