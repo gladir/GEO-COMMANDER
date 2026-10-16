@@ -26483,57 +26483,100 @@ Begin
  SaveOut(A,'OUTPUT',Root);
 End;
 
-{ ---- triangulation de Delaunay (Bowyer-Watson) ---- }
+{ ---- triangulation de Delaunay (Bowyer-Watson avec adjacences, points en ordre de Hilbert) ---- }
 
 Var
  DlN,DlT,DlCap:LongInt;
  DlX,DlY:PReals;
  DlA,DlB,DlC:PLongs;
- DlCx,DlCy,DlR2:PReals;
+ DlV0,DlV1,DlV2,DlN0,DlN1,DlN2:PLongs;    { sommets et voisins (arete i opposee au sommet i) }
+ DlAlive:PBools;
+ DlMark:PLongs;
 
-Procedure DlCircle(T:LongInt);
-Var
- Ax,Ay,Bx,By,Cx,Cy,D,Ux,Uy:Real;
-Begin
- Ax:=DlX^[DlA^[T]];Ay:=DlY^[DlA^[T]];
- Bx:=DlX^[DlB^[T]];By:=DlY^[DlB^[T]];
- Cx:=DlX^[DlC^[T]];Cy:=DlY^[DlC^[T]];
- D:=2*(Ax*(By-Cy)+Bx*(Cy-Ay)+Cx*(Ay-By));
- If Abs(D)<1E-300Then Begin DlCx^[T]:=Ax;DlCy^[T]:=Ay;DlR2^[T]:=1E300;Exit;End;
- Ux:=((Ax*Ax+Ay*Ay)*(By-Cy)+(Bx*Bx+By*By)*(Cy-Ay)+(Cx*Cx+Cy*Cy)*(Ay-By))/D;
- Uy:=((Ax*Ax+Ay*Ay)*(Cx-Bx)+(Bx*Bx+By*By)*(Ax-Cx)+(Cx*Cx+Cy*Cy)*(Bx-Ax))/D;
- DlCx^[T]:=Ux;DlCy^[T]:=Uy;
- DlR2^[T]:=Sqr(Ax-Ux)+Sqr(Ay-Uy);
+Function DlOrient(A,B:LongInt;Px,Py:Real):Real;Begin
+ DlOrient:=(DlX^[B]-DlX^[A])*(Py-DlY^[A])-(DlY^[B]-DlY^[A])*(Px-DlX^[A]);
 End;
 
-Procedure DlAddTri(A,B,C:LongInt);Begin
- DlA^[DlT]:=A;DlB^[DlT]:=B;DlC^[DlT]:=C;
- DlCircle(DlT);
- Inc(DlT);
+Function DlInCircle(A,B,C:LongInt;Px,Py:Real):Boolean;
+Var
+ Ax,Ay,Bx,By,Cx,Cy,Da,Db,Dc:Real;
+Begin
+ Ax:=DlX^[A]-Px;Ay:=DlY^[A]-Py;Bx:=DlX^[B]-Px;By:=DlY^[B]-Py;Cx:=DlX^[C]-Px;Cy:=DlY^[C]-Py;
+ Da:=Ax*Ax+Ay*Ay;Db:=Bx*Bx+By*By;Dc:=Cx*Cx+Cy*Cy;
+ DlInCircle:=Da*(Bx*Cy-Cx*By)+Db*(Cx*Ay-Ax*Cy)+Dc*(Ax*By-Bx*Ay)>0;
 End;
 
-{ Points DlX/DlY[0..N-1] ; les triangles resultants sont dans DlA/DlB/DlC[0..DlT-1] (hors super-triangle) }
-Procedure DelaunayInit(N:LongInt);
-Var
- I,K,M,E1,E2,Ne,J,Keep:LongInt;
- Mnx,Mny,Mxx,Mxy,Dm,Mx,My,D2:Real;
- Ea,Eb:PLongs;
- Dup:Boolean;
-Begin
+Function DlVert(T,I:LongInt):LongInt;Begin
+ Case I of 0:DlVert:=DlV0^[T];1:DlVert:=DlV1^[T];Else DlVert:=DlV2^[T];End;
+End;
+
+Function DlNeigh(T,I:LongInt):LongInt;Begin
+ Case I of 0:DlNeigh:=DlN0^[T];1:DlNeigh:=DlN1^[T];Else DlNeigh:=DlN2^[T];End;
+End;
+
+Procedure DlSetNeigh(T,I,V:LongInt);Begin
+ Case I of 0:DlN0^[T]:=V;1:DlN1^[T]:=V;Else DlN2^[T]:=V;End;
+End;
+
+Procedure DelaunayInit(N:LongInt);Begin
  DlN:=N;DlT:=0;
- DlCap:=2*N+16;
+ DlCap:=2*N+24;
  DlX:=AllocBlock((N+3)*SizeOf(Real));DlY:=AllocBlock((N+3)*SizeOf(Real));
  DlA:=AllocBlock(DlCap*SizeOf(LongInt));DlB:=AllocBlock(DlCap*SizeOf(LongInt));DlC:=AllocBlock(DlCap*SizeOf(LongInt));
- DlCx:=AllocBlock(DlCap*SizeOf(Real));DlCy:=AllocBlock(DlCap*SizeOf(Real));DlR2:=AllocBlock(DlCap*SizeOf(Real));
+ DlV0:=AllocBlock(DlCap*SizeOf(LongInt));DlV1:=AllocBlock(DlCap*SizeOf(LongInt));DlV2:=AllocBlock(DlCap*SizeOf(LongInt));
+ DlN0:=AllocBlock(DlCap*SizeOf(LongInt));DlN1:=AllocBlock(DlCap*SizeOf(LongInt));DlN2:=AllocBlock(DlCap*SizeOf(LongInt));
+ DlAlive:=AllocBlock(DlCap*SizeOf(Boolean));DlMark:=AllocBlock(DlCap*SizeOf(LongInt));
 End;
+
+{ Cle de Hilbert (grille 2^15) }
+Function HilbertKey(X,Y:LongInt):Real;
+Var
+ D,S,Rx,Ry,T:LongInt;
+Const
+ Nn=32768;
+Begin
+ D:=0;
+ S:=Nn div 2;
+ While S>0do Begin
+  If(X and S)>0Then Rx:=1 Else Rx:=0;
+  If(Y and S)>0Then Ry:=1 Else Ry:=0;
+  D:=D+S*S*((3*Rx)xor Ry);
+  If Ry=0Then Begin
+   If Rx=1Then Begin X:=Nn-1-X;Y:=Nn-1-Y;End;
+   T:=X;X:=Y;Y:=T;
+  End;
+  S:=S div 2;
+ End;
+ HilbertKey:=D;
+End;
+
+Const
+ SuperF=1000;
 
 Procedure DelaunayRun;
 Var
- I,K,Ne,J,N:LongInt;
- Mnx,Mny,Mxx,Mxy,Dm,Mx,My:Real;
- Ea,Eb:PLongs;
- Dup:Boolean;
- D2:Real;
+ N,I,K,J,T,T0,Nt,Free,Steps,Live,Sp,Nb,Nbd,Cnt,E,Stamp,Cur:LongInt;
+ Mnx,Mny,Mxx,Mxy,Dm,Mx,My,Px,Py:Real;
+ Keys:PReals;
+ Ord:PLongs;
+ FreeS,Stack,Bout,Bj:PLongs;
+ Ba,Bb:PLongs;
+ Moved,Found:Boolean;
+ Va,Vb:LongInt;
+
+ Function NewTri(A,B,C:LongInt):LongInt;
+ Var
+  Q:LongInt;
+ Begin
+  If Free>0Then Begin Dec(Free);Q:=FreeS^[Free];End
+   Else Begin Q:=Nt;Inc(Nt);End;
+  DlV0^[Q]:=A;DlV1^[Q]:=B;DlV2^[Q]:=C;
+  DlN0^[Q]:=-1;DlN1^[Q]:=-1;DlN2^[Q]:=-1;
+  DlAlive^[Q]:=True;DlMark^[Q]:=0;
+  Inc(Live);
+  NewTri:=Q;
+ End;
+
 Begin
  N:=DlN;
  Mnx:=DlX^[0];Mxx:=Mnx;Mny:=DlY^[0];Mxy:=Mny;
@@ -26544,55 +26587,125 @@ Begin
  Dm:=MaxR(Mxx-Mnx,Mxy-Mny);
  If Dm<=0Then Dm:=1;
  Mx:=(Mnx+Mxx)/2;My:=(Mny+Mxy)/2;
- DlX^[N]:=Mx-20*Dm;DlY^[N]:=My-Dm;
- DlX^[N+1]:=Mx;DlY^[N+1]:=My+20*Dm;
- DlX^[N+2]:=Mx+20*Dm;DlY^[N+2]:=My-Dm;
- DlAddTri(N,N+1,N+2);
- Ea:=AllocBlock(4*(DlCap+8)*SizeOf(LongInt));
- Eb:=AllocBlock(4*(DlCap+8)*SizeOf(LongInt));
+ { ordre de Hilbert des points }
+ Keys:=AllocBlock((N+1)*SizeOf(Real));
+ Ord:=AllocBlock((N+1)*SizeOf(LongInt));
  For I:=0 to N-1do Begin
-  Ne:=0;
-  K:=0;
-  While K<DlT do Begin
-   D2:=Sqr(DlX^[I]-DlCx^[K])+Sqr(DlY^[I]-DlCy^[K]);
-   If D2<DlR2^[K]*(1-1E-12)Then Begin
-    { triangle invalide : ses aretes rejoignent la liste }
-    Ea^[Ne]:=DlA^[K];Eb^[Ne]:=DlB^[K];Inc(Ne);
-    Ea^[Ne]:=DlB^[K];Eb^[Ne]:=DlC^[K];Inc(Ne);
-    Ea^[Ne]:=DlC^[K];Eb^[Ne]:=DlA^[K];Inc(Ne);
-    Dec(DlT);
-    DlA^[K]:=DlA^[DlT];DlB^[K]:=DlB^[DlT];DlC^[K]:=DlC^[DlT];
-    DlCx^[K]:=DlCx^[DlT];DlCy^[K]:=DlCy^[DlT];DlR2^[K]:=DlR2^[DlT];
-   End
-    Else
-   Inc(K);
-  End;
-  { aretes du contour : celles qui n'apparaissent qu'une fois }
-  For K:=0 to Ne-1do Begin
-   Dup:=False;
-   For J:=0 to Ne-1do
-    If(J<>K)and(Ea^[J]=Eb^[K])and(Eb^[J]=Ea^[K])Then Begin Dup:=True;Break;End;
-   If Not Dup Then DlAddTri(Ea^[K],Eb^[K],I);
-  End;
+  Keys^[I]:=HilbertKey(Trunc((DlX^[I]-Mnx)/Dm*32767),Trunc((DlY^[I]-Mny)/Dm*32767));
+  Ord^[I]:=I;
  End;
- FreeMem(Ea,4*(DlCap+8)*SizeOf(LongInt));
- FreeMem(Eb,4*(DlCap+8)*SizeOf(LongInt));
- { retire les triangles touchant le super-triangle }
- K:=0;
- While K<DlT do Begin
-  If(DlA^[K]>=N)or(DlB^[K]>=N)or(DlC^[K]>=N)Then Begin
-   Dec(DlT);
-   DlA^[K]:=DlA^[DlT];DlB^[K]:=DlB^[DlT];DlC^[K]:=DlC^[DlT];
-  End
-   Else
-  Inc(K);
+ If N>1Then SortByKey(Ord,Keys,0,N-1);
+ FreeMem(Keys,(N+1)*SizeOf(Real));
+ DlX^[N]:=Mx-SuperF*Dm;DlY^[N]:=My-SuperF/3*Dm;
+ DlX^[N+1]:=Mx+SuperF*Dm;DlY^[N+1]:=My-SuperF/3*Dm;
+ DlX^[N+2]:=Mx;DlY^[N+2]:=My+SuperF*Dm;
+ FreeS:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Stack:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Bout:=AllocBlock((DlCap+8)*SizeOf(LongInt));Bj:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Ba:=AllocBlock((DlCap+8)*SizeOf(LongInt));Bb:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Free:=0;Nt:=0;Live:=0;Stamp:=0;
+ Cur:=NewTri(N,N+1,N+2);
+ For K:=0 to N-1do Begin
+  I:=Ord^[K];
+  Px:=DlX^[I];Py:=DlY^[I];
+  { localisation par marche }
+  T:=Cur;
+  If Not DlAlive^[T]Then Begin
+   T:=0;
+   While(T<Nt)and Not DlAlive^[T]do Inc(T);
+  End;
+  Steps:=0;
+  Repeat
+   Moved:=False;
+   For J:=0 to 2do Begin
+    Va:=DlVert(T,(J+1)mod 3);Vb:=DlVert(T,(J+2)mod 3);
+    If DlOrient(Va,Vb,Px,Py)<0Then Begin
+     Nb:=DlNeigh(T,J);
+     If Nb>=0Then Begin T:=Nb;Moved:=True;Break;End;
+    End;
+   End;
+   Inc(Steps);
+  Until Not Moved or(Steps>3*Live+20);
+  If Moved Then Begin
+   { echec de la marche : recherche lineaire }
+   Found:=False;
+   For T0:=0 to Nt-1do
+    If DlAlive^[T0]Then
+     If(DlOrient(DlV0^[T0],DlV1^[T0],Px,Py)>=0)and(DlOrient(DlV1^[T0],DlV2^[T0],Px,Py)>=0)and(DlOrient(DlV2^[T0],DlV0^[T0],Px,Py)>=0)Then Begin
+      T:=T0;Found:=True;Break;
+     End;
+  End;
+  { cavite : triangles dont le cercle circonscrit contient le point }
+  Inc(Stamp);
+  DlMark^[T]:=Stamp;
+  Cnt:=1;Bout^[0]:=T;Sp:=0;
+  While Sp<Cnt do Begin
+   T0:=Bout^[Sp];Inc(Sp);
+   For J:=0 to 2do Begin
+    Nb:=DlNeigh(T0,J);
+    If(Nb>=0)and(DlMark^[Nb]<>Stamp)Then
+     If DlInCircle(DlV0^[Nb],DlV1^[Nb],DlV2^[Nb],Px,Py)Then Begin
+      DlMark^[Nb]:=Stamp;Bout^[Cnt]:=Nb;Inc(Cnt);
+     End;
+   End;
+  End;
+  { aretes du contour }
+  Nbd:=0;
+  For J:=0 to Cnt-1do Begin
+   T0:=Bout^[J];
+   For E:=0 to 2do Begin
+    Nb:=DlNeigh(T0,E);
+    If(Nb<0)or(DlMark^[Nb]<>Stamp)Then Begin
+     Ba^[Nbd]:=DlVert(T0,(E+1)mod 3);Bb^[Nbd]:=DlVert(T0,(E+2)mod 3);
+     Stack^[Nbd]:=Nb;                 { voisin exterieur }
+     { indice de l'arete de l'exterieur qui pointe vers T0 }
+     Bj^[Nbd]:=-1;
+     If Nb>=0Then
+      For Va:=0 to 2do If DlNeigh(Nb,Va)=T0 Then Bj^[Nbd]:=Va;
+     Inc(Nbd);
+    End;
+   End;
+  End;
+  { liberation des triangles de la cavite }
+  For J:=0 to Cnt-1do Begin
+   DlAlive^[Bout^[J]]:=False;
+   FreeS^[Free]:=Bout^[J];Inc(Free);Dec(Live);
+  End;
+  { nouveaux triangles }
+  For J:=0 to Nbd-1do Begin
+   T0:=NewTri(Ba^[J],Bb^[J],I);
+   Bout^[J]:=T0;
+   DlN2^[T0]:=Stack^[J];
+   If Stack^[J]>=0Then DlSetNeigh(Stack^[J],Bj^[J],T0);
+  End;
+  For J:=0 to Nbd-1do Begin
+   T0:=Bout^[J];
+   For E:=0 to Nbd-1do Begin
+    If Ba^[E]=Bb^[J]Then DlN0^[T0]:=Bout^[E];
+    If Bb^[E]=Ba^[J]Then DlN1^[T0]:=Bout^[E];
+   End;
+  End;
+  Cur:=Bout^[0];
  End;
+ { sortie : triangles sans sommet du super-triangle }
+ DlT:=0;
+ For T:=0 to Nt-1do
+  If DlAlive^[T]and(DlV0^[T]<N)and(DlV1^[T]<N)and(DlV2^[T]<N)Then Begin
+   DlA^[DlT]:=DlV0^[T];DlB^[DlT]:=DlV1^[T];DlC^[DlT]:=DlV2^[T];
+   Inc(DlT);
+  End;
+ FreeMem(Ord,(N+1)*SizeOf(LongInt));
+ FreeMem(FreeS,(DlCap+8)*SizeOf(LongInt));FreeMem(Stack,(DlCap+8)*SizeOf(LongInt));
+ FreeMem(Bout,(DlCap+8)*SizeOf(LongInt));FreeMem(Bj,(DlCap+8)*SizeOf(LongInt));
+ FreeMem(Ba,(DlCap+8)*SizeOf(LongInt));FreeMem(Bb,(DlCap+8)*SizeOf(LongInt));
 End;
 
 Procedure DelaunayFree;Begin
  FreeMem(DlX,(DlN+3)*SizeOf(Real));FreeMem(DlY,(DlN+3)*SizeOf(Real));
  FreeMem(DlA,DlCap*SizeOf(LongInt));FreeMem(DlB,DlCap*SizeOf(LongInt));FreeMem(DlC,DlCap*SizeOf(LongInt));
- FreeMem(DlCx,DlCap*SizeOf(Real));FreeMem(DlCy,DlCap*SizeOf(Real));FreeMem(DlR2,DlCap*SizeOf(Real));
+ FreeMem(DlV0,DlCap*SizeOf(LongInt));FreeMem(DlV1,DlCap*SizeOf(LongInt));FreeMem(DlV2,DlCap*SizeOf(LongInt));
+ FreeMem(DlN0,DlCap*SizeOf(LongInt));FreeMem(DlN1,DlCap*SizeOf(LongInt));FreeMem(DlN2,DlCap*SizeOf(LongInt));
+ FreeMem(DlAlive,DlCap*SizeOf(Boolean));FreeMem(DlMark,DlCap*SizeOf(LongInt));
 End;
 
 { Collecte les points d'une couche (premier sommet de chaque point) ; Src : entite d'origine }
