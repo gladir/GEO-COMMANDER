@@ -1776,10 +1776,21 @@ Begin
                          Else JsonVal:=JsonStr(S);
 End;
 
+{ Code de retour : 1 erreur d'execution, 2 commande ou algorithme invalide,
+  3 parametre invalide ou manquant, 4 fichier illisible, inexistant ou format non pris en charge }
+Function ErrorCode(Const Msg:String):Integer;Begin
+ ErrorCode:=1;
+ If(Pos('unexpected argument',Msg)>0)or(Pos('algorithm "',Msg)>0)or(Pos('unknown command',Msg)>0)Then ErrorCode:=2 Else
+ If(Pos('unknown parameter',Msg)>0)or(Pos('missing required parameter',Msg)>0)or(Pos('invalid value for parameter',Msg)>0)or
+   (Pos('invalid boolean',Msg)>0)or(Pos('invalid band',Msg)>0)or(Pos('invalid enumeration',Msg)>0)or(Pos('too many parameters',Msg)>0)Then ErrorCode:=3 Else
+ If(Pos('cannot read',Msg)>0)or(Pos('cannot write',Msg)>0)or(Pos('cannot open',Msg)>0)or(Pos('unable to open',Msg)>0)or(Pos('unable to read',Msg)>0)or(Pos('unsupported vector format',Msg)>0)or
+   (Pos('unsupported raster',Msg)>0)or(Pos('unsupported output',Msg)>0)or(Pos('project file',Msg)>0)or(Pos('not found in',Msg)>0)Then ErrorCode:=4;
+End;
+
 Procedure Fail(Msg:String);Begin
  If JsonMode Then WriteLn('{"error":',JsonStr(Msg),'}')
              Else WriteLn(Msg);
- Halt(1);
+ Halt(ErrorCode(Msg));
 End;
 
 { Metres par unite de distance (0 si l'unite est inconnue) }
@@ -7328,12 +7339,16 @@ Begin
 End;
 
 { Decoupe une source "chemin|layername=nom|subset=expression" }
+Var
+ UriIds:String;      { option featureids=0,3,5 : entites retenues (indices a partir de 0) }
+ InvalidMode:Integer;{ 0 ignorer, 1 ignorer les entites invalides, 2 arreter }
+
 Procedure ParseUri(Uri:String;Var Path,LayerName,Subset:String);
 Var
  P:Integer;
  Rest,Part,Key:String;
 Begin
- Path:=Uri;LayerName:='';Subset:='';
+ Path:=Uri;LayerName:='';Subset:='';UriIds:='';
  P:=Pos('|',Uri);
  If P=0Then Exit;
  Path:=Copy(Uri,1,P-1);
@@ -7346,6 +7361,7 @@ Begin
   If P>0Then Begin
    Key:=StrUpper(Copy(Part,1,P-1));
    If Key='LAYERNAME'Then LayerName:=Copy(Part,P+1,255) Else
+   If(Key='FEATUREIDS')or(Key='SELECTED')Then UriIds:=Copy(Part,P+1,255) Else
    If Key='SUBSET'Then Begin
     { l'expression peut contenir des "|" : on garde tout le reste }
     Subset:=Copy(Part,P+1,255);
@@ -12532,8 +12548,72 @@ End;
 
 { ---- aiguillage selon le format ---- }
 
+{ Gestion des geometries invalides (option --invalid_geometries=skip|stop|ignore) }
+Procedure FilterInvalid(Arr:PJ);
+Var
+ F,Nx:PJ;
+ G:TGeom;
+ Msg:String;
+ X,Y:Real;
+ I:LongInt;
+ Ok:Boolean;
+Begin
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ I:=0;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  F^.Next:=Nil;
+  Ok:=True;
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Ok:=GeomValidate(G,False,Msg,X,Y);
+  FreeGeom(G);
+  If Ok Then JAdd(Arr,F)
+   Else
+  If InvalidMode=2Then Fail('Error: feature '+IntToStr(I)+' has an invalid geometry ('+Msg+')');
+  Inc(I);
+  F:=Nx;
+ End;
+End;
+
+{ Ne garde que les entites dont l'indice (0 = premiere) figure dans la liste }
+Procedure ApplyFeatureIds(Root:PJ;Ids:String);
+Var
+ Arr,F,Nx:PJ;
+ I,K,V,E:LongInt;
+ Sel:Array[1..64]of LongInt;
+ NS,J:Integer;
+ Keep:Boolean;
+Begin
+ NS:=0;
+ Ids:=Ids+',';
+ While Ids<>''do Begin
+  J:=1;
+  While not(Ids[J]in[',',';',' '])do Inc(J);
+  If J>1Then Begin
+   Val(Copy(Ids,1,J-1),V,E);
+   If E<>0Then Fail('Error: invalid value for parameter featureids: '+Copy(Ids,1,J-1));
+   If NS<64Then Begin Inc(NS);Sel[NS]:=V;End;
+  End;
+  Ids:=Copy(Ids,J+1,255);
+ End;
+ Arr:=LayerFeatures(Root);
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ I:=0;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  Keep:=False;
+  For J:=1 to NS do If Sel[J]=I Then Keep:=True;
+  If Keep Then JAdd(Arr,F);
+  Inc(I);
+  F:=Nx;
+ End;
+End;
+
 Function LoadLayer(FileName:String):PJ;
 Var
+ SelIds:String;
  Path,LName,Subset,Ext:String;
  Root:PJ;
  B:PBytes;
@@ -12541,6 +12621,7 @@ Var
 Begin
  FileName:=ResolveProject(FileName);
  ParseUri(FileName,Path,LName,Subset);
+ SelIds:=UriIds;
  If(Pos('dbname=',Path)>0)or(Copy(StrUpper(Path),1,3)='PG:')or(Copy(StrUpper(Path),1,9)='POSTGRES:')Then
   Fail('Error: PostGIS connections are not available in this clone');
  CsvDelim:=0;CsvXName:='';CsvYName:='';CsvWName:='';CsvCrs:=0;
@@ -12570,6 +12651,8 @@ Begin
   Else
  Fail('Error: unsupported vector format "'+Ext+'" ('+Path+')');
  If Subset<>''Then ApplySubset(Root,Subset);
+ If SelIds<>''Then ApplyFeatureIds(Root,SelIds);
+ If InvalidMode>0Then FilterInvalid(LayerFeatures(Root));
  ExprLayer:=Root;
  ExprLayerName:=BaseNoExt(Path);
  LoadLayer:=Root;
@@ -18237,6 +18320,12 @@ Procedure ShowGeneralHelp;Begin
  WriteLn('                            square feet, square yards, square miles, hectares, acres, ...)');
  WriteLn('  --ellipsoid=NAME          NONE forces planar measures; any other value uses the sphere');
  WriteLn('  --project_path=PATH       Project file (must exist; its content is not used)');
+ WriteLn('  --invalid_geometries=MODE ignore (default), skip (drop invalid features) or stop (error)');
+ WriteLn;
+ WriteLn('Enumerations can be given by name (--JOIN_STYLE=bevel) or by index. A layer source can be');
+ WriteLn('restricted to some features with "path|featureids=0,3,5" (indices start at 0).');
+ WriteLn('Exit codes: 0 success, 1 algorithm error, 2 unknown command or algorithm,');
+ WriteLn('3 invalid or missing parameter, 4 unreadable file or unsupported format.');
  WriteLn;
  WriteLn('Available commands:');
  WriteLn('  plugins                   List available (and active) plugins');
@@ -28017,6 +28106,86 @@ Begin
  End;
 End;
 
+{ Normalise un libelle d'enumeration pour la comparaison }
+Function EnumNorm(S:String):String;
+Var
+ I:Integer;
+ T:String;
+Begin
+ S:=LowerStr(S);
+ T:='';
+ For I:=1 to Length(S)do Begin
+  If S[I]in['_','-']Then S[I]:=' ';
+  If(S[I]=' ')and((T='')or(T[Length(T)]=' '))Then Continue;
+  T:=T+S[I];
+ End;
+ While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
+ EnumNorm:=T;
+End;
+
+{ Indice d'une valeur d'enumeration donnee par son nom d'apres la description du parametre
+  (ex. "0 round, 1 flat") ; -1 inconnue, -2 ambigue }
+Function EnumIndex(Desc,Nm:String):LongInt;
+Var
+ I,K,P,E:Integer;
+ Piece,Lbl,Want:String;
+ Found,Num:LongInt;
+ Hits:Integer;
+ PrefixHit,PrefixNum,PrefixCnt:LongInt;
+Begin
+ EnumIndex:=-1;
+ P:=Pos(':',Desc);
+ If P>0Then Desc:=Copy(Desc,P+1,255);
+ Want:=EnumNorm(Nm);
+ Found:=-1;Hits:=0;PrefixCnt:=0;PrefixNum:=-1;
+ SplitList(Desc,',');
+ For I:=1 to ListCount do Begin
+  Piece:=ListItems[I];
+  While(Piece<>'')and(Piece[1]=' ')do Piece:=Copy(Piece,2,255);
+  K:=0;
+  While(K<Length(Piece))and(Piece[K+1]in['0'..'9'])do Inc(K);
+  If K=0Then Continue;
+  Val(Copy(Piece,1,K),Num,E);
+  Lbl:=Copy(Piece,K+1,255);
+  While(Lbl<>'')and(Lbl[1]=' ')do Lbl:=Copy(Lbl,2,255);
+  If(Length(Lbl)>1)and(Lbl[1]='=')Then Lbl:=Copy(Lbl,2,255);
+  Lbl:=EnumNorm(Lbl);
+  If Lbl=Want Then Begin Found:=Num;Inc(Hits);End
+   Else
+  If(Want<>'')and(Copy(Lbl,1,Length(Want))=Want)Then Begin PrefixNum:=Num;Inc(PrefixCnt);End;
+ End;
+ If Hits=1Then EnumIndex:=Found Else
+ If Hits=0Then Begin
+  If PrefixCnt=1Then EnumIndex:=PrefixNum Else
+  If PrefixCnt>1Then EnumIndex:=-2;
+ End;
+End;
+
+{ Remplace les noms d'enumeration par leur indice }
+Procedure ResolveEnums(A:Integer);
+Var
+ I,J:Integer;
+ P:ParamRec;
+ Out,Item:String;
+ N:LongInt;
+Begin
+ For I:=1 to ArgCount do
+  If ParamDef(A,ArgName[I],P)and(P.Typ='enum')and Not IsNumber(ArgVal[I])Then Begin
+   Out:='';
+   SplitList(ArgVal[I],';');
+   For J:=1 to ListCount do Begin
+    Item:=ListItems[J];
+    If IsNumber(Item)Then N:=-3 Else N:=EnumIndex(P.Desc,Item);
+    If J>1Then Out:=Out+';';
+    If N=-3Then Out:=Out+Item Else
+    If N=-1Then Fail('Error: invalid enumeration value "'+Item+'" for parameter '+ArgName[I]+' ('+P.Desc+')') Else
+    If N=-2Then Fail('Error: ambiguous enumeration value "'+Item+'" for parameter '+ArgName[I]+' ('+P.Desc+')')
+     Else Out:=Out+IntToStr(N);
+   End;
+   ArgVal[I]:=Out;
+  End;
+End;
+
 Procedure RunAlgo(A:Integer);
 Var
  I,J:Integer;
@@ -28049,6 +28218,7 @@ Begin
   WriteLn;
   If Verbose Then WriteLn('Algorithm ',Algos[A].Id,' starting...');
  End;
+ ResolveEnums(A);
  BandSel:=1;
  If GetArg('BAND',Tmp)or GetArg('RASTER_BAND',Tmp)Then Begin
   Val(Tmp,BandSel,I);
@@ -28267,6 +28437,13 @@ Var
 Begin
  SetGlobalOption:=True;
  Name:=StrUpper(Name);
+ If Name='INVALID_GEOMETRIES'Then Begin
+  Value:=LowerStr(Value);
+  If(Value='ignore')or(Value='0')Then InvalidMode:=0 Else
+  If(Value='skip')or(Value='1')Then InvalidMode:=1 Else
+  If(Value='stop')or(Value='2')Then InvalidMode:=2
+   Else Fail('Error: invalid value for parameter invalid_geometries: '+Value+' (use ignore, skip or stop)');
+ End Else
  If Name='DISTANCE_UNITS'Then Begin
   DistFactor:=DistanceFactor(Value);
   If DistFactor<=0Then Fail('Error: unknown distance unit "'+Value+'"');
