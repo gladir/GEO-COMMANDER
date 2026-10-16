@@ -7,7 +7,7 @@
   Moteur d'expressions (extractbyexpression, calculatrice de champs, sous-ensembles...) :
   operateurs QGIS, CASE, tableaux, dictionnaires, dates et intervalles, expressions
   regulieres, hachages, ~300 fonctions (texte, maths, geometrie, agregats, recouvrements,
-  variables @...). Limites : expressions et chaines de 255 caracteres maximum.
+  variables @... ). Chaines de longueur illimitee avec Free Pascal (255 caracteres en mode -Mtp).
   Systemes de coordonnees : EPSG:4326/3857, UTM (WGS84, NAD83, NAD27, ETRS89, ED50),
   Lambert, Albers, LAEA, Mercator, projections polaires, MTM, Gauss-Kruger, Lambert-93,
   British National Grid... ou definition "+proj=..." ; option --ellipsoid (geodesie).
@@ -32,7 +32,7 @@
 
 Program QGIS_PROCESS;
 
-{$IFNDEF FPC_TP}{$MODESWITCH CLASS}{$MODESWITCH EXCEPTIONS}{$ENDIF}
+{$IFNDEF FPC_TP}{$H+}{$MODESWITCH CLASS}{$MODESWITCH EXCEPTIONS}{$ENDIF}
 
 Uses Dos;
 
@@ -44,6 +44,11 @@ Const
  MaxParam=840;
  MaxOut=274;
  MaxArg=30;
+{$IFDEF FPC_TP}
+ MaxStr=255;
+{$ELSE}
+ MaxStr=1000000;
+{$ENDIF}
  MaxCells=40000000;
 
 Type
@@ -2073,8 +2078,13 @@ Function MkStr(S:String):PStr;
 Var
  P:PStr;
 Begin
+{$IFDEF FPC_TP}
  GetMem(P,Length(S)+1);
  Move(S,P^,Length(S)+1);
+{$ELSE}
+ New(P);
+ P^:=S;
+{$ENDIF}
  MkStr:=P;
 End;
 
@@ -2221,7 +2231,7 @@ Begin
  NextCh;
  While PCh<>'"'do Begin
   If PCh=#0Then PFail('unterminated string');
-  If Length(S)>=250Then PFail('string longer than 250 characters');
+  If Length(S)>=MaxStr-5Then PFail('string too long');
   If PCh='\'Then Begin
    S:=S+PCh;
    NextCh;
@@ -2925,7 +2935,7 @@ Begin
  While(S<>'')and(S[1]=' ')do Delete(S,1,1);
  P:=Pos(' ',S);
  If P=0Then Begin NextWord:=S;S:='';End
-       Else Begin NextWord:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End;
+       Else Begin NextWord:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End;
 End;
 
 Function RegisterCustom(Var C:TCrs):LongInt;
@@ -7537,7 +7547,7 @@ Begin
  FileExt:='';
  For I:=Length(S)downto 1do Begin
   If S[I]in['/','\']Then Exit;
-  If S[I]='.'Then Begin FileExt:=StrUpper(Copy(S,I,255));Exit;End;
+  If S[I]='.'Then Begin FileExt:=StrUpper(Copy(S,I,MaxStr));Exit;End;
  End;
 End;
 
@@ -7574,19 +7584,19 @@ Begin
  P:=Pos('|',Uri);
  If P=0Then Exit;
  Path:=Copy(Uri,1,P-1);
- Rest:=Copy(Uri,P+1,255);
+ Rest:=Copy(Uri,P+1,MaxStr);
  While Rest<>''do Begin
   P:=Pos('|',Rest);
   If P=0Then Begin Part:=Rest;Rest:='';End
-        Else Begin Part:=Copy(Rest,1,P-1);Rest:=Copy(Rest,P+1,255);End;
+        Else Begin Part:=Copy(Rest,1,P-1);Rest:=Copy(Rest,P+1,MaxStr);End;
   P:=Pos('=',Part);
   If P>0Then Begin
    Key:=StrUpper(Copy(Part,1,P-1));
-   If Key='LAYERNAME'Then LayerName:=Copy(Part,P+1,255) Else
-   If(Key='FEATUREIDS')or(Key='SELECTED')Then UriIds:=Copy(Part,P+1,255) Else
+   If Key='LAYERNAME'Then LayerName:=Copy(Part,P+1,MaxStr) Else
+   If(Key='FEATUREIDS')or(Key='SELECTED')Then UriIds:=Copy(Part,P+1,MaxStr) Else
    If Key='SUBSET'Then Begin
     { l'expression peut contenir des "|" : on garde tout le reste }
-    Subset:=Copy(Part,P+1,255);
+    Subset:=Copy(Part,P+1,MaxStr);
     If Rest<>''Then Subset:=Subset+'|'+Rest;
     Rest:='';
    End;
@@ -7601,7 +7611,7 @@ Var
 Begin
  T:='';
  For I:=1 to Length(S)do Begin
-  If Length(T)>=250Then Break;
+  If Length(T)>=MaxStr-5Then Break;
   Case S[I]of
    '"':T:=T+'\"';
    '\':T:=T+'\\';
@@ -7884,7 +7894,7 @@ Begin
  While Rest<>''do Begin
   I:=Pos('|',Rest);
   If I=0Then Begin Nm:=Rest;Rest:='';End
-        Else Begin Nm:=Copy(Rest,1,I-1);Rest:=Copy(Rest,I+1,255);End;
+        Else Begin Nm:=Copy(Rest,1,I-1);Rest:=Copy(Rest,I+1,MaxStr);End;
   P:=0;
   Repeat
    P:=WkFind('PARAMETER["'+Nm+'"',P);
@@ -8120,7 +8130,7 @@ Begin
  If B=Nil Then Exit;
  S:='';
  For I:=0 to Size-1do Begin
-  If Length(S)>=250Then Break;
+  If Length(S)>=MaxStr-5Then Break;
   If B^[I]>=32Then S:=S+Chr(B^[I]);
  End;
  FreeMem(B,Size+8);
@@ -8211,7 +8221,7 @@ Begin
      Inc(Off,FWidth[I]);
      While(S<>'')and(S[Length(S)]in[' ',#0])do S:=Copy(S,1,Length(S)-1);
      If FType[I]in['N','F']Then Begin
-      While(S<>'')and(S[1]=' ')do S:=Copy(S,2,255);
+      While(S<>'')and(S[1]=' ')do S:=Copy(S,2,MaxStr);
       Val(S,R,E);
       If(S='')or(E<>0)Then Node:=NewJ(0) Else Node:=JNum(R);
      End
@@ -10334,7 +10344,7 @@ Begin
  If(N=Nil)or(N^.TL=0)Then Exit;
  S:='';
  I:=N^.TS;E:=N^.TS+N^.TL;
- While(I<E)and(Length(S)<250)do Begin
+ While(I<E)and(Length(S)<MaxStr-5)do Begin
   S:=S+Chr(XB^[I]);
   Inc(I);
  End;
@@ -10366,7 +10376,7 @@ Begin
    If(I<E)and(XB^[I]in[34,39])Then Begin
     Q:=XB^[I];Inc(I);S2:=I;
     While(I<E)and(XB^[I]<>Q)do Inc(I);
-    For K:=S2 to I-1do If Length(V)<250Then V:=V+Chr(XB^[K]);
+    For K:=S2 to I-1do If Length(V)<MaxStr-5Then V:=V+Chr(XB^[K]);
     Inc(I);
    End;
   End;
@@ -11027,7 +11037,7 @@ Var
 Begin
  R:='';
  I:=S;
- While(I<E)and(Length(R)<255)do Begin
+ While(I<E)and(Length(R)<MaxStr)do Begin
   If Quoted and(B^[I]=34)and(I+1<E)and(B^[I+1]=34)Then Inc(I);
   R:=R+Chr(B^[I]);
   Inc(I);
@@ -11230,7 +11240,7 @@ Var
 Begin
  E:=Length(S);
  For I:=Length(S)downto 1do Begin
-  If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+  If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,MaxStr);Break;End;
  End;
  For I:=Length(S)downto 1do If S[I]='.'Then Begin S:=Copy(S,1,I-1);Break;End;
  BaseNoExt:=S;
@@ -11953,7 +11963,7 @@ Begin
  RcGetStr:='';
  If Not RcIsText(I)Then Exit;
  L:=(RcTyp[I]-13)div 2;
- If L>255Then L:=255;
+ If L>MaxStr Then L:=MaxStr;
  S:='';
  For K:=0 to L-1do S:=S+Chr(RcB^[RcPos[I]+K]);
  RcGetStr:=S;
@@ -13182,7 +13192,7 @@ Begin
   If ProjectPath[I]in['/',#92]Then Begin Dir:=Copy(ProjectPath,1,I);Break;End;
  Abs:=(Ds[1]='/')or(Ds[1]=#92)or((Length(Ds)>1)and(Ds[2]=':'))or(Pos('://',Ds)>0)or(Pos('dbname=',Ds)>0);
  If Not Abs Then Begin
-  If Copy(Ds,1,2)='./'Then Ds:=Copy(Ds,3,255);
+  If Copy(Ds,1,2)='./'Then Ds:=Copy(Ds,3,MaxStr);
   Ds:=Dir+Ds;
  End;
  ResolveProject:=Ds;
@@ -13225,22 +13235,22 @@ Var
 Begin
  ParseDelimUri:=False;
  If Copy(LowerStr(Path),1,7)<>'file://'Then Exit;
- Path:=Copy(Path,8,255);
+ Path:=Copy(Path,8,MaxStr);
  If(Length(Path)>=3)and(Path[1]='/')and(Path[3]=':')Then Delete(Path,1,1);
  Q:=Pos('?',Path);
  Opts:='';
  If Q>0Then Begin
-  Opts:=Copy(Path,Q+1,255);
+  Opts:=Copy(Path,Q+1,MaxStr);
   Path:=Copy(Path,1,Q-1);
  End;
  While Opts<>''do Begin
   E:=Pos('&',Opts);
   If E=0Then Begin Part:=Opts;Opts:='';End
-        Else Begin Part:=Copy(Opts,1,E-1);Opts:=Copy(Opts,E+1,255);End;
+        Else Begin Part:=Copy(Opts,1,E-1);Opts:=Copy(Opts,E+1,MaxStr);End;
   Q:=Pos('=',Part);
   If Q>0Then Begin
    K:=LowerStr(Copy(Part,1,Q-1));
-   V:=UrlDecode(Copy(Part,Q+1,255));
+   V:=UrlDecode(Copy(Part,Q+1,MaxStr));
    If K='delimiter'Then Begin
     If V=''Then Begin End Else
     If V='\t'Then CsvDelim:=9
@@ -13320,7 +13330,7 @@ Begin
    If E<>0Then Fail('Error: invalid value for parameter featureids: '+Copy(Ids,1,J-1));
    If NS<64Then Begin Inc(NS);Sel[NS]:=V;End;
   End;
-  Ids:=Copy(Ids,J+1,255);
+  Ids:=Copy(Ids,J+1,MaxStr);
  End;
  Arr:=LayerFeatures(Root);
  F:=Arr^.First;
@@ -13738,7 +13748,7 @@ Var
  Begin
   Q:=Pos(Sep,Src);
   If Q=0Then Begin Tk:=Src;Src:='';End
-        Else Begin Tk:=Copy(Src,1,Q-1);Src:=Copy(Src,Q+1,255);End;
+        Else Begin Tk:=Copy(Src,1,Q-1);Src:=Copy(Src,Q+1,MaxStr);End;
   Val(Tk,V,E);
   Part:=(E=0)and(Tk<>'');
  End;
@@ -13752,7 +13762,7 @@ Begin
  Y:=1970;Mo:=1;D:=1;H:=0;Mi:=0;Sc:=0;
  P:=Pos('T',S);
  If P=0Then P:=Pos(' ',S);
- If P>0Then Begin A:=Copy(S,1,P-1);B:=Copy(S,P+1,255);End
+ If P>0Then Begin A:=Copy(S,1,P-1);B:=Copy(S,P+1,MaxStr);End
   Else If Pos(':',S)>0Then Begin A:='';B:=S;End
   Else Begin A:=S;B:='';End;
  If A<>''Then Begin
@@ -13949,7 +13959,7 @@ Var
 Begin
  R:='"';
  For I:=1 to Length(S)do Begin
-  If Length(R)>=250Then Break;
+  If Length(R)>=MaxStr-5Then Break;
   Case S[I]of
    '"':R:=R+'\"';
    '\':R:=R+'\\';
@@ -15053,7 +15063,7 @@ Begin
  If Neg Then R:=-R;
  Str(R:0:Places,S);
  P:=Pos('.',S);
- If P>0Then Begin Ip:=Copy(S,1,P-1);Fp:=Copy(S,P,255);End
+ If P>0Then Begin Ip:=Copy(S,1,P-1);Fp:=Copy(S,P,MaxStr);End
        Else Begin Ip:=S;Fp:='';End;
  Out:='';
  For I:=1 to Length(Ip)do Begin
@@ -15202,7 +15212,7 @@ Begin
   NeedArgs(Nm,N,2);
   If(A[0].K<>0)and NumArg(A,1,R)Then Begin
    S:=ToStr(A[0]);Out:='';
-   For I:=1 to Round(R)do If Length(Out)+Length(S)<=255Then Out:=Out+S;
+   For I:=1 to Round(R)do If Length(Out)+Length(S)<=MaxStr Then Out:=Out+S;
    FnString:=VStr(Out);
   End;
  End Else
@@ -15253,7 +15263,7 @@ Begin
    While Subj<>''do Begin
     P:=Pos(' ',Subj);
     If P=0Then Begin T:=Subj;Subj:='';End
-          Else Begin T:=Copy(Subj,1,P-1);Subj:=Copy(Subj,P+1,255);End;
+          Else Begin T:=Copy(Subj,1,P-1);Subj:=Copy(Subj,P+1,MaxStr);End;
     If(Cur>0)and(Cur+1+U8Len(T)>L)Then Begin Out:=Out+U;Cur:=0;End
      Else If Cur>0Then Begin Out:=Out+' ';Inc(Cur);End;
     Out:=Out+T;Inc(Cur,U8Len(T));
@@ -15392,7 +15402,7 @@ Begin
     End
      Else P:=RxCapE[0];
    End;
-   If P<=Length(S)Then Out:=Out+Copy(S,P,255);
+   If P<=Length(S)Then Out:=Out+Copy(S,P,MaxStr);
    FnString:=VStr(Out);
   End;
  End Else
@@ -15411,7 +15421,7 @@ Begin
      P:=Pos(T,S);
      If P=0Then Begin LAdd(Lst,VStr(S));Break;End;
      LAdd(Lst,VStr(Copy(S,1,P-1)));
-     S:=Copy(S,P+Length(T),255);
+     S:=Copy(S,P+Length(T),MaxStr);
     Until False;
    End;
    FnString:=VList(Lst);
@@ -16816,7 +16826,7 @@ Begin
   BufInit(B);
   BufWkt(B,Gp^);
   S:='';
-  For I:=0 to B.N-1do If Length(S)<255Then S:=S+Chr(B.P^[I]);
+  For I:=0 to B.N-1do If Length(S)<MaxStr Then S:=S+Chr(B.P^[I]);
   FnGeom:=VStr(S);
   FreeMem(B.P,B.Cap);
  End
@@ -16961,7 +16971,7 @@ Var
  S:String;
 Begin
  S:=ProjectPath;
- For I:=Length(S)downto 1do If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+ For I:=Length(S)downto 1do If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,MaxStr);Break;End;
  ProjectBase:=S;
 End;
 
@@ -17605,7 +17615,7 @@ Begin
  P:=Pos(':=',S);
  If(P>1)and(Pos('''',Copy(S,1,P))=0)and(Pos('(',Copy(S,1,P))=0)Then Begin
   Nm:=StrUpper(Trim1(Copy(S,1,P-1)));
-  S:=Trim1(Copy(S,P+2,255));
+  S:=Trim1(Copy(S,P+2,MaxStr));
  End;
  EvalNamedArg:=S;
 End;
@@ -20391,9 +20401,9 @@ Begin
  For K:=1 to 4do Begin
   P:=Pos(',',S);
   If(K<4)and(P=0)Then Fail('Error: EXTENT must be xmin,xmax,ymin,ymax');
-  If K<4Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End
+  If K<4Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End
         Else T:=S;
-  While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+  While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
   While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
   If Not IsNumber(T)Then Fail('Error: invalid EXTENT value "'+T+'"');
   Val(T,V[K],P);
@@ -20517,7 +20527,7 @@ Var
 Begin
  For I:=Length(S)downto 1do
   If S[I]in['/','\',':']Then Begin
-   S:=Copy(S,I+1,255);
+   S:=Copy(S,I+1,MaxStr);
    Break;
   End;
  I:=Length(S);
@@ -22091,11 +22101,11 @@ Begin
  P:=Pos(',',S);
  If P=0Then Fail('Error: invalid point, expected x,y [EPSG:code]');
  T:=Copy(S,1,P-1);
- While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
  If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
  Val(T,X,P);
- T:=Copy(S,Pos(',',S)+1,255);
- While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ T:=Copy(S,Pos(',',S)+1,MaxStr);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
  While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
  If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
  Val(T,Y,P);
@@ -22931,7 +22941,7 @@ Begin
   P:=Pos('=',Items[K]);
   If P=0Then Fail('Error: FIELDS_MAPPING items must look like name=expression');
   Names[K]:=Copy(Items[K],1,P-1);
-  Exprs[K]:=Copy(Items[K],P+1,255);
+  Exprs[K]:=Copy(Items[K],P+1,MaxStr);
  End;
  Idx:=0;
  F:=Arr^.First;
@@ -22999,7 +23009,7 @@ Begin
   First:=True;
   Repeat
    P:=Pos(Ch,S);
-   If P>0Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End
+   If P>0Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End
          Else Begin T:=S;S:='';End;
    C:=NewFeature(PropsClone(F),JClone(JFind(F,'geometry')));
    PutProp(C,Fld,JTextEsc(T));
@@ -25555,10 +25565,10 @@ Begin
    If P1=0Then Fail('Error: AGGREGATES items must look like field:function:name');
    Fld:=Copy(Items[K],1,P1-1);
    If(Length(Fld)>=2)and(Fld[1]='"')and(Fld[Length(Fld)]='"')Then Fld:=Copy(Fld,2,Length(Fld)-2);
-   Tmp:=Copy(Items[K],P1+1,255);
+   Tmp:=Copy(Items[K],P1+1,MaxStr);
    P2:=Pos(':',Tmp);
    If P2=0Then Begin Fn:=StrUpper(Tmp);Nm:=Fld;End
-          Else Begin Fn:=StrUpper(Copy(Tmp,1,P2-1));Nm:=Copy(Tmp,P2+1,255);End;
+          Else Begin Fn:=StrUpper(Copy(Tmp,1,P2-1));Nm:=Copy(Tmp,P2+1,MaxStr);End;
    Cnt:=0;Sum:=0;M:=0;Concat:='';NS:=0;First:=Nil;Last:=Nil;Mn:=1E300;Mx:=-1E300;
    For I:=0 to N-1do
     If Grp^[I]=J Then Begin
@@ -25577,7 +25587,7 @@ Begin
       For Q:=1 to NS do If Seen[Q]=Tmp Then Found:=True;
       If(Not Found)and(NS<200)Then Begin Inc(NS);Seen[NS]:=Tmp;End;
       If Concat<>''Then Concat:=Concat+',';
-      If Length(Concat)<200Then Concat:=Concat+Tmp;
+      If Length(Concat)<MaxStr-50Then Concat:=Concat+Tmp;
      End;
     End;
    If Fn='COUNT'Then JAddKV(Pr,Nm,JNum(Cnt)) Else
@@ -29021,7 +29031,7 @@ Begin
  Joined:='';
  For I:=1 to Ns do Begin
   If I>1Then Joined:=Joined+',';
-  If Length(Joined)+Length(Seen[I])<250Then Joined:=Joined+Seen[I];
+  If Length(Joined)+Length(Seen[I])<MaxStr-5Then Joined:=Joined+Seen[I];
  End;
  AddRes('TOTAL_VALUES',IntToStr(Total));
  AddRes('UNIQUE_VALUES',IntToStr(Ns));
@@ -29114,9 +29124,9 @@ Begin
  If Pos=0Then Path:=Spec Else Path:=Copy(Spec,1,Pos-1);
  Fld:=0;
  If Pos>0Then Begin
-  Part:=Copy(Spec,Pos+5,255);
+  Part:=Copy(Spec,Pos+5,MaxStr);
   Pos:=System.Pos('::~::',Part);
-  Part:=Copy(Part,Pos+5,255);
+  Part:=Copy(Part,Pos+5,MaxStr);
   Pos:=System.Pos('::~::',Part);
   If Pos>0Then Part:=Copy(Part,1,Pos-1);
   Val(Part,Fld,K);
@@ -29559,8 +29569,8 @@ Begin
  If Pos=0Then Path:=Spec Else Path:=Copy(Spec,1,Pos-1);
  Fld:=0;
  If Pos>0Then Begin
-  Part:=Copy(Spec,Pos+5,255);
-  Pos:=System.Pos('::~::',Part);Part:=Copy(Part,Pos+5,255);
+  Part:=Copy(Spec,Pos+5,MaxStr);
+  Pos:=System.Pos('::~::',Part);Part:=Copy(Part,Pos+5,MaxStr);
   Pos:=System.Pos('::~::',Part);
   If Pos>0Then Part:=Copy(Part,1,Pos-1);
   Val(Part,Fld,K);
@@ -29908,7 +29918,7 @@ Begin
   Nm[N]:=LName;
   Rt[N]:=LoadLayer(L);
   If Joined<>''Then Joined:=Joined+';';
-  If Length(Joined)+Length(LName)<250Then Joined:=Joined+LName;
+  If Length(Joined)+Length(LName)<MaxStr-5Then Joined:=Joined+LName;
  End;
  If N<1Then Fail('Error: LAYERS is empty');
  SaveGpkgN(Out,N,Nm,Rt);
@@ -29969,20 +29979,20 @@ Var
 Begin
  EnumIndex:=-1;
  P:=Pos(':',Desc);
- If P>0Then Desc:=Copy(Desc,P+1,255);
+ If P>0Then Desc:=Copy(Desc,P+1,MaxStr);
  Want:=EnumNorm(Nm);
  Found:=-1;Hits:=0;PrefixCnt:=0;PrefixNum:=-1;
  SplitList(Desc,',');
  For I:=1 to ListCount do Begin
   Piece:=ListItems[I];
-  While(Piece<>'')and(Piece[1]=' ')do Piece:=Copy(Piece,2,255);
+  While(Piece<>'')and(Piece[1]=' ')do Piece:=Copy(Piece,2,MaxStr);
   K:=0;
   While(K<Length(Piece))and(Piece[K+1]in['0'..'9'])do Inc(K);
   If K=0Then Continue;
   Val(Copy(Piece,1,K),Num,E);
-  Lbl:=Copy(Piece,K+1,255);
-  While(Lbl<>'')and(Lbl[1]=' ')do Lbl:=Copy(Lbl,2,255);
-  If(Length(Lbl)>1)and(Lbl[1]='=')Then Lbl:=Copy(Lbl,2,255);
+  Lbl:=Copy(Piece,K+1,MaxStr);
+  While(Lbl<>'')and(Lbl[1]=' ')do Lbl:=Copy(Lbl,2,MaxStr);
+  If(Length(Lbl)>1)and(Lbl[1]='=')Then Lbl:=Copy(Lbl,2,MaxStr);
   Lbl:=EnumNorm(Lbl);
   If Lbl=Want Then Begin Found:=Num;Inc(Hits);End
    Else
@@ -30351,7 +30361,7 @@ Begin
  For K:=1 to ArgCount do
   If ArgName[K]=Name Then Begin
    If Append Then Begin
-    If Length(ArgVal[K])+Length(Value)+1>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+    If Length(ArgVal[K])+Length(Value)+1>MaxStr Then Fail('Error: the value of '+Name+' is too long');
     ArgVal[K]:=ArgVal[K]+';'+Value;
    End
     Else
@@ -30388,7 +30398,7 @@ Begin
    S:='';
   End;
  End;
- If Length(S)>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+ If Length(S)>MaxStr Then Fail('Error: the value of '+Name+' is too long');
  JArgValue:=S;
 End;
 
@@ -30451,8 +30461,17 @@ Procedure ShowCommandHelp(C:String);Begin
   WriteLn('list, or separate the items with ;). With "-" the parameters are read as JSON from the');
   WriteLn('standard input, for example:');
   WriteLn('  echo {"inputs":{"X1":0,"Y1":0,"X2":3,"Y2":4}} | QGIS_PROCESS --json run native:calculatedistance -');
-  WriteLn('Values are limited to 255 characters. Use "help ALGORITHM_ID" to list the parameters.');
+  WriteLn('Use "help ALGORITHM_ID" to list the parameters.');
  End;
+End;
+
+{ Argument de la ligne de commande (sans la limite de 255 caracteres de ParamStr) }
+Function ArgStr(I:Integer):String;Begin
+{$IFDEF FPC_TP}
+ ArgStr:=ParamStr(I);
+{$ELSE}
+ ArgStr:=PChar(argv[I]);
+{$ENDIF}
 End;
 
 { Analyse la ligne de commande : options, commande, algorithme et parametres }
@@ -30470,7 +30489,7 @@ Begin
  ArgCount:=0;
  N:=0;
  For I:=1 to ParamCount do Begin
-  S:=ParamStr(I);
+  S:=ArgStr(I);
   If StrUpper(S)='--JSON'Then JsonMode:=True Else
   If StrUpper(S)='--VERBOSE'Then Verbose:=True Else
   If StrUpper(S)='--NO-PYTHON'Then Begin End Else
@@ -30488,11 +30507,11 @@ Begin
    Name:='';
    If P>0Then Begin
     Name:=Copy(S,1,P-1);
-    While(Name<>'')and(Name[1]in['-','/'])do Name:=Copy(Name,2,255);
+    While(Name<>'')and(Name[1]in['-','/'])do Name:=Copy(Name,2,MaxStr);
    End;
-   If(P>0)and SetGlobalOption(Name,Copy(S,P+1,255))Then Begin End
+   If(P>0)and SetGlobalOption(Name,Copy(S,P+1,MaxStr))Then Begin End
     Else
-   If(P>0)and(N>0)Then AddArg(Name,Copy(S,P+1,255),True)
+   If(P>0)and(N>0)Then AddArg(Name,Copy(S,P+1,MaxStr),True)
     Else
    Begin
     Inc(N);
