@@ -39,7 +39,7 @@ Const
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
  MaxAlgo=188;
- MaxParam=830;
+ MaxParam=836;
  MaxOut=273;
  MaxArg=30;
  MaxCells=40000000;
@@ -141,7 +141,7 @@ Const
    Descr:'Computes the distance of each pixel to the nearest target pixel.'),
   (Id:'gdal:rastercalculator';Title:'Raster calculator';
    Group:'Raster miscellaneous';
-   Descr:'Evaluates a formula on up to six ASCII grids (variables A to F).'),
+   Descr:'Evaluates one or more formulas on up to six rasters (variables A to F, any band).'),
   (Id:'gdal:rasterize';Title:'Rasterize (vector to raster)';
    Group:'Raster conversion';
    Descr:'Burns the features of a GeoJSON layer into a new ASCII grid.'),
@@ -736,7 +736,13 @@ Const
   (A:25;Name:'INPUT_D';Typ:'raster';Desc:'Input ASCII grid D';Def:'*'),
   (A:25;Name:'INPUT_E';Typ:'raster';Desc:'Input ASCII grid E';Def:'*'),
   (A:25;Name:'INPUT_F';Typ:'raster';Desc:'Input ASCII grid F';Def:'*'),
-  (A:25;Name:'FORMULA';Typ:'string';Desc:'Formula, e.g. (A-B)/(A+B) or sqrt(A**2+B**2)';Def:''),
+  (A:25;Name:'BAND_A';Typ:'number';Desc:'Band of input A (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_B';Typ:'number';Desc:'Band of input B (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_C';Typ:'number';Desc:'Band of input C (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_D';Typ:'number';Desc:'Band of input D (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_E';Typ:'number';Desc:'Band of input E (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_F';Typ:'number';Desc:'Band of input F (1 = first band)';Def:'1'),
+  (A:25;Name:'FORMULA';Typ:'string';Desc:'Formula, e.g. (A-B)/(A+B) ; several formulas separated by ; give a multiband output';Def:''),
   (A:25;Name:'NO_DATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
   (A:25;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
   (A:26;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
@@ -1235,8 +1241,8 @@ Const
   (A:137;Name:'ALTITUDE';Typ:'number';Desc:'Altitude of the light (degrees)';Def:'45'),
   (A:137;Name:'COMPUTE_EDGES';Typ:'boolean';Desc:'Compute the values at the raster edges';Def:'false'),
   (A:137;Name:'ZEVENBERGEN';Typ:'boolean';Desc:'Use Zevenbergen-Thorne instead of Horn';Def:'false'),
-  (A:137;Name:'COMBINED';Typ:'boolean';Desc:'Combined shading (not supported)';Def:'false'),
-  (A:137;Name:'MULTIDIRECTIONAL';Typ:'boolean';Desc:'Multidirectional shading (not supported)';Def:'false'),
+  (A:137;Name:'COMBINED';Typ:'boolean';Desc:'Combined shading (slope and oblique shading)';Def:'false'),
+  (A:137;Name:'MULTIDIRECTIONAL';Typ:'boolean';Desc:'Multidirectional shading (4 light sources)';Def:'false'),
   (A:137;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Hillshade raster';Def:''),
   (A:138;Name:'INPUT';Typ:'raster';Desc:'Elevation raster';Def:''),
   (A:138;Name:'BAND';Typ:'number';Desc:'Band number (1 = first band)';Def:'1'),
@@ -1794,6 +1800,8 @@ Type
   Data:PReals;
  DType:Byte;
  Epsg:LongInt;
+ XN:Integer;                 { bandes supplementaires (numeros 2 a XN+1) }
+ XB:Array[2..16]of PReals;
  End;
  PGeom=^TGeom;
  PValList=^TValList;
@@ -17804,7 +17812,7 @@ Begin
  If IOResult<>0Then Fail('Error: unable to open raster file '+FileName);
  SetTextBuf(RF,RBuf);
  R.NoData:=-9999;
- R.DType:=0;R.Epsg:=0;
+ R.DType:=0;R.XN:=0;R.Epsg:=0;
  R.NC:=0;R.NR:=0;R.XLL:=0;R.YLL:=0;R.Cell:=0;
  Dx:=0;Dy:=0;
  HaveNC:=False;HaveNR:=False;HaveX:=False;HaveY:=False;HaveC:=False;
@@ -18145,7 +18153,7 @@ Begin
  End;
  If Planar=2Then Chunks:=Per*Spp Else Chunks:=Per;
  { georeferencement }
- R.NC:=W;R.NR:=H;R.XLL:=0;R.YLL:=0;R.Cell:=1;R.NoData:=-9999;R.DType:=0;R.Epsg:=0;
+ R.NC:=W;R.NR:=H;R.XLL:=0;R.YLL:=0;R.Cell:=1;R.NoData:=-9999;R.DType:=0;R.XN:=0;R.Epsg:=0;
  HaveS:=TagReal(33550,0,Sx)and TagReal(33550,1,Sy);
  HaveT:=TagReal(33922,0,Ti)and TagReal(33922,1,Tj)and TagReal(33922,3,Tx)and TagReal(33922,4,Ty);
  If(Not HaveS)and(TagCount(34264)>=16)Then Begin
@@ -18323,15 +18331,206 @@ Procedure TwAdd(Tag,Typ:LongInt;Cnt,Val:LongInt);Begin
  TwEnt[TwN].Tag:=Tag;TwEnt[TwN].Typ:=Typ;TwEnt[TwN].Cnt:=Cnt;TwEnt[TwN].Val:=Val;
 End;
 
+Var
+  TiffComp:LongInt;     { 1 aucune, 5 LZW, 8 Deflate, 32773 PackBits }
+ DfAcc,DfCnt:LongInt;
+
+{ ---- compression ---- }
+
+Procedure DfPut(Var D:TBuf;V:LongInt;N:Integer);Begin
+ DfAcc:=DfAcc or(V shl DfCnt);
+ Inc(DfCnt,N);
+ While DfCnt>=8do Begin
+  BufByte(D,DfAcc and 255);
+  DfAcc:=DfAcc shr 8;
+  Dec(DfCnt,8);
+ End;
+End;
+
+{ Code de Huffman (ecrit bit de poids fort en premier) }
+Procedure DfCode(Var D:TBuf;Code:LongInt;Len:Integer);
+Var
+ R,I:LongInt;
+Begin
+ R:=0;
+ For I:=1 to Len do Begin R:=(R shl 1)or(Code and 1);Code:=Code shr 1;End;
+ DfPut(D,R,Len);
+End;
+
+Procedure DfSym(Var D:TBuf;Sym:LongInt);Begin
+ If Sym<144Then DfCode(D,$30+Sym,8) Else
+ If Sym<256Then DfCode(D,$190+Sym-144,9) Else
+ If Sym<280Then DfCode(D,Sym-256,7)
+           Else DfCode(D,$C0+Sym-280,8);
+End;
+
+{ Flux zlib avec codes de Huffman fixes et LZ77 }
+Procedure ZlibCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Var
+ Head,Prev:PLongs;
+ I,J,H,Best,BestD,Len,Cand,Chain,L,Dd,A,B:LongInt;
+ Ad1,Ad2:LongInt;
+ Sl:Integer;
+Begin
+ BufByte(D,$78);BufByte(D,$9C);
+ DfAcc:=0;DfCnt:=0;
+ DfPut(D,1,1);DfPut(D,1,2);
+ Head:=AllocBlock(32768*SizeOf(LongInt));
+ Prev:=AllocBlock((N+4)*SizeOf(LongInt));
+ FillChar(Head^,32768*SizeOf(LongInt),255);
+ I:=0;
+ While I<N do Begin
+  Best:=0;BestD:=0;
+  If I+2<N Then Begin
+   H:=((Src^[I]shl 10)xor(Src^[I+1]shl 5)xor Src^[I+2])and 32767;
+   Cand:=Head^[H];
+   Chain:=0;
+   While(Cand>=0)and(I-Cand<=32768)and(Chain<32)do Begin
+    Len:=0;
+    While(Len<258)and(I+Len<N)and(Src^[Cand+Len]=Src^[I+Len])do Inc(Len);
+    If Len>Best Then Begin Best:=Len;BestD:=I-Cand;End;
+    Cand:=Prev^[Cand];
+    Inc(Chain);
+   End;
+   If Best>=3Then Begin
+    Sl:=28;
+    While LBase[Sl]>Best do Dec(Sl);
+    DfSym(D,257+Sl);
+    If LExt[Sl]>0Then DfPut(D,Best-LBase[Sl],LExt[Sl]);
+    Sl:=29;
+    While DBase[Sl]>BestD do Dec(Sl);
+    DfCode(D,Sl,5);
+    If DExt[Sl]>0Then DfPut(D,BestD-DBase[Sl],DExt[Sl]);
+    L:=Best;
+   End
+    Else L:=1;
+  End
+   Else L:=1;
+  { insertion dans la table de hachage }
+  For J:=I to I+L-1do
+   If J+2<N Then Begin
+    H:=((Src^[J]shl 10)xor(Src^[J+1]shl 5)xor Src^[J+2])and 32767;
+    Prev^[J]:=Head^[H];Head^[H]:=J;
+   End;
+  If L=1Then DfSym(D,Src^[I]);
+  Inc(I,L);
+ End;
+ DfSym(D,256);
+ If DfCnt>0Then DfPut(D,0,8-DfCnt);
+ A:=1;B:=0;
+ For I:=0 to N-1do Begin
+  A:=(A+Src^[I])mod 65521;
+  B:=(B+A)mod 65521;
+ End;
+ Ad1:=B;Ad2:=A;
+ BufByte(D,(Ad1 shr 8)and 255);BufByte(D,Ad1 and 255);BufByte(D,(Ad2 shr 8)and 255);BufByte(D,Ad2 and 255);
+ FreeMem(Head,32768*SizeOf(LongInt));
+ FreeMem(Prev,(N+4)*SizeOf(LongInt));
+End;
+
+{ LZW TIFF (codes de 9 a 12 bits, poids fort en premier, changement anticipe) }
+Procedure LzwCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Const
+ HSize=16384;
+Var
+ HKey,HVal:PLongs;
+ Acc,Cnt,Width,Next,Prefix,I,C,Key,Slot:LongInt;
+
+ Procedure Emit(Code:LongInt);Begin
+  Acc:=(Acc shl Width)or Code;
+  Inc(Cnt,Width);
+  While Cnt>=8do Begin
+   BufByte(D,(Acc shr(Cnt-8))and 255);
+   Dec(Cnt,8);
+   Acc:=Acc and((1 shl Cnt)-1);
+  End;
+ End;
+
+ Procedure Reset;Begin
+  FillChar(HKey^,HSize*SizeOf(LongInt),255);
+  Next:=258;Width:=9;
+ End;
+
+Begin
+ HKey:=AllocBlock(HSize*SizeOf(LongInt));
+ HVal:=AllocBlock(HSize*SizeOf(LongInt));
+ Acc:=0;Cnt:=0;
+ Reset;
+ Emit(256);
+ If N>0Then Begin
+  Prefix:=Src^[0];
+  For I:=1 to N-1do Begin
+   C:=Src^[I];
+   Key:=Prefix*256+C;
+   Slot:=(Prefix*131+C*17)mod 16381;
+   While(HKey^[Slot]>=0)and(HKey^[Slot]<>Key)do Slot:=(Slot+1)mod HSize;
+   If HKey^[Slot]=Key Then Prefix:=HVal^[Slot]
+    Else
+   Begin
+    Emit(Prefix);
+    HKey^[Slot]:=Key;HVal^[Slot]:=Next;
+    Inc(Next);
+    If(Next=(1 shl Width))and(Width<12)Then Inc(Width);
+    If Next>=4094Then Begin
+     Emit(256);
+     Reset;
+    End;
+    Prefix:=C;
+   End;
+  End;
+  Emit(Prefix);
+ End;
+ Emit(257);
+ If Cnt>0Then Begin
+  BufByte(D,(Acc shl(8-Cnt))and 255);
+ End;
+ FreeMem(HKey,HSize*SizeOf(LongInt));
+ FreeMem(HVal,HSize*SizeOf(LongInt));
+End;
+
+Procedure PackBitsCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Var
+ I,J,Run:LongInt;
+Begin
+ I:=0;
+ While I<N do Begin
+  Run:=1;
+  While(I+Run<N)and(Run<128)and(Src^[I+Run]=Src^[I])do Inc(Run);
+  If Run>=2Then Begin
+   BufByte(D,(257-Run)and 255);BufByte(D,Src^[I]);
+   Inc(I,Run);
+  End
+   Else
+  Begin
+   { suite litterale }
+   J:=I;
+   While(J<N)and(J-I<128)and((J+1>=N)or(Src^[J]<>Src^[J+1])or(J-I=127))do Inc(J);
+   If J=I Then J:=I+1;
+   BufByte(D,J-I-1);
+   While I<J do Begin BufByte(D,Src^[I]);Inc(I);End;
+  End;
+ End;
+End;
+
+Procedure CompressStrip(Comp:LongInt;Src:PBytes;N:LongInt;Var D:TBuf);Begin
+ Case Comp of
+  8:ZlibCompress(Src,N,D);
+  5:LzwCompress(Src,N,D);
+  32773:PackBitsCompress(Src,N,D);
+  Else Begin BufGrow(D,N);Move(Src^,D.P^[D.N],N);Inc(D.N,N);End;
+ End;
+End;
+
 Procedure WriteTiff(FileName:String;Var R:TRaster);
 Var
- B,X:TBuf;
- Dt,Bps,Fmt,Bpp,RowsPS,NStrips,I,J,K,Rows,DataEnd,IfdOff,ExtOff,E:LongInt;
+ B,X,T:TBuf;
+ Dt,Bps,Fmt,Bpp,RowsPS,NStrips,I,J,K,Rows,DataEnd,IfdOff,ExtOff,E,Nb,Bn,Tot:LongInt;
  StripOff,StripLen:Array[0..4095]of LongInt;
  Nd:String;
- Keys:Array[1..3]of Integer;
  Geographic:Boolean;
- OffOff,CntOff,ScaleOff,TieOff,KeyOff,NdOff:LongInt;
+ OffOff,CntOff,ScaleOff,TieOff,KeyOff,NdOff,BpsOff,FmtOff:LongInt;
+ Dp:PReals;
+ Comp:LongInt;
 Begin
  Dt:=R.DType;
  If(Dt<1)or(Dt>7)Then Dt:=6;
@@ -18344,36 +18543,47 @@ Begin
   6:Begin Bps:=32;Fmt:=3;End;
   Else Begin Bps:=64;Fmt:=3;End;
  End;
+ Comp:=TiffComp;
+ If Comp<=0Then Comp:=1;
+ Nb:=1+R.XN;
  Bpp:=Bps div 8;
  RowsPS:=8192 div(R.NC*Bpp);
  If RowsPS<1Then RowsPS:=1;
  If RowsPS>R.NR Then RowsPS:=R.NR;
  NStrips:=(R.NR+RowsPS-1)div RowsPS;
- If NStrips>4096Then Begin
-  RowsPS:=(R.NR+4095)div 4096;
+ If NStrips*Nb>4096Then Begin
+  RowsPS:=(R.NR*Nb+4095)div 4096;
   NStrips:=(R.NR+RowsPS-1)div RowsPS;
  End;
+ Tot:=NStrips*Nb;
  BufInit(B);
+ BufInit(T);
  BufByte(B,Ord('I'));BufByte(B,Ord('I'));BufLE16(B,42);BufLE32(B,0);
- For I:=0 to NStrips-1do Begin
-  Rows:=RowsPS;
-  If I*RowsPS+Rows>R.NR Then Rows:=R.NR-I*RowsPS;
-  StripOff[I]:=B.N;
-  For J:=I*RowsPS to I*RowsPS+Rows-1do
-   For K:=0 to R.NC-1do PutSample(B,R.Data^[J*R.NC+K],Dt);
-  StripLen[I]:=B.N-StripOff[I];
+ For Bn:=0 to Nb-1do Begin
+  If Bn=0Then Dp:=R.Data Else Dp:=R.XB[Bn+1];
+  For I:=0 to NStrips-1do Begin
+   Rows:=RowsPS;
+   If I*RowsPS+Rows>R.NR Then Rows:=R.NR-I*RowsPS;
+   T.N:=0;
+   For J:=I*RowsPS to I*RowsPS+Rows-1do
+    For K:=0 to R.NC-1do PutSample(T,Dp^[J*R.NC+K],Dt);
+   StripOff[Bn*NStrips+I]:=B.N;
+   CompressStrip(Comp,T.P,T.N,B);
+   StripLen[Bn*NStrips+I]:=B.N-StripOff[Bn*NStrips+I];
+  End;
  End;
  If B.N and 1<>0Then BufByte(B,0);
  DataEnd:=B.N;
  Nd:=NumStr(R.NoData);
  TwN:=0;
- { disposition : IFD, puis donnees externes }
- E:=11+2;   { 256 257 258 259 262 273 277 278 279 339 + 33550 33922 42113 }
+ E:=11+2;
+ If Nb>1Then Inc(E);
  If (R.Epsg>0)and(R.Epsg<=CustomBase)Then Inc(E);
  IfdOff:=DataEnd;
  ExtOff:=IfdOff+2+E*12+4;
- OffOff:=0;CntOff:=0;
- If NStrips>1Then Begin OffOff:=ExtOff;Inc(ExtOff,4*NStrips);CntOff:=ExtOff;Inc(ExtOff,4*NStrips);End;
+ OffOff:=0;CntOff:=0;BpsOff:=0;FmtOff:=0;
+ If Tot>1Then Begin OffOff:=ExtOff;Inc(ExtOff,4*Tot);CntOff:=ExtOff;Inc(ExtOff,4*Tot);End;
+ If Nb>1Then Begin BpsOff:=ExtOff;Inc(ExtOff,2*Nb);FmtOff:=ExtOff;Inc(ExtOff,2*Nb);End;
  ScaleOff:=ExtOff;Inc(ExtOff,24);
  TieOff:=ExtOff;Inc(ExtOff,48);
  KeyOff:=0;
@@ -18382,14 +18592,15 @@ Begin
  If Length(Nd)+1>4Then Begin NdOff:=ExtOff;Inc(ExtOff,Length(Nd)+1);End;
  TwAdd(256,4,1,R.NC);
  TwAdd(257,4,1,R.NR);
- TwAdd(258,3,1,Bps);
- TwAdd(259,3,1,1);
+ If Nb>1Then TwAdd(258,3,Nb,BpsOff)Else TwAdd(258,3,1,Bps);
+ TwAdd(259,3,1,Comp);
  TwAdd(262,3,1,1);
- If NStrips>1Then TwAdd(273,4,NStrips,OffOff)Else TwAdd(273,4,1,StripOff[0]);
- TwAdd(277,3,1,1);
+ If Tot>1Then TwAdd(273,4,Tot,OffOff)Else TwAdd(273,4,1,StripOff[0]);
+ TwAdd(277,3,1,Nb);
  TwAdd(278,4,1,RowsPS);
- If NStrips>1Then TwAdd(279,4,NStrips,CntOff)Else TwAdd(279,4,1,StripLen[0]);
- TwAdd(339,3,1,Fmt);
+ If Tot>1Then TwAdd(279,4,Tot,CntOff)Else TwAdd(279,4,1,StripLen[0]);
+ If Nb>1Then TwAdd(284,3,1,2);
+ If Nb>1Then TwAdd(339,3,Nb,FmtOff)Else TwAdd(339,3,1,Fmt);
  TwAdd(33550,12,3,ScaleOff);
  TwAdd(33922,12,6,TieOff);
  If (R.Epsg>0)and(R.Epsg<=CustomBase)Then TwAdd(34735,3,16,KeyOff);
@@ -18412,9 +18623,13 @@ Begin
   BufLE32(X,TwEnt[I].Val);
  End;
  BufLE32(X,0);
- If NStrips>1Then Begin
-  For I:=0 to NStrips-1do BufLE32(X,StripOff[I]);
-  For I:=0 to NStrips-1do BufLE32(X,StripLen[I]);
+ If Tot>1Then Begin
+  For I:=0 to Tot-1do BufLE32(X,StripOff[I]);
+  For I:=0 to Tot-1do BufLE32(X,StripLen[I]);
+ End;
+ If Nb>1Then Begin
+  For I:=1 to Nb do BufLE16(X,Bps);
+  For I:=1 to Nb do BufLE16(X,Fmt);
  End;
  BufDouble(X,R.Cell);BufDouble(X,R.Cell);BufDouble(X,0);
  BufDouble(X,0);BufDouble(X,0);BufDouble(X,0);
@@ -18432,7 +18647,6 @@ Begin
   For J:=1 to Length(Nd)do BufByte(X,Ord(Nd[J]));
   BufByte(X,0);
  End;
- { en-tete : decalage de l'IFD }
  B.P^[4]:=IfdOff and 255;B.P^[5]:=(IfdOff shr 8)and 255;
  B.P^[6]:=(IfdOff shr 16)and 255;B.P^[7]:=(IfdOff shr 24)and 255;
  BufGrow(B,X.N);
@@ -18516,6 +18730,7 @@ Procedure ShowGeneralHelp;Begin
  WriteLn('                            square feet, square yards, square miles, hectares, acres, ...)');
  WriteLn('  --ellipsoid=NAME          NONE forces planar measures; any other value uses the sphere');
  WriteLn('  --project_path=PATH       Project file (must exist; its content is not used)');
+ WriteLn('  --tiff_compress=MODE      GeoTIFF output compression: none (default), lzw, deflate or packbits');
  WriteLn('  --invalid_geometries=MODE ignore (default), skip (drop invalid features) or stop (error)');
  WriteLn;
  WriteLn('Enumerations can be given by name (--JOIN_STYLE=bevel) or by index. A layer source can be');
@@ -19701,7 +19916,7 @@ Var
 Begin
  If(NC<1)or(NR<1)Then Fail('Error: invalid raster size');
  If(NC*1.0)*NR>MaxCells Then Fail('Error: raster is too large');
- R.NC:=NC;R.NR:=NR;R.XLL:=XLL;R.YLL:=YLL;R.Cell:=Cell;R.NoData:=Nd;R.DType:=0;R.Epsg:=LastEpsg;
+ R.NC:=NC;R.NR:=NR;R.XLL:=XLL;R.YLL:=YLL;R.Cell:=Cell;R.NoData:=Nd;R.DType:=0;R.XN:=0;R.Epsg:=LastEpsg;
  T:=NC*NR;
  R.Data:=AllocBlock(T*SizeOf(Real));
  For I:=0 to T-1do R.Data^[I]:=Nd;
@@ -20959,40 +21174,59 @@ Var
  Out:String;
  Nd,V:Real;
  Ok:Boolean;
+ NF,Fi:LongInt;
+ Dp:PReals;
 Begin
  Names:='ABCDEF';
  For K:=0 to 5do Begin
   Have[K]:=(K=0)or HasArg('INPUT_'+Names[K+1]);
-  If Have[K]Then ReadRaster(NeedStr(A,'INPUT_'+Names[K+1]),Rs[K]);
+  If Have[K]Then Begin
+   BandSel:=1;
+   If HasArg('BAND_'+Names[K+1])Then BandSel:=Round(NeedReal(A,'BAND_'+Names[K+1]));
+   ReadRaster(NeedStr(A,'INPUT_'+Names[K+1]),Rs[K]);
+  End;
   Vars[K]:=0;
  End;
  For K:=1 to 5do
   If Have[K]Then
    If(Rs[K].NC<>Rs[0].NC)or(Rs[K].NR<>Rs[0].NR)Then
     Fail('Error: all input rasters must have the same size');
- CalcS:=NeedStr(A,'FORMULA');
- CalcP:=1;CodeN:=0;
- CExpr;
- CSkip;
- If CalcP<=Length(CalcS)Then CFail('unexpected token');
- { variables utilisees mais non fournies }
- For I:=1 to CodeN do
-  If CodeOp[I]=2Then
-   If Not Have[Round(CodeV[I])]Then Fail('Error: the formula uses '+Names[Round(CodeV[I])+1]+' but INPUT_'+Names[Round(CodeV[I])+1]+' is not set');
- Out:=NeedStr(A,'OUTPUT');
+Out:=NeedStr(A,'OUTPUT');
  Nd:=Rs[0].NoData;
  If HasArg('NO_DATA')Then Nd:=NeedReal(A,'NO_DATA');
  NewRaster(O,Rs[0].NC,Rs[0].NR,Rs[0].XLL,Rs[0].YLL,Rs[0].Cell,Nd);
  N:=Rs[0].NC*Rs[0].NR;
- For I:=0 to N-1do Begin
-  Ok:=True;
-  For K:=0 to 5do
-   If Have[K]Then Begin
-    Vars[K]:=Rs[K].Data^[I];
-    If IsNoData(Rs[K],Vars[K])Then Ok:=False;
-   End;
-  If Ok and CEval(Vars,V)Then O.Data^[I]:=V;
+ SplitList(NeedStr(A,'FORMULA'),';');
+ NF:=ListCount;
+ If NF<1Then Fail('Error: FORMULA is empty');
+ If NF>16Then Fail('Error: at most 16 formulas (output bands) are supported');
+ O.XN:=NF-1;
+ For Fi:=1 to NF do Begin
+  If Fi=1Then Dp:=O.Data Else Begin
+   O.XB[Fi]:=AllocBlock(N*SizeOf(Real));
+   Dp:=O.XB[Fi];
+  End;
+  For I:=0 to N-1do Dp^[I]:=Nd;
+  CalcS:=ListItems[Fi];
+  CalcP:=1;CodeN:=0;
+  CExpr;
+  CSkip;
+  If CalcP<=Length(CalcS)Then CFail('unexpected token');
+  { variables utilisees mais non fournies }
+  For I:=1 to CodeN do
+   If CodeOp[I]=2Then
+    If Not Have[Round(CodeV[I])]Then Fail('Error: the formula uses '+Names[Round(CodeV[I])+1]+' but INPUT_'+Names[Round(CodeV[I])+1]+' is not set');
+  For I:=0 to N-1do Begin
+   Ok:=True;
+   For K:=0 to 5do
+    If Have[K]Then Begin
+     Vars[K]:=Rs[K].Data^[I];
+     If IsNoData(Rs[K],Vars[K])Then Ok:=False;
+    End;
+   If Ok and CEval(Vars,V)Then Dp^[I]:=V;
+  End;
  End;
+ If(O.XN>0)and(FileExt(Out)<>'.TIF')and(FileExt(Out)<>'.TIFF')Then Fail('Error: a multiband output needs a .tif file');
  WriteRaster(Out,O);
  AddRes('OUTPUT',Out);
 End;
@@ -21593,7 +21827,7 @@ Begin
  Res:=Sqrt(W*W+H*H)/Sqrt(Sqr(R.NC*1.0)+Sqr(R.NR*1.0));
  If Res<=0Then Fail('Error: invalid target resolution');
  O.NC:=RoundL(W/Res);
- O.DType:=0;O.Epsg:=Dst;
+ O.DType:=0;O.XN:=0;O.Epsg:=Dst;
  O.NR:=RoundL(H/Res);
  If O.NC<1Then O.NC:=1;
  If O.NR<1Then O.NR:=1;
@@ -26025,8 +26259,9 @@ End;
 Procedure RunDemIndex(A:Integer;Mode:Integer);
 Var
  R,O:TRaster;
- Edges,Zev,Trig,ZeroFlat:Boolean;
+ Edges,Zev,Trig,ZeroFlat,Comb,Multi:Boolean;
  I,J,K:LongInt;
+ Wsum,Csum,Ai,Ci,Bear:Real;
  Z:TWin9;
  Dx,Dy,V,Sc,Zf,Az,Alt,X,Y,Cang,S:Real;
  Out:String;
@@ -26035,15 +26270,16 @@ Begin
  CheckBand(A);
  Edges:=NeedBool(A,'COMPUTE_EDGES');
  Out:=NeedStr(A,'OUTPUT');
- Zev:=False;Trig:=False;ZeroFlat:=False;Sc:=1;Zf:=1;Az:=315;Alt:=45;
+ Zev:=False;Trig:=False;ZeroFlat:=False;Comb:=False;Multi:=False;Sc:=1;Zf:=1;Az:=315;Alt:=45;
  If Mode in[0,1]Then Zev:=NeedBool(A,'ZEVENBERGEN');
  If Mode=0Then Begin Trig:=NeedBool(A,'TRIG_ANGLE');ZeroFlat:=NeedBool(A,'ZERO_FLAT');End;
  If Mode=1Then Begin
   Sc:=NeedReal(A,'SCALE');Zf:=NeedReal(A,'Z_FACTOR');
   Az:=NeedReal(A,'AZIMUTH');Alt:=NeedReal(A,'ALTITUDE');
   If Sc<=0Then Fail('Error: SCALE must be greater than 0');
-  If NeedBool(A,'COMBINED')or NeedBool(A,'MULTIDIRECTIONAL')Then
-   Fail('Error: the combined and multidirectional shading modes are not supported');
+  Comb:=NeedBool(A,'COMBINED');
+  Multi:=NeedBool(A,'MULTIDIRECTIONAL');
+  If Comb and Multi Then Fail('Error: COMBINED and MULTIDIRECTIONAL cannot be used together');
  End;
  If Mode=1Then NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,0)
           Else NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
@@ -26077,8 +26313,31 @@ Begin
          X:=((Z[3]+2*Z[6]+Z[9])-(Z[1]+2*Z[4]+Z[7]))/(8*R.Cell*Sc);
          Y:=((Z[7]+2*Z[8]+Z[9])-(Z[1]+2*Z[2]+Z[3]))/(8*R.Cell*Sc);
         End;
-       Cang:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Az))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Az)))/
-             Sqrt(1+Zf*Zf*(X*X+Y*Y));
+       If Multi Then Begin
+        { 4 sources (225, 270, 315, 360) ponderees par sin2(azimut - orientation) }
+        Bear:=Atan2(-X,Y);
+        Wsum:=0;Csum:=0;
+        For K:=0 to 3do Begin
+         Ai:=225+45*K;
+         Ci:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Ai))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Ai)))/
+              Sqrt(1+Zf*Zf*(X*X+Y*Y));
+         If Ci<0Then Ci:=0;
+         Wsum:=Wsum+Sqr(Sin(Deg2Rad(Ai)-Bear))+1E-9;
+         Csum:=Csum+(Sqr(Sin(Deg2Rad(Ai)-Bear))+1E-9)*Ci;
+        End;
+        Cang:=Csum/Wsum;
+       End
+        Else
+       Begin
+        Cang:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Az))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Az)))/
+              Sqrt(1+Zf*Zf*(X*X+Y*Y));
+        If Comb Then Begin
+         { ombrage combine : angle d'incidence pondere par la pente }
+         If Cang>1Then Cang:=1;
+         If Cang<-1Then Cang:=-1;
+         Cang:=1-Acos(Cang)*ArcTan(Zf*Sqrt(X*X+Y*Y))/Sqr(Pi/2);
+        End;
+       End;
         If Cang<=0Then O.Data^[I*R.NC+J]:=1
                   Else O.Data^[I*R.NC+J]:=Int(1+254*Cang);
       End;
@@ -29210,6 +29469,19 @@ Begin
   If Verbose Then WriteLn('Algorithm ',Algos[A].Id,' starting...');
  End;
  ResolveEnums(A);
+ If GetArg('OPTIONS',Tmp)or GetArg('EXTRA',Tmp)Then Begin
+  Tmp:=StrUpper(Tmp);
+  I:=Pos('COMPRESS=',Tmp);
+  If I>0Then Begin
+   Tmp:=Copy(Tmp,I+9,20);
+   If Pos(' ',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos(' ',Tmp)-1);
+   If Pos('|',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos('|',Tmp)-1);
+   If Pos(';',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos(';',Tmp)-1);
+   If Tmp='LZW'Then TiffComp:=5 Else
+   If(Tmp='DEFLATE')or(Tmp='ZIP')Then TiffComp:=8 Else
+   If Tmp='PACKBITS'Then TiffComp:=32773 Else TiffComp:=1;
+  End;
+ End;
  BandSel:=1;
  If GetArg('BAND',Tmp)or GetArg('RASTER_BAND',Tmp)Then Begin
   Val(Tmp,BandSel,I);
@@ -29447,6 +29719,14 @@ Var
 Begin
  SetGlobalOption:=True;
  Name:=StrUpper(Name);
+ If Name='TIFF_COMPRESS'Then Begin
+  Value:=StrUpper(Value);
+  If(Value='NONE')or(Value='')Then TiffComp:=1 Else
+  If Value='LZW'Then TiffComp:=5 Else
+  If(Value='DEFLATE')or(Value='ZIP')Then TiffComp:=8 Else
+  If Value='PACKBITS'Then TiffComp:=32773
+   Else Fail('Error: invalid value for parameter tiff_compress: '+Value+' (use none, lzw, deflate or packbits)');
+ End Else
  If Name='INVALID_GEOMETRIES'Then Begin
   Value:=LowerStr(Value);
   If(Value='ignore')or(Value='0')Then InvalidMode:=0 Else
