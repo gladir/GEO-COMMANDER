@@ -94,7 +94,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>QGIS_PROCESS.PAS</b></td>
-      <td>Cette commande est un clone de qgis_process. /td>
+      <td>Cette commande est un clone de qgis_process.</td>
   </tr>
   <tr>
   	<td><b>SHP2IMG.PAS</b></td>
