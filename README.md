@@ -94,7 +94,7 @@ Voici la liste des différents fichiers proposés dans GEO Commander :
   </tr>
   <tr>
       <td><b>QGIS_PROCESS.PAS</b></td>
-      <td>Cette commande est un clone de qgis_process : elle permet de lister (<code>list</code>), d'obtenir l'aide (<code>help</code>) et d'exécuter (<code>run</code>) 188 algorithmes <code>native:</code> et <code>gdal:</code> (<code>--json</code> disponible ; paramètres en JSON sur l'entrée standard avec <code>run ALGORITHME -</code>, options <code>--distance_units</code>, <code>--area_units</code>, <code>--ellipsoid</code>, <code>--verbose</code>, commande <code>plugins</code>). /td>
+      <td>Cette commande est un clone de qgis_process. /td>
   </tr>
   <tr>
   	<td><b>SHP2IMG.PAS</b></td>
