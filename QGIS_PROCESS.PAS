@@ -7,7 +7,7 @@
   Moteur d'expressions (extractbyexpression, calculatrice de champs, sous-ensembles...) :
   operateurs QGIS, CASE, tableaux, dictionnaires, dates et intervalles, expressions
   regulieres, hachages, ~300 fonctions (texte, maths, geometrie, agregats, recouvrements,
-  variables @...). Limites : expressions et chaines de 255 caracteres maximum.
+  variables @... ). Chaines de longueur illimitee avec Free Pascal (255 caracteres en mode -Mtp).
   Systemes de coordonnees : EPSG:4326/3857, UTM (WGS84, NAD83, NAD27, ETRS89, ED50),
   Lambert, Albers, LAEA, Mercator, projections polaires, MTM, Gauss-Kruger, Lambert-93,
   British National Grid... ou definition "+proj=..." ; option --ellipsoid (geodesie).
@@ -23,7 +23,10 @@
   algorithmes, conservee en entree/sortie des formats), courbes circulaires linearisees a
   la lecture, predicats exacts (DE-9IM), tampon (extremites ronde/plate/carree, jointures
   ronde/mitre/biseau) et validation OGC (self-intersection, trous hors de l'exterieur...).
-  Limites : les polygones Shapefile Z/M perdent leurs valeurs Z/M a la lecture.
+  Les courbes (CIRCULARSTRING...) sont linearisees pour les algorithmes et conservees
+  telles quelles dans les sorties WKT, WKB et GeoPackage quand la geometrie n'est pas modifiee.
+  GeoPackage multicouche, GeoTIFF multibande (compressions LZW, Deflate, PackBits), grilles
+  de datum NTv2 (--datum_grid), try() capable de rattraper les erreurs (Free Pascal).
 
   Note : les algorithmes de couches et de rasters allouent de grands blocs de
   memoire (plus de 64 Ko) : utiliser Free Pascal (mode -Mtp possible) ou un
@@ -32,16 +35,23 @@
 
 Program QGIS_PROCESS;
 
+{$IFNDEF FPC_TP}{$H+}{$MODESWITCH CLASS}{$MODESWITCH EXCEPTIONS}{$ENDIF}
+
 Uses Dos;
 
 Const
  VersionStr='1.1';
  EarthRadius=6371008.8;   { Rayon moyen de la Terre (spherique), en metres }
  MercatorRadius=6378137.0;{ Rayon utilise par EPSG:3857 }
- MaxAlgo=169;
- MaxParam=734;
- MaxOut=232;
+ MaxAlgo=188;
+ MaxParam=840;
+ MaxOut=274;
  MaxArg=30;
+{$IFDEF FPC_TP}
+ MaxStr=255;
+{$ELSE}
+ MaxStr=1000000;
+{$ENDIF}
  MaxCells=40000000;
 
 Type
@@ -141,7 +151,7 @@ Const
    Descr:'Computes the distance of each pixel to the nearest target pixel.'),
   (Id:'gdal:rastercalculator';Title:'Raster calculator';
    Group:'Raster miscellaneous';
-   Descr:'Evaluates a formula on up to six ASCII grids (variables A to F).'),
+   Descr:'Evaluates one or more formulas on up to six rasters (variables A to F, any band).'),
   (Id:'gdal:rasterize';Title:'Rasterize (vector to raster)';
    Group:'Raster conversion';
    Descr:'Burns the features of a GeoJSON layer into a new ASCII grid.'),
@@ -455,8 +465,8 @@ Const
    Group:'Vector geometry';
    Descr:'Sets the M value of all the vertices.'),
   (Id:'native:package';Title:'Package layers';
-   Group:'Not supported';
-   Descr:'NOT SUPPORTED: packaging several layers in one GeoPackage is not available'),
+   Group:'Database';
+   Descr:'Writes several layers into one GeoPackage.'),
   (Id:'native:writevectortiles_mbtiles';Title:'Write vector tiles (MBTiles)';
    Group:'Not supported';
    Descr:'NOT SUPPORTED: MBTiles/vector tile encoding is not available'),
@@ -573,7 +583,64 @@ Const
    Descr:'Computes the (weighted) mean coordinates of the features, by group.'),
   (Id:'qgis:idwinterpolation';Title:'IDW interpolation';
    Group:'Interpolation';
-   Descr:'Inverse distance weighted interpolation of point values.')
+   Descr:'Inverse distance weighted interpolation of point values.'),
+  (Id:'native:randompointsinextent';Title:'Random points in extent';
+   Group:'Vector creation';
+   Descr:'Creates random points inside an extent.'),
+  (Id:'native:randompointsinpolygons';Title:'Random points in polygons';
+   Group:'Vector creation';
+   Descr:'Creates random points inside each polygon.'),
+  (Id:'native:randompointsonlines';Title:'Random points on lines';
+   Group:'Vector creation';
+   Descr:'Creates random points along each line.'),
+  (Id:'native:regularpoints';Title:'Create regular points';
+   Group:'Vector creation';
+   Descr:'Creates a regular grid of points inside an extent.'),
+  (Id:'native:rectanglesovalsdiamonds';Title:'Rectangles, ovals, diamonds';
+   Group:'Vector geometry';
+   Descr:'Creates shapes centred on the features.'),
+  (Id:'native:polygonfromlayerextent';Title:'Extent from layer';
+   Group:'Vector general';
+   Descr:'Creates the extent polygon of a layer.'),
+  (Id:'native:boundingboxes';Title:'Bounding boxes';
+   Group:'Vector geometry';
+   Descr:'Creates the bounding box of each feature.'),
+  (Id:'native:randomextract';Title:'Random extract';
+   Group:'Vector selection';
+   Descr:'Extracts a random sample of the features.'),
+  (Id:'native:rastersampling';Title:'Sample raster values';
+   Group:'Raster analysis';
+   Descr:'Adds the raster values at the points as fields.'),
+  (Id:'qgis:tininterpolation';Title:'TIN interpolation';
+   Group:'Interpolation';
+   Descr:'Linear triangulated irregular network interpolation.'),
+  (Id:'qgis:minimumboundinggeometry';Title:'Minimum bounding geometry';
+   Group:'Vector general';
+   Descr:'Envelope, oriented rectangle, circle or hull of the features, by group.'),
+  (Id:'qgis:distancematrix';Title:'Distance matrix';
+   Group:'Vector analysis';
+   Descr:'Distances between the points of two layers.'),
+  (Id:'qgis:basicstatisticsforfields';Title:'Basic statistics for fields';
+   Group:'Vector analysis';
+   Descr:'Statistics of one numeric or text field.'),
+  (Id:'qgis:statisticsbycategories';Title:'Statistics by categories';
+   Group:'Vector analysis';
+   Descr:'Statistics of a numeric field for each category.'),
+  (Id:'qgis:listuniquevalues';Title:'List unique values';
+   Group:'Vector analysis';
+   Descr:'Lists the unique values of a field.'),
+  (Id:'qgis:meancoordinates';Title:'Mean coordinate(s)';
+   Group:'Vector analysis';
+   Descr:'Computes the (weighted) mean coordinates of the features, by group.'),
+  (Id:'qgis:randomextract';Title:'Random extract';
+   Group:'Vector selection';
+   Descr:'Extracts a random sample of the features.'),
+  (Id:'qgis:regularpoints';Title:'Regular points';
+   Group:'Vector creation';
+   Descr:'Creates a regular grid of points inside an extent.'),
+  (Id:'qgis:polygonfromlayerextent';Title:'Polygon from layer extent';
+   Group:'Vector general';
+   Descr:'Creates the extent polygon of a layer.')
  );
 
  Params:Array[1..MaxParam]of ParamRec=(
@@ -679,7 +746,13 @@ Const
   (A:25;Name:'INPUT_D';Typ:'raster';Desc:'Input ASCII grid D';Def:'*'),
   (A:25;Name:'INPUT_E';Typ:'raster';Desc:'Input ASCII grid E';Def:'*'),
   (A:25;Name:'INPUT_F';Typ:'raster';Desc:'Input ASCII grid F';Def:'*'),
-  (A:25;Name:'FORMULA';Typ:'string';Desc:'Formula, e.g. (A-B)/(A+B) or sqrt(A**2+B**2)';Def:''),
+  (A:25;Name:'BAND_A';Typ:'number';Desc:'Band of input A (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_B';Typ:'number';Desc:'Band of input B (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_C';Typ:'number';Desc:'Band of input C (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_D';Typ:'number';Desc:'Band of input D (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_E';Typ:'number';Desc:'Band of input E (1 = first band)';Def:'1'),
+  (A:25;Name:'BAND_F';Typ:'number';Desc:'Band of input F (1 = first band)';Def:'1'),
+  (A:25;Name:'FORMULA';Typ:'string';Desc:'Formula, e.g. (A-B)/(A+B) ; several formulas separated by ; give a multiband output';Def:''),
   (A:25;Name:'NO_DATA';Typ:'number';Desc:'Nodata value of the output';Def:'*'),
   (A:25;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Output ASCII grid (.asc)';Def:''),
   (A:26;Name:'INPUT';Typ:'vector';Desc:'Input GeoJSON file';Def:''),
@@ -1147,8 +1220,12 @@ Const
   (A:129;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
   (A:129;Name:'M_VALUE';Typ:'number';Desc:'M value';Def:'0'),
   (A:129;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer';Def:''),
-  (A:130;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
-  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
+  (A:130;Name:'LAYERS';Typ:'vector';Desc:'Input layers separated by ;';Def:''),
+  (A:130;Name:'OUTPUT';Typ:'fileDestination';Desc:'Destination GeoPackage';Def:''),
+  (A:130;Name:'OVERWRITE';Typ:'boolean';Desc:'Overwrite an existing GeoPackage';Def:'false'),
+  (A:130;Name:'SAVE_STYLES';Typ:'boolean';Desc:'Save layer styles (ignored)';Def:'false'),
+  (A:130;Name:'SAVE_METADATA';Typ:'boolean';Desc:'Save layer metadata (ignored)';Def:'false'),
+  (A:130;Name:'SELECTED_FEATURES_ONLY';Typ:'boolean';Desc:'Save only selected features (ignored)';Def:'false'),
   (A:131;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
   (A:131;Name:'OUTPUT';Typ:'string';Desc:'Output (ignored)';Def:'*'),
   (A:132;Name:'INPUT';Typ:'string';Desc:'Input (ignored)';Def:'*'),
@@ -1178,8 +1255,8 @@ Const
   (A:137;Name:'ALTITUDE';Typ:'number';Desc:'Altitude of the light (degrees)';Def:'45'),
   (A:137;Name:'COMPUTE_EDGES';Typ:'boolean';Desc:'Compute the values at the raster edges';Def:'false'),
   (A:137;Name:'ZEVENBERGEN';Typ:'boolean';Desc:'Use Zevenbergen-Thorne instead of Horn';Def:'false'),
-  (A:137;Name:'COMBINED';Typ:'boolean';Desc:'Combined shading (not supported)';Def:'false'),
-  (A:137;Name:'MULTIDIRECTIONAL';Typ:'boolean';Desc:'Multidirectional shading (not supported)';Def:'false'),
+  (A:137;Name:'COMBINED';Typ:'boolean';Desc:'Combined shading (slope and oblique shading)';Def:'false'),
+  (A:137;Name:'MULTIDIRECTIONAL';Typ:'boolean';Desc:'Multidirectional shading (4 light sources)';Def:'false'),
   (A:137;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Hillshade raster';Def:''),
   (A:138;Name:'INPUT';Typ:'raster';Desc:'Elevation raster';Def:''),
   (A:138;Name:'BAND';Typ:'number';Desc:'Band number (1 = first band)';Def:'1'),
@@ -1311,6 +1388,103 @@ Const
   (A:169;Name:'EXTENT';Typ:'string';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
   (A:169;Name:'PIXEL_SIZE';Typ:'number';Desc:'Output raster size';Def:'1'),
   (A:169;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated';Def:'')
+,
+  (A:170;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:170;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points';Def:'1'),
+  (A:170;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:170;Name:'TARGET_CRS';Typ:'crs';Desc:'Target CRS';Def:'*'),
+  (A:170;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:170;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:171;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:171;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points per feature';Def:'1'),
+  (A:171;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:171;Name:'MIN_DISTANCE_GLOBAL';Typ:'number';Desc:'Global minimum distance';Def:'0'),
+  (A:171;Name:'MAX_TRIES_PER_POINT';Typ:'number';Desc:'Maximum tries per point';Def:'10'),
+  (A:171;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:171;Name:'INCLUDE_POLYGON_ATTRIBUTES';Typ:'boolean';Desc:'Include attributes';Def:'true'),
+  (A:171;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:172;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:172;Name:'POINTS_NUMBER';Typ:'number';Desc:'Number of points per feature';Def:'1'),
+  (A:172;Name:'MIN_DISTANCE';Typ:'number';Desc:'Minimum distance between points';Def:'0'),
+  (A:172;Name:'MIN_DISTANCE_GLOBAL';Typ:'number';Desc:'Global minimum distance';Def:'0'),
+  (A:172;Name:'MAX_TRIES_PER_POINT';Typ:'number';Desc:'Maximum tries per point';Def:'10'),
+  (A:172;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:172;Name:'INCLUDE_LINE_ATTRIBUTES';Typ:'boolean';Desc:'Include attributes';Def:'true'),
+  (A:172;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points';Def:''),
+  (A:173;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:173;Name:'SPACING';Typ:'number';Desc:'Point spacing or count';Def:'100'),
+  (A:173;Name:'INSET';Typ:'number';Desc:'Initial inset from corner';Def:'0'),
+  (A:173;Name:'RANDOMIZE';Typ:'boolean';Desc:'Randomize points';Def:'false'),
+  (A:173;Name:'IS_SPACING';Typ:'boolean';Desc:'Use point spacing (else count)';Def:'true'),
+  (A:173;Name:'CRS';Typ:'crs';Desc:'Output CRS';Def:'*'),
+  (A:173;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points';Def:''),
+  (A:174;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:174;Name:'SHAPE';Typ:'enum';Desc:'0 rectangles, 1 diamonds, 2 ovals';Def:'0'),
+  (A:174;Name:'WIDTH';Typ:'number';Desc:'Width';Def:'1'),
+  (A:174;Name:'HEIGHT';Typ:'number';Desc:'Height';Def:'1'),
+  (A:174;Name:'ROTATION';Typ:'number';Desc:'Rotation (degrees)';Def:'0'),
+  (A:174;Name:'SEGMENTS';Typ:'number';Desc:'Segments for ovals';Def:'36'),
+  (A:174;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Shapes';Def:''),
+  (A:175;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:175;Name:'ROUND_TO';Typ:'number';Desc:'Round values to';Def:'0'),
+  (A:175;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent';Def:''),
+  (A:176;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:176;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding boxes';Def:''),
+  (A:177;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:177;Name:'METHOD';Typ:'enum';Desc:'0 number of features, 1 percentage';Def:'0'),
+  (A:177;Name:'NUMBER';Typ:'number';Desc:'Number or percentage';Def:'10'),
+  (A:177;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:177;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)';Def:''),
+  (A:178;Name:'INPUT';Typ:'vector';Desc:'Input points';Def:''),
+  (A:178;Name:'RASTERCOPY';Typ:'raster';Desc:'Raster layer';Def:''),
+  (A:178;Name:'BAND';Typ:'number';Desc:'Band number (1 = first band)';Def:'1'),
+  (A:178;Name:'COLUMN_PREFIX';Typ:'string';Desc:'Output column prefix';Def:'rvalue'),
+  (A:178;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Sampled';Def:''),
+  (A:179;Name:'INTERPOLATION_DATA';Typ:'string';Desc:'Layer::~::0::~::attribute index::~::0';Def:''),
+  (A:179;Name:'METHOD';Typ:'enum';Desc:'0 linear (only method supported)';Def:'0'),
+  (A:179;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax';Def:''),
+  (A:179;Name:'PIXEL_SIZE';Typ:'number';Desc:'Output raster size';Def:'1'),
+  (A:179;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated';Def:''),
+  (A:180;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:180;Name:'FIELD';Typ:'string';Desc:'Group field';Def:'*'),
+  (A:180;Name:'TYPE';Typ:'enum';Desc:'0 envelope, 1 oriented rectangle, 2 circle, 3 convex hull';Def:'0'),
+  (A:180;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding geometry';Def:''),
+  (A:181;Name:'INPUT';Typ:'vector';Desc:'Input points';Def:''),
+  (A:181;Name:'INPUT_FIELD';Typ:'string';Desc:'Input unique ID field';Def:'*'),
+  (A:181;Name:'TARGET';Typ:'vector';Desc:'Target points';Def:'*'),
+  (A:181;Name:'TARGET_FIELD';Typ:'string';Desc:'Target unique ID field';Def:'*'),
+  (A:181;Name:'MATRIX_TYPE';Typ:'enum';Desc:'0 linear, 1 standard, 2 summary';Def:'0'),
+  (A:181;Name:'NEAREST_POINTS';Typ:'number';Desc:'Use only the k nearest points (0 = all)';Def:'0'),
+  (A:181;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Distance matrix';Def:''),
+  (A:182;Name:'INPUT_LAYER';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:182;Name:'FIELD_NAME';Typ:'string';Desc:'Field to calculate statistics on';Def:''),
+  (A:182;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Statistics (HTML)';Def:'*'),
+  (A:183;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:183;Name:'VALUES_FIELD_NAME';Typ:'string';Desc:'Field to calculate statistics on';Def:'*'),
+  (A:183;Name:'CATEGORIES_FIELD_NAME';Typ:'string';Desc:'Category fields separated by commas';Def:''),
+  (A:183;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Statistics by category';Def:''),
+  (A:184;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:184;Name:'FIELDS';Typ:'string';Desc:'Field';Def:''),
+  (A:184;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'HTML report';Def:'*'),
+  (A:185;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:185;Name:'WEIGHT';Typ:'string';Desc:'Weight field';Def:'*'),
+  (A:185;Name:'UID';Typ:'string';Desc:'Unique ID field';Def:'*'),
+  (A:185;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates';Def:''),
+  (A:186;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:186;Name:'METHOD';Typ:'enum';Desc:'0 number of features, 1 percentage';Def:'0'),
+  (A:186;Name:'NUMBER';Typ:'number';Desc:'Number or percentage';Def:'10'),
+  (A:186;Name:'SEED';Typ:'number';Desc:'Random seed';Def:'*'),
+  (A:186;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)';Def:''),
+  (A:187;Name:'EXTENT';Typ:'extent';Desc:'Extent xmin,xmax,ymin,ymax [CRS]';Def:''),
+  (A:187;Name:'SPACING';Typ:'number';Desc:'Point spacing or count';Def:'100'),
+  (A:187;Name:'INSET';Typ:'number';Desc:'Initial inset from corner';Def:'0'),
+  (A:187;Name:'RANDOMIZE';Typ:'boolean';Desc:'Randomize points';Def:'false'),
+  (A:187;Name:'IS_SPACING';Typ:'boolean';Desc:'Use point spacing (else count)';Def:'true'),
+  (A:187;Name:'CRS';Typ:'crs';Desc:'Output CRS';Def:'*'),
+  (A:187;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points';Def:''),
+  (A:188;Name:'INPUT';Typ:'vector';Desc:'Input layer';Def:''),
+  (A:188;Name:'ROUND_TO';Typ:'number';Desc:'Round values to';Def:'0'),
+  (A:188;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent';Def:'')
  );
 
  Outs:Array[1..MaxOut]of OutRec=(
@@ -1470,7 +1644,8 @@ Const
   (A:127;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:128;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
   (A:129;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Output layer'),
-  (A:130;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
+  (A:130;Name:'OUTPUT';Typ:'fileDestination';Desc:'Destination GeoPackage'),
+  (A:130;Name:'OUTPUT_LAYERS';Typ:'string';Desc:'Layers written'),
   (A:131;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:132;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
   (A:133;Name:'OUTPUT';Typ:'string';Desc:'Not produced'),
@@ -1546,6 +1721,48 @@ Const
   (A:167;Name:'UNIQUE_VALUES';Typ:'number';Desc:'Unique values'),
   (A:168;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates'),
   (A:169;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated')
+,
+  (A:170;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:171;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:172;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Random points'),
+  (A:173;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points'),
+  (A:174;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Shapes'),
+  (A:175;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent'),
+  (A:176;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding boxes'),
+  (A:177;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)'),
+  (A:178;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Sampled'),
+  (A:179;Name:'OUTPUT';Typ:'rasterDestination';Desc:'Interpolated'),
+  (A:180;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Bounding geometry'),
+  (A:181;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Distance matrix'),
+  (A:182;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'Statistics'),
+  (A:182;Name:'COUNT';Typ:'number';Desc:'Count'),
+  (A:182;Name:'UNIQUE';Typ:'number';Desc:'Unique values'),
+  (A:182;Name:'EMPTY';Typ:'number';Desc:'Empty values'),
+  (A:182;Name:'FILLED';Typ:'number';Desc:'Filled values'),
+  (A:182;Name:'MIN';Typ:'number';Desc:'Minimum'),
+  (A:182;Name:'MAX';Typ:'number';Desc:'Maximum'),
+  (A:182;Name:'RANGE';Typ:'number';Desc:'Range'),
+  (A:182;Name:'SUM';Typ:'number';Desc:'Sum'),
+  (A:182;Name:'MEAN';Typ:'number';Desc:'Mean'),
+  (A:182;Name:'MEDIAN';Typ:'number';Desc:'Median'),
+  (A:182;Name:'STD_DEV';Typ:'number';Desc:'Standard deviation'),
+  (A:182;Name:'CV';Typ:'number';Desc:'Coefficient of variation'),
+  (A:182;Name:'MINORITY';Typ:'number';Desc:'Minority'),
+  (A:182;Name:'MAJORITY';Typ:'number';Desc:'Majority'),
+  (A:182;Name:'FIRSTQUARTILE';Typ:'number';Desc:'First quartile'),
+  (A:182;Name:'THIRDQUARTILE';Typ:'number';Desc:'Third quartile'),
+  (A:182;Name:'IQR';Typ:'number';Desc:'Interquartile range'),
+  (A:182;Name:'MIN_LENGTH';Typ:'number';Desc:'Minimum length'),
+  (A:182;Name:'MAX_LENGTH';Typ:'number';Desc:'Maximum length'),
+  (A:182;Name:'MEAN_LENGTH';Typ:'number';Desc:'Mean length'),
+  (A:183;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Statistics by category'),
+  (A:184;Name:'OUTPUT_HTML_FILE';Typ:'fileDestination';Desc:'HTML report'),
+  (A:184;Name:'TOTAL_VALUES';Typ:'number';Desc:'Total values'),
+  (A:184;Name:'UNIQUE_VALUES';Typ:'number';Desc:'Unique values'),
+  (A:185;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Mean coordinates'),
+  (A:186;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extracted (random)'),
+  (A:187;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Regular points'),
+  (A:188;Name:'OUTPUT';Typ:'vectorDestination';Desc:'Extent')
  );
 
 Type
@@ -1598,6 +1815,8 @@ Type
   Data:PReals;
  DType:Byte;
  Epsg:LongInt;
+ XN:Integer;                 { bandes supplementaires (numeros 2 a XN+1) }
+ XB:Array[2..16]of PReals;
  End;
  PGeom=^TGeom;
  PValList=^TValList;
@@ -1776,10 +1995,32 @@ Begin
                          Else JsonVal:=JsonStr(S);
 End;
 
+{ Code de retour : 1 erreur d'execution, 2 commande ou algorithme invalide,
+  3 parametre invalide ou manquant, 4 fichier illisible, inexistant ou format non pris en charge }
+Function ErrorCode(Const Msg:String):Integer;Begin
+ ErrorCode:=1;
+ If(Pos('unexpected argument',Msg)>0)or(Pos('algorithm "',Msg)>0)or(Pos('unknown command',Msg)>0)Then ErrorCode:=2 Else
+ If(Pos('unknown parameter',Msg)>0)or(Pos('missing required parameter',Msg)>0)or(Pos('invalid value for parameter',Msg)>0)or
+   (Pos('invalid boolean',Msg)>0)or(Pos('invalid band',Msg)>0)or(Pos('invalid enumeration',Msg)>0)or(Pos('too many parameters',Msg)>0)Then ErrorCode:=3 Else
+ If(Pos('cannot read',Msg)>0)or(Pos('cannot write',Msg)>0)or(Pos('cannot open',Msg)>0)or(Pos('unable to open',Msg)>0)or(Pos('unable to read',Msg)>0)or(Pos('unsupported vector format',Msg)>0)or
+   (Pos('unsupported raster',Msg)>0)or(Pos('unsupported output',Msg)>0)or(Pos('project file',Msg)>0)or(Pos('not found in',Msg)>0)Then ErrorCode:=4;
+End;
+
+{$IFNDEF FPC_TP}
+Type
+ ETryFail=class(TObject)
+ End;
+{$ENDIF}
+Var
+ TryDepth:Integer;     { > 0 : les erreurs sont levees comme exceptions (fonction try()) }
+
 Procedure Fail(Msg:String);Begin
+{$IFNDEF FPC_TP}
+ If TryDepth>0Then Raise ETryFail.Create;
+{$ENDIF}
  If JsonMode Then WriteLn('{"error":',JsonStr(Msg),'}')
              Else WriteLn(Msg);
- Halt(1);
+ Halt(ErrorCode(Msg));
 End;
 
 { Metres par unite de distance (0 si l'unite est inconnue) }
@@ -1840,8 +2081,13 @@ Function MkStr(S:String):PStr;
 Var
  P:PStr;
 Begin
+{$IFDEF FPC_TP}
  GetMem(P,Length(S)+1);
  Move(S,P^,Length(S)+1);
+{$ELSE}
+ New(P);
+ P^:=S;
+{$ENDIF}
  MkStr:=P;
 End;
 
@@ -1988,7 +2234,7 @@ Begin
  NextCh;
  While PCh<>'"'do Begin
   If PCh=#0Then PFail('unterminated string');
-  If Length(S)>=250Then PFail('string longer than 250 characters');
+  If Length(S)>=MaxStr-5Then PFail('string too long');
   If PCh='\'Then Begin
    S:=S+PCh;
    NextCh;
@@ -2628,12 +2874,173 @@ Begin
  CrsIsGeographic:=CrsDefine(Code,C)and(C.Kind=KGeo);
 End;
 
+{ ---- grilles de changement de datum NTv2 (.gsb) ---- }
+
+Type
+ TNtvGrid=Record
+  B:PBytes;
+  Size:LongInt;
+  Big:Boolean;
+  NSub:Integer;
+  SubOff:Array[1..64]of LongInt;
+  Ell:Byte;
+  Dx,Dy,Dz:Real;
+ End;
+
+Var
+ Ntv:Array[1..4]of TNtvGrid;
+ NtvN:Integer;
+
+Function NtvI32(Var G:TNtvGrid;Off:LongInt):LongInt;
+Var
+ V:LongInt;
+ T:Array[0..3]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 3do T[3-I]:=G.B^[Off+I]
+          Else For I:=0 to 3do T[I]:=G.B^[Off+I];
+ NtvI32:=V;
+End;
+
+Function NtvF32(Var G:TNtvGrid;Off:LongInt):Real;
+Var
+ V:Single;
+ T:Array[0..3]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 3do T[3-I]:=G.B^[Off+I]
+          Else For I:=0 to 3do T[I]:=G.B^[Off+I];
+ NtvF32:=V;
+End;
+
+Function NtvF64(Var G:TNtvGrid;Off:LongInt):Real;
+Var
+ V:Double;
+ T:Array[0..7]of Byte absolute V;
+ I:Integer;
+Begin
+ If G.Big Then For I:=0 to 7do T[7-I]:=G.B^[Off+I]
+          Else For I:=0 to 7do T[I]:=G.B^[Off+I];
+ NtvF64:=V;
+End;
+
+Function LoadFileBytes(FileName:String;Var Size:LongInt):PBytes;Forward;
+
+{ Associe un fichier NTv2 au datum du SCR Code }
+Procedure LoadNtv(Code:LongInt;FileName:String);
+Var
+ G:^TNtvGrid;
+ C:TCrs;
+ K,Off,Cnt,NF:LongInt;
+Begin
+ If NtvN>=4Then Fail('Error: at most 4 datum grids are supported');
+ If Not CrsDefine(Code,C)Then Fail('Error: unsupported CRS EPSG:'+IntToStr(Code)+' for the datum grid');
+ Inc(NtvN);
+ G:=@Ntv[NtvN];
+ G^.B:=LoadFileBytes(FileName,G^.Size);
+ If G^.B=Nil Then Fail('Error: unable to open datum grid '+FileName);
+ If(G^.Size<176)or(G^.B^[0]<>Ord('N'))or(G^.B^[1]<>Ord('U'))Then Fail('Error: '+FileName+' is not an NTv2 grid');
+ G^.Big:=False;
+ If NtvI32(G^,8)<>11Then G^.Big:=True;
+ If NtvI32(G^,8)<>11Then Fail('Error: invalid NTv2 grid '+FileName);
+ NF:=NtvI32(G^,40);
+ If(NF<1)or(NF>64)Then Fail('Error: invalid NTv2 subgrid count in '+FileName);
+ G^.NSub:=0;
+ Off:=176;
+ For K:=1 to NF do Begin
+  If Off+176>G^.Size Then Fail('Error: truncated NTv2 grid '+FileName);
+  Inc(G^.NSub);G^.SubOff[G^.NSub]:=Off;
+  Cnt:=NtvI32(G^,Off+168);
+  Off:=Off+176+Cnt*16;
+ End;
+ G^.Ell:=C.Ell;G^.Dx:=C.Dx;G^.Dy:=C.Dy;G^.Dz:=C.Dz;
+End;
+
+Function GridOf(Var C:TCrs):Integer;
+Var
+ I:Integer;
+Begin
+ GridOf:=0;
+ For I:=1 to NtvN do
+  If(Ntv[I].Ell=C.Ell)and(Ntv[I].Dx=C.Dx)and(Ntv[I].Dy=C.Dy)and(Ntv[I].Dz=C.Dz)Then Begin GridOf:=I;Exit;End;
+End;
+
+{ Decalage (degres) a ajouter a (Lon, Lat) ; faux hors de la grille }
+Function NtvShift(I:Integer;Lon,Lat:Real;Var DLon,DLat:Real):Boolean;
+Var
+ G:^TNtvGrid;
+ K,Sb,Best,Nr,Nc,R0,C0:LongInt;
+ Slat,Nlat,Elon,Wlon,Li,Lo,La,Wl,Fy,Fx,A,B,C,D,Off,Pa:Real;
+ Hd,Ptr:LongInt;
+ Parent:String;
+ Fine:Boolean;
+
+ Function Node(R,Cc:LongInt;Which:Integer):Real;Begin
+  Node:=NtvF32(G^,Hd+176+(R*Nc+Cc)*16+Which*4);
+ End;
+
+Begin
+ NtvShift:=False;
+ G:=@Ntv[I];
+ La:=Lat*3600;
+ Wl:=-Lon*3600;
+ Best:=0;
+ For K:=1 to G^.NSub do Begin
+  Sb:=G^.SubOff[K];
+  Slat:=NtvF64(G^,Sb+72);Nlat:=NtvF64(G^,Sb+88);Elon:=NtvF64(G^,Sb+104);Wlon:=NtvF64(G^,Sb+120);
+  If(La>=Slat)and(La<=Nlat)and(Wl>=Elon)and(Wl<=Wlon)Then Begin
+   { le sous-grille le plus fin : celui dont le parent n'est pas "NONE" }
+   Fine:=Not((G^.B^[Sb+24]=Ord('N'))and(G^.B^[Sb+25]=Ord('O'))and(G^.B^[Sb+26]=Ord('N')));
+   If(Best=0)or Fine Then Best:=K;
+  End;
+ End;
+ If Best=0Then Exit;
+ Hd:=G^.SubOff[Best];
+ Slat:=NtvF64(G^,Hd+72);Nlat:=NtvF64(G^,Hd+88);Elon:=NtvF64(G^,Hd+104);Wlon:=NtvF64(G^,Hd+120);
+ Li:=NtvF64(G^,Hd+136);Lo:=NtvF64(G^,Hd+152);
+ If(Li<=0)or(Lo<=0)Then Exit;
+ Nr:=Round((Nlat-Slat)/Li)+1;
+ Nc:=Round((Wlon-Elon)/Lo)+1;
+ Fy:=(La-Slat)/Li;Fx:=(Wl-Elon)/Lo;
+ R0:=Trunc(Fy);C0:=Trunc(Fx);
+ If R0>=Nr-1Then R0:=Nr-2;
+ If C0>=Nc-1Then C0:=Nc-2;
+ If(R0<0)or(C0<0)Then Exit;
+ Fy:=Fy-R0;Fx:=Fx-C0;
+ { decalage en latitude (secondes) }
+ A:=Node(R0,C0,0);B:=Node(R0,C0+1,0);C:=Node(R0+1,C0,0);D:=Node(R0+1,C0+1,0);
+ DLat:=((A*(1-Fx)+B*Fx)*(1-Fy)+(C*(1-Fx)+D*Fx)*Fy)/3600;
+ { decalage en longitude (secondes, positif vers l'ouest) }
+ A:=Node(R0,C0,1);B:=Node(R0,C0+1,1);C:=Node(R0+1,C0,1);D:=Node(R0+1,C0+1,1);
+ DLon:=-((A*(1-Fx)+B*Fx)*(1-Fy)+(C*(1-Fx)+D*Fx)*Fy)/3600;
+ NtvShift:=True;
+End;
+
 { Changement de datum par translation geocentrique : Dir=1 de C vers WGS84, Dir=-1 de WGS84 vers C }
 Procedure DatumShift(Var C:TCrs;Dir:Integer;Var Lon,Lat:Real);
 Var
  A1,F1,E1,A2,F2,E2,P,L,Nn,X,Y,Z,Pn,Lt,Xs,Rxx,Ryy,Rzz,Xn,Yn,Zn2:Real;
- It:Integer;
+ It,Gi:Integer;
+ Dl,Dt,L0,T0,Gl,Gt:Real;
 Begin
+ Gi:=GridOf(C);
+ If Gi>0Then Begin
+  If Dir=1Then Begin
+   If NtvShift(Gi,Lon,Lat,Dl,Dt)Then Begin Lon:=Lon+Dl;Lat:=Lat+Dt;Exit;End;
+  End
+   Else
+  Begin
+   L0:=Lon;T0:=Lat;Gl:=L0;Gt:=T0;
+   If NtvShift(Gi,Gl,Gt,Dl,Dt)Then Begin
+    For It:=1 to 6do Begin
+     If Not NtvShift(Gi,Gl,Gt,Dl,Dt)Then Break;
+     Gl:=L0-Dl;Gt:=T0-Dt;
+    End;
+    Lon:=Gl;Lat:=Gt;
+    Exit;
+   End;
+  End;
+ End;
  If Dir=1Then Begin
   A1:=C.EA;F1:=1/C.EF;A2:=EllA[1];F2:=1/EllRf[1];
  End
@@ -2663,7 +3070,7 @@ Begin
 End;
 
 Function HasShift(Var C:TCrs):Boolean;Begin
- HasShift:=(C.Dx<>0)or(C.Dy<>0)or(C.Dz<>0)or(C.Sc<>0)or(C.Rx<>0)or(C.Ry<>0)or(C.Rz<>0);
+ HasShift:=(C.Dx<>0)or(C.Dy<>0)or(C.Dz<>0)or(C.Sc<>0)or(C.Rx<>0)or(C.Ry<>0)or(C.Rz<>0)or(GridOf(C)>0);
 End;
 
 Function TryTransform(Src,Dst:LongInt;Var X,Y:Real):Boolean;
@@ -2692,7 +3099,7 @@ Begin
  While(S<>'')and(S[1]=' ')do Delete(S,1,1);
  P:=Pos(' ',S);
  If P=0Then Begin NextWord:=S;S:='';End
-       Else Begin NextWord:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End;
+       Else Begin NextWord:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End;
 End;
 
 Function RegisterCustom(Var C:TCrs):LongInt;
@@ -2733,25 +3140,25 @@ Var
  T:TCrs;
  I,Zn:Integer;
 
- Function Try(Code:LongInt):Boolean;Begin
-  Try:=CrsDefine(Code,T)and SameCrs(C,T);
+ Function TryCode(Code:LongInt):Boolean;Begin
+  TryCode:=CrsDefine(Code,T)and SameCrs(C,T);
  End;
 
 Begin
  MatchKnown:=0;
- For I:=1 to 23do If Try(Cand[I])Then Begin MatchKnown:=Cand[I];Exit;End;
+ For I:=1 to 23do If TryCode(Cand[I])Then Begin MatchKnown:=Cand[I];Exit;End;
  For Zn:=1 to 60do Begin
-  If Try(32600+Zn)Then Begin MatchKnown:=32600+Zn;Exit;End;
-  If Try(32700+Zn)Then Begin MatchKnown:=32700+Zn;Exit;End;
+  If TryCode(32600+Zn)Then Begin MatchKnown:=32600+Zn;Exit;End;
+  If TryCode(32700+Zn)Then Begin MatchKnown:=32700+Zn;Exit;End;
  End;
- For Zn:=1 to 23do If Try(26900+Zn)Then Begin MatchKnown:=26900+Zn;Exit;End;
- For Zn:=3 to 22do If Try(26700+Zn)Then Begin MatchKnown:=26700+Zn;Exit;End;
+ For Zn:=1 to 23do If TryCode(26900+Zn)Then Begin MatchKnown:=26900+Zn;Exit;End;
+ For Zn:=3 to 22do If TryCode(26700+Zn)Then Begin MatchKnown:=26700+Zn;Exit;End;
  For Zn:=28 to 38do Begin
-  If Try(25800+Zn)Then Begin MatchKnown:=25800+Zn;Exit;End;
-  If Try(23000+Zn)Then Begin MatchKnown:=23000+Zn;Exit;End;
+  If TryCode(25800+Zn)Then Begin MatchKnown:=25800+Zn;Exit;End;
+  If TryCode(23000+Zn)Then Begin MatchKnown:=23000+Zn;Exit;End;
  End;
- For Zn:=3 to 10do If Try(32180+Zn)Then Begin MatchKnown:=32180+Zn;Exit;End;
- If Try(4326)Then Begin MatchKnown:=4326;Exit;End;
+ For Zn:=3 to 10do If TryCode(32180+Zn)Then Begin MatchKnown:=32180+Zn;Exit;End;
+ If TryCode(4326)Then Begin MatchKnown:=4326;Exit;End;
 End;
 
 { "+proj=utm +zone=33 +datum=WGS84" -> code (0 si non gere) }
@@ -7304,7 +7711,7 @@ Begin
  FileExt:='';
  For I:=Length(S)downto 1do Begin
   If S[I]in['/','\']Then Exit;
-  If S[I]='.'Then Begin FileExt:=StrUpper(Copy(S,I,255));Exit;End;
+  If S[I]='.'Then Begin FileExt:=StrUpper(Copy(S,I,MaxStr));Exit;End;
  End;
 End;
 
@@ -7328,27 +7735,32 @@ Begin
 End;
 
 { Decoupe une source "chemin|layername=nom|subset=expression" }
+Var
+ UriIds:String;      { option featureids=0,3,5 : entites retenues (indices a partir de 0) }
+ InvalidMode:Integer;{ 0 ignorer, 1 ignorer les entites invalides, 2 arreter }
+
 Procedure ParseUri(Uri:String;Var Path,LayerName,Subset:String);
 Var
  P:Integer;
  Rest,Part,Key:String;
 Begin
- Path:=Uri;LayerName:='';Subset:='';
+ Path:=Uri;LayerName:='';Subset:='';UriIds:='';
  P:=Pos('|',Uri);
  If P=0Then Exit;
  Path:=Copy(Uri,1,P-1);
- Rest:=Copy(Uri,P+1,255);
+ Rest:=Copy(Uri,P+1,MaxStr);
  While Rest<>''do Begin
   P:=Pos('|',Rest);
   If P=0Then Begin Part:=Rest;Rest:='';End
-        Else Begin Part:=Copy(Rest,1,P-1);Rest:=Copy(Rest,P+1,255);End;
+        Else Begin Part:=Copy(Rest,1,P-1);Rest:=Copy(Rest,P+1,MaxStr);End;
   P:=Pos('=',Part);
   If P>0Then Begin
    Key:=StrUpper(Copy(Part,1,P-1));
-   If Key='LAYERNAME'Then LayerName:=Copy(Part,P+1,255) Else
+   If Key='LAYERNAME'Then LayerName:=Copy(Part,P+1,MaxStr) Else
+   If(Key='FEATUREIDS')or(Key='SELECTED')Then UriIds:=Copy(Part,P+1,MaxStr) Else
    If Key='SUBSET'Then Begin
     { l'expression peut contenir des "|" : on garde tout le reste }
-    Subset:=Copy(Part,P+1,255);
+    Subset:=Copy(Part,P+1,MaxStr);
     If Rest<>''Then Subset:=Subset+'|'+Rest;
     Rest:='';
    End;
@@ -7363,7 +7775,7 @@ Var
 Begin
  T:='';
  For I:=1 to Length(S)do Begin
-  If Length(T)>=250Then Break;
+  If Length(T)>=MaxStr-5Then Break;
   Case S[I]of
    '"':T:=T+'\"';
    '\':T:=T+'\\';
@@ -7415,6 +7827,8 @@ End;
 { Polygones d'un enregistrement : imbrication paire = exterieur, impaire = trou }
 Function ShpPolygon(B:PBytes;P:LongInt):PJ;
 Var
+ ZOff,MOff:LongInt;
+ HasZ,HasM:Boolean;
  NParts,NPts,I,J,K,S0,S1:LongInt;
  Parts:PLongs;
  G,R,EG,HG:TGeom;
@@ -7428,6 +7842,15 @@ Begin
  NPts:=RdLE32(B,P+40);
  Parts:=AllocBlock((NParts+1)*SizeOf(LongInt));
  For I:=0 to NParts-1do Parts^[I]:=RdLE32(B,P+44+4*I);
+ ZOff:=P+44+4*NParts+16*NPts+16;
+ HasZ:=RdLE32(B,P)=15;
+ HasM:=False;
+ If HasZ Then Begin
+  MOff:=ZOff+8*NPts+16;
+  HasM:=MOff+8*NPts<=ShpRecEnd;
+ End
+  Else
+ If RdLE32(B,P)=25Then Begin MOff:=ZOff;HasM:=True;End;
  InitGeom(G);G.Cls:=3;
  For I:=0 to NParts-1do Begin
   S0:=Parts^[I];
@@ -7437,7 +7860,13 @@ Begin
    For J:=S0 to S1-1do Begin
     Pa^.Pts^[J-S0].X:=RdDouble(B,P+44+4*NParts+16*J);
     Pa^.Pts^[J-S0].Y:=RdDouble(B,P+44+4*NParts+16*J+8);
+    If HasZ Then Pa^.Pts^[J-S0].Z:=RdDouble(B,ZOff+8*J);
+    If HasM Then Begin
+     Pa^.Pts^[J-S0].M:=RdDouble(B,MOff+8*J);
+     If Pa^.Pts^[J-S0].M<=-9.9E37Then Pa^.Pts^[J-S0].M:=0;
+    End;
    End;
+   Pa^.HZ:=HasZ;Pa^.HM:=HasM;
    If(Pa^.Pts^[0].X<>Pa^.Pts^[S1-S0-1].X)or(Pa^.Pts^[0].Y<>Pa^.Pts^[S1-S0-1].Y)Then Begin
     Pa^.Pts^[S1-S0]:=Pa^.Pts^[0];Pa^.N:=S1-S0+1;
    End
@@ -7576,9 +8005,9 @@ Begin
    If NParts=1Then R:=GeomNode('LineString',Multi^.First)
               Else R:=GeomNode('MultiLineString',Multi);
   End;
-  5,15,25:R:=ShpPolygon(B,P);
+  5,15,25:Begin R:=ShpPolygon(B,P);HasM:=Typ=25;End;
  End;
- If(R<>Nil)and HasM and Not HasZ and Not(Typ in[5,15,25])Then JAddKV(R,'mOnly',JNum(1));
+ If(R<>Nil)and HasM and Not HasZ Then JAddKV(R,'mOnly',JNum(1));
  ShpGeometry:=R;
 End;
 
@@ -7629,7 +8058,7 @@ Begin
  While Rest<>''do Begin
   I:=Pos('|',Rest);
   If I=0Then Begin Nm:=Rest;Rest:='';End
-        Else Begin Nm:=Copy(Rest,1,I-1);Rest:=Copy(Rest,I+1,255);End;
+        Else Begin Nm:=Copy(Rest,1,I-1);Rest:=Copy(Rest,I+1,MaxStr);End;
   P:=0;
   Repeat
    P:=WkFind('PARAMETER["'+Nm+'"',P);
@@ -7865,7 +8294,7 @@ Begin
  If B=Nil Then Exit;
  S:='';
  For I:=0 to Size-1do Begin
-  If Length(S)>=250Then Break;
+  If Length(S)>=MaxStr-5Then Break;
   If B^[I]>=32Then S:=S+Chr(B^[I]);
  End;
  FreeMem(B,Size+8);
@@ -7956,7 +8385,7 @@ Begin
      Inc(Off,FWidth[I]);
      While(S<>'')and(S[Length(S)]in[' ',#0])do S:=Copy(S,1,Length(S)-1);
      If FType[I]in['N','F']Then Begin
-      While(S<>'')and(S[1]=' ')do S:=Copy(S,2,255);
+      While(S<>'')and(S[1]=' ')do S:=Copy(S,2,MaxStr);
       Val(S,R,E);
       If(S='')or(E<>0)Then Node:=NewJ(0) Else Node:=JNum(R);
      End
@@ -9271,7 +9700,167 @@ Begin
  Fail('Error: unsupported WKT geometry type '+T);
 End;
 
+{ ---- courbes conservees dans le DOM (cle "curve" de la geometrie linearisee) ---- }
+
+Function CurveCoord(X,Y:Real;HasZ:Boolean;Z:Real):PJ;
+Var
+ N:PJ;
+Begin
+ N:=NewJ(4);
+ JAdd(N,JNum(X));JAdd(N,JNum(Y));
+ If HasZ Then JAdd(N,JNum(Z));
+ CurveCoord:=N;
+End;
+
+{ "(x y [z] [m], ...)" -> tableau de positions }
+Function WktCurvePts:PJ;
+Var
+ A:PJ;
+ X,Y:Real;
+Begin
+ A:=NewJ(4);
+ WNeed('(');
+ Repeat
+  WCoord(X,Y);
+  JAdd(A,CurveCoord(X,Y,GcHZ,GcZ));
+ Until Not WCh(',');
+ WNeed(')');
+ WktCurvePts:=A;
+End;
+
+Function WktCurveNode(Plain:Boolean):PJ;Forward;
+
+{ Un element de courbe ; Plain : "(x y, ...)" sans mot-cle = ligne }
+Function WktCurveNode(Plain:Boolean):PJ;
+Var
+ T:String;
+ N,Arr:PJ;
+ Em:Boolean;
+ Sv:Integer;
+Begin
+ WktCurveNode:=Nil;
+ If WPeek=40Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('LineString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+  WktCurveNode:=N;
+  Exit;
+ End;
+ T:=WWord;
+ Sv:=WTag;
+ WTagWords(Em);
+ N:=NewJ(5);
+ If T='CIRCULARSTRING'Then Begin
+  JAddKV(N,'type',JText('CircularString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+ End Else
+ If T='LINESTRING'Then Begin
+  JAddKV(N,'type',JText('LineString'));
+  JAddKV(N,'coordinates',WktCurvePts);
+ End Else
+ If T='COMPOUNDCURVE'Then Begin
+  JAddKV(N,'type',JText('CompoundCurve'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'curves',Arr);
+ End
+  Else
+ WFail;
+ WTag:=Sv;
+ WktCurveNode:=N;
+End;
+
+Function WktPolygonNode:PJ;
+Var
+ N,Arr:PJ;
+Begin
+ N:=NewJ(5);
+ JAddKV(N,'type',JText('Polygon'));
+ Arr:=NewJ(4);
+ WNeed('(');
+ Repeat JAdd(Arr,WktCurvePts);Until Not WCh(',');
+ WNeed(')');
+ JAddKV(N,'coordinates',Arr);
+ WktPolygonNode:=N;
+End;
+
+Function WktCurvePolygon:PJ;
+Var
+ N,Arr:PJ;
+Begin
+ N:=NewJ(5);
+ JAddKV(N,'type',JText('CurvePolygon'));
+ Arr:=NewJ(4);
+ WNeed('(');
+ Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+ WNeed(')');
+ JAddKV(N,'rings',Arr);
+ WktCurvePolygon:=N;
+End;
+
+{ Geometrie courbe de premier niveau (Nil si le texte n'en est pas une) }
+Function WktCurveDom(B:PBytes;S,E:LongInt):PJ;
+Var
+ T:String;
+ Em:Boolean;
+ N,Arr:PJ;
+Begin
+ WktCurveDom:=Nil;
+ WB:=B;WP:=S;WE:=E;
+ WSkip;
+ If(WE-WP>5)and(UpCase(Chr(WB^[WP]))='S')and(UpCase(Chr(WB^[WP+1]))='R')and(UpCase(Chr(WB^[WP+2]))='I')Then Begin
+  While(WP<WE)and(WB^[WP]<>59)do Inc(WP);
+  Inc(WP);
+ End;
+ T:=WWord;
+ WTag:=0;
+ WTagWords(Em);
+ If Em Then Exit;
+ If(T='CIRCULARSTRING')or(T='COMPOUNDCURVE')Then Begin
+  WP:=S;
+  WSkip;
+  If(WE-WP>5)and(UpCase(Chr(WB^[WP]))='S')and(UpCase(Chr(WB^[WP+1]))='R')and(UpCase(Chr(WB^[WP+2]))='I')Then Begin
+   While(WP<WE)and(WB^[WP]<>59)do Inc(WP);
+   Inc(WP);
+  End;
+  WTag:=0;
+  WktCurveDom:=WktCurveNode(False);
+ End Else
+ If T='CURVEPOLYGON'Then WktCurveDom:=WktCurvePolygon Else
+ If T='MULTICURVE'Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('MultiCurve'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat JAdd(Arr,WktCurveNode(True));Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'curves',Arr);
+  WktCurveDom:=N;
+ End Else
+ If T='MULTISURFACE'Then Begin
+  N:=NewJ(5);
+  JAddKV(N,'type',JText('MultiSurface'));
+  Arr:=NewJ(4);
+  WNeed('(');
+  Repeat
+   If WPeek=40Then JAdd(Arr,WktPolygonNode)
+    Else Begin
+     WWord;
+     WTagWords(Em);
+     JAdd(Arr,WktCurvePolygon);
+    End;
+  Until Not WCh(',');
+  WNeed(')');
+  JAddKV(N,'surfaces',Arr);
+  WktCurveDom:=N;
+ End;
+End;
+
 Function WktToGeom(B:PBytes;S,E:LongInt):PJ;
+Var
+ R,Cv:PJ;
 Begin
  WktToGeom:=Nil;
  WB:=B;WP:=S;WE:=E;
@@ -9283,7 +9872,12 @@ Begin
  End;
  GcInit;
  WGeom;
- WktToGeom:=GcResult;
+ R:=GcResult;
+ If R<>Nil Then Begin
+  Cv:=WktCurveDom(B,S,E);
+  If Cv<>Nil Then JAddKV(R,'curve',Cv);
+ End;
+ WktToGeom:=R;
 End;
 
 { ---- WKB ---- }
@@ -9497,12 +10091,234 @@ Begin
  KHasZ:=SvZ;KHasM:=SvM;
 End;
 
-Function WkbToGeom(B:PBytes;S,E:LongInt):PJ;Begin
+{ Courbes WKB -> DOM }
+Function KCurveCoords(LE:Boolean;N:LongInt):PJ;
+Var
+ A:PJ;
+ I:LongInt;
+ X,Y:Real;
+Begin
+ A:=NewJ(4);
+ If(N<0)or(KP+N*8*(2+Ord(KHasZ)+Ord(KHasM))>KE)Then KFail;
+ For I:=1 to N do Begin
+  KCoord(LE,X,Y);
+  JAdd(A,CurveCoord(X,Y,KHasZ,GcZ));
+ End;
+ KCurveCoords:=A;
+End;
+
+Function KCurveNode(Lvl:Integer):PJ;Forward;
+
+Function KCurveNode(Lvl:Integer):PJ;
+Var
+ LE:Boolean;
+ T,Hi,Base,N,I:LongInt;
+ Nd,Arr:PJ;
+ SvZ,SvM:Boolean;
+ Kind:String;
+Begin
+ If KP+5>KE Then KFail;
+ LE:=KB^[KP]=1;
+ Inc(KP);
+ If LE Then Begin T:=RdLE32(KB,KP)and $FFFF;Hi:=KB^[KP+3];End
+       Else Begin T:=RdBE32(KB,KP)and $FFFF;Hi:=KB^[KP];End;
+ Inc(KP,4);
+ SvZ:=KHasZ;SvM:=KHasM;
+ KHasZ:=((Hi and $80)<>0)or((T div 1000)in[1,3]);
+ KHasM:=((Hi and $40)<>0)or((T div 1000)in[2,3]);
+ If(Hi and $20)<>0Then KU32(LE);
+ Base:=T mod 1000;
+ N:=KU32(LE);
+ Nd:=NewJ(5);
+ Case Base of
+  2:Begin JAddKV(Nd,'type',JText('LineString'));JAddKV(Nd,'coordinates',KCurveCoords(LE,N));End;
+  8:Begin JAddKV(Nd,'type',JText('CircularString'));JAddKV(Nd,'coordinates',KCurveCoords(LE,N));End;
+  3:Begin
+   JAddKV(Nd,'type',JText('Polygon'));
+   Arr:=NewJ(4);
+   For I:=1 to N do JAdd(Arr,KCurveCoords(LE,KU32(LE)));
+   JAddKV(Nd,'coordinates',Arr);
+  End;
+  9,10,11,12:Begin
+   Case Base of 9:Kind:='CompoundCurve';10:Kind:='CurvePolygon';11:Kind:='MultiCurve';Else Kind:='MultiSurface';End;
+   JAddKV(Nd,'type',JText(Kind));
+   If(N<0)or(N>KE-KP)Then KFail;
+   Arr:=NewJ(4);
+   For I:=1 to N do JAdd(Arr,KCurveNode(Lvl+1));
+   Case Base of 10:JAddKV(Nd,'rings',Arr);12:JAddKV(Nd,'surfaces',Arr);Else JAddKV(Nd,'curves',Arr);End;
+  End;
+  Else KFail;
+ End;
+ KHasZ:=SvZ;KHasM:=SvM;
+ KCurveNode:=Nd;
+End;
+
+Function WkbToGeom(B:PBytes;S,E:LongInt):PJ;
+Var
+ R:PJ;
+ T:LongInt;
+ LE:Boolean;
+Begin
  KB:=B;KP:=S;KE:=E;
  GcInit;
  WkbGeom;
- WkbToGeom:=GcResult;
+ R:=GcResult;
+ If(R<>Nil)and(S+5<=E)Then Begin
+  LE:=B^[S]=1;
+  If LE Then T:=RdLE32(B,S+1)and $FFFF Else T:=RdBE32(B,S+1)and $FFFF;
+  T:=T mod 1000;
+  If(T>=8)and(T<=12)Then Begin
+   KP:=S;KHasZ:=False;KHasM:=False;
+   JAddKV(R,'curve',KCurveNode(0));
+  End;
+ End;
+ WkbToGeom:=R;
 End;
+
+{ Courbes DOM -> WKT }
+Function CurveHasZ(N:PJ):Boolean;
+Var
+ C:PJ;
+Begin
+ CurveHasZ:=False;
+ If(N=Nil)or(N^.Kind<>5)Then Exit;
+ C:=JFind(N,'coordinates');
+ If(C=Nil)Then Begin
+  C:=JFind(N,'curves');
+  If C=Nil Then C:=JFind(N,'rings');
+  If C=Nil Then C:=JFind(N,'surfaces');
+  If(C<>Nil)and(C^.First<>Nil)Then CurveHasZ:=CurveHasZ(C^.First);
+  Exit;
+ End;
+ { tableau de positions ou de tableaux de positions }
+ While(C<>Nil)and(C^.Kind=4)and(C^.First<>Nil)and(C^.First^.Kind=4)do C:=C^.First;
+ If(C<>Nil)and(C^.Kind=4)and(C^.First<>Nil)and(C^.First^.Next<>Nil)and(C^.First^.Next^.Next<>Nil)Then CurveHasZ:=True;
+End;
+
+Procedure CurvePtsWkt(Var B:TBuf;A:PJ;Z:Boolean);
+Var
+ C:PJ;
+ First:Boolean;
+ S:String;
+Begin
+ BufText(B,'(');
+ First:=True;
+ C:=A^.First;
+ While C<>Nil do Begin
+  If Not First Then BufText(B,', ');
+  First:=False;
+  S:=NumStr(NumOf(C^.First))+' '+NumStr(NumOf(C^.First^.Next));
+  If Z and(C^.First^.Next^.Next<>Nil)Then S:=S+' '+NumStr(NumOf(C^.First^.Next^.Next));
+  BufText(B,S);
+  C:=C^.Next;
+ End;
+ BufText(B,')');
+End;
+
+Procedure CurveWkt(Var B:TBuf;N:PJ;Keyword,Z:Boolean);
+Var
+ T,Zt:String;
+ C,R:PJ;
+ First:Boolean;
+Begin
+ T:=JVal(JFind(N,'type'));
+ If Z Then Zt:=' Z' Else Zt:='';
+ If T='LineString'Then Begin
+  If Keyword Then BufText(B,'LINESTRING'+Zt+' ');
+  CurvePtsWkt(B,JFind(N,'coordinates'),Z);
+ End Else
+ If T='CircularString'Then Begin
+  BufText(B,'CIRCULARSTRING'+Zt+' ');
+  CurvePtsWkt(B,JFind(N,'coordinates'),Z);
+ End Else
+ If T='Polygon'Then Begin
+  If Keyword Then BufText(B,'POLYGON'+Zt+' ');
+  BufText(B,'(');
+  First:=True;
+  R:=JFind(N,'coordinates')^.First;
+  While R<>Nil do Begin
+   If Not First Then BufText(B,', ');
+   First:=False;
+   CurvePtsWkt(B,R,Z);
+   R:=R^.Next;
+  End;
+  BufText(B,')');
+ End
+  Else
+ Begin
+  If T='CompoundCurve'Then BufText(B,'COMPOUNDCURVE'+Zt+' (') Else
+  If T='CurvePolygon'Then BufText(B,'CURVEPOLYGON'+Zt+' (') Else
+  If T='MultiCurve'Then BufText(B,'MULTICURVE'+Zt+' (')
+                   Else BufText(B,'MULTISURFACE'+Zt+' (');
+  C:=JFind(N,'curves');
+  If C=Nil Then C:=JFind(N,'rings');
+  If C=Nil Then C:=JFind(N,'surfaces');
+  First:=True;
+  If C<>Nil Then C:=C^.First;
+  While C<>Nil do Begin
+   If Not First Then BufText(B,', ');
+   First:=False;
+   If JVal(JFind(C,'type'))='CurvePolygon'Then CurveWkt(B,C,True,Z)
+    Else CurveWkt(B,C,False,Z);
+   C:=C^.Next;
+  End;
+  BufText(B,')');
+ End;
+End;
+
+{ Courbes DOM -> WKB }
+Procedure CurvePtsWkb(Var B:TBuf;A:PJ;Z:Boolean);
+Var
+ C:PJ;
+ N:LongInt;
+Begin
+ N:=0;
+ C:=A^.First;
+ While C<>Nil do Begin Inc(N);C:=C^.Next;End;
+ BufLE32(B,N);
+ C:=A^.First;
+ While C<>Nil do Begin
+  BufDouble(B,NumOf(C^.First));BufDouble(B,NumOf(C^.First^.Next));
+  If Z Then Begin
+   If C^.First^.Next^.Next<>Nil Then BufDouble(B,NumOf(C^.First^.Next^.Next))Else BufDouble(B,0);
+  End;
+  C:=C^.Next;
+ End;
+End;
+
+Procedure CurveWkb(Var B:TBuf;N:PJ;Z:Boolean);
+Var
+ T:String;
+ Code,Cnt:LongInt;
+ C,R:PJ;
+Begin
+ T:=JVal(JFind(N,'type'));
+ If T='LineString'Then Code:=2 Else If T='CircularString'Then Code:=8 Else If T='Polygon'Then Code:=3 Else
+ If T='CompoundCurve'Then Code:=9 Else If T='CurvePolygon'Then Code:=10 Else If T='MultiCurve'Then Code:=11 Else Code:=12;
+ If Z Then Inc(Code,1000);
+ BufByte(B,1);BufLE32(B,Code);
+ If Code mod 1000 in[2,8]Then CurvePtsWkb(B,JFind(N,'coordinates'),Z) Else
+ If Code mod 1000=3Then Begin
+  R:=JFind(N,'coordinates');
+  Cnt:=0;C:=R^.First;
+  While C<>Nil do Begin Inc(Cnt);C:=C^.Next;End;
+  BufLE32(B,Cnt);
+  C:=R^.First;
+  While C<>Nil do Begin CurvePtsWkb(B,C,Z);C:=C^.Next;End;
+ End
+  Else
+ Begin
+  R:=JFind(N,'curves');
+  If R=Nil Then R:=JFind(N,'rings');
+  If R=Nil Then R:=JFind(N,'surfaces');
+  Cnt:=0;C:=R^.First;
+  While C<>Nil do Begin Inc(Cnt);C:=C^.Next;End;
+  BufLE32(B,Cnt);
+  C:=R^.First;
+  While C<>Nil do Begin CurveWkb(B,C,Z);C:=C^.Next;End;
+ End;
+End;
+
 
 { ---- XML ---- }
 
@@ -9692,7 +10508,7 @@ Begin
  If(N=Nil)or(N^.TL=0)Then Exit;
  S:='';
  I:=N^.TS;E:=N^.TS+N^.TL;
- While(I<E)and(Length(S)<250)do Begin
+ While(I<E)and(Length(S)<MaxStr-5)do Begin
   S:=S+Chr(XB^[I]);
   Inc(I);
  End;
@@ -9724,7 +10540,7 @@ Begin
    If(I<E)and(XB^[I]in[34,39])Then Begin
     Q:=XB^[I];Inc(I);S2:=I;
     While(I<E)and(XB^[I]<>Q)do Inc(I);
-    For K:=S2 to I-1do If Length(V)<250Then V:=V+Chr(XB^[K]);
+    For K:=S2 to I-1do If Length(V)<MaxStr-5Then V:=V+Chr(XB^[K]);
     Inc(I);
    End;
   End;
@@ -10385,7 +11201,7 @@ Var
 Begin
  R:='';
  I:=S;
- While(I<E)and(Length(R)<255)do Begin
+ While(I<E)and(Length(R)<MaxStr)do Begin
   If Quoted and(B^[I]=34)and(I+1<E)and(B^[I+1]=34)Then Inc(I);
   R:=R+Chr(B^[I]);
   Inc(I);
@@ -10588,7 +11404,7 @@ Var
 Begin
  E:=Length(S);
  For I:=Length(S)downto 1do Begin
-  If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+  If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,MaxStr);Break;End;
  End;
  For I:=Length(S)downto 1do If S[I]='.'Then Begin S:=Copy(S,1,I-1);Break;End;
  BaseNoExt:=S;
@@ -10683,6 +11499,12 @@ Var
 Begin
  BufWktNode:=False;
  If(Geom=Nil)or(Geom^.Kind<>5)Then Exit;
+ C:=JFind(Geom,'curve');
+ If C<>Nil Then Begin
+  CurveWkt(B,C,True,CurveHasZ(C));
+  BufWktNode:=True;
+  Exit;
+ End;
  If JVal(JFind(Geom,'type'))='GeometryCollection'Then Begin
   C:=JFind(Geom,'geometries');
   If(C=Nil)or(C^.Kind<>4)or(C^.First=Nil)Then Exit;
@@ -11086,6 +11908,7 @@ Begin
  End
   Else
  If JFind(Gj,'coordinates')<>Nil Then TransformCoords(JFind(Gj,'coordinates'),Src,Dst);
+ JRemoveKey(Gj,'curve');
 End;
 
 { Ecrit le KML dans un tampon }
@@ -11304,7 +12127,7 @@ Begin
  RcGetStr:='';
  If Not RcIsText(I)Then Exit;
  L:=(RcTyp[I]-13)div 2;
- If L>255Then L:=255;
+ If L>MaxStr Then L:=MaxStr;
  S:='';
  For K:=0 to L-1do S:=S+Chr(RcB^[RcPos[I]+K]);
  RcGetStr:=S;
@@ -11999,6 +12822,12 @@ Var
 Begin
  WkbNode:=False;
  If(Geom=Nil)or(Geom^.Kind<>5)Then Exit;
+ C:=JFind(Geom,'curve');
+ If C<>Nil Then Begin
+  CurveWkb(B,C,CurveHasZ(C));
+  WkbNode:=True;
+  Exit;
+ End;
  If JVal(JFind(Geom,'type'))='GeometryCollection'Then Begin
   C:=JFind(Geom,'geometries');
   If(C=Nil)or(C^.Kind<>4)or(C^.First=Nil)Then Exit;
@@ -12060,11 +12889,15 @@ Begin
  End;
 End;
 
-Procedure SaveGpkg(FileName,LName:String;Root:PJ);
+Type
+ TGpNames=Array[1..32]of String[60];
+ TGpRoots=Array[1..32]of PJ;
+
+Procedure SaveGpkgN(FileName:String;NL:Integer;Var LNames:TGpNames;Var Roots:TGpRoots);
 Const
  MaxCols=300;
 Var
- Feats,F,Pr,C,V:PJ;
+ Feats,F,Pr,C,V,Root:PJ;
  Cols:Array[1..MaxCols]of String[60];
  ColTyp:Array[1..MaxCols]of Byte;  { 1 entier, 2 reel, 3 texte, 4 booleen }
  NC,J:Integer;
@@ -12086,12 +12919,18 @@ Var
  Fmt:String;
  Ids:PLongs;
  Sr:Real;
- Rid:Array[1..4]of LongInt;
- Wkt1,Wkt2:String;
  MRows:Integer;
- MOff,MLen:Array[1..8]of LongInt;
+ MOff,MLen:Array[1..200]of LongInt;
  CE,Sz:LongInt;
  CTmp:TCrs;
+ Li:Integer;
+ LTbl:TGpNames;
+ LGT:Array[1..32]of String[24];
+ LCrs,LNF,LRoot:Array[1..32]of LongInt;
+ LHave,LZ,LM:Array[1..32]of Boolean;
+ LX1,LY1,LX2,LY2:Array[1..32]of Real;
+ LSql:Array[1..32]of TBuf;
+ LName:String;
 
  Function TwoD(V:Integer):String;
  Var S:String;
@@ -12103,6 +12942,7 @@ Var
 
  Procedure MasterRow(Typ,Name,TblName:String;RootPg:LongInt;Var SqlB:TBuf);
  Begin
+  If MRows>=200Then Fail('Error: GeoPackage schema too large');
   WrClear;
   WrText(Typ);WrText(Name);WrText(TblName);WrInt(RootPg);WrTextBuf(SqlB);
   MOff[MRows+1]:=Master.N;
@@ -12117,6 +12957,13 @@ Var
  End;
 
 Begin
+ If(NL<1)or(NL>32)Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+ If NL>1Then SqPS:=16384 Else SqPS:=4096;
+ BufInit(SqB);
+ SqNewPage;                       { page 1 : sqlite_master }
+ For Li:=1 to NL do Begin
+ Root:=Roots[Li];
+ LName:=LNames[Li];
  Feats:=JFind(Root,'features');
  Tbl:=LName;
  If Tbl=''Then Tbl:=BaseNoExt(FileName);
@@ -12235,6 +13082,7 @@ Begin
   Inc(K);
   F:=F^.Next;
  End;
+
  { type de geometrie }
  If Not AnyGeom Or Mixed Then GT:='GEOMETRY' Else
  Case ClsAll of
@@ -12243,27 +13091,55 @@ Begin
   2:If MultiAny Then GT:='MULTILINESTRING' Else GT:='LINESTRING';
   Else If MultiAny Then GT:='MULTIPOLYGON' Else GT:='POLYGON';
  End;
- { fichier }
- SqPS:=4096;
- BufInit(SqB);
- SqNewPage;                       { page 1 : sqlite_master }
+ { table des entites }
  RootF:=SqBuildTable(Recs,RowOff,RowLen,Nil,NF);
+ LTbl[Li]:=Tbl;LGT[Li]:=GT;LCrs[Li]:=Crs;LNF[Li]:=NF;LRoot[Li]:=RootF;
+ LHave[Li]:=Have;LZ[Li]:=ZAny;LM[Li]:=MAny;LX1[Li]:=X1;LY1[Li]:=Y1;LX2[Li]:=X2;LY2[Li]:=Y2;
+ BufInit(LSql[Li]);
+ BufText(LSql[Li],'CREATE TABLE "'+Tbl+'" (fid INTEGER PRIMARY KEY AUTOINCREMENT, geom '+GT);
+ For J:=1 to NC do Begin
+  Nm:=Cols[J];
+  For I:=1 to Length(Nm)do If Nm[I]='"'Then Nm[I]:='_';
+  BufText(LSql[Li],', "'+Nm+'" ');
+  Case ColTyp[J]of
+   1:BufText(LSql[Li],'INTEGER');
+   2:BufText(LSql[Li],'REAL');
+   4:BufText(LSql[Li],'BOOLEAN');
+   Else BufText(LSql[Li],'TEXT');
+  End;
+ End;
+ BufText(LSql[Li],')');
+ End;
  { sqlite_sequence }
  Recs.N:=0;
- WrClear;WrText(Tbl);WrInt(NF);
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootSeq:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
- { gpkg_spatial_ref_sys }
+ BufInit(Recs);BufInit(WBody);BufInit(Tmp);
+ RowOff:=AllocBlock((NL+8)*SizeOf(LongInt));
+ RowLen:=AllocBlock((NL+8)*SizeOf(LongInt));
+ For Li:=1 to NL do Begin
+  WrClear;WrText(LTbl[Li]);WrInt(LNF[Li]);
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootSeq:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
+ { gpkg_spatial_ref_sys : SCR indefinis, WGS 84 et SCR des couches (identifiants croissants) }
  Recs.N:=0;
- Ids:=AllocBlock(6*SizeOf(LongInt));
+ Ids:=AllocBlock((NL+8)*SizeOf(LongInt));
  Ids^[0]:=-1;Ids^[1]:=0;Ids^[2]:=4326;
  MRows:=3;
- If(Crs>0)and(Crs<>4326)Then Begin Ids^[3]:=Crs;MRows:=4;End;
- If(MRows=4)and(Ids^[3]<4326)Then Begin
-  Ids^[3]:=4326;Ids^[2]:=Crs;
+ For Li:=1 to NL do
+  If(LCrs[Li]>0)and(LCrs[Li]<>4326)Then Begin
+   Found:=False;
+   For J:=0 to MRows-1do If Ids^[J]=LCrs[Li]Then Found:=True;
+   If Not Found Then Begin Ids^[MRows]:=LCrs[Li];Inc(MRows);End;
+  End;
+ For I:=1 to MRows-1do Begin
+  K:=Ids^[I];J:=I-1;
+  While(J>=0)and(Ids^[J]>K)do Begin Ids^[J+1]:=Ids^[J];Dec(J);End;
+  Ids^[J+1]:=K;
  End;
+ RowOff:=AllocBlock((MRows+NL+8)*SizeOf(LongInt));
+ RowLen:=AllocBlock((MRows+NL+8)*SizeOf(LongInt));
  For J:=0 to MRows-1do Begin
   WrClear;
   Tmp.N:=0;
@@ -12307,25 +13183,30 @@ Begin
  Recs.N:=0;
  GetDate(Y,Mo,D,Dw);GetTime(H,Mi,S,S100);
  Fmt:=IntToStr(Y)+'-'+TwoD(Mo)+'-'+TwoD(D)+'T'+TwoD(H)+':'+TwoD(Mi)+':'+TwoD(S)+'.000Z';
- WrClear;
- WrText(Tbl);WrText('features');WrText(Tbl);WrText('');WrText(Fmt);
- If Have Then Begin WrReal(X1);WrReal(Y1);WrReal(X2);WrReal(Y2);End
-         Else Begin WrNull;WrNull;WrNull;WrNull;End;
- WrInt(Crs);
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootCont:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ For Li:=1 to NL do Begin
+  WrClear;
+  WrText(LTbl[Li]);WrText('features');WrText(LTbl[Li]);WrText('');WrText(Fmt);
+  If LHave[Li]Then Begin WrReal(LX1[Li]);WrReal(LY1[Li]);WrReal(LX2[Li]);WrReal(LY2[Li]);End
+              Else Begin WrNull;WrNull;WrNull;WrNull;End;
+  WrInt(LCrs[Li]);
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootCont:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
  { gpkg_geometry_columns }
  Recs.N:=0;
- WrClear;
- WrText(Tbl);WrText('geom');WrText(GT);WrInt(Crs);WrInt(Ord(ZAny));WrInt(Ord(MAny));
- RowOff^[0]:=0;
- WrFinish(Recs);
- RowLen^[0]:=Recs.N;
- RootGc:=SqBuildTable(Recs,RowOff,RowLen,Nil,1);
+ For Li:=1 to NL do Begin
+  WrClear;
+  WrText(LTbl[Li]);WrText('geom');WrText(LGT[Li]);WrInt(LCrs[Li]);WrInt(Ord(LZ[Li]));WrInt(Ord(LM[Li]));
+  RowOff^[Li-1]:=Recs.N;
+  WrFinish(Recs);
+  RowLen^[Li-1]:=Recs.N-RowOff^[Li-1];
+ End;
+ RootGc:=SqBuildTable(Recs,RowOff,RowLen,Nil,NL);
  { sqlite_master }
  BufInit(Master);
+ BufInit(Sql);
  MRows:=0;
  Fmt:='CREATE TABLE gpkg_spatial_ref_sys (srs_name TEXT NOT NULL, srs_id INTEGER NOT NULL PRIMARY KEY, organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL, definition TEXT NOT NULL, description TEXT)';
  SqlSet(Fmt);
@@ -12335,21 +13216,7 @@ Begin
  MasterRow('table','gpkg_contents','gpkg_contents',RootCont,Sql);
  SqlSet('CREATE TABLE gpkg_geometry_columns (table_name TEXT NOT NULL, column_name TEXT NOT NULL, geometry_type_name TEXT NOT NULL, srs_id INTEGER NOT NULL, z TINYINT NOT NULL, m TINYINT NOT NULL)');
  MasterRow('table','gpkg_geometry_columns','gpkg_geometry_columns',RootGc,Sql);
- Sql.N:=0;
- BufText(Sql,'CREATE TABLE "'+Tbl+'" (fid INTEGER PRIMARY KEY AUTOINCREMENT, geom '+GT);
- For J:=1 to NC do Begin
-  Nm:=Cols[J];
-  For I:=1 to Length(Nm)do If Nm[I]='"'Then Nm[I]:='_';
-  BufText(Sql,', "'+Nm+'" ');
-  Case ColTyp[J]of
-   1:BufText(Sql,'INTEGER');
-   2:BufText(Sql,'REAL');
-   4:BufText(Sql,'BOOLEAN');
-   Else BufText(Sql,'TEXT');
-  End;
- End;
- BufText(Sql,')');
- MasterRow('table',Tbl,Tbl,RootF,Sql);
+ For Li:=1 to NL do MasterRow('table',LTbl[Li],LTbl[Li],LRoot[Li],LSql[Li]);
  SqlSet('CREATE TABLE sqlite_sequence(name,seq)');
  MasterRow('table','sqlite_sequence','sqlite_sequence',RootSeq,Sql);
  { page 1 : feuille de sqlite_master }
@@ -12385,6 +13252,54 @@ Begin
  PutBE32(92,1);
  PutBE32(96,3045000);
  BufSave(FileName,SqB);
+End;
+
+
+{ Ajoute ou remplace une couche dans un GeoPackage existant }
+Procedure SaveGpkgAppend(FileName,LName:String;Root:PJ);
+Var
+ Nm:TGpNames;
+ Rt:TGpRoots;
+ Names:Array[1..32]of String[60];
+ N,I,K,Cn:Integer;
+ Typs:Array[1..32]of String[24];
+Begin
+ Rt[1]:=Nil;
+ LoadGpkg(FileName,'');
+ Cn:=ContN;
+ For I:=1 to Cn do Begin
+  If I>32Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+  Names[I]:=Cont[I].Tbl;Typs[I]:=Cont[I].Typ;
+ End;
+ N:=0;
+ For I:=1 to Cn do
+  If(Typs[I]='features')or(Typs[I]='attributes')Then Begin
+   If LowerStr(Names[I])=LowerStr(LName)Then Begin
+    Inc(N);Nm[N]:=LName;Rt[N]:=Root;
+   End
+    Else
+   Begin
+    Inc(N);Nm[N]:=Names[I];Rt[N]:=LoadGpkg(FileName,Names[I]);
+   End;
+  End;
+ K:=0;
+ For I:=1 to N do If LowerStr(Nm[I])=LowerStr(LName)Then K:=I;
+ If K=0Then Begin
+  If N>=32Then Fail('Error: a GeoPackage holds 1 to 32 layers');
+  Inc(N);Nm[N]:=LName;Rt[N]:=Root;
+ End;
+ SaveGpkgN(FileName,N,Nm,Rt);
+End;
+
+{ Une seule couche }
+Procedure SaveGpkg(FileName,LName:String;Root:PJ);
+Var
+ Nm:TGpNames;
+ Rt:TGpRoots;
+Begin
+ Nm[1]:=LName;
+ Rt[1]:=Root;
+ SaveGpkgN(FileName,1,Nm,Rt);
 End;
 
 { ---- fichiers de projet QGIS (.qgs / .qgz) : nom de couche -> source ---- }
@@ -12441,7 +13356,7 @@ Begin
   If ProjectPath[I]in['/',#92]Then Begin Dir:=Copy(ProjectPath,1,I);Break;End;
  Abs:=(Ds[1]='/')or(Ds[1]=#92)or((Length(Ds)>1)and(Ds[2]=':'))or(Pos('://',Ds)>0)or(Pos('dbname=',Ds)>0);
  If Not Abs Then Begin
-  If Copy(Ds,1,2)='./'Then Ds:=Copy(Ds,3,255);
+  If Copy(Ds,1,2)='./'Then Ds:=Copy(Ds,3,MaxStr);
   Ds:=Dir+Ds;
  End;
  ResolveProject:=Ds;
@@ -12484,22 +13399,22 @@ Var
 Begin
  ParseDelimUri:=False;
  If Copy(LowerStr(Path),1,7)<>'file://'Then Exit;
- Path:=Copy(Path,8,255);
+ Path:=Copy(Path,8,MaxStr);
  If(Length(Path)>=3)and(Path[1]='/')and(Path[3]=':')Then Delete(Path,1,1);
  Q:=Pos('?',Path);
  Opts:='';
  If Q>0Then Begin
-  Opts:=Copy(Path,Q+1,255);
+  Opts:=Copy(Path,Q+1,MaxStr);
   Path:=Copy(Path,1,Q-1);
  End;
  While Opts<>''do Begin
   E:=Pos('&',Opts);
   If E=0Then Begin Part:=Opts;Opts:='';End
-        Else Begin Part:=Copy(Opts,1,E-1);Opts:=Copy(Opts,E+1,255);End;
+        Else Begin Part:=Copy(Opts,1,E-1);Opts:=Copy(Opts,E+1,MaxStr);End;
   Q:=Pos('=',Part);
   If Q>0Then Begin
    K:=LowerStr(Copy(Part,1,Q-1));
-   V:=UrlDecode(Copy(Part,Q+1,255));
+   V:=UrlDecode(Copy(Part,Q+1,MaxStr));
    If K='delimiter'Then Begin
     If V=''Then Begin End Else
     If V='\t'Then CsvDelim:=9
@@ -12532,8 +13447,72 @@ End;
 
 { ---- aiguillage selon le format ---- }
 
+{ Gestion des geometries invalides (option --invalid_geometries=skip|stop|ignore) }
+Procedure FilterInvalid(Arr:PJ);
+Var
+ F,Nx:PJ;
+ G:TGeom;
+ Msg:String;
+ X,Y:Real;
+ I:LongInt;
+ Ok:Boolean;
+Begin
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ I:=0;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  F^.Next:=Nil;
+  Ok:=True;
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Ok:=GeomValidate(G,False,Msg,X,Y);
+  FreeGeom(G);
+  If Ok Then JAdd(Arr,F)
+   Else
+  If InvalidMode=2Then Fail('Error: feature '+IntToStr(I)+' has an invalid geometry ('+Msg+')');
+  Inc(I);
+  F:=Nx;
+ End;
+End;
+
+{ Ne garde que les entites dont l'indice (0 = premiere) figure dans la liste }
+Procedure ApplyFeatureIds(Root:PJ;Ids:String);
+Var
+ Arr,F,Nx:PJ;
+ I,K,V,E:LongInt;
+ Sel:Array[1..64]of LongInt;
+ NS,J:Integer;
+ Keep:Boolean;
+Begin
+ NS:=0;
+ Ids:=Ids+',';
+ While Ids<>''do Begin
+  J:=1;
+  While not(Ids[J]in[',',';',' '])do Inc(J);
+  If J>1Then Begin
+   Val(Copy(Ids,1,J-1),V,E);
+   If E<>0Then Fail('Error: invalid value for parameter featureids: '+Copy(Ids,1,J-1));
+   If NS<64Then Begin Inc(NS);Sel[NS]:=V;End;
+  End;
+  Ids:=Copy(Ids,J+1,MaxStr);
+ End;
+ Arr:=LayerFeatures(Root);
+ F:=Arr^.First;
+ Arr^.First:=Nil;Arr^.Last:=Nil;
+ I:=0;
+ While F<>Nil do Begin
+  Nx:=F^.Next;
+  Keep:=False;
+  For J:=1 to NS do If Sel[J]=I Then Keep:=True;
+  If Keep Then JAdd(Arr,F);
+  Inc(I);
+  F:=Nx;
+ End;
+End;
+
 Function LoadLayer(FileName:String):PJ;
 Var
+ SelIds:String;
  Path,LName,Subset,Ext:String;
  Root:PJ;
  B:PBytes;
@@ -12541,6 +13520,7 @@ Var
 Begin
  FileName:=ResolveProject(FileName);
  ParseUri(FileName,Path,LName,Subset);
+ SelIds:=UriIds;
  If(Pos('dbname=',Path)>0)or(Copy(StrUpper(Path),1,3)='PG:')or(Copy(StrUpper(Path),1,9)='POSTGRES:')Then
   Fail('Error: PostGIS connections are not available in this clone');
  CsvDelim:=0;CsvXName:='';CsvYName:='';CsvWName:='';CsvCrs:=0;
@@ -12570,6 +13550,8 @@ Begin
   Else
  Fail('Error: unsupported vector format "'+Ext+'" ('+Path+')');
  If Subset<>''Then ApplySubset(Root,Subset);
+ If SelIds<>''Then ApplyFeatureIds(Root,SelIds);
+ If InvalidMode>0Then FilterInvalid(LayerFeatures(Root));
  ExprLayer:=Root;
  ExprLayerName:=BaseNoExt(Path);
  LoadLayer:=Root;
@@ -12587,7 +13569,10 @@ Begin
  If(Ext='.GML')or(Ext='.XML')Then SaveGml(Path,Root) Else
  If Ext='.KML'Then SaveKml(Path,Root,False) Else
  If Ext='.KMZ'Then SaveKml(Path,Root,True) Else
- If Ext='.GPKG'Then SaveGpkg(Path,LName,Root)
+ If Ext='.GPKG'Then Begin
+  If(LName<>'')and FileExists(Path)Then SaveGpkgAppend(Path,LName,Root)
+                                  Else SaveGpkg(Path,LName,Root);
+ End
   Else
  Fail('Error: unsupported output vector format "'+Ext+'" (use .geojson, .shp, .gpkg, .csv, .gml, .kml or .kmz)');
 End;
@@ -12927,7 +13912,7 @@ Var
  Begin
   Q:=Pos(Sep,Src);
   If Q=0Then Begin Tk:=Src;Src:='';End
-        Else Begin Tk:=Copy(Src,1,Q-1);Src:=Copy(Src,Q+1,255);End;
+        Else Begin Tk:=Copy(Src,1,Q-1);Src:=Copy(Src,Q+1,MaxStr);End;
   Val(Tk,V,E);
   Part:=(E=0)and(Tk<>'');
  End;
@@ -12941,7 +13926,7 @@ Begin
  Y:=1970;Mo:=1;D:=1;H:=0;Mi:=0;Sc:=0;
  P:=Pos('T',S);
  If P=0Then P:=Pos(' ',S);
- If P>0Then Begin A:=Copy(S,1,P-1);B:=Copy(S,P+1,255);End
+ If P>0Then Begin A:=Copy(S,1,P-1);B:=Copy(S,P+1,MaxStr);End
   Else If Pos(':',S)>0Then Begin A:='';B:=S;End
   Else Begin A:=S;B:='';End;
  If A<>''Then Begin
@@ -13138,7 +14123,7 @@ Var
 Begin
  R:='"';
  For I:=1 to Length(S)do Begin
-  If Length(R)>=250Then Break;
+  If Length(R)>=MaxStr-5Then Break;
   Case S[I]of
    '"':R:=R+'\"';
    '\':R:=R+'\\';
@@ -14242,7 +15227,7 @@ Begin
  If Neg Then R:=-R;
  Str(R:0:Places,S);
  P:=Pos('.',S);
- If P>0Then Begin Ip:=Copy(S,1,P-1);Fp:=Copy(S,P,255);End
+ If P>0Then Begin Ip:=Copy(S,1,P-1);Fp:=Copy(S,P,MaxStr);End
        Else Begin Ip:=S;Fp:='';End;
  Out:='';
  For I:=1 to Length(Ip)do Begin
@@ -14391,7 +15376,7 @@ Begin
   NeedArgs(Nm,N,2);
   If(A[0].K<>0)and NumArg(A,1,R)Then Begin
    S:=ToStr(A[0]);Out:='';
-   For I:=1 to Round(R)do If Length(Out)+Length(S)<=255Then Out:=Out+S;
+   For I:=1 to Round(R)do If Length(Out)+Length(S)<=MaxStr Then Out:=Out+S;
    FnString:=VStr(Out);
   End;
  End Else
@@ -14442,7 +15427,7 @@ Begin
    While Subj<>''do Begin
     P:=Pos(' ',Subj);
     If P=0Then Begin T:=Subj;Subj:='';End
-          Else Begin T:=Copy(Subj,1,P-1);Subj:=Copy(Subj,P+1,255);End;
+          Else Begin T:=Copy(Subj,1,P-1);Subj:=Copy(Subj,P+1,MaxStr);End;
     If(Cur>0)and(Cur+1+U8Len(T)>L)Then Begin Out:=Out+U;Cur:=0;End
      Else If Cur>0Then Begin Out:=Out+' ';Inc(Cur);End;
     Out:=Out+T;Inc(Cur,U8Len(T));
@@ -14581,7 +15566,7 @@ Begin
     End
      Else P:=RxCapE[0];
    End;
-   If P<=Length(S)Then Out:=Out+Copy(S,P,255);
+   If P<=Length(S)Then Out:=Out+Copy(S,P,MaxStr);
    FnString:=VStr(Out);
   End;
  End Else
@@ -14600,7 +15585,7 @@ Begin
      P:=Pos(T,S);
      If P=0Then Begin LAdd(Lst,VStr(S));Break;End;
      LAdd(Lst,VStr(Copy(S,1,P-1)));
-     S:=Copy(S,P+Length(T),255);
+     S:=Copy(S,P+Length(T),MaxStr);
     Until False;
    End;
    FnString:=VList(Lst);
@@ -15181,7 +16166,9 @@ Begin
   If(A[0].K<>0)and(A[0].K<>4)and(A[0].K<>5)and(A[0].K<>6)and ToNum(A[0],R)Then Begin
    If Nm='TO_INT'Then R:=Int(R);
    FnMisc:=VNum(R);
-  End;
+  End
+   Else
+  If(TryDepth>0)and(A[0].K<>0)Then EFail('cannot convert value to a number');
  End Else
  If Nm='TO_BOOL'Then Begin
   NeedArgs(Nm,N,1);
@@ -16003,7 +16990,7 @@ Begin
   BufInit(B);
   BufWkt(B,Gp^);
   S:='';
-  For I:=0 to B.N-1do If Length(S)<255Then S:=S+Chr(B.P^[I]);
+  For I:=0 to B.N-1do If Length(S)<MaxStr Then S:=S+Chr(B.P^[I]);
   FnGeom:=VStr(S);
   FreeMem(B.P,B.Cap);
  End
@@ -16148,7 +17135,7 @@ Var
  S:String;
 Begin
  S:=ProjectPath;
- For I:=Length(S)downto 1do If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,255);Break;End;
+ For I:=Length(S)downto 1do If S[I]in['/',#92]Then Begin S:=Copy(S,I+1,MaxStr);Break;End;
  ProjectBase:=S;
 End;
 
@@ -16792,13 +17779,15 @@ Begin
  P:=Pos(':=',S);
  If(P>1)and(Pos('''',Copy(S,1,P))=0)and(Pos('(',Copy(S,1,P))=0)Then Begin
   Nm:=StrUpper(Trim1(Copy(S,1,P-1)));
-  S:=Trim1(Copy(S,P+2,255));
+  S:=Trim1(Copy(S,P+2,MaxStr));
  End;
  EvalNamedArg:=S;
 End;
 
 Function EvalLazy(Name:String;Var Done:Boolean):TVal;
 Var
+ SvS:String;
+ SvP,SvV,SvD:Integer;
  Sp,Ep:Array[0..11]of Integer;
  Txt:Array[0..11]of String;
  Nm:Array[0..11]of String;
@@ -16825,7 +17814,22 @@ Begin
  For I:=0 to Cnt-1do Txt[I]:=EvalNamedArg(Copy(ExprS,Sp[I],Ep[I]-Sp[I]),Nm[I]);
  If Name='TRY'Then Begin
   If Cnt<1Then EFail('function TRY needs an argument');
+{$IFNDEF FPC_TP}
+  SvS:=ExprS;SvP:=ExprP;SvV:=VarN;SvD:=ExprDepth;
+  Inc(TryDepth);
+  Try
+   EvalLazy:=EvalSub(Txt[0]);
+   Dec(TryDepth);
+  Except
+   On ETryFail Do Begin
+    Dec(TryDepth);
+    ExprS:=SvS;ExprP:=SvP;VarN:=SvV;ExprDepth:=SvD;
+    If Cnt>1Then EvalLazy:=EvalSub(Txt[1]) Else EvalLazy:=VNull;
+   End;
+  End;
+{$ELSE}
   EvalLazy:=EvalSub(Txt[0]);
+{$ENDIF}
  End Else
  If Name='WITH_VARIABLE'Then Begin
   If Cnt<3Then EFail('function WITH_VARIABLE needs 3 arguments');
@@ -17525,7 +18529,7 @@ Begin
  If IOResult<>0Then Fail('Error: unable to open raster file '+FileName);
  SetTextBuf(RF,RBuf);
  R.NoData:=-9999;
- R.DType:=0;R.Epsg:=0;
+ R.DType:=0;R.XN:=0;R.Epsg:=0;
  R.NC:=0;R.NR:=0;R.XLL:=0;R.YLL:=0;R.Cell:=0;
  Dx:=0;Dy:=0;
  HaveNC:=False;HaveNR:=False;HaveX:=False;HaveY:=False;HaveC:=False;
@@ -17866,7 +18870,7 @@ Begin
  End;
  If Planar=2Then Chunks:=Per*Spp Else Chunks:=Per;
  { georeferencement }
- R.NC:=W;R.NR:=H;R.XLL:=0;R.YLL:=0;R.Cell:=1;R.NoData:=-9999;R.DType:=0;R.Epsg:=0;
+ R.NC:=W;R.NR:=H;R.XLL:=0;R.YLL:=0;R.Cell:=1;R.NoData:=-9999;R.DType:=0;R.XN:=0;R.Epsg:=0;
  HaveS:=TagReal(33550,0,Sx)and TagReal(33550,1,Sy);
  HaveT:=TagReal(33922,0,Ti)and TagReal(33922,1,Tj)and TagReal(33922,3,Tx)and TagReal(33922,4,Ty);
  If(Not HaveS)and(TagCount(34264)>=16)Then Begin
@@ -18044,15 +19048,206 @@ Procedure TwAdd(Tag,Typ:LongInt;Cnt,Val:LongInt);Begin
  TwEnt[TwN].Tag:=Tag;TwEnt[TwN].Typ:=Typ;TwEnt[TwN].Cnt:=Cnt;TwEnt[TwN].Val:=Val;
 End;
 
+Var
+  TiffComp:LongInt;     { 1 aucune, 5 LZW, 8 Deflate, 32773 PackBits }
+ DfAcc,DfCnt:LongInt;
+
+{ ---- compression ---- }
+
+Procedure DfPut(Var D:TBuf;V:LongInt;N:Integer);Begin
+ DfAcc:=DfAcc or(V shl DfCnt);
+ Inc(DfCnt,N);
+ While DfCnt>=8do Begin
+  BufByte(D,DfAcc and 255);
+  DfAcc:=DfAcc shr 8;
+  Dec(DfCnt,8);
+ End;
+End;
+
+{ Code de Huffman (ecrit bit de poids fort en premier) }
+Procedure DfCode(Var D:TBuf;Code:LongInt;Len:Integer);
+Var
+ R,I:LongInt;
+Begin
+ R:=0;
+ For I:=1 to Len do Begin R:=(R shl 1)or(Code and 1);Code:=Code shr 1;End;
+ DfPut(D,R,Len);
+End;
+
+Procedure DfSym(Var D:TBuf;Sym:LongInt);Begin
+ If Sym<144Then DfCode(D,$30+Sym,8) Else
+ If Sym<256Then DfCode(D,$190+Sym-144,9) Else
+ If Sym<280Then DfCode(D,Sym-256,7)
+           Else DfCode(D,$C0+Sym-280,8);
+End;
+
+{ Flux zlib avec codes de Huffman fixes et LZ77 }
+Procedure ZlibCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Var
+ Head,Prev:PLongs;
+ I,J,H,Best,BestD,Len,Cand,Chain,L,Dd,A,B:LongInt;
+ Ad1,Ad2:LongInt;
+ Sl:Integer;
+Begin
+ BufByte(D,$78);BufByte(D,$9C);
+ DfAcc:=0;DfCnt:=0;
+ DfPut(D,1,1);DfPut(D,1,2);
+ Head:=AllocBlock(32768*SizeOf(LongInt));
+ Prev:=AllocBlock((N+4)*SizeOf(LongInt));
+ FillChar(Head^,32768*SizeOf(LongInt),255);
+ I:=0;
+ While I<N do Begin
+  Best:=0;BestD:=0;
+  If I+2<N Then Begin
+   H:=((Src^[I]shl 10)xor(Src^[I+1]shl 5)xor Src^[I+2])and 32767;
+   Cand:=Head^[H];
+   Chain:=0;
+   While(Cand>=0)and(I-Cand<=32768)and(Chain<32)do Begin
+    Len:=0;
+    While(Len<258)and(I+Len<N)and(Src^[Cand+Len]=Src^[I+Len])do Inc(Len);
+    If Len>Best Then Begin Best:=Len;BestD:=I-Cand;End;
+    Cand:=Prev^[Cand];
+    Inc(Chain);
+   End;
+   If Best>=3Then Begin
+    Sl:=28;
+    While LBase[Sl]>Best do Dec(Sl);
+    DfSym(D,257+Sl);
+    If LExt[Sl]>0Then DfPut(D,Best-LBase[Sl],LExt[Sl]);
+    Sl:=29;
+    While DBase[Sl]>BestD do Dec(Sl);
+    DfCode(D,Sl,5);
+    If DExt[Sl]>0Then DfPut(D,BestD-DBase[Sl],DExt[Sl]);
+    L:=Best;
+   End
+    Else L:=1;
+  End
+   Else L:=1;
+  { insertion dans la table de hachage }
+  For J:=I to I+L-1do
+   If J+2<N Then Begin
+    H:=((Src^[J]shl 10)xor(Src^[J+1]shl 5)xor Src^[J+2])and 32767;
+    Prev^[J]:=Head^[H];Head^[H]:=J;
+   End;
+  If L=1Then DfSym(D,Src^[I]);
+  Inc(I,L);
+ End;
+ DfSym(D,256);
+ If DfCnt>0Then DfPut(D,0,8-DfCnt);
+ A:=1;B:=0;
+ For I:=0 to N-1do Begin
+  A:=(A+Src^[I])mod 65521;
+  B:=(B+A)mod 65521;
+ End;
+ Ad1:=B;Ad2:=A;
+ BufByte(D,(Ad1 shr 8)and 255);BufByte(D,Ad1 and 255);BufByte(D,(Ad2 shr 8)and 255);BufByte(D,Ad2 and 255);
+ FreeMem(Head,32768*SizeOf(LongInt));
+ FreeMem(Prev,(N+4)*SizeOf(LongInt));
+End;
+
+{ LZW TIFF (codes de 9 a 12 bits, poids fort en premier, changement anticipe) }
+Procedure LzwCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Const
+ HSize=16384;
+Var
+ HKey,HVal:PLongs;
+ Acc,Cnt,Width,Next,Prefix,I,C,Key,Slot:LongInt;
+
+ Procedure Emit(Code:LongInt);Begin
+  Acc:=(Acc shl Width)or Code;
+  Inc(Cnt,Width);
+  While Cnt>=8do Begin
+   BufByte(D,(Acc shr(Cnt-8))and 255);
+   Dec(Cnt,8);
+   Acc:=Acc and((1 shl Cnt)-1);
+  End;
+ End;
+
+ Procedure Reset;Begin
+  FillChar(HKey^,HSize*SizeOf(LongInt),255);
+  Next:=258;Width:=9;
+ End;
+
+Begin
+ HKey:=AllocBlock(HSize*SizeOf(LongInt));
+ HVal:=AllocBlock(HSize*SizeOf(LongInt));
+ Acc:=0;Cnt:=0;
+ Reset;
+ Emit(256);
+ If N>0Then Begin
+  Prefix:=Src^[0];
+  For I:=1 to N-1do Begin
+   C:=Src^[I];
+   Key:=Prefix*256+C;
+   Slot:=(Prefix*131+C*17)mod 16381;
+   While(HKey^[Slot]>=0)and(HKey^[Slot]<>Key)do Slot:=(Slot+1)mod HSize;
+   If HKey^[Slot]=Key Then Prefix:=HVal^[Slot]
+    Else
+   Begin
+    Emit(Prefix);
+    HKey^[Slot]:=Key;HVal^[Slot]:=Next;
+    Inc(Next);
+    If(Next=(1 shl Width))and(Width<12)Then Inc(Width);
+    If Next>=4094Then Begin
+     Emit(256);
+     Reset;
+    End;
+    Prefix:=C;
+   End;
+  End;
+  Emit(Prefix);
+ End;
+ Emit(257);
+ If Cnt>0Then Begin
+  BufByte(D,(Acc shl(8-Cnt))and 255);
+ End;
+ FreeMem(HKey,HSize*SizeOf(LongInt));
+ FreeMem(HVal,HSize*SizeOf(LongInt));
+End;
+
+Procedure PackBitsCompress(Src:PBytes;N:LongInt;Var D:TBuf);
+Var
+ I,J,Run:LongInt;
+Begin
+ I:=0;
+ While I<N do Begin
+  Run:=1;
+  While(I+Run<N)and(Run<128)and(Src^[I+Run]=Src^[I])do Inc(Run);
+  If Run>=2Then Begin
+   BufByte(D,(257-Run)and 255);BufByte(D,Src^[I]);
+   Inc(I,Run);
+  End
+   Else
+  Begin
+   { suite litterale }
+   J:=I;
+   While(J<N)and(J-I<128)and((J+1>=N)or(Src^[J]<>Src^[J+1])or(J-I=127))do Inc(J);
+   If J=I Then J:=I+1;
+   BufByte(D,J-I-1);
+   While I<J do Begin BufByte(D,Src^[I]);Inc(I);End;
+  End;
+ End;
+End;
+
+Procedure CompressStrip(Comp:LongInt;Src:PBytes;N:LongInt;Var D:TBuf);Begin
+ Case Comp of
+  8:ZlibCompress(Src,N,D);
+  5:LzwCompress(Src,N,D);
+  32773:PackBitsCompress(Src,N,D);
+  Else Begin BufGrow(D,N);Move(Src^,D.P^[D.N],N);Inc(D.N,N);End;
+ End;
+End;
+
 Procedure WriteTiff(FileName:String;Var R:TRaster);
 Var
- B,X:TBuf;
- Dt,Bps,Fmt,Bpp,RowsPS,NStrips,I,J,K,Rows,DataEnd,IfdOff,ExtOff,E:LongInt;
+ B,X,T:TBuf;
+ Dt,Bps,Fmt,Bpp,RowsPS,NStrips,I,J,K,Rows,DataEnd,IfdOff,ExtOff,E,Nb,Bn,Tot:LongInt;
  StripOff,StripLen:Array[0..4095]of LongInt;
  Nd:String;
- Keys:Array[1..3]of Integer;
  Geographic:Boolean;
- OffOff,CntOff,ScaleOff,TieOff,KeyOff,NdOff:LongInt;
+ OffOff,CntOff,ScaleOff,TieOff,KeyOff,NdOff,BpsOff,FmtOff:LongInt;
+ Dp:PReals;
+ Comp:LongInt;
 Begin
  Dt:=R.DType;
  If(Dt<1)or(Dt>7)Then Dt:=6;
@@ -18065,36 +19260,47 @@ Begin
   6:Begin Bps:=32;Fmt:=3;End;
   Else Begin Bps:=64;Fmt:=3;End;
  End;
+ Comp:=TiffComp;
+ If Comp<=0Then Comp:=1;
+ Nb:=1+R.XN;
  Bpp:=Bps div 8;
  RowsPS:=8192 div(R.NC*Bpp);
  If RowsPS<1Then RowsPS:=1;
  If RowsPS>R.NR Then RowsPS:=R.NR;
  NStrips:=(R.NR+RowsPS-1)div RowsPS;
- If NStrips>4096Then Begin
-  RowsPS:=(R.NR+4095)div 4096;
+ If NStrips*Nb>4096Then Begin
+  RowsPS:=(R.NR*Nb+4095)div 4096;
   NStrips:=(R.NR+RowsPS-1)div RowsPS;
  End;
+ Tot:=NStrips*Nb;
  BufInit(B);
+ BufInit(T);
  BufByte(B,Ord('I'));BufByte(B,Ord('I'));BufLE16(B,42);BufLE32(B,0);
- For I:=0 to NStrips-1do Begin
-  Rows:=RowsPS;
-  If I*RowsPS+Rows>R.NR Then Rows:=R.NR-I*RowsPS;
-  StripOff[I]:=B.N;
-  For J:=I*RowsPS to I*RowsPS+Rows-1do
-   For K:=0 to R.NC-1do PutSample(B,R.Data^[J*R.NC+K],Dt);
-  StripLen[I]:=B.N-StripOff[I];
+ For Bn:=0 to Nb-1do Begin
+  If Bn=0Then Dp:=R.Data Else Dp:=R.XB[Bn+1];
+  For I:=0 to NStrips-1do Begin
+   Rows:=RowsPS;
+   If I*RowsPS+Rows>R.NR Then Rows:=R.NR-I*RowsPS;
+   T.N:=0;
+   For J:=I*RowsPS to I*RowsPS+Rows-1do
+    For K:=0 to R.NC-1do PutSample(T,Dp^[J*R.NC+K],Dt);
+   StripOff[Bn*NStrips+I]:=B.N;
+   CompressStrip(Comp,T.P,T.N,B);
+   StripLen[Bn*NStrips+I]:=B.N-StripOff[Bn*NStrips+I];
+  End;
  End;
  If B.N and 1<>0Then BufByte(B,0);
  DataEnd:=B.N;
  Nd:=NumStr(R.NoData);
  TwN:=0;
- { disposition : IFD, puis donnees externes }
- E:=11+2;   { 256 257 258 259 262 273 277 278 279 339 + 33550 33922 42113 }
+ E:=11+2;
+ If Nb>1Then Inc(E);
  If (R.Epsg>0)and(R.Epsg<=CustomBase)Then Inc(E);
  IfdOff:=DataEnd;
  ExtOff:=IfdOff+2+E*12+4;
- OffOff:=0;CntOff:=0;
- If NStrips>1Then Begin OffOff:=ExtOff;Inc(ExtOff,4*NStrips);CntOff:=ExtOff;Inc(ExtOff,4*NStrips);End;
+ OffOff:=0;CntOff:=0;BpsOff:=0;FmtOff:=0;
+ If Tot>1Then Begin OffOff:=ExtOff;Inc(ExtOff,4*Tot);CntOff:=ExtOff;Inc(ExtOff,4*Tot);End;
+ If Nb>1Then Begin BpsOff:=ExtOff;Inc(ExtOff,2*Nb);FmtOff:=ExtOff;Inc(ExtOff,2*Nb);End;
  ScaleOff:=ExtOff;Inc(ExtOff,24);
  TieOff:=ExtOff;Inc(ExtOff,48);
  KeyOff:=0;
@@ -18103,14 +19309,15 @@ Begin
  If Length(Nd)+1>4Then Begin NdOff:=ExtOff;Inc(ExtOff,Length(Nd)+1);End;
  TwAdd(256,4,1,R.NC);
  TwAdd(257,4,1,R.NR);
- TwAdd(258,3,1,Bps);
- TwAdd(259,3,1,1);
+ If Nb>1Then TwAdd(258,3,Nb,BpsOff)Else TwAdd(258,3,1,Bps);
+ TwAdd(259,3,1,Comp);
  TwAdd(262,3,1,1);
- If NStrips>1Then TwAdd(273,4,NStrips,OffOff)Else TwAdd(273,4,1,StripOff[0]);
- TwAdd(277,3,1,1);
+ If Tot>1Then TwAdd(273,4,Tot,OffOff)Else TwAdd(273,4,1,StripOff[0]);
+ TwAdd(277,3,1,Nb);
  TwAdd(278,4,1,RowsPS);
- If NStrips>1Then TwAdd(279,4,NStrips,CntOff)Else TwAdd(279,4,1,StripLen[0]);
- TwAdd(339,3,1,Fmt);
+ If Tot>1Then TwAdd(279,4,Tot,CntOff)Else TwAdd(279,4,1,StripLen[0]);
+ If Nb>1Then TwAdd(284,3,1,2);
+ If Nb>1Then TwAdd(339,3,Nb,FmtOff)Else TwAdd(339,3,1,Fmt);
  TwAdd(33550,12,3,ScaleOff);
  TwAdd(33922,12,6,TieOff);
  If (R.Epsg>0)and(R.Epsg<=CustomBase)Then TwAdd(34735,3,16,KeyOff);
@@ -18133,9 +19340,13 @@ Begin
   BufLE32(X,TwEnt[I].Val);
  End;
  BufLE32(X,0);
- If NStrips>1Then Begin
-  For I:=0 to NStrips-1do BufLE32(X,StripOff[I]);
-  For I:=0 to NStrips-1do BufLE32(X,StripLen[I]);
+ If Tot>1Then Begin
+  For I:=0 to Tot-1do BufLE32(X,StripOff[I]);
+  For I:=0 to Tot-1do BufLE32(X,StripLen[I]);
+ End;
+ If Nb>1Then Begin
+  For I:=1 to Nb do BufLE16(X,Bps);
+  For I:=1 to Nb do BufLE16(X,Fmt);
  End;
  BufDouble(X,R.Cell);BufDouble(X,R.Cell);BufDouble(X,0);
  BufDouble(X,0);BufDouble(X,0);BufDouble(X,0);
@@ -18153,7 +19364,6 @@ Begin
   For J:=1 to Length(Nd)do BufByte(X,Ord(Nd[J]));
   BufByte(X,0);
  End;
- { en-tete : decalage de l'IFD }
  B.P^[4]:=IfdOff and 255;B.P^[5]:=(IfdOff shr 8)and 255;
  B.P^[6]:=(IfdOff shr 16)and 255;B.P^[7]:=(IfdOff shr 24)and 255;
  BufGrow(B,X.N);
@@ -18225,18 +19435,26 @@ Procedure ShowGeneralHelp;Begin
  WriteLn('                      [command] [algorithm id or command parameters]');
  WriteLn;
  WriteLn('Options:');
- WriteLn('  --help, -h, /?            Affiche cette aide (apr'+#138+'s une commande : aide de cette commande)');
- WriteLn('  --version                 Affiche la version');
- WriteLn('  --json                    Affiche les r'+#130+'sultats au format JSON');
- WriteLn('  --verbose                 Affiche plus de messages pendant l''ex'+#130+'cution d''un algorithme');
- WriteLn('  --no-python               Accept'+#130+' pour compatibilit'+#130+' (il n''y a pas de Python ici)');
- WriteLn('  --skip-loading-plugins    Accept'+#130+' pour compatibilit'+#130);
- WriteLn('  --distance_units=UNITS    Unit'+#130+'s des distances dans les r'+#130+'sultats (m'+#138+'tres, kilom'+#138+'tres,');
- WriteLn('                            pieds, yards, miles, milles nautiques, centim'+#138+'tres, millim'+#138+'tres, pouces)');
- WriteLn('  --area_units=UNITS        Unit'+#130+'s des surfaces dans les r'+#130+'sultats (m'+#138+'tres carr'+#130+'s, kilom'+#138+'tres carr'+#130+'s,');
- WriteLn('                            pieds carr'+#130+'s, yards carr'+#130+'s, miles carr'+#130+'s, hectares, acres, ...)');
- WriteLn('  --ellipsoid=NAME          NONE force des mesures planes ; toute autre valeur utilise la sph'+#138+'re');
- WriteLn('  --project_path=PATH       Fichier de projet (doit exister ; son contenu n''est pas utilis'+#130+')');
+ WriteLn('  --help, -h, /?            Display this help (after a command: help of that command)');
+ WriteLn('  --version                 Display the version');
+ WriteLn('  --json                    Output results in JSON format');
+ WriteLn('  --verbose                 Display more messages while an algorithm runs');
+ WriteLn('  --no-python               Accepted for compatibility (there is no Python here)');
+ WriteLn('  --skip-loading-plugins    Accepted for compatibility');
+ WriteLn('  --distance_units=UNITS    Units of the distances in the results (meters, kilometers,');
+ WriteLn('                            feet, yards, miles, nautical miles, centimeters, millimeters, inches)');
+ WriteLn('  --area_units=UNITS        Units of the areas in the results (square meters, square kilometers,');
+ WriteLn('                            square feet, square yards, square miles, hectares, acres, ...)');
+ WriteLn('  --ellipsoid=NAME          NONE forces planar measures; any other value uses the sphere');
+ WriteLn('  --project_path=PATH       Project file (must exist; its content is not used)');
+ WriteLn('  --datum_grid=CODE:FILE    NTv2 datum shift grid (.gsb) for the datum of EPSG:CODE (e.g. 4267:ntv2_0.gsb)');
+ WriteLn('  --tiff_compress=MODE      GeoTIFF output compression: none (default), lzw, deflate or packbits');
+ WriteLn('  --invalid_geometries=MODE ignore (default), skip (drop invalid features) or stop (error)');
+ WriteLn;
+ WriteLn('Enumerations can be given by name (--JOIN_STYLE=bevel) or by index. A layer source can be');
+ WriteLn('restricted to some features with "path|featureids=0,3,5" (indices start at 0).');
+ WriteLn('Exit codes: 0 success, 1 algorithm error, 2 unknown command or algorithm,');
+ WriteLn('3 invalid or missing parameter, 4 unreadable file or unsupported format.');
  WriteLn;
  WriteLn('Commandes disponibles :');
  WriteLn('  plugins                   Liste les plugins disponibles (et actifs)');
@@ -19348,9 +20566,9 @@ Begin
  For K:=1 to 4do Begin
   P:=Pos(',',S);
   If(K<4)and(P=0)Then Fail('Error: EXTENT must be xmin,xmax,ymin,ymax');
-  If K<4Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End
+  If K<4Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End
         Else T:=S;
-  While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+  While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
   While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
   If Not IsNumber(T)Then Fail('Error: invalid EXTENT value "'+T+'"');
   Val(T,V[K],P);
@@ -19416,7 +20634,7 @@ Var
 Begin
  If(NC<1)or(NR<1)Then Fail('Error: invalid raster size');
  If(NC*1.0)*NR>MaxCells Then Fail('Error: raster is too large');
- R.NC:=NC;R.NR:=NR;R.XLL:=XLL;R.YLL:=YLL;R.Cell:=Cell;R.NoData:=Nd;R.DType:=0;R.Epsg:=LastEpsg;
+ R.NC:=NC;R.NR:=NR;R.XLL:=XLL;R.YLL:=YLL;R.Cell:=Cell;R.NoData:=Nd;R.DType:=0;R.XN:=0;R.Epsg:=LastEpsg;
  T:=NC*NR;
  R.Data:=AllocBlock(T*SizeOf(Real));
  For I:=0 to T-1do R.Data^[I]:=Nd;
@@ -19474,7 +20692,7 @@ Var
 Begin
  For I:=Length(S)downto 1do
   If S[I]in['/','\',':']Then Begin
-   S:=Copy(S,I+1,255);
+   S:=Copy(S,I+1,MaxStr);
    Break;
   End;
  I:=Length(S);
@@ -20674,40 +21892,59 @@ Var
  Out:String;
  Nd,V:Real;
  Ok:Boolean;
+ NF,Fi:LongInt;
+ Dp:PReals;
 Begin
  Names:='ABCDEF';
  For K:=0 to 5do Begin
   Have[K]:=(K=0)or HasArg('INPUT_'+Names[K+1]);
-  If Have[K]Then ReadRaster(NeedStr(A,'INPUT_'+Names[K+1]),Rs[K]);
+  If Have[K]Then Begin
+   BandSel:=1;
+   If HasArg('BAND_'+Names[K+1])Then BandSel:=Round(NeedReal(A,'BAND_'+Names[K+1]));
+   ReadRaster(NeedStr(A,'INPUT_'+Names[K+1]),Rs[K]);
+  End;
   Vars[K]:=0;
  End;
  For K:=1 to 5do
   If Have[K]Then
    If(Rs[K].NC<>Rs[0].NC)or(Rs[K].NR<>Rs[0].NR)Then
     Fail('Error: all input rasters must have the same size');
- CalcS:=NeedStr(A,'FORMULA');
- CalcP:=1;CodeN:=0;
- CExpr;
- CSkip;
- If CalcP<=Length(CalcS)Then CFail('unexpected token');
- { variables utilisees mais non fournies }
- For I:=1 to CodeN do
-  If CodeOp[I]=2Then
-   If Not Have[Round(CodeV[I])]Then Fail('Error: the formula uses '+Names[Round(CodeV[I])+1]+' but INPUT_'+Names[Round(CodeV[I])+1]+' is not set');
- Out:=NeedStr(A,'OUTPUT');
+Out:=NeedStr(A,'OUTPUT');
  Nd:=Rs[0].NoData;
  If HasArg('NO_DATA')Then Nd:=NeedReal(A,'NO_DATA');
  NewRaster(O,Rs[0].NC,Rs[0].NR,Rs[0].XLL,Rs[0].YLL,Rs[0].Cell,Nd);
  N:=Rs[0].NC*Rs[0].NR;
- For I:=0 to N-1do Begin
-  Ok:=True;
-  For K:=0 to 5do
-   If Have[K]Then Begin
-    Vars[K]:=Rs[K].Data^[I];
-    If IsNoData(Rs[K],Vars[K])Then Ok:=False;
-   End;
-  If Ok and CEval(Vars,V)Then O.Data^[I]:=V;
+ SplitList(NeedStr(A,'FORMULA'),';');
+ NF:=ListCount;
+ If NF<1Then Fail('Error: FORMULA is empty');
+ If NF>16Then Fail('Error: at most 16 formulas (output bands) are supported');
+ O.XN:=NF-1;
+ For Fi:=1 to NF do Begin
+  If Fi=1Then Dp:=O.Data Else Begin
+   O.XB[Fi]:=AllocBlock(N*SizeOf(Real));
+   Dp:=O.XB[Fi];
+  End;
+  For I:=0 to N-1do Dp^[I]:=Nd;
+  CalcS:=ListItems[Fi];
+  CalcP:=1;CodeN:=0;
+  CExpr;
+  CSkip;
+  If CalcP<=Length(CalcS)Then CFail('unexpected token');
+  { variables utilisees mais non fournies }
+  For I:=1 to CodeN do
+   If CodeOp[I]=2Then
+    If Not Have[Round(CodeV[I])]Then Fail('Error: the formula uses '+Names[Round(CodeV[I])+1]+' but INPUT_'+Names[Round(CodeV[I])+1]+' is not set');
+  For I:=0 to N-1do Begin
+   Ok:=True;
+   For K:=0 to 5do
+    If Have[K]Then Begin
+     Vars[K]:=Rs[K].Data^[I];
+     If IsNoData(Rs[K],Vars[K])Then Ok:=False;
+    End;
+   If Ok and CEval(Vars,V)Then Dp^[I]:=V;
+  End;
  End;
+ If(O.XN>0)and(FileExt(Out)<>'.TIF')and(FileExt(Out)<>'.TIFF')Then Fail('Error: a multiband output needs a .tif file');
  WriteRaster(Out,O);
  AddRes('OUTPUT',Out);
 End;
@@ -21029,11 +22266,11 @@ Begin
  P:=Pos(',',S);
  If P=0Then Fail('Error: invalid point, expected x,y [EPSG:code]');
  T:=Copy(S,1,P-1);
- While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
  If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
  Val(T,X,P);
- T:=Copy(S,Pos(',',S)+1,255);
- While(T<>'')and(T[1]=' ')do T:=Copy(T,2,255);
+ T:=Copy(S,Pos(',',S)+1,MaxStr);
+ While(T<>'')and(T[1]=' ')do T:=Copy(T,2,MaxStr);
  While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
  If Not IsNumber(T)Then Fail('Error: invalid point coordinate "'+T+'"');
  Val(T,Y,P);
@@ -21308,7 +22545,7 @@ Begin
  Res:=Sqrt(W*W+H*H)/Sqrt(Sqr(R.NC*1.0)+Sqr(R.NR*1.0));
  If Res<=0Then Fail('Error: invalid target resolution');
  O.NC:=RoundL(W/Res);
- O.DType:=0;O.Epsg:=Dst;
+ O.DType:=0;O.XN:=0;O.Epsg:=Dst;
  O.NR:=RoundL(H/Res);
  If O.NC<1Then O.NC:=1;
  If O.NR<1Then O.NR:=1;
@@ -21869,7 +23106,7 @@ Begin
   P:=Pos('=',Items[K]);
   If P=0Then Fail('Error: FIELDS_MAPPING items must look like name=expression');
   Names[K]:=Copy(Items[K],1,P-1);
-  Exprs[K]:=Copy(Items[K],P+1,255);
+  Exprs[K]:=Copy(Items[K],P+1,MaxStr);
  End;
  Idx:=0;
  F:=Arr^.First;
@@ -21937,7 +23174,7 @@ Begin
   First:=True;
   Repeat
    P:=Pos(Ch,S);
-   If P>0Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,255);End
+   If P>0Then Begin T:=Copy(S,1,P-1);S:=Copy(S,P+1,MaxStr);End
          Else Begin T:=S;S:='';End;
    C:=NewFeature(PropsClone(F),JClone(JFind(F,'geometry')));
    PutProp(C,Fld,JTextEsc(T));
@@ -24493,10 +25730,10 @@ Begin
    If P1=0Then Fail('Error: AGGREGATES items must look like field:function:name');
    Fld:=Copy(Items[K],1,P1-1);
    If(Length(Fld)>=2)and(Fld[1]='"')and(Fld[Length(Fld)]='"')Then Fld:=Copy(Fld,2,Length(Fld)-2);
-   Tmp:=Copy(Items[K],P1+1,255);
+   Tmp:=Copy(Items[K],P1+1,MaxStr);
    P2:=Pos(':',Tmp);
    If P2=0Then Begin Fn:=StrUpper(Tmp);Nm:=Fld;End
-          Else Begin Fn:=StrUpper(Copy(Tmp,1,P2-1));Nm:=Copy(Tmp,P2+1,255);End;
+          Else Begin Fn:=StrUpper(Copy(Tmp,1,P2-1));Nm:=Copy(Tmp,P2+1,MaxStr);End;
    Cnt:=0;Sum:=0;M:=0;Concat:='';NS:=0;First:=Nil;Last:=Nil;Mn:=1E300;Mx:=-1E300;
    For I:=0 to N-1do
     If Grp^[I]=J Then Begin
@@ -24515,7 +25752,7 @@ Begin
       For Q:=1 to NS do If Seen[Q]=Tmp Then Found:=True;
       If(Not Found)and(NS<200)Then Begin Inc(NS);Seen[NS]:=Tmp;End;
       If Concat<>''Then Concat:=Concat+',';
-      If Length(Concat)<200Then Concat:=Concat+Tmp;
+      If Length(Concat)<MaxStr-50Then Concat:=Concat+Tmp;
      End;
     End;
    If Fn='COUNT'Then JAddKV(Pr,Nm,JNum(Cnt)) Else
@@ -25740,8 +26977,9 @@ End;
 Procedure RunDemIndex(A:Integer;Mode:Integer);
 Var
  R,O:TRaster;
- Edges,Zev,Trig,ZeroFlat:Boolean;
+ Edges,Zev,Trig,ZeroFlat,Comb,Multi:Boolean;
  I,J,K:LongInt;
+ Wsum,Csum,Ai,Ci,Bear:Real;
  Z:TWin9;
  Dx,Dy,V,Sc,Zf,Az,Alt,X,Y,Cang,S:Real;
  Out:String;
@@ -25750,15 +26988,16 @@ Begin
  CheckBand(A);
  Edges:=NeedBool(A,'COMPUTE_EDGES');
  Out:=NeedStr(A,'OUTPUT');
- Zev:=False;Trig:=False;ZeroFlat:=False;Sc:=1;Zf:=1;Az:=315;Alt:=45;
+ Zev:=False;Trig:=False;ZeroFlat:=False;Comb:=False;Multi:=False;Sc:=1;Zf:=1;Az:=315;Alt:=45;
  If Mode in[0,1]Then Zev:=NeedBool(A,'ZEVENBERGEN');
  If Mode=0Then Begin Trig:=NeedBool(A,'TRIG_ANGLE');ZeroFlat:=NeedBool(A,'ZERO_FLAT');End;
  If Mode=1Then Begin
   Sc:=NeedReal(A,'SCALE');Zf:=NeedReal(A,'Z_FACTOR');
   Az:=NeedReal(A,'AZIMUTH');Alt:=NeedReal(A,'ALTITUDE');
   If Sc<=0Then Fail('Error: SCALE must be greater than 0');
-  If NeedBool(A,'COMBINED')or NeedBool(A,'MULTIDIRECTIONAL')Then
-   Fail('Error: the combined and multidirectional shading modes are not supported');
+  Comb:=NeedBool(A,'COMBINED');
+  Multi:=NeedBool(A,'MULTIDIRECTIONAL');
+  If Comb and Multi Then Fail('Error: COMBINED and MULTIDIRECTIONAL cannot be used together');
  End;
  If Mode=1Then NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,0)
           Else NewRaster(O,R.NC,R.NR,R.XLL,R.YLL,R.Cell,-9999);
@@ -25792,8 +27031,31 @@ Begin
          X:=((Z[3]+2*Z[6]+Z[9])-(Z[1]+2*Z[4]+Z[7]))/(8*R.Cell*Sc);
          Y:=((Z[7]+2*Z[8]+Z[9])-(Z[1]+2*Z[2]+Z[3]))/(8*R.Cell*Sc);
         End;
-       Cang:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Az))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Az)))/
-             Sqrt(1+Zf*Zf*(X*X+Y*Y));
+       If Multi Then Begin
+        { 4 sources (225, 270, 315, 360) ponderees par sin2(azimut - orientation) }
+        Bear:=Atan2(-X,Y);
+        Wsum:=0;Csum:=0;
+        For K:=0 to 3do Begin
+         Ai:=225+45*K;
+         Ci:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Ai))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Ai)))/
+              Sqrt(1+Zf*Zf*(X*X+Y*Y));
+         If Ci<0Then Ci:=0;
+         Wsum:=Wsum+Sqr(Sin(Deg2Rad(Ai)-Bear))+1E-9;
+         Csum:=Csum+(Sqr(Sin(Deg2Rad(Ai)-Bear))+1E-9)*Ci;
+        End;
+        Cang:=Csum/Wsum;
+       End
+        Else
+       Begin
+        Cang:=(Sin(Deg2Rad(Alt))-Zf*X*Cos(Deg2Rad(Alt))*Sin(Deg2Rad(Az))+Zf*Y*Cos(Deg2Rad(Alt))*Cos(Deg2Rad(Az)))/
+              Sqrt(1+Zf*Zf*(X*X+Y*Y));
+        If Comb Then Begin
+         { ombrage combine : angle d'incidence pondere par la pente }
+         If Cang>1Then Cang:=1;
+         If Cang<-1Then Cang:=-1;
+         Cang:=1-Acos(Cang)*ArcTan(Zf*Sqrt(X*X+Y*Y))/Sqr(Pi/2);
+        End;
+       End;
         If Cang<=0Then O.Data^[I*R.NC+J]:=1
                   Else O.Data^[I*R.NC+J]:=Int(1+254*Cang);
       End;
@@ -26394,57 +27656,100 @@ Begin
  SaveOut(A,'OUTPUT',Root);
 End;
 
-{ ---- triangulation de Delaunay (Bowyer-Watson) ---- }
+{ ---- triangulation de Delaunay (Bowyer-Watson avec adjacences, points en ordre de Hilbert) ---- }
 
 Var
  DlN,DlT,DlCap:LongInt;
  DlX,DlY:PReals;
  DlA,DlB,DlC:PLongs;
- DlCx,DlCy,DlR2:PReals;
+ DlV0,DlV1,DlV2,DlN0,DlN1,DlN2:PLongs;    { sommets et voisins (arete i opposee au sommet i) }
+ DlAlive:PBools;
+ DlMark:PLongs;
 
-Procedure DlCircle(T:LongInt);
-Var
- Ax,Ay,Bx,By,Cx,Cy,D,Ux,Uy:Real;
-Begin
- Ax:=DlX^[DlA^[T]];Ay:=DlY^[DlA^[T]];
- Bx:=DlX^[DlB^[T]];By:=DlY^[DlB^[T]];
- Cx:=DlX^[DlC^[T]];Cy:=DlY^[DlC^[T]];
- D:=2*(Ax*(By-Cy)+Bx*(Cy-Ay)+Cx*(Ay-By));
- If Abs(D)<1E-300Then Begin DlCx^[T]:=Ax;DlCy^[T]:=Ay;DlR2^[T]:=1E300;Exit;End;
- Ux:=((Ax*Ax+Ay*Ay)*(By-Cy)+(Bx*Bx+By*By)*(Cy-Ay)+(Cx*Cx+Cy*Cy)*(Ay-By))/D;
- Uy:=((Ax*Ax+Ay*Ay)*(Cx-Bx)+(Bx*Bx+By*By)*(Ax-Cx)+(Cx*Cx+Cy*Cy)*(Bx-Ax))/D;
- DlCx^[T]:=Ux;DlCy^[T]:=Uy;
- DlR2^[T]:=Sqr(Ax-Ux)+Sqr(Ay-Uy);
+Function DlOrient(A,B:LongInt;Px,Py:Real):Real;Begin
+ DlOrient:=(DlX^[B]-DlX^[A])*(Py-DlY^[A])-(DlY^[B]-DlY^[A])*(Px-DlX^[A]);
 End;
 
-Procedure DlAddTri(A,B,C:LongInt);Begin
- DlA^[DlT]:=A;DlB^[DlT]:=B;DlC^[DlT]:=C;
- DlCircle(DlT);
- Inc(DlT);
+Function DlInCircle(A,B,C:LongInt;Px,Py:Real):Boolean;
+Var
+ Ax,Ay,Bx,By,Cx,Cy,Da,Db,Dc:Real;
+Begin
+ Ax:=DlX^[A]-Px;Ay:=DlY^[A]-Py;Bx:=DlX^[B]-Px;By:=DlY^[B]-Py;Cx:=DlX^[C]-Px;Cy:=DlY^[C]-Py;
+ Da:=Ax*Ax+Ay*Ay;Db:=Bx*Bx+By*By;Dc:=Cx*Cx+Cy*Cy;
+ DlInCircle:=Da*(Bx*Cy-Cx*By)+Db*(Cx*Ay-Ax*Cy)+Dc*(Ax*By-Bx*Ay)>0;
 End;
 
-{ Points DlX/DlY[0..N-1] ; les triangles resultants sont dans DlA/DlB/DlC[0..DlT-1] (hors super-triangle) }
-Procedure DelaunayInit(N:LongInt);
-Var
- I,K,M,E1,E2,Ne,J,Keep:LongInt;
- Mnx,Mny,Mxx,Mxy,Dm,Mx,My,D2:Real;
- Ea,Eb:PLongs;
- Dup:Boolean;
-Begin
+Function DlVert(T,I:LongInt):LongInt;Begin
+ Case I of 0:DlVert:=DlV0^[T];1:DlVert:=DlV1^[T];Else DlVert:=DlV2^[T];End;
+End;
+
+Function DlNeigh(T,I:LongInt):LongInt;Begin
+ Case I of 0:DlNeigh:=DlN0^[T];1:DlNeigh:=DlN1^[T];Else DlNeigh:=DlN2^[T];End;
+End;
+
+Procedure DlSetNeigh(T,I,V:LongInt);Begin
+ Case I of 0:DlN0^[T]:=V;1:DlN1^[T]:=V;Else DlN2^[T]:=V;End;
+End;
+
+Procedure DelaunayInit(N:LongInt);Begin
  DlN:=N;DlT:=0;
- DlCap:=2*N+16;
+ DlCap:=2*N+24;
  DlX:=AllocBlock((N+3)*SizeOf(Real));DlY:=AllocBlock((N+3)*SizeOf(Real));
  DlA:=AllocBlock(DlCap*SizeOf(LongInt));DlB:=AllocBlock(DlCap*SizeOf(LongInt));DlC:=AllocBlock(DlCap*SizeOf(LongInt));
- DlCx:=AllocBlock(DlCap*SizeOf(Real));DlCy:=AllocBlock(DlCap*SizeOf(Real));DlR2:=AllocBlock(DlCap*SizeOf(Real));
+ DlV0:=AllocBlock(DlCap*SizeOf(LongInt));DlV1:=AllocBlock(DlCap*SizeOf(LongInt));DlV2:=AllocBlock(DlCap*SizeOf(LongInt));
+ DlN0:=AllocBlock(DlCap*SizeOf(LongInt));DlN1:=AllocBlock(DlCap*SizeOf(LongInt));DlN2:=AllocBlock(DlCap*SizeOf(LongInt));
+ DlAlive:=AllocBlock(DlCap*SizeOf(Boolean));DlMark:=AllocBlock(DlCap*SizeOf(LongInt));
 End;
+
+{ Cle de Hilbert (grille 2^15) }
+Function HilbertKey(X,Y:LongInt):Real;
+Var
+ D,S,Rx,Ry,T:LongInt;
+Const
+ Nn=32768;
+Begin
+ D:=0;
+ S:=Nn div 2;
+ While S>0do Begin
+  If(X and S)>0Then Rx:=1 Else Rx:=0;
+  If(Y and S)>0Then Ry:=1 Else Ry:=0;
+  D:=D+S*S*((3*Rx)xor Ry);
+  If Ry=0Then Begin
+   If Rx=1Then Begin X:=Nn-1-X;Y:=Nn-1-Y;End;
+   T:=X;X:=Y;Y:=T;
+  End;
+  S:=S div 2;
+ End;
+ HilbertKey:=D;
+End;
+
+Const
+ SuperF=1000;
 
 Procedure DelaunayRun;
 Var
- I,K,Ne,J,N:LongInt;
- Mnx,Mny,Mxx,Mxy,Dm,Mx,My:Real;
- Ea,Eb:PLongs;
- Dup:Boolean;
- D2:Real;
+ N,I,K,J,T,T0,Nt,Free,Steps,Live,Sp,Nb,Nbd,Cnt,E,Stamp,Cur:LongInt;
+ Mnx,Mny,Mxx,Mxy,Dm,Mx,My,Px,Py:Real;
+ Keys:PReals;
+ Ord:PLongs;
+ FreeS,Stack,Bout,Bj:PLongs;
+ Ba,Bb:PLongs;
+ Moved,Found:Boolean;
+ Va,Vb:LongInt;
+
+ Function NewTri(A,B,C:LongInt):LongInt;
+ Var
+  Q:LongInt;
+ Begin
+  If Free>0Then Begin Dec(Free);Q:=FreeS^[Free];End
+   Else Begin Q:=Nt;Inc(Nt);End;
+  DlV0^[Q]:=A;DlV1^[Q]:=B;DlV2^[Q]:=C;
+  DlN0^[Q]:=-1;DlN1^[Q]:=-1;DlN2^[Q]:=-1;
+  DlAlive^[Q]:=True;DlMark^[Q]:=0;
+  Inc(Live);
+  NewTri:=Q;
+ End;
+
 Begin
  N:=DlN;
  Mnx:=DlX^[0];Mxx:=Mnx;Mny:=DlY^[0];Mxy:=Mny;
@@ -26455,55 +27760,125 @@ Begin
  Dm:=MaxR(Mxx-Mnx,Mxy-Mny);
  If Dm<=0Then Dm:=1;
  Mx:=(Mnx+Mxx)/2;My:=(Mny+Mxy)/2;
- DlX^[N]:=Mx-20*Dm;DlY^[N]:=My-Dm;
- DlX^[N+1]:=Mx;DlY^[N+1]:=My+20*Dm;
- DlX^[N+2]:=Mx+20*Dm;DlY^[N+2]:=My-Dm;
- DlAddTri(N,N+1,N+2);
- Ea:=AllocBlock(4*(DlCap+8)*SizeOf(LongInt));
- Eb:=AllocBlock(4*(DlCap+8)*SizeOf(LongInt));
+ { ordre de Hilbert des points }
+ Keys:=AllocBlock((N+1)*SizeOf(Real));
+ Ord:=AllocBlock((N+1)*SizeOf(LongInt));
  For I:=0 to N-1do Begin
-  Ne:=0;
-  K:=0;
-  While K<DlT do Begin
-   D2:=Sqr(DlX^[I]-DlCx^[K])+Sqr(DlY^[I]-DlCy^[K]);
-   If D2<DlR2^[K]*(1-1E-12)Then Begin
-    { triangle invalide : ses aretes rejoignent la liste }
-    Ea^[Ne]:=DlA^[K];Eb^[Ne]:=DlB^[K];Inc(Ne);
-    Ea^[Ne]:=DlB^[K];Eb^[Ne]:=DlC^[K];Inc(Ne);
-    Ea^[Ne]:=DlC^[K];Eb^[Ne]:=DlA^[K];Inc(Ne);
-    Dec(DlT);
-    DlA^[K]:=DlA^[DlT];DlB^[K]:=DlB^[DlT];DlC^[K]:=DlC^[DlT];
-    DlCx^[K]:=DlCx^[DlT];DlCy^[K]:=DlCy^[DlT];DlR2^[K]:=DlR2^[DlT];
-   End
-    Else
-   Inc(K);
-  End;
-  { aretes du contour : celles qui n'apparaissent qu'une fois }
-  For K:=0 to Ne-1do Begin
-   Dup:=False;
-   For J:=0 to Ne-1do
-    If(J<>K)and(Ea^[J]=Eb^[K])and(Eb^[J]=Ea^[K])Then Begin Dup:=True;Break;End;
-   If Not Dup Then DlAddTri(Ea^[K],Eb^[K],I);
-  End;
+  Keys^[I]:=HilbertKey(Trunc((DlX^[I]-Mnx)/Dm*32767),Trunc((DlY^[I]-Mny)/Dm*32767));
+  Ord^[I]:=I;
  End;
- FreeMem(Ea,4*(DlCap+8)*SizeOf(LongInt));
- FreeMem(Eb,4*(DlCap+8)*SizeOf(LongInt));
- { retire les triangles touchant le super-triangle }
- K:=0;
- While K<DlT do Begin
-  If(DlA^[K]>=N)or(DlB^[K]>=N)or(DlC^[K]>=N)Then Begin
-   Dec(DlT);
-   DlA^[K]:=DlA^[DlT];DlB^[K]:=DlB^[DlT];DlC^[K]:=DlC^[DlT];
-  End
-   Else
-  Inc(K);
+ If N>1Then SortByKey(Ord,Keys,0,N-1);
+ FreeMem(Keys,(N+1)*SizeOf(Real));
+ DlX^[N]:=Mx-SuperF*Dm;DlY^[N]:=My-SuperF/3*Dm;
+ DlX^[N+1]:=Mx+SuperF*Dm;DlY^[N+1]:=My-SuperF/3*Dm;
+ DlX^[N+2]:=Mx;DlY^[N+2]:=My+SuperF*Dm;
+ FreeS:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Stack:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Bout:=AllocBlock((DlCap+8)*SizeOf(LongInt));Bj:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Ba:=AllocBlock((DlCap+8)*SizeOf(LongInt));Bb:=AllocBlock((DlCap+8)*SizeOf(LongInt));
+ Free:=0;Nt:=0;Live:=0;Stamp:=0;
+ Cur:=NewTri(N,N+1,N+2);
+ For K:=0 to N-1do Begin
+  I:=Ord^[K];
+  Px:=DlX^[I];Py:=DlY^[I];
+  { localisation par marche }
+  T:=Cur;
+  If Not DlAlive^[T]Then Begin
+   T:=0;
+   While(T<Nt)and Not DlAlive^[T]do Inc(T);
+  End;
+  Steps:=0;
+  Repeat
+   Moved:=False;
+   For J:=0 to 2do Begin
+    Va:=DlVert(T,(J+1)mod 3);Vb:=DlVert(T,(J+2)mod 3);
+    If DlOrient(Va,Vb,Px,Py)<0Then Begin
+     Nb:=DlNeigh(T,J);
+     If Nb>=0Then Begin T:=Nb;Moved:=True;Break;End;
+    End;
+   End;
+   Inc(Steps);
+  Until Not Moved or(Steps>3*Live+20);
+  If Moved Then Begin
+   { echec de la marche : recherche lineaire }
+   Found:=False;
+   For T0:=0 to Nt-1do
+    If DlAlive^[T0]Then
+     If(DlOrient(DlV0^[T0],DlV1^[T0],Px,Py)>=0)and(DlOrient(DlV1^[T0],DlV2^[T0],Px,Py)>=0)and(DlOrient(DlV2^[T0],DlV0^[T0],Px,Py)>=0)Then Begin
+      T:=T0;Found:=True;Break;
+     End;
+  End;
+  { cavite : triangles dont le cercle circonscrit contient le point }
+  Inc(Stamp);
+  DlMark^[T]:=Stamp;
+  Cnt:=1;Bout^[0]:=T;Sp:=0;
+  While Sp<Cnt do Begin
+   T0:=Bout^[Sp];Inc(Sp);
+   For J:=0 to 2do Begin
+    Nb:=DlNeigh(T0,J);
+    If(Nb>=0)and(DlMark^[Nb]<>Stamp)Then
+     If DlInCircle(DlV0^[Nb],DlV1^[Nb],DlV2^[Nb],Px,Py)Then Begin
+      DlMark^[Nb]:=Stamp;Bout^[Cnt]:=Nb;Inc(Cnt);
+     End;
+   End;
+  End;
+  { aretes du contour }
+  Nbd:=0;
+  For J:=0 to Cnt-1do Begin
+   T0:=Bout^[J];
+   For E:=0 to 2do Begin
+    Nb:=DlNeigh(T0,E);
+    If(Nb<0)or(DlMark^[Nb]<>Stamp)Then Begin
+     Ba^[Nbd]:=DlVert(T0,(E+1)mod 3);Bb^[Nbd]:=DlVert(T0,(E+2)mod 3);
+     Stack^[Nbd]:=Nb;                 { voisin exterieur }
+     { indice de l'arete de l'exterieur qui pointe vers T0 }
+     Bj^[Nbd]:=-1;
+     If Nb>=0Then
+      For Va:=0 to 2do If DlNeigh(Nb,Va)=T0 Then Bj^[Nbd]:=Va;
+     Inc(Nbd);
+    End;
+   End;
+  End;
+  { liberation des triangles de la cavite }
+  For J:=0 to Cnt-1do Begin
+   DlAlive^[Bout^[J]]:=False;
+   FreeS^[Free]:=Bout^[J];Inc(Free);Dec(Live);
+  End;
+  { nouveaux triangles }
+  For J:=0 to Nbd-1do Begin
+   T0:=NewTri(Ba^[J],Bb^[J],I);
+   Bout^[J]:=T0;
+   DlN2^[T0]:=Stack^[J];
+   If Stack^[J]>=0Then DlSetNeigh(Stack^[J],Bj^[J],T0);
+  End;
+  For J:=0 to Nbd-1do Begin
+   T0:=Bout^[J];
+   For E:=0 to Nbd-1do Begin
+    If Ba^[E]=Bb^[J]Then DlN0^[T0]:=Bout^[E];
+    If Bb^[E]=Ba^[J]Then DlN1^[T0]:=Bout^[E];
+   End;
+  End;
+  Cur:=Bout^[0];
  End;
+ { sortie : triangles sans sommet du super-triangle }
+ DlT:=0;
+ For T:=0 to Nt-1do
+  If DlAlive^[T]and(DlV0^[T]<N)and(DlV1^[T]<N)and(DlV2^[T]<N)Then Begin
+   DlA^[DlT]:=DlV0^[T];DlB^[DlT]:=DlV1^[T];DlC^[DlT]:=DlV2^[T];
+   Inc(DlT);
+  End;
+ FreeMem(Ord,(N+1)*SizeOf(LongInt));
+ FreeMem(FreeS,(DlCap+8)*SizeOf(LongInt));FreeMem(Stack,(DlCap+8)*SizeOf(LongInt));
+ FreeMem(Bout,(DlCap+8)*SizeOf(LongInt));FreeMem(Bj,(DlCap+8)*SizeOf(LongInt));
+ FreeMem(Ba,(DlCap+8)*SizeOf(LongInt));FreeMem(Bb,(DlCap+8)*SizeOf(LongInt));
 End;
 
 Procedure DelaunayFree;Begin
  FreeMem(DlX,(DlN+3)*SizeOf(Real));FreeMem(DlY,(DlN+3)*SizeOf(Real));
  FreeMem(DlA,DlCap*SizeOf(LongInt));FreeMem(DlB,DlCap*SizeOf(LongInt));FreeMem(DlC,DlCap*SizeOf(LongInt));
- FreeMem(DlCx,DlCap*SizeOf(Real));FreeMem(DlCy,DlCap*SizeOf(Real));FreeMem(DlR2,DlCap*SizeOf(Real));
+ FreeMem(DlV0,DlCap*SizeOf(LongInt));FreeMem(DlV1,DlCap*SizeOf(LongInt));FreeMem(DlV2,DlCap*SizeOf(LongInt));
+ FreeMem(DlN0,DlCap*SizeOf(LongInt));FreeMem(DlN1,DlCap*SizeOf(LongInt));FreeMem(DlN2,DlCap*SizeOf(LongInt));
+ FreeMem(DlAlive,DlCap*SizeOf(Boolean));FreeMem(DlMark,DlCap*SizeOf(LongInt));
 End;
 
 { Collecte les points d'une couche (premier sommet de chaque point) ; Src : entite d'origine }
@@ -27704,11 +29079,14 @@ Begin
   Rewrite(T);
   {$I+}
   If IOResult<>0Then Fail('Error: cannot write '+Out);
-  WriteLn(T,'<html><head><meta charset="utf-8"></head><body>');
-  WriteLn(T,'<p>Analyzed field: ',XmlEsc(Fld),'</p>');
+  WriteLn(T,'<!DOCTYPE html><html><head><meta charset="utf-8"><title>Basic statistics</title>');
+  WriteLn(T,'<style>body{font-family:sans-serif}table{border-collapse:collapse}td,th{border:1px solid #999;padding:3px 8px;text-align:left}th{background:#eee}</style></head><body>');
+  WriteLn(T,'<h1>Analyzed layer: ',XmlEsc(NeedStr(A,'INPUT_LAYER')),'</h1>');
+  WriteLn(T,'<h2>Analyzed field: ',XmlEsc(Fld),'</h2>');
+  WriteLn(T,'<table><tr><th>Statistic</th><th>Value</th></tr>');
   For I:=1 to ResCount do
-   If(ResName[I]<>'OUTPUT_HTML_FILE')Then WriteLn(T,'<p>',ResName[I],': ',XmlEsc(ResVal[I]),'</p>');
-  WriteLn(T,'</body></html>');
+   If(ResName[I]<>'OUTPUT_HTML_FILE')Then WriteLn(T,'<tr><td>',ResName[I],'</td><td>',XmlEsc(ResVal[I]),'</td></tr>');
+  WriteLn(T,'</table></body></html>');
   Close(T);
   AddRes('OUTPUT_HTML_FILE',Out);
  End;
@@ -27818,7 +29196,7 @@ Begin
  Joined:='';
  For I:=1 to Ns do Begin
   If I>1Then Joined:=Joined+',';
-  If Length(Joined)+Length(Seen[I])<250Then Joined:=Joined+Seen[I];
+  If Length(Joined)+Length(Seen[I])<MaxStr-5Then Joined:=Joined+Seen[I];
  End;
  AddRes('TOTAL_VALUES',IntToStr(Total));
  AddRes('UNIQUE_VALUES',IntToStr(Ns));
@@ -27829,8 +29207,10 @@ Begin
   Rewrite(T);
   {$I+}
   If IOResult<>0Then Fail('Error: cannot write '+Out);
-  WriteLn(T,'<html><head><meta charset="utf-8"></head><body>');
-  WriteLn(T,'<p>Total unique values: ',Ns,'</p><p>Unique values: ',XmlEsc(Joined),'</p>');
+  WriteLn(T,'<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unique values</title>');
+  WriteLn(T,'<style>body{font-family:sans-serif}</style></head><body>');
+  WriteLn(T,'<h1>Analyzed layer: ',XmlEsc(NeedStr(A,'INPUT')),'</h1><h2>Field: ',XmlEsc(Fld),'</h2>');
+  WriteLn(T,'<p>Total values: ',Total,'</p><p>Total unique values: ',Ns,'</p><p>Unique values: ',XmlEsc(Joined),'</p>');
   WriteLn(T,'</body></html>');
   Close(T);
   AddRes('OUTPUT_HTML_FILE',Out);
@@ -27909,9 +29289,9 @@ Begin
  If Pos=0Then Path:=Spec Else Path:=Copy(Spec,1,Pos-1);
  Fld:=0;
  If Pos>0Then Begin
-  Part:=Copy(Spec,Pos+5,255);
+  Part:=Copy(Spec,Pos+5,MaxStr);
   Pos:=System.Pos('::~::',Part);
-  Part:=Copy(Part,Pos+5,255);
+  Part:=Copy(Part,Pos+5,MaxStr);
   Pos:=System.Pos('::~::',Part);
   If Pos>0Then Part:=Copy(Part,1,Pos-1);
   Val(Part,Fld,K);
@@ -27993,6 +29373,724 @@ Begin
  VertFilter:=False;
 End;
 
+{ ------------------------------------------------------------------ }
+{ Couverture 2 : points aleatoires et reguliers, formes, TIN, matrice  }
+{ ------------------------------------------------------------------ }
+
+Var
+ RpX,RpY:PReals;
+ RpN,RpCap:LongInt;
+
+Procedure RpReset;Begin
+ RpN:=0;
+End;
+
+Procedure RpAdd(X,Y:Real);
+Var
+ Q:PReals;
+Begin
+ If RpX=Nil Then Begin RpCap:=256;RpX:=AllocBlock(RpCap*SizeOf(Real));RpY:=AllocBlock(RpCap*SizeOf(Real));End;
+ If RpN>=RpCap Then Begin
+  Q:=AllocBlock(RpCap*2*SizeOf(Real));Move(RpX^,Q^,RpN*SizeOf(Real));FreeMem(RpX,RpCap*SizeOf(Real));RpX:=Q;
+  Q:=AllocBlock(RpCap*2*SizeOf(Real));Move(RpY^,Q^,RpN*SizeOf(Real));FreeMem(RpY,RpCap*SizeOf(Real));RpY:=Q;
+  RpCap:=RpCap*2;
+ End;
+ RpX^[RpN]:=X;RpY^[RpN]:=Y;Inc(RpN);
+End;
+
+Function RpFar(X,Y,Md:Real;From:LongInt):Boolean;
+Var
+ I:LongInt;
+Begin
+ RpFar:=True;
+ If Md<=0Then Exit;
+ For I:=From to RpN-1do
+  If Sqr(RpX^[I]-X)+Sqr(RpY^[I]-Y)<Md*Md Then Begin RpFar:=False;Exit;End;
+End;
+
+Procedure RunRandomPointsExtent(A:Integer);
+Var
+ Out,OutArr,Nf:PJ;
+ X1,X2,Y1,Y2,Md,X,Y:Real;
+ N,I,Tries:LongInt;
+ Epsg:LongInt;
+Begin
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ N:=Round(NeedReal(A,'POINTS_NUMBER'));
+ Md:=NeedReal(A,'MIN_DISTANCE');
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ Out:=NewLayerLike(Nil,OutArr);
+ If HasArg('TARGET_CRS')Then Begin Epsg:=ParseEpsg(NeedStr(A,'TARGET_CRS'),'TARGET_CRS');SetLayerCrs(Out,Epsg);End;
+ RpReset;
+ Tries:=0;
+ While(RpN<N)and(Tries<N*20+100)do Begin
+  Inc(Tries);
+  X:=X1+Random*(X2-X1);Y:=Y1+Random*(Y2-Y1);
+  If RpFar(X,Y,Md,0)Then RpAdd(X,Y);
+ End;
+ For I:=0 to RpN-1do Begin
+  Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])));
+  PutProp(Nf,'id',JNum(I+1));
+  JAdd(OutArr,Nf);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Mode 0 : dans les polygones, 1 : le long des lignes }
+Procedure RunRandomPointsIn(A:Integer;Mode:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G:TGeom;
+ P:PPath;
+ N,Mt,I,Tries,MaxT,Gl,Start,Total:LongInt;
+ Md,MdG,X,Y,X1,Y1,X2,Y2,Len,D,Acc,L,T:Real;
+ Attrs:Boolean;
+ Id:LongInt;
+ Ok:Boolean;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ N:=Round(NeedReal(A,'POINTS_NUMBER'));
+ Md:=NeedReal(A,'MIN_DISTANCE');
+ MdG:=NeedReal(A,'MIN_DISTANCE_GLOBAL');
+ MaxT:=Round(NeedReal(A,'MAX_TRIES_PER_POINT'));
+ If MaxT<1Then MaxT:=10;
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ If Mode=0Then Attrs:=NeedBool(A,'INCLUDE_POLYGON_ATTRIBUTES') Else Attrs:=NeedBool(A,'INCLUDE_LINE_ATTRIBUTES');
+ Out:=NewLayerLike(Root,OutArr);
+ RpReset;Id:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If((Mode=0)and(G.Cls=3))or((Mode=1)and(G.Cls=2))Then Begin
+   Start:=RpN;
+   Tries:=0;
+   If Mode=0Then Begin
+    If GeomBBox(G,X1,Y1,X2,Y2)Then
+     While((RpN-Start)<N)and(Tries<N*MaxT)do Begin
+      Inc(Tries);
+      X:=X1+Random*(X2-X1);Y:=Y1+Random*(Y2-Y1);
+      If PtInPolys(G,X,Y,0)=1Then
+       If RpFar(X,Y,Md,Start)and RpFar(X,Y,MdG,0)Then RpAdd(X,Y);
+     End;
+   End
+    Else
+   Begin
+    Total:=0;Len:=0;
+    P:=G.First;
+    While P<>Nil do Begin
+     For I:=0 to P^.N-2do Len:=Len+Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+     P:=P^.Next;
+    End;
+    While((RpN-Start)<N)and(Tries<N*MaxT)and(Len>0)do Begin
+     Inc(Tries);
+     D:=Random*Len;
+     Acc:=0;Ok:=False;
+     P:=G.First;
+     While(P<>Nil)and Not Ok do Begin
+      For I:=0 to P^.N-2do Begin
+       L:=Sqrt(Sqr(P^.Pts^[I+1].X-P^.Pts^[I].X)+Sqr(P^.Pts^[I+1].Y-P^.Pts^[I].Y));
+       If(Not Ok)and(Acc+L>=D)Then Begin
+        If L>0Then T:=(D-Acc)/L Else T:=0;
+        X:=P^.Pts^[I].X+T*(P^.Pts^[I+1].X-P^.Pts^[I].X);
+        Y:=P^.Pts^[I].Y+T*(P^.Pts^[I+1].Y-P^.Pts^[I].Y);
+        Ok:=True;
+       End;
+       Acc:=Acc+L;
+      End;
+      P:=P^.Next;
+     End;
+     If Ok Then
+      If RpFar(X,Y,Md,Start)and RpFar(X,Y,MdG,0)Then RpAdd(X,Y);
+    End;
+   End;
+   For I:=Start to RpN-1do Begin
+    Inc(Id);
+    If Attrs Then Nf:=NewFeature(PropsClone(F),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])))
+             Else Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(RpX^[I],RpY^[I])));
+    PutProp(Nf,'rand_point_id',JNum(Id));
+    JAdd(OutArr,Nf);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRegularPoints(A:Integer);
+Var
+ Out,OutArr,Nf:PJ;
+ X1,X2,Y1,Y2,Sp,Inset,X,Y,Ox,Oy:Real;
+ Id:LongInt;
+ Rnd,IsSp:Boolean;
+ Epsg:LongInt;
+Begin
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Sp:=NeedReal(A,'SPACING');
+ Inset:=NeedReal(A,'INSET');
+ Rnd:=NeedBool(A,'RANDOMIZE');
+ IsSp:=NeedBool(A,'IS_SPACING');
+ If Sp<=0Then Fail('Error: SPACING must be greater than 0');
+ If Not IsSp Then Sp:=Sqrt((X2-X1)*(Y2-Y1)/Sp);
+ If Sp<=0Then Fail('Error: invalid spacing');
+ Out:=NewLayerLike(Nil,OutArr);
+ If HasArg('CRS')Then Begin Epsg:=ParseEpsg(NeedStr(A,'CRS'),'CRS');SetLayerCrs(Out,Epsg);End;
+ Id:=0;
+ X:=X1+Inset;
+ While X<=X2+1E-9*Sp do Begin
+  Y:=Y2-Inset;
+  While Y>=Y1-1E-9*Sp do Begin
+   Ox:=X;Oy:=Y;
+   If Rnd Then Begin Ox:=X+(Random-0.5)*Sp;Oy:=Y+(Random-0.5)*Sp;End;
+   If(Ox>=X1)and(Ox<=X2)and(Oy>=Y1)and(Oy<=Y2)Then Begin
+    Inc(Id);
+    Nf:=NewFeature(NewJ(5),GeomNode('Point',CoordNode(Ox,Oy)));
+    PutProp(Nf,'id',JNum(Id));
+    JAdd(OutArr,Nf);
+   End;
+   Y:=Y-Sp;
+  End;
+  X:=X+Sp;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRectanglesOvals(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr:PJ;
+ G,R:TGeom;
+ Shape,Seg,K:LongInt;
+ W,H,Rot,Cx,Cy,X,Y,Ca,Sa:Real;
+ Pa:PPath;
+ Ok:Boolean;
+ Cnt:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Shape:=Round(NeedReal(A,'SHAPE'));
+ W:=NeedReal(A,'WIDTH');H:=NeedReal(A,'HEIGHT');Rot:=NeedReal(A,'ROTATION');
+ Seg:=Round(NeedReal(A,'SEGMENTS'));
+ If Seg<4Then Seg:=4;
+ Ca:=Cos(Deg2Rad(Rot));Sa:=Sin(Deg2Rad(Rot));
+ Out:=NewLayerLike(Root,OutArr);
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If G.Cls<>0Then Begin
+   CentroidGeom(G,Cx,Cy,Ok);
+   If Ok Then Begin
+    InitGeom(R);R.Cls:=3;R.NPoly:=1;
+    If Shape=2Then Cnt:=Seg Else Cnt:=4;
+    Pa:=NewPath(R,Cnt+1,0);
+    For K:=0 to Cnt-1do Begin
+     Case Shape of
+      0:Begin
+        Case K of 0:Begin X:=-W/2;Y:=-H/2;End;1:Begin X:=-W/2;Y:=H/2;End;2:Begin X:=W/2;Y:=H/2;End;Else Begin X:=W/2;Y:=-H/2;End;End;
+       End;
+      1:Begin
+        Case K of 0:Begin X:=0;Y:=-H/2;End;1:Begin X:=-W/2;Y:=0;End;2:Begin X:=0;Y:=H/2;End;Else Begin X:=W/2;Y:=0;End;End;
+       End;
+      Else Begin X:=W/2*Cos(2*Pi*K/Cnt);Y:=H/2*Sin(2*Pi*K/Cnt);End;
+     End;
+     Pa^.Pts^[K].X:=Cx+X*Ca-Y*Sa;
+     Pa^.Pts^[K].Y:=Cy+X*Sa+Y*Ca;
+    End;
+    Pa^.Pts^[Cnt]:=Pa^.Pts^[0];
+    OrientPolygons(R);
+    JAdd(OutArr,NewFeature(PropsClone(F),BuildPolygons(R)));
+    FreeGeom(R);
+   End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure BoxGeom(X1,Y1,X2,Y2:Real;Var R:TGeom);
+Var
+ Pa:PPath;
+Begin
+ InitGeom(R);R.Cls:=3;R.NPoly:=1;
+ Pa:=NewPath(R,5,0);
+ Pa^.Pts^[0].X:=X1;Pa^.Pts^[0].Y:=Y1;Pa^.Pts^[1].X:=X2;Pa^.Pts^[1].Y:=Y1;
+ Pa^.Pts^[2].X:=X2;Pa^.Pts^[2].Y:=Y2;Pa^.Pts^[3].X:=X1;Pa^.Pts^[3].Y:=Y2;
+ Pa^.Pts^[4]:=Pa^.Pts^[0];
+End;
+
+Procedure RunPolygonFromExtent(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,R:TGeom;
+ X1,Y1,X2,Y2,Rt,Ax,Ay,Bx,By:Real;
+ Have:Boolean;
+ P:PPath;
+ I:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Rt:=NeedReal(A,'ROUND_TO');
+ Have:=False;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If GeomBBox(G,Ax,Ay,Bx,By)Then Begin
+   If Not Have Then Begin X1:=Ax;Y1:=Ay;X2:=Bx;Y2:=By;Have:=True;End
+    Else Begin If Ax<X1 Then X1:=Ax;If Ay<Y1 Then Y1:=Ay;If Bx>X2 Then X2:=Bx;If By>Y2 Then Y2:=By;End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ If Not Have Then Fail('Error: the layer has no geometry');
+ If Rt>0Then Begin
+  X1:=FloorL(X1/Rt)*Rt;Y1:=FloorL(Y1/Rt)*Rt;
+  X2:=CeilL(X2/Rt)*Rt;Y2:=CeilL(Y2/Rt)*Rt;
+ End;
+ Out:=NewLayerLike(Root,OutArr);
+ BoxGeom(X1,Y1,X2,Y2,R);
+ Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+ PutProp(Nf,'MINX',JNum(X1));PutProp(Nf,'MINY',JNum(Y1));PutProp(Nf,'MAXX',JNum(X2));PutProp(Nf,'MAXY',JNum(Y2));
+ PutProp(Nf,'CNTX',JNum((X1+X2)/2));PutProp(Nf,'CNTY',JNum((Y1+Y2)/2));
+ PutProp(Nf,'AREA',JNum((X2-X1)*(Y2-Y1)));PutProp(Nf,'PERIM',JNum(2*((X2-X1)+(Y2-Y1))));
+ PutProp(Nf,'HEIGHT',JNum(Y2-Y1));PutProp(Nf,'WIDTH',JNum(X2-X1));
+ JAdd(OutArr,Nf);
+ FreeGeom(R);
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunBoundingBoxes(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf:PJ;
+ G,R:TGeom;
+ X1,Y1,X2,Y2:Real;
+ Id:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Out:=NewLayerLike(Root,OutArr);
+ Id:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If GeomBBox(G,X1,Y1,X2,Y2)Then Begin
+   Inc(Id);
+   BoxGeom(X1,Y1,X2,Y2,R);
+   Nf:=NewFeature(PropsClone(F),BuildPolygons(R));
+   PutProp(Nf,'id',JNum(Id));PutProp(Nf,'width',JNum(X2-X1));PutProp(Nf,'height',JNum(Y2-Y1));
+   PutProp(Nf,'area',JNum((X2-X1)*(Y2-Y1)));PutProp(Nf,'perimeter',JNum(2*((X2-X1)+(Y2-Y1))));
+   JAdd(OutArr,Nf);
+   FreeGeom(R);
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+Procedure RunRandomExtract(A:Integer);
+Var
+ Root,Arr,F,Nx,Out,OutArr:PJ;
+ FA:PJArr;
+ N,I,K,Want:LongInt;
+ Pick:PBools;
+ Idx:PLongs;
+ T:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ FA:=FeatureArray(Arr,N);
+ Want:=Round(NeedReal(A,'NUMBER'));
+ If Round(NeedReal(A,'METHOD'))=1Then Want:=Round(N*Want/100);
+ If Want>N Then Fail('Error: the number of features to extract exceeds the layer size');
+ If HasArg('SEED')Then RandSeed:=Round(NeedReal(A,'SEED'));
+ Idx:=AllocBlock((N+1)*SizeOf(LongInt));
+ For I:=0 to N-1do Idx^[I]:=I;
+ For I:=N-1 downto 1do Begin
+  K:=Random(I+1);T:=Idx^[I];Idx^[I]:=Idx^[K];Idx^[K]:=T;
+ End;
+ Pick:=AllocBlock((N+1)*SizeOf(Boolean));
+ FillChar(Pick^,(N+1)*SizeOf(Boolean),0);
+ For I:=0 to Want-1do Pick^[Idx^[I]]:=True;
+ Out:=NewLayerLike(Root,OutArr);
+ For I:=0 to N-1do
+  If Pick^[I]Then JAdd(OutArr,NewFeature(PropsClone(FA^[I]),JClone(JFind(FA^[I],'geometry'))));
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Interpolation TIN lineaire }
+Procedure RunTin(A:Integer);
+Var
+ Spec,Path,Part,Fname,Out:String;
+ Root,Arr,F,V:PJ;
+ G:TGeom;
+ P:PPath;
+ R:TRaster;
+ Pos,Fld,K,N,Cnt,Cap,T,I,J,Nc,Nr,I0,I1,J0,J1:LongInt;
+ X1,X2,Y1,Y2,Cs,X,Y,Det,L1,L2,L3:Real;
+ Px,Py,Pv:PReals;
+ Ia,Ib,Ic:LongInt;
+ Dup:Boolean;
+ Ox,Oy,Ov:PReals;
+ M:LongInt;
+Begin
+ Spec:=NeedStr(A,'INTERPOLATION_DATA');
+ Pos:=System.Pos('::~::',Spec);
+ If Pos=0Then Path:=Spec Else Path:=Copy(Spec,1,Pos-1);
+ Fld:=0;
+ If Pos>0Then Begin
+  Part:=Copy(Spec,Pos+5,MaxStr);
+  Pos:=System.Pos('::~::',Part);Part:=Copy(Part,Pos+5,MaxStr);
+  Pos:=System.Pos('::~::',Part);
+  If Pos>0Then Part:=Copy(Part,1,Pos-1);
+  Val(Part,Fld,K);
+  If K<>0Then Fld:=0;
+ End;
+ If Round(NeedReal(A,'METHOD'))<>0Then Fail('Error: only the linear TIN method (METHOD=0) is supported');
+ ParseExtent(NeedStr(A,'EXTENT'),X1,X2,Y1,Y2);
+ Cs:=NeedReal(A,'PIXEL_SIZE');
+ If Cs<=0Then Fail('Error: PIXEL_SIZE must be greater than 0');
+ Out:=NeedStr(A,'OUTPUT');
+ Root:=LoadLayer(Path);
+ Arr:=LayerFeatures(Root);
+ Fname:='';
+ F:=Arr^.First;
+ If F<>Nil Then Begin
+  V:=JFind(F,'properties');
+  If(V<>Nil)and(V^.Kind=5)Then Begin
+   V:=V^.First;K:=0;
+   While(V<>Nil)and(K<Fld)do Begin V:=V^.Next;Inc(K);End;
+   If V<>Nil Then Fname:=JKey(V);
+  End;
+ End;
+ If Fname=''Then Fail('Error: invalid attribute index in INTERPOLATION_DATA');
+ Cap:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin Inc(Cap);F:=F^.Next;End;
+ Px:=AllocBlock((Cap+1)*SizeOf(Real));Py:=AllocBlock((Cap+1)*SizeOf(Real));Pv:=AllocBlock((Cap+1)*SizeOf(Real));
+ Cnt:=0;
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  V:=GetProp(F,Fname);
+  If(G.Cls=1)and IsNumericNode(V)Then Begin
+   P:=G.First;
+   While P<>Nil do Begin Px^[Cnt]:=P^.Pts^[0].X;Py^[Cnt]:=P^.Pts^[0].Y;Pv^[Cnt]:=NumOfProp(V);Inc(Cnt);P:=P^.Next;End;
+  End;
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ { doublons exclus }
+ Ox:=AllocBlock((Cnt+1)*SizeOf(Real));Oy:=AllocBlock((Cnt+1)*SizeOf(Real));Ov:=AllocBlock((Cnt+1)*SizeOf(Real));
+ M:=0;
+ For I:=0 to Cnt-1do Begin
+  Dup:=False;
+  For J:=0 to M-1do If(Ox^[J]=Px^[I])and(Oy^[J]=Py^[I])Then Begin Dup:=True;Break;End;
+  If Not Dup Then Begin Ox^[M]:=Px^[I];Oy^[M]:=Py^[I];Ov^[M]:=Pv^[I];Inc(M);End;
+ End;
+ If M<3Then Fail('Error: at least 3 distinct points are required');
+ Nc:=CeilL((X2-X1)/Cs);Nr:=CeilL((Y2-Y1)/Cs);
+ NewRaster(R,Nc,Nr,X1,Y2-Nr*Cs,Cs,-9999);
+ For I:=0 to Nc*Nr-1do R.Data^[I]:=-9999;
+ DelaunayInit(M);
+ For I:=0 to M-1do Begin DlX^[I]:=Ox^[I];DlY^[I]:=Oy^[I];End;
+ DelaunayRun;
+ For T:=0 to DlT-1do Begin
+  Ia:=DlA^[T];Ib:=DlB^[T];Ic:=DlC^[T];
+  Det:=(DlY^[Ib]-DlY^[Ic])*(DlX^[Ia]-DlX^[Ic])+(DlX^[Ic]-DlX^[Ib])*(DlY^[Ia]-DlY^[Ic]);
+  If Abs(Det)<1E-300Then Continue;
+  X:=MinR(DlX^[Ia],MinR(DlX^[Ib],DlX^[Ic]));
+  J0:=FloorL((X-X1)/Cs-0.5);
+  X:=MaxR(DlX^[Ia],MaxR(DlX^[Ib],DlX^[Ic]));
+  J1:=CeilL((X-X1)/Cs-0.5);
+  Y:=MaxR(DlY^[Ia],MaxR(DlY^[Ib],DlY^[Ic]));
+  I0:=FloorL((Y2-Y)/Cs-0.5);
+  Y:=MinR(DlY^[Ia],MinR(DlY^[Ib],DlY^[Ic]));
+  I1:=CeilL((Y2-Y)/Cs-0.5);
+  If J0<0Then J0:=0;If I0<0Then I0:=0;
+  If J1>=Nc Then J1:=Nc-1;If I1>=Nr Then I1:=Nr-1;
+  For I:=I0 to I1 do
+   For J:=J0 to J1 do Begin
+    X:=X1+(J+0.5)*Cs;Y:=Y2-(I+0.5)*Cs;
+    L1:=((DlY^[Ib]-DlY^[Ic])*(X-DlX^[Ic])+(DlX^[Ic]-DlX^[Ib])*(Y-DlY^[Ic]))/Det;
+    L2:=((DlY^[Ic]-DlY^[Ia])*(X-DlX^[Ic])+(DlX^[Ia]-DlX^[Ic])*(Y-DlY^[Ic]))/Det;
+    L3:=1-L1-L2;
+    If(L1>=-1E-12)and(L2>=-1E-12)and(L3>=-1E-12)Then
+     R.Data^[I*Nc+J]:=L1*Ov^[Ia]+L2*Ov^[Ib]+L3*Ov^[Ic];
+   End;
+ End;
+ DelaunayFree;
+ R.Epsg:=SoftCrs(Root);
+ WriteRaster(Out,R);
+ AddRes('OUTPUT',Out);
+End;
+
+{ Echantillonne un raster aux points }
+Procedure RunRasterSampling(A:Integer);
+Var
+ Root,Arr,F:PJ;
+ G:TGeom;
+ R:TRaster;
+ V:Real;
+ Pref:String;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ ReadRaster(NeedStr(A,'RASTERCOPY'),R);
+ Pref:=NeedStr(A,'COLUMN_PREFIX');
+ If Pref=''Then Pref:='rvalue';
+ F:=Arr^.First;
+ While F<>Nil do Begin
+  FlattenFeature(F,G);
+  If(G.Cls=1)and(G.First<>Nil)Then Begin
+   If SampleRaster(R,G.First^.Pts^[0].X,G.First^.Pts^[0].Y,0,V)and Not IsNoData(R,V)Then PutProp(F,Pref+'_'+IntToStr(BandSel),JNum(V))
+    Else PutProp(F,Pref+'_'+IntToStr(BandSel),NewJ(0));
+  End
+   Else
+  If G.Cls<>0Then Fail('Error: the input layer must contain points')
+   Else PutProp(F,Pref+'_'+IntToStr(BandSel),NewJ(0));
+  FreeGeom(G);
+  F:=F^.Next;
+ End;
+ SaveOut(A,'OUTPUT',Root);
+End;
+
+{ Plus petite geometrie englobante par groupe }
+Procedure RunMinBoundGeometry(A:Integer);
+Var
+ Root,Arr,F,Out,OutArr,Nf,V:PJ;
+ G,Acc,R:TGeom;
+ P:PPath;
+ Typ,I,N,K,Ng,Gi:LongInt;
+ Fld:String;
+ Keys:Array[1..400]of String;
+ FA:PJArr;
+ Key:String;
+ X1,Y1,X2,Y2,Ar,An,W,H,Cx,Cy,Rd:Real;
+ All:PPts;
+ NP:LongInt;
+Begin
+ LoadIn(A,'INPUT',Root,Arr);
+ Fld:=NeedStr(A,'FIELD');
+ Typ:=Round(NeedReal(A,'TYPE'));
+ FA:=FeatureArray(Arr,N);
+ Ng:=0;
+ Out:=NewLayerLike(Root,OutArr);
+ For I:=0 to N-1do Begin
+  If Fld=''Then Key:='' Else Begin V:=GetProp(FA^[I],Fld);If V=Nil Then Key:='NULL' Else Key:=NodeText(V);End;
+  Gi:=0;
+  For K:=1 to Ng do If Keys[K]=Key Then Gi:=K;
+  If Gi=0Then Begin
+   If Ng>=400Then Fail('Error: too many groups');
+   Inc(Ng);Keys[Ng]:=Key;Gi:=Ng;
+  End;
+ End;
+ For K:=1 to Ng do Begin
+  InitGeom(Acc);
+  For I:=0 to N-1do Begin
+   If Fld=''Then Key:='' Else Begin V:=GetProp(FA^[I],Fld);If V=Nil Then Key:='NULL' Else Key:=NodeText(V);End;
+   If Key=Keys[K]Then Begin
+    FlattenFeature(FA^[I],G);
+    If G.Cls<>0Then Begin
+     If Acc.Cls=0Then Acc.Cls:=G.Cls;
+     P:=G.First;
+     While P<>Nil do Begin CopyPath(Acc,P,0);P:=P^.Next;End;
+    End;
+    FreeGeom(G);
+   End;
+  End;
+  If Acc.First<>Nil Then Begin
+   Acc.Cls:=Acc.Cls;
+   InitGeom(R);
+   Case Typ of
+    0:Begin
+      GeomBBox(Acc,X1,Y1,X2,Y2);
+      BoxGeom(X1,Y1,X2,Y2,R);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'width',JNum(X2-X1));PutProp(Nf,'height',JNum(Y2-Y1));
+     End;
+    1:Begin
+      MinOrientedBox(Acc,R,Ar,An,W,H);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'width',JNum(W));PutProp(Nf,'height',JNum(H));PutProp(Nf,'angle',JNum(An));
+     End;
+    2:Begin
+      NP:=0;
+      P:=Acc.First;
+      While P<>Nil do Begin Inc(NP,P^.N);P:=P^.Next;End;
+      All:=AllocBlock(NP*SizeOf(TPt));
+      NP:=0;
+      P:=Acc.First;
+      While P<>Nil do Begin Move(P^.Pts^,All^[NP],P^.N*SizeOf(TPt));Inc(NP,P^.N);P:=P^.Next;End;
+      MinCircle(All,NP,Cx,Cy,Rd);
+      FreeMem(All,NP*SizeOf(TPt));
+      CircleGeom(Cx,Cy,Rd,72,R);
+      Nf:=NewFeature(NewJ(5),BuildPolygons(R));
+      PutProp(Nf,'radius',JNum(Rd));PutProp(Nf,'diameter',JNum(2*Rd));
+     End;
+    Else Begin
+      HullGeom(Acc,R);
+      Nf:=NewFeature(NewJ(5),BuildGeom(R));
+     End;
+   End;
+   If R.Cls=3Then Begin
+    PutProp(Nf,'area',JNum(GeomArea(R)));PutProp(Nf,'perimeter',JNum(GeomLength(R)));
+   End;
+   If Fld<>''Then PutProp(Nf,Fld,JText(Keys[K])) Else PutProp(Nf,'id',JNum(K));
+   JAdd(OutArr,Nf);
+   FreeGeom(R);
+  End;
+  FreeGeom(Acc);
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+{ Matrice de distances entre deux couches de points }
+Procedure RunDistanceMatrix(A:Integer);
+Var
+ Root,Arr,Root2,Arr2,F,Out,OutArr,Nf,V:PJ;
+ FA,FB:PJArr;
+ Na,Nb,I,J,K,Mt,Nn,Cnt:LongInt;
+ Ax,Ay,Bx,By:PReals;
+ Dd:PReals;
+ Idf,Tdf:String;
+ Ia,It:String;
+ G:TGeom;
+ Ok,Geo:Boolean;
+ D,Mn,Mx,Sm,Sq:Real;
+ Ord:PLongs;
+ Cx,Cy:Real;
+
+ Function Dist(I1,J1:LongInt):Real;Begin
+  If Geo Then Dist:=Haversine(Ax^[I1],Ay^[I1],Bx^[J1],By^[J1])
+         Else Dist:=Sqrt(Sqr(Ax^[I1]-Bx^[J1])+Sqr(Ay^[I1]-By^[J1]));
+ End;
+
+ Procedure Load(Root0:PJ;Var Fa0:PJArr;Var N0:LongInt;Var X,Y:PReals);
+ Var
+  I0:LongInt;
+ Begin
+  Fa0:=FeatureArray(LayerFeatures(Root0),N0);
+  X:=AllocBlock((N0+1)*SizeOf(Real));Y:=AllocBlock((N0+1)*SizeOf(Real));
+  For I0:=0 to N0-1do Begin
+   FlattenFeature(Fa0^[I0],G);
+   If G.Cls=0Then Begin X^[I0]:=0;Y^[I0]:=0;End
+    Else Begin CentroidGeom(G,Cx,Cy,Ok);X^[I0]:=Cx;Y^[I0]:=Cy;End;
+   FreeGeom(G);
+  End;
+ End;
+
+ Function IdOf(Fe:PJ;Fn:String;N0:LongInt):String;
+ Var
+  P:PJ;
+ Begin
+  P:=GetProp(Fe,Fn);
+  If P=Nil Then IdOf:=IntToStr(N0) Else IdOf:=NodeText(P);
+ End;
+
+Begin
+ Root:=LoadLayer(NeedStr(A,'INPUT'));
+ Idf:=NeedStr(A,'INPUT_FIELD');
+ If HasArg('TARGET')Then Root2:=LoadLayer(NeedStr(A,'TARGET')) Else Root2:=Root;
+ Tdf:=NeedStr(A,'TARGET_FIELD');
+ If Tdf=''Then Tdf:=Idf;
+ Mt:=Round(NeedReal(A,'MATRIX_TYPE'));
+ Nn:=Round(NeedReal(A,'NEAREST_POINTS'));
+ Load(Root,FA,Na,Ax,Ay);
+ Load(Root2,FB,Nb,Bx,By);
+ Geo:=CrsIsGeographic(SoftCrs(Root));
+ Out:=NewLayerLike(Nil,OutArr);
+ Ord:=AllocBlock((Nb+1)*SizeOf(LongInt));
+ Dd:=AllocBlock((Nb+1)*SizeOf(Real));
+ For I:=0 to Na-1do Begin
+  Ia:=IdOf(FA^[I],Idf,I);
+  For J:=0 to Nb-1do Begin Dd^[J]:=Dist(I,J);Ord^[J]:=J;End;
+  { tri croissant }
+  For J:=1 to Nb-1do Begin
+   K:=Ord^[J];
+   Cnt:=J-1;
+   While(Cnt>=0)and(Dd^[Ord^[Cnt]]>Dd^[K])do Begin Ord^[Cnt+1]:=Ord^[Cnt];Dec(Cnt);End;
+   Ord^[Cnt+1]:=K;
+  End;
+  Mt:=Round(NeedReal(A,'MATRIX_TYPE'));
+  If Mt=0Then Begin
+   For J:=0 to Nb-1do Begin
+    If(Nn>0)and(J>=Nn)Then Break;
+    It:=IdOf(FB^[Ord^[J]],Tdf,Ord^[J]);
+    If(Root2=Root)and(Ord^[J]=I)and(Nn=0)Then Continue;
+    Nf:=NewFeature(NewJ(5),Nil);
+    PutProp(Nf,'InputID',JText(Ia));PutProp(Nf,'TargetID',JText(It));PutProp(Nf,'Distance',JNum(Dd^[Ord^[J]]));
+    JAdd(OutArr,Nf);
+   End;
+  End
+   Else
+  If Mt=1Then Begin
+   Nf:=NewFeature(NewJ(5),Nil);
+   PutProp(Nf,'ID',JText(Ia));
+   For J:=0 to Nb-1do Begin
+    It:=IdOf(FB^[J],Tdf,J);
+    PutProp(Nf,'Target_'+It,JNum(Dd^[J]));
+   End;
+   JAdd(OutArr,Nf);
+  End
+   Else
+  Begin
+   Sm:=0;Sq:=0;Mn:=1E300;Mx:=-1E300;Cnt:=0;
+   For J:=0 to Nb-1do Begin
+    If(Root2=Root)and(J=I)Then Continue;
+    D:=Dd^[J];Sm:=Sm+D;Sq:=Sq+D*D;Inc(Cnt);
+    If D<Mn Then Mn:=D;If D>Mx Then Mx:=D;
+   End;
+   Nf:=NewFeature(NewJ(5),Nil);
+   PutProp(Nf,'ID',JText(Ia));
+   PutProp(Nf,'COUNT',JNum(Cnt));
+   If Cnt>0Then Begin
+    PutProp(Nf,'MEAN',JNum(Sm/Cnt));
+    PutProp(Nf,'STDDEV',JNum(Sqrt(MaxR(0,Sq/Cnt-Sqr(Sm/Cnt)))));
+    PutProp(Nf,'MIN',JNum(Mn));PutProp(Nf,'MAX',JNum(Mx));
+   End;
+   JAdd(OutArr,Nf);
+  End;
+ End;
+ SaveOut(A,'OUTPUT',Out);
+End;
+
+
+{ native:package : plusieurs couches dans un GeoPackage }
+Procedure RunPackage(A:Integer);
+Var
+ Out,L,Joined:String;
+ Nm:TGpNames;
+ Rt:TGpRoots;
+ N,K,I:Integer;
+ Path,LName,Subset:String;
+ Dup:Boolean;
+Begin
+ Out:=NeedStr(A,'OUTPUT');
+ If FileExt(Out)<>'.GPKG'Then Fail('Error: OUTPUT must be a .gpkg file');
+ If FileExists(Out)and Not NeedBool(A,'OVERWRITE')Then Fail('Error: '+Out+' already exists (use OVERWRITE=true)');
+ SplitList(NeedStr(A,'LAYERS'),';');
+ N:=0;
+ Joined:='';
+ For K:=1 to ListCount do Begin
+  If N>=32Then Fail('Error: at most 32 layers can be packaged');
+  L:=ListItems[K];
+  ParseUri(L,Path,LName,Subset);
+  If LName=''Then LName:=BaseNoExt(Path);
+  { noms uniques }
+  Dup:=True;
+  I:=1;
+  While Dup do Begin
+   Dup:=False;
+   For I:=1 to N do If LowerStr(Nm[I])=LowerStr(LName)Then Dup:=True;
+   If Dup Then LName:=LName+'_'+IntToStr(K);
+  End;
+  Inc(N);
+  Nm[N]:=LName;
+  Rt[N]:=LoadLayer(L);
+  If Joined<>''Then Joined:=Joined+';';
+  If Length(Joined)+Length(LName)<MaxStr-5Then Joined:=Joined+LName;
+ End;
+ If N<1Then Fail('Error: LAYERS is empty');
+ SaveGpkgN(Out,N,Nm,Rt);
+ AddRes('OUTPUT',Out);
+ AddRes('OUTPUT_LAYERS',Joined);
+End;
+
 Procedure RunUnsupported(A:Integer);Begin
  Fail('Error: '+Algos[A].Id+' is not supported by this clone ('+Algos[A].Descr+')');
 End;
@@ -28015,6 +30113,86 @@ Begin
   Inc(I);
   F:=Nx;
  End;
+End;
+
+{ Normalise un libelle d'enumeration pour la comparaison }
+Function EnumNorm(S:String):String;
+Var
+ I:Integer;
+ T:String;
+Begin
+ S:=LowerStr(S);
+ T:='';
+ For I:=1 to Length(S)do Begin
+  If S[I]in['_','-']Then S[I]:=' ';
+  If(S[I]=' ')and((T='')or(T[Length(T)]=' '))Then Continue;
+  T:=T+S[I];
+ End;
+ While(T<>'')and(T[Length(T)]=' ')do T:=Copy(T,1,Length(T)-1);
+ EnumNorm:=T;
+End;
+
+{ Indice d'une valeur d'enumeration donnee par son nom d'apres la description du parametre
+  (ex. "0 round, 1 flat") ; -1 inconnue, -2 ambigue }
+Function EnumIndex(Desc,Nm:String):LongInt;
+Var
+ I,K,P,E:Integer;
+ Piece,Lbl,Want:String;
+ Found,Num:LongInt;
+ Hits:Integer;
+ PrefixHit,PrefixNum,PrefixCnt:LongInt;
+Begin
+ EnumIndex:=-1;
+ P:=Pos(':',Desc);
+ If P>0Then Desc:=Copy(Desc,P+1,MaxStr);
+ Want:=EnumNorm(Nm);
+ Found:=-1;Hits:=0;PrefixCnt:=0;PrefixNum:=-1;
+ SplitList(Desc,',');
+ For I:=1 to ListCount do Begin
+  Piece:=ListItems[I];
+  While(Piece<>'')and(Piece[1]=' ')do Piece:=Copy(Piece,2,MaxStr);
+  K:=0;
+  While(K<Length(Piece))and(Piece[K+1]in['0'..'9'])do Inc(K);
+  If K=0Then Continue;
+  Val(Copy(Piece,1,K),Num,E);
+  Lbl:=Copy(Piece,K+1,MaxStr);
+  While(Lbl<>'')and(Lbl[1]=' ')do Lbl:=Copy(Lbl,2,MaxStr);
+  If(Length(Lbl)>1)and(Lbl[1]='=')Then Lbl:=Copy(Lbl,2,MaxStr);
+  Lbl:=EnumNorm(Lbl);
+  If Lbl=Want Then Begin Found:=Num;Inc(Hits);End
+   Else
+  If(Want<>'')and(Copy(Lbl,1,Length(Want))=Want)Then Begin PrefixNum:=Num;Inc(PrefixCnt);End;
+ End;
+ If Hits=1Then EnumIndex:=Found Else
+ If Hits=0Then Begin
+  If PrefixCnt=1Then EnumIndex:=PrefixNum Else
+  If PrefixCnt>1Then EnumIndex:=-2;
+ End;
+End;
+
+{ Remplace les noms d'enumeration par leur indice }
+Procedure ResolveEnums(A:Integer);
+Var
+ I,J:Integer;
+ P:ParamRec;
+ Out,Item:String;
+ N:LongInt;
+Begin
+ For I:=1 to ArgCount do
+  If ParamDef(A,ArgName[I],P)and(P.Typ='enum')and Not IsNumber(ArgVal[I])Then Begin
+   Out:='';
+   SplitList(ArgVal[I],';');
+   For J:=1 to ListCount do Begin
+    Item:=ListItems[J];
+    If IsNumber(Item)Then N:=-3 Else N:=EnumIndex(P.Desc,Item);
+    If J>1Then Out:=Out+';';
+    If N=-3Then Out:=Out+Item Else
+    If N=-1Then Fail('Error: invalid enumeration value "'+Item+'" for parameter '+ArgName[I]+' ('+P.Desc+')') Else
+    If N=-2Then Fail('Error: ambiguous enumeration value "'+Item+'" for parameter '+ArgName[I]+' ('+P.Desc+')')
+     Else Out:=Out+IntToStr(N);
+   End;
+   ArgVal[I]:=Out;
+  End;
 End;
 
 Procedure RunAlgo(A:Integer);
@@ -28048,6 +30226,20 @@ Begin
   If ProjectPath<>''Then WriteLn('project_path:',#9,ProjectPath);
   WriteLn;
   If Verbose Then WriteLn('Algorithm ',Algos[A].Id,' starting...');
+ End;
+ ResolveEnums(A);
+ If GetArg('OPTIONS',Tmp)or GetArg('EXTRA',Tmp)Then Begin
+  Tmp:=StrUpper(Tmp);
+  I:=Pos('COMPRESS=',Tmp);
+  If I>0Then Begin
+   Tmp:=Copy(Tmp,I+9,20);
+   If Pos(' ',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos(' ',Tmp)-1);
+   If Pos('|',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos('|',Tmp)-1);
+   If Pos(';',Tmp)>0Then Tmp:=Copy(Tmp,1,Pos(';',Tmp)-1);
+   If Tmp='LZW'Then TiffComp:=5 Else
+   If(Tmp='DEFLATE')or(Tmp='ZIP')Then TiffComp:=8 Else
+   If Tmp='PACKBITS'Then TiffComp:=32773 Else TiffComp:=1;
+  End;
  End;
  BandSel:=1;
  If GetArg('BAND',Tmp)or GetArg('RASTER_BAND',Tmp)Then Begin
@@ -28184,7 +30376,7 @@ Begin
   127:RunUnsupported(A);
   128:RunZValues(A,4);
   129:RunZValues(A,3);
-  130:RunUnsupported(A);
+  130:RunPackage(A);
   131:RunUnsupported(A);
   132:RunUnsupported(A);
   133:RunUnsupported(A);
@@ -28224,6 +30416,25 @@ Begin
   167:RunListUnique(A);
   168:RunMeanCoordinates(A);
   169:RunIdw(A);
+  170:RunRandomPointsExtent(A);
+  171:RunRandomPointsIn(A,0);
+  172:RunRandomPointsIn(A,1);
+  173:RunRegularPoints(A);
+  174:RunRectanglesOvals(A);
+  175:RunPolygonFromExtent(A);
+  176:RunBoundingBoxes(A);
+  177:RunRandomExtract(A);
+  178:RunRasterSampling(A);
+  179:RunTin(A);
+  180:RunMinBoundGeometry(A);
+  181:RunDistanceMatrix(A);
+  182:RunBasicStats(A);
+  183:RunStatsByCategories(A);
+  184:RunListUnique(A);
+  185:RunMeanCoordinates(A);
+  186:RunRandomExtract(A);
+  187:RunRegularPoints(A);
+  188:RunPolygonFromExtent(A);
  End;
  If JsonMode Then Begin
   WriteLn('{"algorithm_details":{"id":',JsonStr(Algos[A].Id),
@@ -28264,9 +30475,33 @@ End;
 Function SetGlobalOption(Name,Value:String):Boolean;
 Var
  T:Text;
+ K,E:Integer;
+ Cd:LongInt;
 Begin
  SetGlobalOption:=True;
  Name:=StrUpper(Name);
+ If Name='TIFF_COMPRESS'Then Begin
+  Value:=StrUpper(Value);
+  If(Value='NONE')or(Value='')Then TiffComp:=1 Else
+  If Value='LZW'Then TiffComp:=5 Else
+  If(Value='DEFLATE')or(Value='ZIP')Then TiffComp:=8 Else
+  If Value='PACKBITS'Then TiffComp:=32773
+   Else Fail('Error: invalid value for parameter tiff_compress: '+Value+' (use none, lzw, deflate or packbits)');
+ End Else
+ If Name='DATUM_GRID'Then Begin
+  K:=Pos(':',Value);
+  If K<2Then Fail('Error: datum_grid must be CODE:FILE (e.g. 4267:ntv2_0.gsb)');
+  Val(Copy(Value,1,K-1),Cd,E);
+  If E<>0Then Fail('Error: datum_grid must be CODE:FILE (e.g. 4267:ntv2_0.gsb)');
+  LoadNtv(Cd,Copy(Value,K+1,MaxStr));
+ End Else
+ If Name='INVALID_GEOMETRIES'Then Begin
+  Value:=LowerStr(Value);
+  If(Value='ignore')or(Value='0')Then InvalidMode:=0 Else
+  If(Value='skip')or(Value='1')Then InvalidMode:=1 Else
+  If(Value='stop')or(Value='2')Then InvalidMode:=2
+   Else Fail('Error: invalid value for parameter invalid_geometries: '+Value+' (use ignore, skip or stop)');
+ End Else
  If Name='DISTANCE_UNITS'Then Begin
   DistFactor:=DistanceFactor(Value);
   If DistFactor<=0Then Fail('Error: unknown distance unit "'+Value+'"');
@@ -28300,7 +30535,7 @@ Begin
  For K:=1 to ArgCount do
   If ArgName[K]=Name Then Begin
    If Append Then Begin
-    If Length(ArgVal[K])+Length(Value)+1>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+    If Length(ArgVal[K])+Length(Value)+1>MaxStr Then Fail('Error: the value of '+Name+' is too long');
     ArgVal[K]:=ArgVal[K]+';'+Value;
    End
     Else
@@ -28337,7 +30572,7 @@ Begin
    S:='';
   End;
  End;
- If Length(S)>255Then Fail('Error: the value of '+Name+' is longer than 255 characters');
+ If Length(S)>MaxStr Then Fail('Error: the value of '+Name+' is too long');
  JArgValue:=S;
 End;
 
@@ -28400,8 +30635,17 @@ Procedure ShowCommandHelp(C:String);Begin
   WriteLn('list, or separate the items with ;). With "-" the parameters are read as JSON from the');
   WriteLn('standard input, for example:');
   WriteLn('  echo {"inputs":{"X1":0,"Y1":0,"X2":3,"Y2":4}} | QGIS_PROCESS --json run native:calculatedistance -');
-  WriteLn('Values are limited to 255 characters. Use "help ALGORITHM_ID" to list the parameters.');
+  WriteLn('Use "help ALGORITHM_ID" to list the parameters.');
  End;
+End;
+
+{ Argument de la ligne de commande (sans la limite de 255 caracteres de ParamStr) }
+Function ArgStr(I:Integer):String;Begin
+{$IFDEF FPC_TP}
+ ArgStr:=ParamStr(I);
+{$ELSE}
+ ArgStr:=PChar(argv[I]);
+{$ENDIF}
 End;
 
 { Analyse la ligne de commande : options, commande, algorithme et parametres }
@@ -28419,7 +30663,7 @@ Begin
  ArgCount:=0;
  N:=0;
  For I:=1 to ParamCount do Begin
-  S:=ParamStr(I);
+  S:=ArgStr(I);
   If StrUpper(S)='--JSON'Then JsonMode:=True Else
   If StrUpper(S)='--VERBOSE'Then Verbose:=True Else
   If StrUpper(S)='--NO-PYTHON'Then Begin End Else
@@ -28437,11 +30681,11 @@ Begin
    Name:='';
    If P>0Then Begin
     Name:=Copy(S,1,P-1);
-    While(Name<>'')and(Name[1]in['-','/'])do Name:=Copy(Name,2,255);
+    While(Name<>'')and(Name[1]in['-','/'])do Name:=Copy(Name,2,MaxStr);
    End;
-   If(P>0)and SetGlobalOption(Name,Copy(S,P+1,255))Then Begin End
+   If(P>0)and SetGlobalOption(Name,Copy(S,P+1,MaxStr))Then Begin End
     Else
-   If(P>0)and(N>0)Then AddArg(Name,Copy(S,P+1,255),True)
+   If(P>0)and(N>0)Then AddArg(Name,Copy(S,P+1,MaxStr),True)
     Else
    Begin
     Inc(N);
