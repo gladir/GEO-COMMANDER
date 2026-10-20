@@ -24,13 +24,13 @@ Const
   (Nom:'Baikal';Superficie:31500;TypeWater:Lac;Salinite:Douce),
   (Nom:'Balkash';Superficie:18428;TypeWater:Lac;Salinite:Douce),
   (Nom:'Dubwant';Superficie:4144;TypeWater:Lac;Salinite:Douce),
-  (Nom:'Eri‚';Superficie:25719;TypeWater:Lac;Salinite:Douce),
+  (Nom:'Eri'+#130;Superficie:25719;TypeWater:Lac;Salinite:Douce),
   (Nom:'Eyre';Superficie:6216;TypeWater:Lac;Salinite:Douce),
   (Nom:'Golfe de Californie';Superficie:153069;TypeWater:Golfe;Salinite:Sale),
   (Nom:'Golfe du Mexique';Superficie:1507639;TypeWater:Golfe;Salinite:Sale),
   (Nom:'Grand Lac de l''Esclave Canada';Superficie:28930;TypeWater:Lac;Salinite:Douce),
   (Nom:'Grand Lac de l''Ours';Superficie:31080;TypeWater:Lac;Salinite:Douce),
-  (Nom:'Oc‚an Pacifique';Superficie:166242517;TypeWater:Ocean;Salinite:Sale),
+  (Nom:'Oc'+#130+'an Pacifique';Superficie:166242517;TypeWater:Ocean;Salinite:Sale),
   (Nom:'Golfe Persique';Superficie:229992;TypeWater:Golfe;Salinite:Sale),
   (Nom:'Great Salt Lake';Superficie:4662;TypeWater:Lac;Salinite:Douce),
   (Nom:'Issyk-Kul';Superficie:6200;TypeWater:Lac;Salinite:Douce),
@@ -41,28 +41,28 @@ Const
   (Nom:'Mer Baltique';Superficie:382025;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer Caspienne';Superficie:394299;TypeWater:Mer;Salinite:Douce),
   (Nom:'Mer de Bering';Superficie:2261070;TypeWater:Mer;Salinite:Sale),
-  (Nom:'Mer de Chine M‚rdionale';Superficie:2974615;TypeWater:Mer;Salinite:Sale),
+  (Nom:'Mer de Chine M'+#130+'rdionale';Superficie:2974615;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer de Chine Orientale';Superficie:664594;TypeWater:Mer;Salinite:Sale),
-  (Nom:'Mer des Cara‹bes';Superficie:2515926;TypeWater:Mer;Salinite:Sale),
+  (Nom:'Mer des Cara'+#139+'bes';Superficie:2515926;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer d''Okhotsk';Superficie:1392125;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer du Japon';Superficie:1012949;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer du Nord';Superficie:427091;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer d''Andaman';Superficie:564879;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer Jaune';Superficie:293965;TypeWater:Mer;Salinite:Sale),
-  (Nom:'Mer M‚diterran‚e';Superficie:2509969;TypeWater:Mer;Salinite:Sale),
+  (Nom:'Mer M'+#130+'diterran'+#130+'e';Superficie:2509969;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer Noire';Superficie:507899;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mer Rouge';Superficie:452991;TypeWater:Mer;Salinite:Sale),
   (Nom:'Mweru';Superficie:4196;TypeWater:Lac;Salinite:Douce),
   (Nom:'Nicaragua';Superficie:8001;TypeWater:Lac;Salinite:Douce),
   (Nom:'Nyasa';Superficie:30044;TypeWater:Lac;Salinite:Douce),
-  (Nom:'Oc‚an Atlantique';Superficie:86557800;TypeWater:Ocean;Salinite:Sale),
-  (Nom:'Oc‚an Indien';Superficie:73427795;TypeWater:Ocean;Salinite:Sale),
-  (Nom:'Oc‚an Arctique';Superficie:9485098;TypeWater:Ocean;Salinite:Sale),
+  (Nom:'Oc'+#130+'an Atlantique';Superficie:86557800;TypeWater:Ocean;Salinite:Sale),
+  (Nom:'Oc'+#130+'an Indien';Superficie:73427795;TypeWater:Ocean;Salinite:Sale),
+  (Nom:'Oc'+#130+'an Arctique';Superficie:9485098;TypeWater:Ocean;Salinite:Sale),
   (Nom:'Onega';Superficie:9891;TypeWater:Lac;Salinite:Douce),
   (Nom:'Ontario';Superficie:19477;TypeWater:Lac;Salinite:Douce),
   (Nom:'Reindeer';Superficie:6330;TypeWater:Lac;Salinite:Douce),
   (Nom:'Rudolf';Superficie:6405;TypeWater:Lac;Salinite:Douce),
-  (Nom:'Sup‚rieur';Superficie:82414;TypeWater:Lac;Salinite:Douce),
+  (Nom:'Sup'+#130+'rieur';Superficie:82414;TypeWater:Lac;Salinite:Douce),
   (Nom:'Tchad';Superficie:25760;TypeWater:Lac;Salinite:Douce),
   (Nom:'Victoria';Superficie:69485;TypeWater:Lac;Salinite:Douce),
   (Nom:'Huron';Superficie:59596;TypeWater:Lac;Salinite:Douce),
@@ -93,7 +93,7 @@ Var
  I:Byte;
 Begin
  For I:=1 to Length(S)do Begin
-  If S[I]in['‚','Š','ˆ',#233]Then S[I]:='E'Else
+  If S[I]in[#130,#138,#136,#233]Then S[I]:='E'Else
   If S[I] in['a'..'z']Then S[I]:=Chr(Ord(S[I])-32);
  End;
  StrToUpper:=S;
@@ -110,7 +110,7 @@ BEGIN
   WriteLn;
   WriteLn('Syntaxe : WATER [eau]');
   WriteLn;
-  WriteLn(' eau   Ce parametre peut ˆtre un lac, un ocean, une baie ou golfe');
+  WriteLn(' eau   Ce parametre peut '+#136+'tre un lac, un ocean, une baie ou golfe');
  End
   Else
  If ParamCount>0Then Begin
@@ -121,16 +121,16 @@ BEGIN
      WriteLn(PadRight('Superficie : ',20),Waters[J].Superficie,' Km2');
      Write(PadRight('Type : ',20));
      Case Waters[J].TypeWater of
-      Ocean:WriteLn('Oc‚an');
+      Ocean:WriteLn('Oc'+#130+'an');
       Mer:WriteLn('Mer');
       Lac:WriteLn('Lac');
       Golfe:WriteLn('Golfe');
       Baie:WriteLn('Baie');
      End;
-     Write(PadRight('Salinit‚ : ',20));
+     Write(PadRight('Salinit'+#130+' : ',20));
      Case Waters[J].Salinite of
       Douce:WriteLn('Douce');
-      Sale:WriteLn('Sal‚');
+      Sale:WriteLn('Sal'+#130);
      End;
     End;
    End;

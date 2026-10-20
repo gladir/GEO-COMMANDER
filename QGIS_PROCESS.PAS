@@ -19427,12 +19427,12 @@ End;
 { ------------------------------------------------------------------ }
 
 Procedure ShowGeneralHelp;Begin
- WriteLn('QGIS Processing Executor (clone) - ',VersionStr);
+ WriteLn('QGIS_PROCESS ',VersionStr,' - Cette commande permet de lancer le QGIS Processing Executor (clone).');
  WriteLn;
- WriteLn('Usage: QGIS_PROCESS [--help] [--version] [--json] [--verbose] [--no-python]');
- WriteLn('                    [--skip-loading-plugins] [--distance_units=UNITS] [--area_units=UNITS]');
- WriteLn('                    [--ellipsoid=ELLIPSOID] [--project_path=PATH]');
- WriteLn('                    [command] [algorithm id or command parameters]');
+ WriteLn('Syntaxe: QGIS_PROCESS [--help] [--version] [--json] [--verbose] [--no-python]');
+ WriteLn('                      [--skip-loading-plugins] [--distance_units=UNITS] [--area_units=UNITS]');
+ WriteLn('                      [--ellipsoid=ELLIPSOID] [--project_path=PATH]');
+ WriteLn('                      [command] [algorithm id or command parameters]');
  WriteLn;
  WriteLn('Options:');
  WriteLn('  --help, -h, /?            Display this help (after a command: help of that command)');
@@ -19456,19 +19456,19 @@ Procedure ShowGeneralHelp;Begin
  WriteLn('Exit codes: 0 success, 1 algorithm error, 2 unknown command or algorithm,');
  WriteLn('3 invalid or missing parameter, 4 unreadable file or unsupported format.');
  WriteLn;
- WriteLn('Available commands:');
- WriteLn('  plugins                   List available (and active) plugins');
- WriteLn('  plugins enable|disable N  Enable or disable the plugin N');
- WriteLn('  list                      List all available processing algorithms');
- WriteLn('  help                      Show help for an algorithm (help ALGORITHM_ID)');
- WriteLn('  run                       Run an algorithm (run ALGORITHM_ID --PARAM=VALUE ...)');
- WriteLn('                            With "-" as the last argument the parameters are read as JSON');
- WriteLn('                            from the standard input: {"inputs":{"NAME":value,...}}');
+ WriteLn('Commandes disponibles :');
+ WriteLn('  plugins                   Liste les plugins disponibles (et actifs)');
+ WriteLn('  plugins enable|disable N  Active ou d'+#130+'sactive le plugin N');
+ WriteLn('  list                      Liste tous les algorithmes de traitement disponibles');
+ WriteLn('  help                      Affiche l''aide pour un algorithme (help ALGORITHM_ID)');
+ WriteLn('  run                       Ex'+#130+'cute un algorithme (run ALGORITHM_ID --PARAM=VALUE ...)');
+ WriteLn('                            Avec "-" comme dernier argument, les param'+#138+'tres sont lus au format JSON');
+ WriteLn('                            depuis l''entr'+#130+'e standard : {"inputs":{"NAME":value,...}}');
  WriteLn;
- WriteLn('Vector layers are GeoJSON files, rasters are ESRI ASCII Grid (.asc) files.');
+ WriteLn('Les couches vectorielles sont des fichiers GeoJSON, les rasters sont des fichiers ESRI ASCII Grid (.asc).');
  WriteLn;
- WriteLn('Example: QGIS_PROCESS run native:calculatedistance --X1=-73.57 --Y1=45.50 --X2=2.35 --Y2=48.85');
- WriteLn('Example: QGIS_PROCESS run native:buffer --INPUT=cities.geojson --DISTANCE=0.5 --OUTPUT=out.geojson');
+ WriteLn('Exemple : QGIS_PROCESS run native:calculatedistance --X1=-73.57 --Y1=45.50 --X2=2.35 --Y2=48.85');
+ WriteLn('Exemple : QGIS_PROCESS run native:buffer --INPUT=cities.geojson --DISTANCE=0.5 --OUTPUT=out.geojson');
 End;
 
 Procedure ShowList;
