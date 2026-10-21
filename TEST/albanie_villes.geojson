@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"albanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tirana","region":"Durrës","population":895350,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[19.819,41.328]}},
+{"type":"Feature","properties":{"nom":"Elbasan","region":"Elbasan","population":165010,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.084,41.122]}},
+{"type":"Feature","properties":{"nom":"Shkodër","region":"Shkodër","population":155767,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.519,42.068]}},
+{"type":"Feature","properties":{"nom":"Durrës","region":"Durrës","population":142432,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.448,41.318]}},
+{"type":"Feature","properties":{"nom":"Vlorë","region":"Vlorë","population":89546,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.498,40.477]}},
+{"type":"Feature","properties":{"nom":"Fier","region":"Fier","population":82297,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.573,40.73]}},
+{"type":"Feature","properties":{"nom":"Korçë","region":"Korçë","population":58259,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.767,40.617]}},
+{"type":"Feature","properties":{"nom":"Berat","region":"Berat","population":46866,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.972,40.71]}},
+{"type":"Feature","properties":{"nom":"Lushnjë","region":"Fier","population":41469,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.716,40.94]}},
+{"type":"Feature","properties":{"nom":"Pogradec","region":"Kor","population":40000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.664,40.9]}},
+{"type":"Feature","properties":{"nom":"Gjirokastër","region":"Gjirokastër","population":23437,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.149,40.079]}},
+{"type":"Feature","properties":{"nom":"Krujë","region":"Durrës","population":21286,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.797,41.519]}}
+]}

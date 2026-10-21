@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"portugal_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Lisbon","region":"Lisboa","population":2812000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-9.147,38.725]}},
+{"type":"Feature","properties":{"nom":"Porto","region":"Porto","population":1337000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.622,41.152]}},
+{"type":"Feature","properties":{"nom":"Braga","region":"Braga","population":826833,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.421,41.555]}},
+{"type":"Feature","properties":{"nom":"Funchal","region":"Madeira","population":204767,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.88,32.65]}},
+{"type":"Feature","properties":{"nom":"Setúbal","region":"Lisboa","population":117974,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.9,38.53]}},
+{"type":"Feature","properties":{"nom":"Coimbra","region":"Coimbra","population":106582,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.417,40.2]}},
+{"type":"Feature","properties":{"nom":"Ponta Delgada","region":"Azores","population":61526,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-25.667,37.748]}},
+{"type":"Feature","properties":{"nom":"Portimão","region":"Faro","population":61226,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.533,37.134]}},
+{"type":"Feature","properties":{"nom":"Évora","region":"Évora","population":55620,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.906,38.56]}},
+{"type":"Feature","properties":{"nom":"Aveiro","region":"Aveiro","population":54162,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.651,40.641]}},
+{"type":"Feature","properties":{"nom":"Leiria","region":"Leiria","population":45112,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.805,39.739]}},
+{"type":"Feature","properties":{"nom":"Faro","region":"Faro","population":41355,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.933,37.017]}},
+{"type":"Feature","properties":{"nom":"Beja","region":"Beja","population":35854,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.863,38.014]}},
+{"type":"Feature","properties":{"nom":"Bragança","region":"Bragança","population":34375,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.755,41.808]}},
+{"type":"Feature","properties":{"nom":"Castelo Branco","region":"Castelo Branco","population":33479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.488,39.811]}}
+]}
