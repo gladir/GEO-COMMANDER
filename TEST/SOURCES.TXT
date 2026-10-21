@@ -36,6 +36,15 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   de listes de municipalites ; la Gaspesie comprend les Iles-de-la-Madeleine
   (region administrative).
 
+- Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
+  derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
+  rues, voies ferrees, plans d'eau, cours d'eau, parcs et limite du quartier
+  de montreal_centreville.qgs, quebec_centreville.qgs et laval_ouest.qgs.
+  Les trottoirs et passages pietons ne sont pas inclus ; les 'ruelles et voies
+  de service' comprennent stationnements et acces. Chaque couche est limitee
+  a quelques milliers d'entites ; activer Vue > Etiquettes pour afficher les
+  noms de rues (champ 'nom').
+
 Les contours sont simplifies pour l'affichage : ils ne conviennent pas a des
 mesures precises.
 
@@ -121,6 +130,7 @@ Liste des projets :
   lachute.qgs              Carte de la ville de Lachute (Québec)
   lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
   laval.qgs                Carte de la ville de Laval (Québec)
+  laval_ouest.qgs          Carte de Laval-Ouest (Laval, Québec) avec ses rues
   lecaire.qgs              Carte de la ville du Caire (Égypte)
   lituanie.qgs             Carte de la Lituanie
   londres.qgs              Carte de la ville de Londres (Royaume-Uni)
@@ -134,6 +144,7 @@ Liste des projets :
   monde.qgs                Carte du monde
   mongolie.qgs             Carte de la Mongolie
   montreal.qgs             Carte de la ville de Montréal (Québec)
+  montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
   munich.qgs               Carte de la ville de Munich (Allemagne)
   nagoya.qgs               Carte de la ville de Nagoya (Japon)
   newyork.qgs              Carte de la ville de New York (États-Unis)
@@ -155,6 +166,7 @@ Liste des projets :
   portugal.qgs             Carte du Portugal
   quebec.qgs               Carte de la province de Québec
   quebec_centrales.qgs     Carte des centrales électriques du Québec
+  quebec_centreville.qgs   Carte du centre-ville de Québec (Québec) avec ses rues
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
   rimouski.qgs             Carte de la ville de Rimouski (Québec)

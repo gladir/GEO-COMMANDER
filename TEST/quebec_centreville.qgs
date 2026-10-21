@@ -1,0 +1,97 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte du centre-ville de Québec (Québec) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte du centre-ville de Québec (Québec) avec ses rues</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="RUES_PRINCIPALES_1" name="Rues principales" source="./quebec_centreville_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_2" name="Rues secondaires" source="./quebec_centreville_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_3" name="Rues locales" source="./quebec_centreville_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_4" name="Ruelles et voies de service" source="./quebec_centreville_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_5" name="Sentiers et pistes cyclables" source="./quebec_centreville_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_6" name="Voies ferrees" source="./quebec_centreville_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_7" name="Cours d eau" source="./quebec_centreville_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_8" name="Parcs et espaces verts" source="./quebec_centreville_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_9" name="Plans d eau" source="./quebec_centreville_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-7930957</xmin><ymin>5908717</ymin><xmax>-7924278</xmax><ymax>5913841</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_1</id>
+      <datasource>./quebec_centreville_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_2</id>
+      <datasource>./quebec_centreville_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_3</id>
+      <datasource>./quebec_centreville_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_4</id>
+      <datasource>./quebec_centreville_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_5</id>
+      <datasource>./quebec_centreville_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_6</id>
+      <datasource>./quebec_centreville_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_7</id>
+      <datasource>./quebec_centreville_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PARCS_ET_ESPACES_VERTS_8</id>
+      <datasource>./quebec_centreville_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_9</id>
+      <datasource>./quebec_centreville_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>
