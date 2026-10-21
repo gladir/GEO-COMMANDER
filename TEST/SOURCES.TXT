@@ -1,0 +1,17 @@
+Sources des donnees d'exemple (projets .qgs du dossier TEST)
+
+- Natural Earth (naturalearthdata.com), domaine public : pays, regions,
+  villes, lacs et rivieres de monde.qgs, canada.qgs, septiles.qgs, russie.qgs,
+  france.qgs, chine.qgs, bresil.qgs, japon.qgs, etatsunis.qgs, et les rivieres
+  et lacs de alma.qgs, laval.qgs et paris.qgs. Donnees simplifiees.
+- geoBoundaries (geoboundaries.org), licence CC BY 4.0 : limites des
+  municipalites (alma.qgs, laval.qgs).
+- gregoiredavid/france-geojson (GitHub), Licence Ouverte Etalab : communes
+  autour de Paris (paris.qgs).
+- codeforamerica/click_that_hood (GitHub) : arrondissements de Paris
+  (licence non verifiee).
+- septiles_lieux.geojson et paris_sites.geojson : positions saisies a la main,
+  approximatives.
+
+Les contours sont simplifies pour l'affichage : ils ne conviennent pas a des
+mesures precises.
