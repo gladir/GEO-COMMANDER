@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"andorre_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Andorra","region":null,"population":53998,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[1.527,42.511]}}
+]}

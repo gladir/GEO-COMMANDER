@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"antillesneerl_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Willemstad","pays":"Curacao","population":146813},"geometry":{"type":"Point","coordinates":[-68.8724,12.1123]}},
+{"type":"Feature","properties":{"nom":"Oranjestad","pays":"Aruba","population":68775},"geometry":{"type":"Point","coordinates":[-70.0255,12.5215]}}
+]}

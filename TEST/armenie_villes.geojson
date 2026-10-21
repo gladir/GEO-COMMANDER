@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"armenie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Yerevan","region":"Erevan","population":1102000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[44.512,40.183]}},
+{"type":"Feature","properties":{"nom":"Gyumri","region":"Shirak","population":148381,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.847,40.789]}},
+{"type":"Feature","properties":{"nom":"Vanadzor","region":"Lori","population":101098,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.488,40.813]}},
+{"type":"Feature","properties":{"nom":"Gavarr","region":"Gegharkunik","population":21680,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.127,40.359]}},
+{"type":"Feature","properties":{"nom":"Artashat","region":"Ararat","population":20562,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.551,39.954]}},
+{"type":"Feature","properties":{"nom":"Ashtarak","region":"Aragatsotn","population":18779,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.359,40.302]}},
+{"type":"Feature","properties":{"nom":"Ijevan","region":"Tavush","population":14737,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.149,40.876]}},
+{"type":"Feature","properties":{"nom":"Yeghegnadzor","region":"Vayots Dzor","population":8200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.333,39.761]}}
+]}

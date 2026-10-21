@@ -1,18 +1,22 @@
 Sources des donnees d'exemple (projets .qgs du dossier TEST)
 
 - Natural Earth (naturalearthdata.com), domaine public : pays, regions,
-  villes, lacs et rivieres des cartes de pays et de provinces, et rivieres et
-  lacs des cartes de villes. Donnees simplifiees.
+  villes, lacs, rivieres, oceans et mers des cartes de pays, de provinces, de
+  continents et d'oceans, et rivieres et lacs des cartes de villes. Donnees
+  simplifiees. Les cartes de l'Oceanie et de l'ocean Pacifique utilisent des
+  longitudes de 0 a 360 degres (declarees en EPSG:4326).
 - geoBoundaries (geoboundaries.org), licence CC BY 4.0 : limites des
   municipalites, districts, arrondissements, comtes et regions
   administratives (cartes de villes du Quebec, Pekin, Rome, Osaka, Kyoto,
   Londres, Tokyo, New York, Mexico et Berlin (voisins), comtes voisins des
   villes americaines, regions administratives du Quebec).
 - gregoiredavid/france-geojson (GitHub), Licence Ouverte Etalab : communes
-  autour de Paris (paris.qgs) et de la Guadeloupe (guadeloupe.qgs).
+  autour de Paris (paris.qgs), de la Guadeloupe (guadeloupe.qgs) et de
+  Marseille (marseille.qgs).
 - codeforamerica/click_that_hood (GitHub) : arrondissements de Paris,
   quartiers de Chicago, Los Angeles, Dallas, Houston, Berlin, San Francisco,
-  Philadelphie, San Diego, Toronto et Vancouver (licence non verifiee).
+  Philadelphie, San Diego, Toronto, Vancouver, Miami, Boston, Atlanta et Las
+  Vegas (licence non verifiee).
 - fortworth.qgs : le comte de Tarrant tient lieu de carte de la ville
   (les limites municipales de Fort Worth n'etaient pas disponibles).
 - septiles_lieux.geojson et paris_sites.geojson : positions saisies a la main,
@@ -22,92 +26,125 @@ Les contours sont simplifies pour l'affichage : ils ne conviennent pas a des
 mesures precises.
 
 Liste des projets :
-  alaska.qgs             Carte de l'Alaska
-  albanie.qgs            Carte de l'Albanie
-  alberta.qgs            Carte de la province de l'Alberta
-  allemagne.qgs          Carte de l'Allemagne
-  alma.qgs               Carte de la ville d'Alma (Québec)
-  australie.qgs          Carte de l'Australie
-  autriche.qgs           Carte de l'Autriche
-  bagdad.qgs             Carte de la ville de Bagdad (Irak)
-  barcelone.qgs          Carte de la ville de Barcelone (Espagne)
-  belgique.qgs           Carte de la Belgique
-  berlin.qgs             Carte de la ville de Berlin (Allemagne)
-  bresil.qgs             Carte du Brésil
-  bruxelles.qgs          Carte de la ville de Bruxelles (Belgique)
-  californie.qgs         Carte de la Californie
-  canada.qgs             Carte du Canada
-  chicago.qgs            Carte de la ville de Chicago (États-Unis)
-  chine.qgs              Carte de la Chine
-  colombiebritannique.qgs Carte de la province de la Colombie-Britannique
-  coreesud.qgs           Carte de la Corée du Sud
-  cuba.qgs               Carte de Cuba
-  dallas.qgs             Carte de la ville de Dallas (États-Unis)
-  egypte.qgs             Carte de l'Égypte
-  espagne.qgs            Carte de l'Espagne
-  etatsunis.qgs          Carte des États-Unis
-  ethiopie.qgs           Carte de l'Éthiopie
-  fortworth.qgs          Carte de la ville de Fort Worth (Texas) - comté de Tarrant
-  france.qgs             Carte de la France
-  gaspe.qgs              Carte de la ville de Gaspé (Québec)
-  grece.qgs              Carte de la Grèce
-  guadeloupe.qgs         Carte de la Guadeloupe
-  houston.qgs            Carte de la ville de Houston (États-Unis)
-  ileduprinceedouard.qgs Carte de la province de l'Île-du-Prince-Édouard
-  irak.qgs               Carte de l'Irak
-  iran.qgs               Carte de l'Iran
-  italie.qgs             Carte de l'Italie
-  jamaique.qgs           Carte de la Jamaïque
-  japon.qgs              Carte du Japon
-  jordanie.qgs           Carte de la Jordanie
-  kyoto.qgs              Carte de la ville de Kyoto (Japon)
-  laval.qgs              Carte de la ville de Laval (Québec)
-  lecaire.qgs            Carte de la ville du Caire (Égypte)
-  lituanie.qgs           Carte de la Lituanie
-  londres.qgs            Carte de la ville de Londres (Royaume-Uni)
-  losangeles.qgs         Carte de la ville de Los Angeles (États-Unis)
-  manitoba.qgs           Carte du Manitoba
-  maroc.qgs              Carte du Maroc
-  mexico.qgs             Carte de la ville de Mexico (Mexique)
-  mexique.qgs            Carte du Mexique
-  monde.qgs              Carte du monde
-  mongolie.qgs           Carte de la Mongolie
-  munich.qgs             Carte de la ville de Munich (Allemagne)
-  nagoya.qgs             Carte de la ville de Nagoya (Japon)
-  newyork.qgs            Carte de la ville de New York (États-Unis)
-  nouveaubrunswick.qgs   Carte du Nouveau-Brunswick
-  nouvelleecosse.qgs     Carte de la Nouvelle-Écosse
-  ontario.qgs            Carte de la province de l'Ontario
-  osaka.qgs              Carte de la ville d'Osaka (Japon)
-  ottawa.qgs             Carte de la ville d'Ottawa (Canada)
-  panama.qgs             Carte du Panama
-  paris.qgs              Carte de la ville de Paris (France)
-  pekin.qgs              Carte de la ville de Pékin (Chine)
-  perce.qgs              Carte de la ville de Percé (Québec)
-  philadelphie.qgs       Carte de la ville de Philadelphie (États-Unis)
-  portugal.qgs           Carte du Portugal
-  quebec.qgs             Carte de la province de Québec
-  rimouski.qgs           Carte de la ville de Rimouski (Québec)
-  rome.qgs               Carte de la ville de Rome (Italie)
-  roumanie.qgs           Carte de la Roumanie
-  royaumeuni.qgs         Carte du Royaume-Uni
-  russie.qgs             Carte de la Russie
-  saguenay.qgs           Carte de la ville de Saguenay (Québec)
-  saintanne.qgs          Carte de la ville de Sainte-Anne-des-Monts (Québec)
-  salvador.qgs           Carte du Salvador
-  sandiego.qgs           Carte de la ville de San Diego (Californie)
-  sanfrancisco.qgs       Carte de la ville de San Francisco (Californie)
-  sapporo.qgs            Carte de la ville de Sapporo (Japon)
-  saskatchewan.qgs       Carte de la province de la Saskatchewan
-  septiles.qgs           Carte de Sept-Îles
-  sydney.qgs             Carte de la ville de Sydney (Australie)
-  terreneuve.qgs         Carte de la province de Terre-Neuve-et-Labrador
-  texas.qgs              Carte du Texas
-  tokyo.qgs              Carte de la ville de Tokyo (Japon)
-  toronto.qgs            Carte de la ville de Toronto (Canada)
-  troisrivieres.qgs      Carte de la ville de Trois-Rivières (Québec)
-  vancouver.qgs          Carte de la ville de Vancouver (Canada)
-  vietnam.qgs            Carte du Vietnam
-  villequebec.qgs        Carte de la ville de Québec (Québec)
-  yokohama.qgs           Carte de la ville de Yokohama (Japon)
-  yukon.qgs              Carte du Yukon
+  afghanistan.qgs          Carte de l'Afghanistan
+  afrique.qgs              Carte de l'Afrique
+  afriquedusud.qgs         Carte de l'Afrique du Sud
+  alaska.qgs               Carte de l'Alaska
+  albanie.qgs              Carte de l'Albanie
+  alberta.qgs              Carte de la province de l'Alberta
+  algerie.qgs              Carte de l'Algérie
+  allemagne.qgs            Carte de l'Allemagne
+  alma.qgs                 Carte de la ville d'Alma (Québec)
+  amerique_centrale.qgs    Carte de l'Amérique centrale
+  amerique_nord.qgs        Carte de l'Amérique du Nord
+  amerique_sud.qgs         Carte de l'Amérique du Sud
+  andorre.qgs              Carte de l'Andorre
+  angola.qgs               Carte de l'Angola
+  anguilla.qgs             Carte de l'Anguilla
+  antarctique.qgs          Carte de l'Antarctique
+  antigua.qgs              Carte de l'Antigua-et-Barbuda
+  antillesneerlandaises.qgs Carte des Antilles néerlandaises
+  arabiesaoudite.qgs       Carte de l'Arabie Saoudite
+  argentine.qgs            Carte de l'Argentine
+  armenie.qgs              Carte de l'Arménie
+  aruba.qgs                Carte de l'Aruba
+  asie.qgs                 Carte de l'Asie
+  atlanta.qgs              Carte de la ville d'Atlanta (États-Unis)
+  australie.qgs            Carte de l'Australie
+  autriche.qgs             Carte de l'Autriche
+  azerbaidjan.qgs          Carte de l'Azerbaïdjan
+  bagdad.qgs               Carte de la ville de Bagdad (Irak)
+  bahamas.qgs              Carte des Bahamas
+  barcelone.qgs            Carte de la ville de Barcelone (Espagne)
+  belgique.qgs             Carte de la Belgique
+  berlin.qgs               Carte de la ville de Berlin (Allemagne)
+  boston.qgs               Carte de la ville de Boston (États-Unis)
+  bresil.qgs               Carte du Brésil
+  bruxelles.qgs            Carte de la ville de Bruxelles (Belgique)
+  californie.qgs           Carte de la Californie
+  canada.qgs               Carte du Canada
+  chicago.qgs              Carte de la ville de Chicago (États-Unis)
+  chine.qgs                Carte de la Chine
+  colombiebritannique.qgs  Carte de la province de la Colombie-Britannique
+  coreenord.qgs            Carte de la Corée du Nord
+  coreesud.qgs             Carte de la Corée du Sud
+  cuba.qgs                 Carte de Cuba
+  dallas.qgs               Carte de la ville de Dallas (États-Unis)
+  egypte.qgs               Carte de l'Égypte
+  espagne.qgs              Carte de l'Espagne
+  etatsunis.qgs            Carte des États-Unis
+  ethiopie.qgs             Carte de l'Éthiopie
+  europe.qgs               Carte de l'Europe
+  floride.qgs              Carte de la Floride
+  fortworth.qgs            Carte de la ville de Fort Worth (Texas) - comté de Tarrant
+  france.qgs               Carte de la France
+  gaspe.qgs                Carte de la ville de Gaspé (Québec)
+  grece.qgs                Carte de la Grèce
+  guadeloupe.qgs           Carte de la Guadeloupe
+  houston.qgs              Carte de la ville de Houston (États-Unis)
+  ileduprinceedouard.qgs   Carte de la province de l'Île-du-Prince-Édouard
+  irak.qgs                 Carte de l'Irak
+  iran.qgs                 Carte de l'Iran
+  italie.qgs               Carte de l'Italie
+  jamaique.qgs             Carte de la Jamaïque
+  japon.qgs                Carte du Japon
+  jordanie.qgs             Carte de la Jordanie
+  kyoto.qgs                Carte de la ville de Kyoto (Japon)
+  lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
+  laval.qgs                Carte de la ville de Laval (Québec)
+  lecaire.qgs              Carte de la ville du Caire (Égypte)
+  lituanie.qgs             Carte de la Lituanie
+  londres.qgs              Carte de la ville de Londres (Royaume-Uni)
+  losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
+  manitoba.qgs             Carte du Manitoba
+  maroc.qgs                Carte du Maroc
+  marseille.qgs            Carte de la ville de Marseille (France)
+  mexico.qgs               Carte de la ville de Mexico (Mexique)
+  mexique.qgs              Carte du Mexique
+  miami.qgs                Carte de la ville de Miami (États-Unis)
+  monde.qgs                Carte du monde
+  mongolie.qgs             Carte de la Mongolie
+  munich.qgs               Carte de la ville de Munich (Allemagne)
+  nagoya.qgs               Carte de la ville de Nagoya (Japon)
+  newyork.qgs              Carte de la ville de New York (États-Unis)
+  nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
+  nouveaumexique.qgs       Carte du Nouveau-Mexique
+  nouvelleecosse.qgs       Carte de la Nouvelle-Écosse
+  ocean_atlantique.qgs     Carte de l'océan Atlantique
+  ocean_indien.qgs         Carte de l'océan Indien
+  ocean_pacifique.qgs      Carte de l'océan Pacifique
+  oceanie.qgs              Carte de l'Océanie
+  ontario.qgs              Carte de la province de l'Ontario
+  osaka.qgs                Carte de la ville d'Osaka (Japon)
+  ottawa.qgs               Carte de la ville d'Ottawa (Canada)
+  panama.qgs               Carte du Panama
+  paris.qgs                Carte de la ville de Paris (France)
+  pekin.qgs                Carte de la ville de Pékin (Chine)
+  perce.qgs                Carte de la ville de Percé (Québec)
+  philadelphie.qgs         Carte de la ville de Philadelphie (États-Unis)
+  portugal.qgs             Carte du Portugal
+  quebec.qgs               Carte de la province de Québec
+  rimouski.qgs             Carte de la ville de Rimouski (Québec)
+  rome.qgs                 Carte de la ville de Rome (Italie)
+  roumanie.qgs             Carte de la Roumanie
+  royaumeuni.qgs           Carte du Royaume-Uni
+  russie.qgs               Carte de la Russie
+  saguenay.qgs             Carte de la ville de Saguenay (Québec)
+  saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec)
+  salvador.qgs             Carte du Salvador
+  sandiego.qgs             Carte de la ville de San Diego (Californie)
+  sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
+  sapporo.qgs              Carte de la ville de Sapporo (Japon)
+  saskatchewan.qgs         Carte de la province de la Saskatchewan
+  septiles.qgs             Carte de Sept-Îles
+  sydney.qgs               Carte de la ville de Sydney (Australie)
+  terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
+  texas.qgs                Carte du Texas
+  tokyo.qgs                Carte de la ville de Tokyo (Japon)
+  toronto.qgs              Carte de la ville de Toronto (Canada)
+  troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec)
+  vancouver.qgs            Carte de la ville de Vancouver (Canada)
+  vietnam.qgs              Carte du Vietnam
+  villequebec.qgs          Carte de la ville de Québec (Québec)
+  yokohama.qgs             Carte de la ville de Yokohama (Japon)
+  yukon.qgs                Carte du Yukon

@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"amerique_centrale_capitales",
+"features":[
+{"type":"Feature","properties":{"nom":"Tegucigalpa","pays":"Honduras","population":946000},"geometry":{"type":"Point","coordinates":[-87.219,14.104]}},
+{"type":"Feature","properties":{"nom":"Managua","pays":"Nicaragua","population":920000},"geometry":{"type":"Point","coordinates":[-86.27,12.155]}},
+{"type":"Feature","properties":{"nom":"Panama City","pays":"Panama","population":1281000},"geometry":{"type":"Point","coordinates":[-79.535,8.97]}},
+{"type":"Feature","properties":{"nom":"San José","pays":"Costa Rica","population":1284000},"geometry":{"type":"Point","coordinates":[-84.079,9.93]}},
+{"type":"Feature","properties":{"nom":"San Salvador","pays":"El Salvador","population":1433000},"geometry":{"type":"Point","coordinates":[-89.216,13.703]}},
+{"type":"Feature","properties":{"nom":"Kingston","pays":"Jamaica","population":937700},"geometry":{"type":"Point","coordinates":[-76.767,17.977]}},
+{"type":"Feature","properties":{"nom":"Guatemala City","pays":"Guatemala","population":1024000},"geometry":{"type":"Point","coordinates":[-90.529,14.623]}},
+{"type":"Feature","properties":{"nom":"Belmopan","pays":"Belize","population":15220},"geometry":{"type":"Point","coordinates":[-88.767,17.252]}}
+]}

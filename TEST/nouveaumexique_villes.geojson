@@ -1,0 +1,20 @@
+{"type":"FeatureCollection","name":"nouveaumexique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Albuquerque","population":898642,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.641,35.105]}},
+{"type":"Feature","properties":{"nom":"Las Cruces","population":115167,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.778,32.313]}},
+{"type":"Feature","properties":{"nom":"Santa Fe","population":92681,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-105.937,35.687]}},
+{"type":"Feature","properties":{"nom":"Roswell","population":46096,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.522,33.395]}},
+{"type":"Feature","properties":{"nom":"Farmington","population":43278,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.186,36.754]}},
+{"type":"Feature","properties":{"nom":"Alamogordo","population":36058,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.96,32.899]}},
+{"type":"Feature","properties":{"nom":"Clovis","population":33792,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.205,34.405]}},
+{"type":"Feature","properties":{"nom":"Hobbs","population":28738,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.141,32.713]}},
+{"type":"Feature","properties":{"nom":"Carlsbad","population":25302,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.228,32.421]}},
+{"type":"Feature","properties":{"nom":"Gallup","population":23800,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.734,35.524]}},
+{"type":"Feature","properties":{"nom":"Las Vegas","population":16998,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.223,35.597]}},
+{"type":"Feature","properties":{"nom":"Deming","population":16298,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.756,32.261]}},
+{"type":"Feature","properties":{"nom":"Los Alamos","population":12233,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.298,35.891]}},
+{"type":"Feature","properties":{"nom":"Socorro","population":8668,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.899,34.062]}},
+{"type":"Feature","properties":{"nom":"Truth or Consequences","population":7121,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.253,33.134]}},
+{"type":"Feature","properties":{"nom":"Raton","population":7073,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.44,36.897]}},
+{"type":"Feature","properties":{"nom":"Tucumcari","population":5313,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.726,35.17]}}
+]}

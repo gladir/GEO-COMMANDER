@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"bahamas_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Camagüey","region":"Camagüey","population":347562,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.917,21.381]}},
+{"type":"Feature","properties":{"nom":"Holguín","region":"Holguín","population":319102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.263,20.887]}},
+{"type":"Feature","properties":{"nom":"Nassau","region":null,"population":227940,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-77.35,25.083]}},
+{"type":"Feature","properties":{"nom":"Las Tunas","region":"Las Tunas","population":203684,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.954,20.96]}},
+{"type":"Feature","properties":{"nom":"Ciego de Ávila","region":"Ciego de Ávila","population":142027,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.762,21.84]}},
+{"type":"Feature","properties":{"nom":"Sancti Spíritus","region":"Sancti Spíritus","population":127069,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.442,21.93]}},
+{"type":"Feature","properties":{"nom":"Morón","region":"Ciego de Ávila","population":66060,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.627,22.11]}},
+{"type":"Feature","properties":{"nom":"Nuevitas","region":"Camagüey","population":54022,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.264,21.546]}},
+{"type":"Feature","properties":{"nom":"Banes","region":"Holguín","population":53104,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.719,20.963]}},
+{"type":"Feature","properties":{"nom":"Caibarién","region":"Villa Clara","population":39140,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.472,22.516]}},
+{"type":"Feature","properties":{"nom":"Freeport","region":null,"population":25383,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.7,26.533]}}
+]}

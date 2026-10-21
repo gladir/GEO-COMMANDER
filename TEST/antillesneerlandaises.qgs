@@ -1,0 +1,43 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte des Antilles néerlandaises" version="3.34.0-Pascal">
+  <title>Carte des Antilles néerlandaises</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="VILLES_1" name="Villes" source="./antillesneerl_villes.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="ANTILLES_NEERLANDAISES_2" name="Antilles neerlandaises" source="./antillesneerl_antilles.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_TERRITOIRES_3" name="Autres territoires" source="./antillesneerl_voisins.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-7848024</xmin><ymin>1288857</ymin><xmax>-6957468</xmax><ymax>2107899</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>VILLES_1</id>
+      <datasource>./antillesneerl_villes.geojson</datasource>
+      <layername>Villes</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>ANTILLES_NEERLANDAISES_2</id>
+      <datasource>./antillesneerl_antilles.geojson</datasource>
+      <layername>Antilles neerlandaises</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>AUTRES_TERRITOIRES_3</id>
+      <datasource>./antillesneerl_voisins.geojson</datasource>
+      <layername>Autres territoires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

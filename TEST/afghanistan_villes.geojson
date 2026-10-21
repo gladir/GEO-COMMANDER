@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"afghanistan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kabul","region":"Kabul","population":3277000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[69.181,34.519]}},
+{"type":"Feature","properties":{"nom":"Kandahar","region":"Kandahar","population":715542,"capitale":"non"},"geometry":{"type":"Point","coordinates":[65.695,31.61]}},
+{"type":"Feature","properties":{"nom":"Jalalabad","region":"Nangarhar","population":597971,"capitale":"non"},"geometry":{"type":"Point","coordinates":[70.436,34.442]}},
+{"type":"Feature","properties":{"nom":"Herat","region":"Hirat","population":481009,"capitale":"non"},"geometry":{"type":"Point","coordinates":[62.17,34.33]}},
+{"type":"Feature","properties":{"nom":"Mazar-i-Sharif","region":"Balkh","population":458151,"capitale":"non"},"geometry":{"type":"Point","coordinates":[67.1,36.7]}},
+{"type":"Feature","properties":{"nom":"Kondoz","region":"Kunduz","population":259809,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.873,36.728]}},
+{"type":"Feature","properties":{"nom":"Baghlan","region":"Baghlan","population":218748,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.699,36.139]}},
+{"type":"Feature","properties":{"nom":"Lashkar Gah","region":"Hilmand","population":201546,"capitale":"non"},"geometry":{"type":"Point","coordinates":[64.36,31.583]}},
+{"type":"Feature","properties":{"nom":"Meymaneh","region":"Faryab","population":199795,"capitale":"non"},"geometry":{"type":"Point","coordinates":[64.77,35.93]}},
+{"type":"Feature","properties":{"nom":"Balkh","region":"Balkh","population":179969,"capitale":"non"},"geometry":{"type":"Point","coordinates":[66.9,36.75]}},
+{"type":"Feature","properties":{"nom":"Ghazni","region":"Ghazni","population":141000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.418,33.563]}},
+{"type":"Feature","properties":{"nom":"Gardiz","region":"Paktya","population":103601,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.215,33.6]}},
+{"type":"Feature","properties":{"nom":"Sheberghan","region":"Jawzjan","population":93241,"capitale":"non"},"geometry":{"type":"Point","coordinates":[65.738,36.658]}},
+{"type":"Feature","properties":{"nom":"Farah","region":"Farah","population":73647,"capitale":"non"},"geometry":{"type":"Point","coordinates":[62.097,32.392]}},
+{"type":"Feature","properties":{"nom":"Andkhvoy","region":"Faryab","population":71730,"capitale":"non"},"geometry":{"type":"Point","coordinates":[65.101,36.932]}},
+{"type":"Feature","properties":{"nom":"Feyzabad","region":"Badakhshan","population":64704,"capitale":"non"},"geometry":{"type":"Point","coordinates":[70.579,37.13]}},
+{"type":"Feature","properties":{"nom":"Taloqan","region":"Takhar","population":64256,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.54,36.73]}},
+{"type":"Feature","properties":{"nom":"Bamian","region":"Bamyan","population":61863,"capitale":"non"},"geometry":{"type":"Point","coordinates":[67.823,34.813]}},
+{"type":"Feature","properties":{"nom":"Pol-e Khomri","region":"Baghlan","population":56369,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.701,35.951]}},
+{"type":"Feature","properties":{"nom":"Charikar","region":"Parwan","population":53676,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.168,35.018]}}
+]}

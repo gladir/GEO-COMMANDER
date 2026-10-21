@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"angola_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Luanda","region":"Luanda","population":5172900,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[13.232,-8.836]}},
+{"type":"Feature","properties":{"nom":"Huambo","region":"Huambo","population":1100000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.758,-12.748]}},
+{"type":"Feature","properties":{"nom":"Lobito","region":"Benguela","population":207932,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.541,-12.37]}},
+{"type":"Feature","properties":{"nom":"Benguela","region":"Benguela","population":151226,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.407,-12.578]}},
+{"type":"Feature","properties":{"nom":"Moçâmedes","region":"Namibe","population":132900,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.16,-15.19]}},
+{"type":"Feature","properties":{"nom":"Malanje","region":"Malanje","population":125856,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.34,-9.54]}},
+{"type":"Feature","properties":{"nom":"Lubango","region":"Huíla","population":125632,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.49,-14.91]}},
+{"type":"Feature","properties":{"nom":"Kuito","region":"Bié","population":114286,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.94,-12.38]}},
+{"type":"Feature","properties":{"nom":"Cabinda","region":"Cabinda","population":91791,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.19,-5.56]}},
+{"type":"Feature","properties":{"nom":"Capenda-Camulemba","region":"Lunda Norte","population":80000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.43,-9.42]}},
+{"type":"Feature","properties":{"nom":"Soyo","region":"Zaire","population":67491,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.37,-6.13]}},
+{"type":"Feature","properties":{"nom":"Mbanza-Congo","region":"Zaire","population":60182,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.24,-6.27]}},
+{"type":"Feature","properties":{"nom":"Uíge","region":"Uíge","population":60008,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.05,-7.62]}},
+{"type":"Feature","properties":{"nom":"Saurimo","region":"Lunda Sul","population":41316,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.39,-9.66]}},
+{"type":"Feature","properties":{"nom":"Tômbua","region":"Namibe","population":40000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.86,-15.8]}},
+{"type":"Feature","properties":{"nom":"Sumbe","region":"Cuanza Sul","population":33277,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.85,-11.21]}},
+{"type":"Feature","properties":{"nom":"Lucapa","region":"Lunda Norte","population":31041,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.74,-8.42]}},
+{"type":"Feature","properties":{"nom":"Mavinga","region":"Cuando Cubango","population":30000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.36,-15.79]}},
+{"type":"Feature","properties":{"nom":"Caxito","region":"Bengo","population":28224,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.66,-8.58]}},
+{"type":"Feature","properties":{"nom":"Luena","region":"Moxico","population":21115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.9,-11.79]}}
+]}

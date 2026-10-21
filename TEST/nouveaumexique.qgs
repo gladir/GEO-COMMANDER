@@ -1,0 +1,52 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte du Nouveau-Mexique" version="3.34.0-Pascal">
+  <title>Carte du Nouveau-Mexique</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="VILLES_1" name="Villes" source="./nouveaumexique_villes.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RIVIERES_2" name="Rivieres" source="./nouveaumexique_rivieres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COMTES_3" name="Comtes" source="./nouveaumexique_regions.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOISINS_4" name="Voisins" source="./nouveaumexique_voisins.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-12156088</xmin><ymin>3658750</ymin><xmax>-11454776</xmax><ymax>4453055</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>VILLES_1</id>
+      <datasource>./nouveaumexique_villes.geojson</datasource>
+      <layername>Villes</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RIVIERES_2</id>
+      <datasource>./nouveaumexique_rivieres.geojson</datasource>
+      <layername>Rivieres</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>COMTES_3</id>
+      <datasource>./nouveaumexique_regions.geojson</datasource>
+      <layername>Comtes</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>VOISINS_4</id>
+      <datasource>./nouveaumexique_voisins.geojson</datasource>
+      <layername>Voisins</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

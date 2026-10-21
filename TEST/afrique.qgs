@@ -1,0 +1,61 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de l'Afrique" version="3.34.0-Pascal">
+  <title>Carte de l'Afrique</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="CAPITALES_1" name="Capitales" source="./afrique_capitales.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RIVIERES_2" name="Rivieres" source="./afrique_rivieres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LACS_3" name="Lacs" source="./afrique_lacs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PAYS_4" name="Pays" source="./afrique_pays.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_PAYS_5" name="Autres pays" source="./afrique_autres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-2226390</xmin><ymin>-4300621</ymin><xmax>6122572</xmax><ymax>4579426</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>CAPITALES_1</id>
+      <datasource>./afrique_capitales.geojson</datasource>
+      <layername>Capitales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RIVIERES_2</id>
+      <datasource>./afrique_rivieres.geojson</datasource>
+      <layername>Rivieres</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>LACS_3</id>
+      <datasource>./afrique_lacs.geojson</datasource>
+      <layername>Lacs</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PAYS_4</id>
+      <datasource>./afrique_pays.geojson</datasource>
+      <layername>Pays</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>AUTRES_PAYS_5</id>
+      <datasource>./afrique_autres.geojson</datasource>
+      <layername>Autres pays</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

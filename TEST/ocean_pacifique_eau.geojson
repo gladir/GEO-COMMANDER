@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"ocean_pacifique_eau","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::4326"}},
+"features":[
+{"type":"Feature","properties":{"nom":"Eau"},"geometry":{"type":"Polygon","coordinates":[[[100,-60],[300,-60],[300,65],[100,65],[100,-60]]]}}
+]}

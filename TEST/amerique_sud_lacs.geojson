@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"amerique_sud_lacs",
+"features":[
+{"type":"Feature","properties":{"nom":"Lago Titicaca"},"geometry":{"type":"Polygon","coordinates":[[[-69.41,-16.13],[-69.98,-15.74],[-69.88,-15.67],[-69.89,-15.35],[-69.6,-15.41],[-68.99,-15.89],[-68.75,-16.36],[-68.91,-16.51],[-69.0,-16.54],[-69.18,-16.4],[-69.25,-16.23],[-69.41,-16.13]]]}}
+]}

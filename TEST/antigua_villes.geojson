@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"antigua_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Saint John's","region":null,"population":35499,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-61.85,17.118]}}
+]}

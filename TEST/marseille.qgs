@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Marseille (France)" version="3.34.0-Pascal">
+  <title>Carte de la ville de Marseille (France)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="VILLE_1" name="Ville" source="./marseille_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COMMUNES_VOISINES_2" name="Communes voisines" source="./marseille_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>581873</xmin><ymin>5331633</ymin><xmax>621541</xmax><ymax>5378371</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Polygon">
+      <id>VILLE_1</id>
+      <datasource>./marseille_ville.geojson</datasource>
+      <layername>Ville</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>COMMUNES_VOISINES_2</id>
+      <datasource>./marseille_voisines.geojson</datasource>
+      <layername>Communes voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

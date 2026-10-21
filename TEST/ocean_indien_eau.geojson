@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"ocean_indien_eau",
+"features":[
+{"type":"Feature","properties":{"nom":"Eau"},"geometry":{"type":"Polygon","coordinates":[[[18,-62],[130,-62],[130,32],[18,32],[18,-62]]]}}
+]}

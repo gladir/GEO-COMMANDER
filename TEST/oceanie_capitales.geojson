@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"oceanie_capitales","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::4326"}},
+"features":[
+{"type":"Feature","properties":{"nom":"Palikir","pays":"Federated States of Micronesia","population":4645},"geometry":{"type":"Point","coordinates":[158.15,6.917]}},
+{"type":"Feature","properties":{"nom":"Majuro","pays":"Marshall Islands","population":25400},"geometry":{"type":"Point","coordinates":[171.38,7.103]}},
+{"type":"Feature","properties":{"nom":"Funafuti","pays":"Tuvalu","population":4749},"geometry":{"type":"Point","coordinates":[179.217,-8.517]}},
+{"type":"Feature","properties":{"nom":"Melekeok","pays":"Palau","population":7026},"geometry":{"type":"Point","coordinates":[134.627,7.487]}},
+{"type":"Feature","properties":{"nom":"Tarawa","pays":"Kiribati","population":28802},"geometry":{"type":"Point","coordinates":[173.018,1.338]}},
+{"type":"Feature","properties":{"nom":"Dili","pays":"East Timor","population":234331},"geometry":{"type":"Point","coordinates":[125.579,-8.559]}},
+{"type":"Feature","properties":{"nom":"Port Vila","pays":"Vanuatu","population":44040},"geometry":{"type":"Point","coordinates":[168.317,-17.733]}},
+{"type":"Feature","properties":{"nom":"Port Moresby","pays":"Papua New Guinea","population":283733},"geometry":{"type":"Point","coordinates":[147.193,-9.465]}},
+{"type":"Feature","properties":{"nom":"Honiara","pays":"Solomon Islands","population":76328},"geometry":{"type":"Point","coordinates":[159.95,-9.438]}},
+{"type":"Feature","properties":{"nom":"Suva","pays":"Fiji","population":175399},"geometry":{"type":"Point","coordinates":[178.442,-18.133]}},
+{"type":"Feature","properties":{"nom":"Bandar Seri Begawan","pays":"Brunei","population":296500},"geometry":{"type":"Point","coordinates":[114.933,4.883]}},
+{"type":"Feature","properties":{"nom":"Canberra","pays":"Australia","population":327700},"geometry":{"type":"Point","coordinates":[149.129,-35.283]}},
+{"type":"Feature","properties":{"nom":"Nuku'alofa","pays":"Tonga","population":42620},"geometry":{"type":"Point","coordinates":[184.779,-21.139]}},
+{"type":"Feature","properties":{"nom":"Apia","pays":"Samoa","population":61916},"geometry":{"type":"Point","coordinates":[188.231,-13.836]}},
+{"type":"Feature","properties":{"nom":"Wellington","pays":"New Zealand","population":393400},"geometry":{"type":"Point","coordinates":[174.777,-41.292]}},
+{"type":"Feature","properties":{"nom":"Jakarta","pays":"Indonesia","population":9125000},"geometry":{"type":"Point","coordinates":[106.827,-6.172]}}
+]}
