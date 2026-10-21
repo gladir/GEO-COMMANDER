@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"qatar_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Doha","region":"Ad Dawhah","population":1450000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[51.533,25.287]}}
+]}

@@ -82,6 +82,19 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   atolls (Kiribati, Maldives) sont tres petits a cette echelle et peu visibles.
   martinique.qgs et mayotte.qgs : departements d'outre-mer extraits de la
   France (Natural Earth).
+- Cartes de pays et territoires (micronesie ... zimbabwe, yougoslavie, urss) :
+  Natural Earth (domaine public). yougoslavie.qgs reunit la Serbie, le
+  Montenegro, la Bosnie-Herzegovine, la Croatie, la Macedoine du Nord, la
+  Slovenie et le Kosovo ; urss.qgs reunit les 15 anciennes republiques
+  (longitudes de 0 a 360 degres, declarees en EPSG:4326). Cartes cadrees sur
+  une partie du territoire : norvege (continent), nouvellezelande (sans les
+  iles Chatham), paysbas (sans les Caraibes), saintehelene (l'ile de
+  Sainte-Helene seulement), seychelles (Mahe et Praslin), biot (Chagos),
+  samoaamericaines (Tutuila et Manua). taaf montre Kerguelen et Crozet.
+  Les atolls (Micronesie, Tuvalu, Tonga, Pitcairn, Polynesie francaise,
+  Wallis-et-Futuna, Palaos) sont tres petits a ces echelles. monaco.qgs :
+  contour d'Overture Maps. Swaziland = eswatini.qgs (deja fourni) ; Syrie et
+  Republique arabe syrienne = syrie.qgs.
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -152,6 +165,7 @@ Liste des projets :
   bermudes.qgs             Carte des Bermudes
   bhoutan.qgs              Carte du Bhoutan
   bielorussie.qgs          Carte de la Biélorussie
+  biot.qgs                 Carte du Territoire britannique de l'océan Indien (Chagos)
   blainville.qgs           Carte de la ville de Blainville (Québec) avec ses rues
   bolivie.qgs              Carte de la Bolivie
   bosnie.qgs               Carte de la Bosnie-Herzégovine
@@ -174,6 +188,7 @@ Liste des projets :
   capvert.qgs              Carte du Cap-Vert
   carolinedunord.qgs       Carte de l'État de la Caroline du Nord
   carolinedusud.qgs        Carte de l'État de la Caroline du Sud
+  centrafrique.qgs         Carte de la République centrafricaine
   charlevoix.qgs           Carte de Charlevoix
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chili.qgs                Carte du Chili
@@ -327,26 +342,42 @@ Liste des projets :
   mexique.qgs              Carte du Mexique
   miami.qgs                Carte de la ville de Miami (États-Unis) avec ses rues
   michigan.qgs             Carte de l'État du Michigan
+  micronesie.qgs           Carte de la Micronésie
   minnesota.qgs            Carte de l'État du Minnesota
   mississippi.qgs          Carte de l'État du Mississippi
   missouri.qgs             Carte de l'État du Missouri
+  moldavie.qgs             Carte de la Moldavie
+  monaco.qgs               Carte de Monaco
   monde.qgs                Carte du monde
   mongolie.qgs             Carte de la Mongolie
   montana.qgs              Carte de l'État du Montana
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
+  montserrat.qgs           Carte de Montserrat
   moscou.qgs               Carte de la ville de Moscou (Russie) avec ses rues
+  mozambique.qgs           Carte du Mozambique
   munich.qgs               Carte de la ville de Munich (Allemagne) avec ses rues
+  myanmar.qgs              Carte du Myanmar (Birmanie)
   nagoya.qgs               Carte de la ville de Nagoya (Japon) avec ses rues
+  namibie.qgs              Carte de la Namibie
+  nauru.qgs                Carte de Nauru
   nebraska.qgs             Carte de l'État du Nebraska
+  nepal.qgs                Carte du Népal
   nevada.qgs               Carte de l'État du Nevada
   newhampshire.qgs         Carte de l'État du New Hampshire
   newjersey.qgs            Carte de l'État du New Jersey
   newyork.qgs              Carte de la ville de New York (États-Unis) avec ses rues
+  nicaragua.qgs            Carte du Nicaragua
+  niger.qgs                Carte du Niger
+  nigeria.qgs              Carte du Nigéria
+  niue.qgs                 Carte de Niue
   norfolk.qgs              Carte de l'île Norfolk
+  norvege.qgs              Carte de la Norvège
   nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
   nouveaumexique.qgs       Carte du Nouveau-Mexique
+  nouvellecaledonie.qgs    Carte de la Nouvelle-Calédonie
   nouvelleecosse.qgs       Carte de la Nouvelle-Écosse
+  nouvellezelande.qgs      Carte de la Nouvelle-Zélande
   ocean_arctique.qgs       Carte de l'océan Arctique (projection polaire stéréographique)
   ocean_atlantique.qgs     Carte de l'océan Atlantique
   ocean_indien.qgs         Carte de l'océan Indien
@@ -354,53 +385,116 @@ Liste des projets :
   oceanie.qgs              Carte de l'Océanie
   ohio.qgs                 Carte de l'État de l'Ohio
   oklahoma.qgs             Carte de l'État de l'Oklahoma
+  oman.qgs                 Carte d'Oman
   ontario.qgs              Carte de la province de l'Ontario
   oregon.qgs               Carte de l'État de l'Oregon
   osaka.qgs                Carte de la ville d'Osaka (Japon) avec ses rues
   ottawa.qgs               Carte de la ville d'Ottawa (Canada)
+  ouganda.qgs              Carte de l'Ouganda
+  ouzbekistan.qgs          Carte de l'Ouzbékistan
   pacifique_us.qgs         Carte des dépendances américaines du Pacifique
+  pakistan.qgs             Carte du Pakistan
+  palaos.qgs               Carte des Palaos
+  palestine.qgs            Carte du Territoire palestinien occupé
   panama.qgs               Carte du Panama
+  papouasie.qgs            Carte de la Papouasie-Nouvelle-Guinée
+  paraguay.qgs             Carte du Paraguay
   paris.qgs                Carte de la ville de Paris (France) avec ses rues
+  paysbas.qgs              Carte des Pays-Bas
   pekin.qgs                Carte de la ville de Pékin (Chine)
   pennsylvanie.qgs         Carte de l'État de Pennsylvanie
   perce.qgs                Carte de la ville de Percé (Québec) avec ses rues
+  perou.qgs                Carte du Pérou
   philadelphie.qgs         Carte de la ville de Philadelphie (États-Unis) avec ses rues
+  philippines.qgs          Carte des Philippines
+  pitcairn.qgs             Carte de Pitcairn
+  pologne.qgs              Carte de la Pologne
+  polynesiefr.qgs          Carte de la Polynésie française
+  portorico.qgs            Carte de Porto Rico
   portugal.qgs             Carte du Portugal
+  qatar.qgs                Carte du Qatar
   quebec.qgs               Carte de la province de Québec
   quebec_centrales.qgs     Carte des centrales électriques du Québec
   quebec_centreville.qgs   Carte du centre-ville de Québec (Québec) avec ses rues
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
+  rdominicaine.qgs         Carte de la République dominicaine
+  reunion.qgs              Carte de la Réunion
   rhodeisland.qgs          Carte de l'État de Rhode Island
   rimouski.qgs             Carte de la ville de Rimouski (Québec) avec ses rues
   rome.qgs                 Carte de la ville de Rome (Italie) avec ses rues
   roumanie.qgs             Carte de la Roumanie
   royaumeuni.qgs           Carte du Royaume-Uni
   russie.qgs               Carte de la Russie
+  rwanda.qgs               Carte du Rwanda
   saguenay.qgs             Carte de la ville de Saguenay (Québec) avec ses rues
+  saharaoccidental.qgs     Carte du Sahara occidental
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec) avec ses rues
+  saintchristophe.qgs      Carte de Saint-Christophe-et-Niévès
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
+  saintehelene.qgs         Carte de Sainte-Hélène (île)
+  saintelucie.qgs          Carte de Sainte-Lucie
+  saintmarin.qgs           Carte de Saint-Marin
+  saintpierre.qgs          Carte de Saint-Pierre-et-Miquelon
+  saintvincent.qgs         Carte de Saint-Vincent-et-les-Grenadines
   salomon.qgs              Carte des îles Salomon
   salvador.qgs             Carte du Salvador
+  samoa.qgs                Carte du Samoa
+  samoaamericaines.qgs     Carte des Samoa américaines
   sandiego.qgs             Carte de la ville de San Diego (Californie) avec ses rues
   sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
+  saotome.qgs              Carte de Sao Tomé-et-Principe
   sapporo.qgs              Carte de la ville de Sapporo (Japon) avec ses rues
   saskatchewan.qgs         Carte de la province de la Saskatchewan
   schefferville.qgs        Carte de la ville de Schefferville (Québec) avec ses rues
+  senegal.qgs              Carte du Sénégal
   septiles.qgs             Carte de Sept-Îles (Québec) avec ses rues
+  seychelles.qgs           Carte des Seychelles
   sherbrooke.qgs           Carte de la ville de Sherbrooke (Québec) avec ses rues
+  sierraleone.qgs          Carte de la Sierra Leone
+  singapour.qgs            Carte de Singapour
+  slovaquie.qgs            Carte de la Slovaquie
+  slovenie.qgs             Carte de la Slovénie
+  somalie.qgs              Carte de la Somalie
+  soudan.qgs               Carte du Soudan
+  srilanka.qgs             Carte du Sri Lanka
+  suede.qgs                Carte de la Suède
+  suisse.qgs               Carte de la Suisse
+  suriname.qgs             Carte du Suriname
+  svalbard.qgs             Carte du Svalbard
   sydney.qgs               Carte de la ville de Sydney (Australie)
+  syrie.qgs                Carte de la Syrie (République arabe syrienne)
+  taaf.qgs                 Carte des Terres australes et antarctiques françaises
+  tadjikistan.qgs          Carte du Tadjikistan
+  taiwan.qgs               Carte de Taïwan
+  tanzanie.qgs             Carte de la Tanzanie
+  tchad.qgs                Carte du Tchad
+  tchequie.qgs             Carte de la République tchèque
   tennessee.qgs            Carte de l'État du Tennessee
   terrebonne.qgs           Carte de la ville de Terrebonne (Québec)
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
+  thailande.qgs            Carte de la Thaïlande
+  timor.qgs                Carte du Timor oriental
+  togo.qgs                 Carte du Togo
   tokyo.qgs                Carte de la ville de Tokyo (Japon) avec ses rues
+  tonga.qgs                Carte des Tonga
   toronto.qgs              Carte de la ville de Toronto (Canada) avec ses rues
+  trinite.qgs              Carte de Trinité-et-Tobago
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec) avec ses rues
+  tunisie.qgs              Carte de la Tunisie
+  turkmenistan.qgs         Carte du Turkménistan
   turquescaiques.qgs       Carte des îles Turques-et-Caïques
+  turquie.qgs              Carte de la Turquie
+  tuvalu.qgs               Carte des îles Tuvalu
+  ukraine.qgs              Carte de l'Ukraine
+  urss.qgs                 Carte de l'ancienne URSS
+  uruguay.qgs              Carte de l'Uruguay
   utah.qgs                 Carte de l'État de l'Utah
   vancouver.qgs            Carte de la ville de Vancouver (Canada) avec ses rues
+  vanuatu.qgs              Carte du Vanuatu
   vatican.qgs              Carte de l'État de la Cité du Vatican
+  venezuela.qgs            Carte du Venezuela
   vermont.qgs              Carte de l'État du Vermont
   viergesgb.qgs            Carte des îles Vierges britanniques
   viergesus.qgs            Carte des îles Vierges américaines
@@ -408,9 +502,14 @@ Liste des projets :
   villequebec.qgs          Carte de la ville de Québec (Québec)
   virginie.qgs             Carte de l'État de Virginie
   virginieoccidentale.qgs  Carte de l'État de la Virginie-Occidentale
+  wallisfutuna.qgs         Carte de Wallis-et-Futuna
   washington.qgs           Carte de l'État de Washington
   wisconsin.qgs            Carte de l'État du Wisconsin
   wyoming.qgs              Carte de l'État du Wyoming
+  yemen.qgs                Carte du Yémen
   yokohama.qgs             Carte de la ville de Yokohama (Japon) avec ses rues
+  yougoslavie.qgs          Carte de l'ancienne Yougoslavie
   yukon.qgs                Carte du Yukon
   zaire.qgs                Carte de la République démocratique du Congo (Zaïre)
+  zambie.qgs               Carte de la Zambie
+  zimbabwe.qgs             Carte du Zimbabwe

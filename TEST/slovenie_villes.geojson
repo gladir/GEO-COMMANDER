@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"slovenie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Ljubljana","region":"Osrednjeslovenska","population":314807,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[14.515,46.055]}},
+{"type":"Feature","properties":{"nom":"Maribor","region":"Maribor","population":114228,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.65,46.54]}}
+]}

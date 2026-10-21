@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saintelucie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Castries","region":null,"population":37963,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-60.993,14.008]}}
+]}

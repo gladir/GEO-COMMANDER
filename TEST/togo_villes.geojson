@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"togo_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Lomé","region":"Maritime","population":1452000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[1.221,6.134]}},
+{"type":"Feature","properties":{"nom":"Sokodé","region":"Centre","population":117811,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.15,8.99]}},
+{"type":"Feature","properties":{"nom":"Kpalimé","region":"Plateaux","population":100479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.63,6.9]}},
+{"type":"Feature","properties":{"nom":"Atakpamé","region":"Plateaux","population":80683,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.12,7.53]}},
+{"type":"Feature","properties":{"nom":"Bassar","region":"Kara","population":61845,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.789,9.261]}},
+{"type":"Feature","properties":{"nom":"Mango","region":"Savanes","population":42626,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.471,10.36]}},
+{"type":"Feature","properties":{"nom":"Sotouboua","region":"Centre","population":21054,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.985,8.557]}}
+]}

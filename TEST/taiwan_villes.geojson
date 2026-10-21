@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"taiwan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Taipei","region":"Taipei City","population":6900273,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[121.568,25.036]}},
+{"type":"Feature","properties":{"nom":"New Taipei","region":"New Taipei City","population":3893740,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.465,25.013]}},
+{"type":"Feature","properties":{"nom":"Kaohsiung","region":"Kaohsiung City","population":2769072,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.267,22.633]}},
+{"type":"Feature","properties":{"nom":"Taichung","region":"Taichung City","population":2629323,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.682,24.152]}},
+{"type":"Feature","properties":{"nom":"Tainan","region":"Tainan City","population":1876312,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.2,23.0]}},
+{"type":"Feature","properties":{"nom":"Zhongli","region":"Taoyuan","population":1632616,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.217,24.965]}},
+{"type":"Feature","properties":{"nom":"Changhua","region":"Changhua","population":750000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.513,24.073]}},
+{"type":"Feature","properties":{"nom":"Hsinchu","region":"Hsinchu City","population":750000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.977,24.817]}},
+{"type":"Feature","properties":{"nom":"Pingtung","region":"Pingtung","population":503530,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.482,22.682]}},
+{"type":"Feature","properties":{"nom":"Taoyuan","region":"Taoyuan","population":500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.311,24.989]}},
+{"type":"Feature","properties":{"nom":"Keelung","region":"Keelung City","population":500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.733,25.133]}},
+{"type":"Feature","properties":{"nom":"Chiayi","region":"Chiayi City","population":500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[120.435,23.475]}},
+{"type":"Feature","properties":{"nom":"Hualien","region":"Hualien","population":350468,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.6,23.984]}},
+{"type":"Feature","properties":{"nom":"Pingzhen","region":"Taoyuan","population":201632,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.216,24.944]}},
+{"type":"Feature","properties":{"nom":"Zhubei","region":"Hsinchu","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.012,24.833]}}
+]}

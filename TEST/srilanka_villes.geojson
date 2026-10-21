@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"srilanka_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Jaffna","region":"Jaffna","population":250000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.005,9.675]}},
+{"type":"Feature","properties":{"nom":"Colombo","region":"Colombo","population":217000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[79.858,6.932]}},
+{"type":"Feature","properties":{"nom":"Moratuwa","region":"Colombo","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[79.88,6.78]}},
+{"type":"Feature","properties":{"nom":"Batticaloa","region":"Batticaloa","population":129222,"capitale":"non"},"geometry":{"type":"Point","coordinates":[81.7,7.717]}},
+{"type":"Feature","properties":{"nom":"Anuradhapura","region":"Anuradhapura","population":118302,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.383,8.35]}},
+{"type":"Feature","properties":{"nom":"Sri Jayawardenepura Kotte","region":"Colombo","population":115826,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[79.95,6.9]}},
+{"type":"Feature","properties":{"nom":"Kandy","region":"Kandy","population":111701,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.67,7.28]}},
+{"type":"Feature","properties":{"nom":"Trincomalee","region":"Trincomalee","population":108420,"capitale":"non"},"geometry":{"type":"Point","coordinates":[81.233,8.569]}},
+{"type":"Feature","properties":{"nom":"Kilinochchi","region":"Kilinochchi","population":103717,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.4,9.4]}},
+{"type":"Feature","properties":{"nom":"Galle","region":"Galle","population":99478,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.24,6.03]}},
+{"type":"Feature","properties":{"nom":"Matara","region":"Matara","population":68244,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.543,5.949]}},
+{"type":"Feature","properties":{"nom":"Ratnapura","region":"Ratnapura","population":47832,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.386,6.693]}},
+{"type":"Feature","properties":{"nom":"Badulla","region":"Badulla","population":47587,"capitale":"non"},"geometry":{"type":"Point","coordinates":[81.05,6.984]}},
+{"type":"Feature","properties":{"nom":"Puttalan","region":"Puttalam","population":45661,"capitale":"non"},"geometry":{"type":"Point","coordinates":[79.826,8.033]}}
+]}

@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"paysbas_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"The Hague","region":"Zuid-Holland","population":1406000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[4.27,52.08]}},
+{"type":"Feature","properties":{"nom":"Amsterdam","region":"Noord-Holland","population":1031000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[4.915,52.352]}},
+{"type":"Feature","properties":{"nom":"Rotterdam","region":"Zuid-Holland","population":1005000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.478,51.922]}},
+{"type":"Feature","properties":{"nom":"Utrecht","region":"Utrecht","population":640000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.12,52.1]}},
+{"type":"Feature","properties":{"nom":"Eindhoven","region":"Noord-Brabant","population":398053,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.5,51.43]}},
+{"type":"Feature","properties":{"nom":"Haarlem","region":"Noord-Holland","population":349957,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.63,52.38]}},
+{"type":"Feature","properties":{"nom":"Groningen","region":"Groningen","population":216688,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.58,53.22]}},
+{"type":"Feature","properties":{"nom":"Arnhem","region":"Gelderland","population":141674,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.923,51.988]}},
+{"type":"Feature","properties":{"nom":"'s-Hertogenbosch","region":"Noord-Brabant","population":134520,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.317,51.683]}},
+{"type":"Feature","properties":{"nom":"Leeuwarden","region":"Friesland","population":125778,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.783,53.25]}},
+{"type":"Feature","properties":{"nom":"Maastricht","region":"Limburg","population":122378,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.677,50.853]}},
+{"type":"Feature","properties":{"nom":"Zwolle","region":"Overijssel","population":111805,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.097,52.524]}},
+{"type":"Feature","properties":{"nom":"Assen","region":"Drenthe","population":62237,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.55,53.0]}},
+{"type":"Feature","properties":{"nom":"Middelburg","region":"Zeeland","population":46485,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.61,51.502]}}
+]}

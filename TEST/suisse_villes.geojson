@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"suisse_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Geneva","region":"Genève","population":1240000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.14,46.21]}},
+{"type":"Feature","properties":{"nom":"Zürich","region":"Zürich","population":1108000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.548,47.382]}},
+{"type":"Feature","properties":{"nom":"Basel","region":"Basel-Stadt","population":830000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.59,47.58]}},
+{"type":"Feature","properties":{"nom":"Bern","region":"Bern","population":275329,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[7.467,46.917]}},
+{"type":"Feature","properties":{"nom":"Lausanne","region":"Vaud","population":265702,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.65,46.53]}},
+{"type":"Feature","properties":{"nom":"Luzern","region":"Lucerne","population":250000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.28,47.05]}},
+{"type":"Feature","properties":{"nom":"Lugano","region":"Ticino","population":105388,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.967,46.0]}},
+{"type":"Feature","properties":{"nom":"Biel","region":"Bern","population":78708,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.25,47.167]}},
+{"type":"Feature","properties":{"nom":"Saint Gallen","region":"Sankt Gallen","population":70572,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.362,47.423]}},
+{"type":"Feature","properties":{"nom":"Chur","region":"Graubünden","population":38293,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.5,46.85]}},
+{"type":"Feature","properties":{"nom":"Schaffhausen","region":"Schaffhausen","population":33863,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.633,47.706]}},
+{"type":"Feature","properties":{"nom":"Fribourg","region":"Fribourg","population":32827,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.15,46.8]}},
+{"type":"Feature","properties":{"nom":"Neuchâtel","region":"Neuchâtel","population":31270,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.923,46.999]}},
+{"type":"Feature","properties":{"nom":"Sion","region":"Valais","population":28045,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.354,46.239]}},
+{"type":"Feature","properties":{"nom":"Zug","region":"Zug","population":23435,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.487,47.179]}}
+]}

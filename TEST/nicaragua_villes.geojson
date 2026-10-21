@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"nicaragua_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Managua","region":"Managua","population":920000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-86.27,12.155]}},
+{"type":"Feature","properties":{"nom":"León","region":"León","population":164441,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.879,12.436]}},
+{"type":"Feature","properties":{"nom":"Chinandega","region":"Chinandega","population":139023,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.13,12.63]}},
+{"type":"Feature","properties":{"nom":"Masaya","region":"Masaya","population":130113,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.095,11.969]}},
+{"type":"Feature","properties":{"nom":"Matagalpa","region":"Matagalpa","population":109089,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.917,12.917]}},
+{"type":"Feature","properties":{"nom":"Estelí","region":"Estelí","population":107839,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.36,13.09]}},
+{"type":"Feature","properties":{"nom":"Granada?","region":"Granada","population":105219,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.95,11.934]}},
+{"type":"Feature","properties":{"nom":"Juigalpa","region":"Chontales","population":54731,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.38,12.11]}},
+{"type":"Feature","properties":{"nom":"Jinotega","region":"Jinotega","population":51073,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.0,13.091]}},
+{"type":"Feature","properties":{"nom":"Bluefields","region":"Atlántico Sur","population":44373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.765,12.0]}},
+{"type":"Feature","properties":{"nom":"Bilwi","region":"Atlántico Norte","population":43001,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.383,14.033]}},
+{"type":"Feature","properties":{"nom":"Ocotal","region":"Nueva Segovia","population":33928,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.473,13.63]}},
+{"type":"Feature","properties":{"nom":"Rivas","region":"Nicaragua","population":31941,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.82,11.44]}},
+{"type":"Feature","properties":{"nom":"Jinotepe","region":"Carazo","population":29507,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.195,11.846]}},
+{"type":"Feature","properties":{"nom":"Boaco","region":"Boaco","population":29046,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.66,12.47]}}
+]}

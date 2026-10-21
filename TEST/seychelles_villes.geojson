@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"seychelles_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Victoria","region":null,"population":33576,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[55.45,-4.617]}}
+]}

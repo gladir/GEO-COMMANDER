@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"syrie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Aleppo","region":"Aleppo (Halab)","population":2738000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.168,36.232]}},
+{"type":"Feature","properties":{"nom":"Damascus","region":"Damascus","population":2466000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[36.298,33.502]}},
+{"type":"Feature","properties":{"nom":"Homs","region":"Homs (Hims)","population":1005000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.718,34.732]}},
+{"type":"Feature","properties":{"nom":"Latakia","region":"Lattakia (Al Ladhiqiyah)","population":539147,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.78,35.54]}},
+{"type":"Feature","properties":{"nom":"Douma","region":"Damascus","population":496145,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.4,33.583]}},
+{"type":"Feature","properties":{"nom":"Hamah","region":"Hamah","population":460602,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.73,35.15]}},
+{"type":"Feature","properties":{"nom":"Dayr az Zawr","region":"Dayr Az Zawr","population":309141,"capitale":"non"},"geometry":{"type":"Point","coordinates":[40.13,35.33]}},
+{"type":"Feature","properties":{"nom":"Ar Raqqah","region":"Ar Raqqah","population":177636,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.02,35.93]}},
+{"type":"Feature","properties":{"nom":"Tartus","region":"Tartus","population":162980,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.887,34.885]}},
+{"type":"Feature","properties":{"nom":"Dar'a","region":"Dar`a","population":146481,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.105,32.625]}},
+{"type":"Feature","properties":{"nom":"Idlib","region":"Idlib","population":128840,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.632,35.93]}},
+{"type":"Feature","properties":{"nom":"Al Hasakah","region":"Hasaka (Al Haksa)","population":128100,"capitale":"non"},"geometry":{"type":"Point","coordinates":[40.75,36.483]}},
+{"type":"Feature","properties":{"nom":"Manbij","region":"Aleppo (Halab)","population":120169,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.956,36.527]}},
+{"type":"Feature","properties":{"nom":"Al Qamishli","region":"Hasaka (Al Haksa)","population":104107,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.23,37.03]}},
+{"type":"Feature","properties":{"nom":"Madinat ath Thawrah","region":"Ar Raqqah","population":87880,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.548,35.837]}}
+]}

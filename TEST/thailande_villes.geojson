@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"thailande_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bangkok","region":"Bangkok Metropolis","population":6704000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[100.515,13.752]}},
+{"type":"Feature","properties":{"nom":"Chiang Mai","region":"Chiang Mai","population":397211,"capitale":"non"},"geometry":{"type":"Point","coordinates":[98.98,18.8]}},
+{"type":"Feature","properties":{"nom":"Samut Prakan","region":"Samut Prakan","population":388920,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.611,13.607]}},
+{"type":"Feature","properties":{"nom":"Nakhon Ratchasima","region":"Nakhon Ratchasima","population":334984,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.1,15.0]}},
+{"type":"Feature","properties":{"nom":"Hat Yai","region":"Songkhla","population":317954,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.471,6.996]}},
+{"type":"Feature","properties":{"nom":"Ubon Ratchathani","region":"Ubon Ratchathani","population":273893,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.83,15.25]}},
+{"type":"Feature","properties":{"nom":"Nonthaburi","region":"Nonthaburi","population":258550,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.483,13.834]}},
+{"type":"Feature","properties":{"nom":"Khon Kaen","region":"Khon Kaen","population":251056,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.83,16.42]}},
+{"type":"Feature","properties":{"nom":"Udon Thani","region":"Udon Thani","population":247231,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.789,17.405]}},
+{"type":"Feature","properties":{"nom":"Nakhon Si Thammarat","region":"Nakhon Si Thammarat","population":232335,"capitale":"non"},"geometry":{"type":"Point","coordinates":[99.97,8.4]}},
+{"type":"Feature","properties":{"nom":"Chon Buri","region":"Chon Buri","population":226618,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.0,13.4]}},
+{"type":"Feature","properties":{"nom":"Lampang","region":"Lampang","population":204081,"capitale":"non"},"geometry":{"type":"Point","coordinates":[99.481,18.292]}},
+{"type":"Feature","properties":{"nom":"Si Racha","region":"Chon Buri","population":178916,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.929,13.159]}},
+{"type":"Feature","properties":{"nom":"Phitsanulok","region":"Phitsanulok","population":164017,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.273,16.828]}},
+{"type":"Feature","properties":{"nom":"Surat Thani","region":"Surat Thani","population":157627,"capitale":"non"},"geometry":{"type":"Point","coordinates":[99.34,9.15]}}
+]}

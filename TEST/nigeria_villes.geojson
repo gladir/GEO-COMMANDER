@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"nigeria_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Lagos","region":"Lagos","population":9466000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[3.39,6.445]}},
+{"type":"Feature","properties":{"nom":"Kano","region":"Kano","population":3140000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.518,12.002]}},
+{"type":"Feature","properties":{"nom":"Ibadan","region":"Oyo","population":2628000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.928,7.382]}},
+{"type":"Feature","properties":{"nom":"Abuja","region":"Federal Capital Territory","population":1576000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[7.49,9.055]}},
+{"type":"Feature","properties":{"nom":"Kaduna","region":"Kaduna","population":1442000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.438,10.522]}},
+{"type":"Feature","properties":{"nom":"Benin City","region":"Edo","population":1190000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.618,6.342]}},
+{"type":"Feature","properties":{"nom":"Ikare","region":"Ondo","population":1099931,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.76,7.53]}},
+{"type":"Feature","properties":{"nom":"Port Harcourt","region":"Rivers","population":1020000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.008,4.812]}},
+{"type":"Feature","properties":{"nom":"Ogbomosho","region":"Oyo","population":951000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.238,8.132]}},
+{"type":"Feature","properties":{"nom":"Aba","region":"Abia","population":897560,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.35,5.1]}},
+{"type":"Feature","properties":{"nom":"Maiduguri","region":"Borno","population":896000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.158,11.852]}},
+{"type":"Feature","properties":{"nom":"Zaria","region":"Kaduna","population":889000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.708,11.082]}},
+{"type":"Feature","properties":{"nom":"Warri","region":"Delta","population":830106,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.76,5.52]}},
+{"type":"Feature","properties":{"nom":"Jos","region":"Plateau","population":816824,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.89,9.93]}},
+{"type":"Feature","properties":{"nom":"Ilorin","region":"Kwara","population":771000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.548,8.492]}}
+]}

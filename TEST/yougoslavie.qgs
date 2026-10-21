@@ -1,0 +1,43 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de l'ancienne Yougoslavie" version="3.34.0-Pascal">
+  <title>Carte de l'ancienne Yougoslavie</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="CAPITALES_1" name="Capitales" source="./yougoslavie_capitales.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="ANCIENNES_REPUBLIQUES_ET_KOSOVO_2" name="Anciennes republiques et Kosovo" source="./yougoslavie_regions.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_PAYS_3" name="Autres pays" source="./yougoslavie_voisins.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>1424889</xmin><ymin>4924241</ymin><xmax>2616008</xmax><ymax>5991180</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>CAPITALES_1</id>
+      <datasource>./yougoslavie_capitales.geojson</datasource>
+      <layername>Capitales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>ANCIENNES_REPUBLIQUES_ET_KOSOVO_2</id>
+      <datasource>./yougoslavie_regions.geojson</datasource>
+      <layername>Anciennes republiques et Kosovo</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>AUTRES_PAYS_3</id>
+      <datasource>./yougoslavie_voisins.geojson</datasource>
+      <layername>Autres pays</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

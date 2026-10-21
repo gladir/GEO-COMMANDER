@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"singapour_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Singapore","region":null,"population":5183700,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[103.854,1.295]}}
+]}

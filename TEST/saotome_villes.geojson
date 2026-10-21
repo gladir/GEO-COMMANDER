@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"saotome_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"São Tomé","region":null,"population":88219,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[6.73,0.337]}},
+{"type":"Feature","properties":{"nom":"Santo António","region":null,"population":1156,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.412,1.645]}}
+]}

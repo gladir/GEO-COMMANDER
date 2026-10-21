@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saintchristophe_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Basseterre","region":null,"population":21887,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-62.717,17.302]}}
+]}

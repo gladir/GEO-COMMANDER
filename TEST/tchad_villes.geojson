@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"tchad_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"N'Djamena","region":"Hadjer-Lamis","population":989000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[15.047,12.115]}},
+{"type":"Feature","properties":{"nom":"Bongor","region":"Mayo-Kebbi Est","population":193941,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.387,10.286]}},
+{"type":"Feature","properties":{"nom":"Sarh","region":"Mandoul","population":169196,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.39,9.15]}},
+{"type":"Feature","properties":{"nom":"Abéché","region":"Ouaddaï","population":158317,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.83,13.84]}},
+{"type":"Feature","properties":{"nom":"Moundou","region":"Logone Oriental","population":156705,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.09,8.55]}},
+{"type":"Feature","properties":{"nom":"Kelo","region":"Tandjilé","population":96224,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.8,9.317]}},
+{"type":"Feature","properties":{"nom":"Pala","region":"Mayo-Kebbi Est","population":35466,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.967,9.35]}},
+{"type":"Feature","properties":{"nom":"Am Timan","region":"Salamat","population":30443,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.283,11.033]}},
+{"type":"Feature","properties":{"nom":"Doba","region":"Logone Oriental","population":29597,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.85,8.65]}},
+{"type":"Feature","properties":{"nom":"Mongo","region":"Guéra","population":27763,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.7,12.184]}},
+{"type":"Feature","properties":{"nom":"Ati","region":"Batha","population":25373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.333,13.217]}},
+{"type":"Feature","properties":{"nom":"Laï","region":"Tandjilé","population":19382,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.305,9.395]}},
+{"type":"Feature","properties":{"nom":"Oum Hadjer","region":"Batha","population":19271,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.683,13.3]}},
+{"type":"Feature","properties":{"nom":"Mao","region":"Kanem","population":18031,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.313,14.119]}},
+{"type":"Feature","properties":{"nom":"Faya Largeau","region":"Bet","population":13400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.117,17.917]}}
+]}

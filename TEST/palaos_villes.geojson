@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"palaos_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Koror","region":null,"population":11200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[134.47,7.345]}},
+{"type":"Feature","properties":{"nom":"Melekeok","region":null,"population":7026,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[134.627,7.487]}}
+]}

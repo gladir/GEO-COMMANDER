@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"polynesiefr_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Papeete","region":null,"population":131695,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-149.567,-17.533]}}
+]}

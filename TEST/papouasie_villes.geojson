@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"papouasie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Port Moresby","region":"Central","population":283733,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[147.193,-9.465]}},
+{"type":"Feature","properties":{"nom":"Lae","region":"Morobe","population":131052,"capitale":"non"},"geometry":{"type":"Point","coordinates":[146.99,-6.733]}},
+{"type":"Feature","properties":{"nom":"Madang","region":"Madang","population":62023,"capitale":"non"},"geometry":{"type":"Point","coordinates":[145.785,-5.225]}},
+{"type":"Feature","properties":{"nom":"Mt.  Hagen","region":"Western Highlands","population":59064,"capitale":"non"},"geometry":{"type":"Point","coordinates":[144.217,-5.863]}},
+{"type":"Feature","properties":{"nom":"Arawa","region":"North Solomons","population":40266,"capitale":"non"},"geometry":{"type":"Point","coordinates":[155.566,-6.228]}},
+{"type":"Feature","properties":{"nom":"Goroka","region":"Eastern Highlands","population":39699,"capitale":"non"},"geometry":{"type":"Point","coordinates":[145.385,-6.083]}},
+{"type":"Feature","properties":{"nom":"Popondetta","region":"Northern","population":28198,"capitale":"non"},"geometry":{"type":"Point","coordinates":[148.248,-8.769]}},
+{"type":"Feature","properties":{"nom":"Mendi","region":"Southern Highlands","population":26252,"capitale":"non"},"geometry":{"type":"Point","coordinates":[143.645,-6.144]}},
+{"type":"Feature","properties":{"nom":"Wewak","region":"East Sepik","population":25143,"capitale":"non"},"geometry":{"type":"Point","coordinates":[143.637,-3.553]}},
+{"type":"Feature","properties":{"nom":"Kavieng","region":"New Ireland","population":19728,"capitale":"non"},"geometry":{"type":"Point","coordinates":[150.813,-2.581]}},
+{"type":"Feature","properties":{"nom":"Kimbe","region":"West New Britain","population":18847,"capitale":"non"},"geometry":{"type":"Point","coordinates":[150.143,-5.55]}},
+{"type":"Feature","properties":{"nom":"Daru","region":null,"population":15214,"capitale":"non"},"geometry":{"type":"Point","coordinates":[143.234,-9.109]}},
+{"type":"Feature","properties":{"nom":"Alotau","region":"Milne Bay","population":11624,"capitale":"non"},"geometry":{"type":"Point","coordinates":[150.459,-10.302]}},
+{"type":"Feature","properties":{"nom":"Vanimo","region":"Sandaun","population":11204,"capitale":"non"},"geometry":{"type":"Point","coordinates":[141.304,-2.69]}},
+{"type":"Feature","properties":{"nom":"Kundiawa","region":"Chimbu","population":9383,"capitale":"non"},"geometry":{"type":"Point","coordinates":[144.96,-6.023]}}
+]}

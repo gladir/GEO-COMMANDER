@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"rdominicaine_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Santo Domingo","region":"Distrito Nacional","population":2154000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-69.93,18.471]}},
+{"type":"Feature","properties":{"nom":"Santiago","region":"Santiago","population":1550753,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.67,19.5]}},
+{"type":"Feature","properties":{"nom":"San Pedro de Macorís","region":"San Pedro de Macorís","population":217899,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-69.3,18.45]}},
+{"type":"Feature","properties":{"nom":"La Romana","region":"La Romana","population":208437,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.967,18.417]}},
+{"type":"Feature","properties":{"nom":"La Vega","region":"La Vega","population":163197,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.517,19.217]}},
+{"type":"Feature","properties":{"nom":"San Cristóbal","region":"San Cristóbal","population":154040,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.109,18.416]}},
+{"type":"Feature","properties":{"nom":"San Francisco de Macorís","region":"Duarte","population":152538,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.25,19.3]}},
+{"type":"Feature","properties":{"nom":"Higuey","region":"La Altagracia","population":123787,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.708,18.616]}},
+{"type":"Feature","properties":{"nom":"Puerto Plata","region":"Puerto Plata","population":119897,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.69,19.79]}},
+{"type":"Feature","properties":{"nom":"Barahona","region":"Barahona","population":90128,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.1,18.2]}},
+{"type":"Feature","properties":{"nom":"Bonao","region":"Monseñor Nouel","population":73269,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.409,18.942]}},
+{"type":"Feature","properties":{"nom":"San Juan","region":"San Juan","population":72950,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.231,18.809]}},
+{"type":"Feature","properties":{"nom":"Baní","region":"Peravia","population":66709,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.331,18.28]}},
+{"type":"Feature","properties":{"nom":"Moca","region":"Espaillat","population":61834,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.523,19.397]}},
+{"type":"Feature","properties":{"nom":"Azua","region":"Azua","population":59139,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.729,18.454]}}
+]}

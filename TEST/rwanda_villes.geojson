@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"rwanda_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kigali","region":"Kigali City","population":860000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[30.059,-1.952]}},
+{"type":"Feature","properties":{"nom":"Nyanza","region":"Southern","population":225209,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.74,-2.35]}},
+{"type":"Feature","properties":{"nom":"Gitarama","region":"Southern","population":87613,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.76,-2.07]}},
+{"type":"Feature","properties":{"nom":"Ruhengeri","region":"Northern","population":86685,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.63,-1.5]}},
+{"type":"Feature","properties":{"nom":"Gisenyi","region":"Western","population":83623,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.263,-1.685]}},
+{"type":"Feature","properties":{"nom":"Butare","region":"Southern","population":77000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.73,-2.59]}},
+{"type":"Feature","properties":{"nom":"Byumba","region":"Northern","population":70593,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.06,-1.58]}},
+{"type":"Feature","properties":{"nom":"Kibuye","region":"Western","population":48024,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.35,-2.05]}},
+{"type":"Feature","properties":{"nom":"Kibungo","region":"Eastern","population":46240,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.533,-2.167]}},
+{"type":"Feature","properties":{"nom":"Cyangugu","region":"Western","population":19900,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.9,-2.48]}},
+{"type":"Feature","properties":{"nom":"Gikongoro","region":"Southern","population":15000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.567,-2.483]}}
+]}

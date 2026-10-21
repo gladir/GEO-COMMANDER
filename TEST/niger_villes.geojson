@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"niger_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Niamey","region":"Niamey","population":915000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[2.115,13.519]}},
+{"type":"Feature","properties":{"nom":"Niamey","region":"Maradi","population":232555,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.096,13.492]}},
+{"type":"Feature","properties":{"nom":"Zinder","region":"Zinder","population":230358,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.983,13.8]}},
+{"type":"Feature","properties":{"nom":"Agadez","region":"Agadez","population":117770,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.983,16.996]}},
+{"type":"Feature","properties":{"nom":"Tahoua","region":"Tahoua","population":115956,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.26,14.9]}},
+{"type":"Feature","properties":{"nom":"Arlit","region":"Agadez","population":100000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.389,18.736]}},
+{"type":"Feature","properties":{"nom":"Birni Nkonni","region":"Tahoua","population":65252,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.26,13.79]}},
+{"type":"Feature","properties":{"nom":"Dosso","region":"Dosso","population":49750,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.2,13.05]}},
+{"type":"Feature","properties":{"nom":"Gaya","region":"Dosso","population":33051,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.447,11.888]}},
+{"type":"Feature","properties":{"nom":"Diffa","region":"Diffa","population":30988,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.609,13.317]}},
+{"type":"Feature","properties":{"nom":"Ayorou","region":"Niamey","population":26290,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.919,14.732]}},
+{"type":"Feature","properties":{"nom":"Madaoua","region":"Tahoua","population":24804,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.959,14.076]}},
+{"type":"Feature","properties":{"nom":"Tillabéri","region":"Niamey","population":19262,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.453,14.212]}},
+{"type":"Feature","properties":{"nom":"Nguigmi","region":"Diffa","population":17897,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.111,14.253]}},
+{"type":"Feature","properties":{"nom":"Gouré","region":"Zinder","population":14639,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.27,13.987]}}
+]}

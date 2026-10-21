@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"zimbabwe_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Harare","region":"Harare","population":1572000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[31.043,-17.816]}},
+{"type":"Feature","properties":{"nom":"Bulawayo","region":"Bulawayo","population":699385,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.58,-20.17]}},
+{"type":"Feature","properties":{"nom":"Chitungwiza","region":"Harare","population":340360,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.1,-18.0]}},
+{"type":"Feature","properties":{"nom":"Mutare","region":"Manicaland","population":249365,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.65,-18.97]}},
+{"type":"Feature","properties":{"nom":"Gweru","region":"Midlands","population":183358,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.82,-19.45]}},
+{"type":"Feature","properties":{"nom":"Kwekwe","region":"Midlands","population":99149,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.8,-18.93]}},
+{"type":"Feature","properties":{"nom":"Kadoma","region":"Mashonaland West","population":79174,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.91,-18.33]}},
+{"type":"Feature","properties":{"nom":"Masvingo","region":"Masvingo","population":76311,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.82,-20.06]}},
+{"type":"Feature","properties":{"nom":"Chinhoyi","region":"Mashonaland West","population":61739,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.18,-17.36]}},
+{"type":"Feature","properties":{"nom":"Zvishavane","region":"Midlands","population":35896,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.05,-20.33]}},
+{"type":"Feature","properties":{"nom":"Victoria Falls","region":"Matabeleland North","population":35761,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.84,-17.93]}},
+{"type":"Feature","properties":{"nom":"Hwange","region":"Matabeleland North","population":33989,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.5,-18.37]}},
+{"type":"Feature","properties":{"nom":"Chiredzi","region":"Masvingo","population":28205,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.66,-21.05]}},
+{"type":"Feature","properties":{"nom":"Beitbridge","region":"Matabeleland South","population":26459,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.99,-22.21]}},
+{"type":"Feature","properties":{"nom":"Kariba","region":"Mashonaland West","population":25531,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.8,-16.53]}}
+]}

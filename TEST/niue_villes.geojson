@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"niue_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Alofi","region":"Niue aggregation","population":581,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-169.914,-19.066]}}
+]}

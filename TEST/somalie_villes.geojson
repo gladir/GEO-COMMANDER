@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"somalie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Mogadishu","region":"Banaadir","population":1100000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[45.365,2.069]}},
+{"type":"Feature","properties":{"nom":"Kismaayo","region":"Jubbada Hoose","population":234852,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.518,-0.357]}},
+{"type":"Feature","properties":{"nom":"Jamaame","region":"Jubbada Hoose","population":185270,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.751,0.072]}},
+{"type":"Feature","properties":{"nom":"Baydhabo","region":"Bay","population":129839,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.65,3.12]}},
+{"type":"Feature","properties":{"nom":"Jawhar","region":"Shabeellaha Dhexe","population":111308,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.517,2.767]}},
+{"type":"Feature","properties":{"nom":"Beledweyne","region":"Hiiraan","population":62945,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.2,4.74]}},
+{"type":"Feature","properties":{"nom":"Gaalkacyo","region":"Mudug","population":61200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.43,6.77]}},
+{"type":"Feature","properties":{"nom":"Mandera","region":"Gedo","population":52885,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.86,3.94]}},
+{"type":"Feature","properties":{"nom":"Boosaaso","region":"Bari","population":46969,"capitale":"non"},"geometry":{"type":"Point","coordinates":[49.18,11.28]}},
+{"type":"Feature","properties":{"nom":"Luuq","region":"Gedo","population":33820,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.55,3.8]}},
+{"type":"Feature","properties":{"nom":"Buurhakaba","region":"Bay","population":31267,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.083,2.784]}},
+{"type":"Feature","properties":{"nom":"Eyl","region":"Nugaal","population":18904,"capitale":"non"},"geometry":{"type":"Point","coordinates":[49.833,7.983]}},
+{"type":"Feature","properties":{"nom":"Bandarbeyla","region":"Bari","population":13753,"capitale":"non"},"geometry":{"type":"Point","coordinates":[50.817,9.483]}},
+{"type":"Feature","properties":{"nom":"Garbahaarey","region":"Gedo","population":12652,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.227,3.327]}},
+{"type":"Feature","properties":{"nom":"Ferfer","region":"Hiiraan","population":6000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.165,5.085]}}
+]}

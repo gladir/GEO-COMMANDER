@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"philippines_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Manila","region":"Metropolitan Manila","population":11100000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[120.98,14.606]}},
+{"type":"Feature","properties":{"nom":"Quezon City","region":"Metropolitan Manila","population":2761720,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.03,14.65]}},
+{"type":"Feature","properties":{"nom":"Davao","region":"Davao Del Sur","population":1402000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[125.628,7.112]}},
+{"type":"Feature","properties":{"nom":"Cagayan de Oro","region":"Misamis Oriental","population":1121561,"capitale":"non"},"geometry":{"type":"Point","coordinates":[124.685,8.451]}},
+{"type":"Feature","properties":{"nom":"General Santos","region":"South Cotabato","population":950530,"capitale":"non"},"geometry":{"type":"Point","coordinates":[125.175,6.111]}},
+{"type":"Feature","properties":{"nom":"Bacolod","region":"Negros Occidental","population":949354,"capitale":"non"},"geometry":{"type":"Point","coordinates":[122.982,10.632]}},
+{"type":"Feature","properties":{"nom":"Cebu","region":"Cebu","population":815000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[123.898,10.322]}},
+{"type":"Feature","properties":{"nom":"Zamboanga","region":"Zamboanga del Sur","population":773000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[122.078,6.922]}},
+{"type":"Feature","properties":{"nom":"Naga","region":"Camarines Sur","population":741635,"capitale":"non"},"geometry":{"type":"Point","coordinates":[123.181,13.619]}},
+{"type":"Feature","properties":{"nom":"Iligan","region":"Lanao del Norte","population":464599,"capitale":"non"},"geometry":{"type":"Point","coordinates":[124.215,8.171]}},
+{"type":"Feature","properties":{"nom":"Baguio","region":"Benguet","population":447824,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[120.57,16.43]}},
+{"type":"Feature","properties":{"nom":"Batangas","region":"Batangas","population":424508,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.022,13.782]}},
+{"type":"Feature","properties":{"nom":"Pasay City","region":"Metropolitan Manila","population":403064,"capitale":"non"},"geometry":{"type":"Point","coordinates":[121.0,14.55]}},
+{"type":"Feature","properties":{"nom":"Iloilo","region":"Iloilo","population":387681,"capitale":"non"},"geometry":{"type":"Point","coordinates":[122.545,10.705]}},
+{"type":"Feature","properties":{"nom":"Legazpi","region":"Albay","population":320081,"capitale":"non"},"geometry":{"type":"Point","coordinates":[123.75,13.17]}}
+]}

@@ -13,7 +13,7 @@
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-9261782</xmin><ymin>781182</ymin><xmax>-8571601</xmax><ymax>1096290</ymax></extent>
+    <extent><xmin>-9281485</xmin><ymin>789819</ymin><xmax>-8554458</xmax><ymax>1089625</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>

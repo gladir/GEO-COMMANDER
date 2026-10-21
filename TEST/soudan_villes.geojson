@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"soudan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Khartoum","region":"Khartoum","population":4754000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[32.532,15.59]}},
+{"type":"Feature","properties":{"nom":"Omdurman","region":"Khartoum","population":2395159,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.48,15.617]}},
+{"type":"Feature","properties":{"nom":"Port Sudan","region":"Red Sea","population":489725,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.216,19.616]}},
+{"type":"Feature","properties":{"nom":"Kassala","region":"Kassala","population":401477,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.39,15.46]}},
+{"type":"Feature","properties":{"nom":"Al-Ubayyid","region":"North Kurdufan","population":393311,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.217,13.183]}},
+{"type":"Feature","properties":{"nom":"Nyala","region":"South Darfur","population":392373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.89,12.06]}},
+{"type":"Feature","properties":{"nom":"Kosti","region":"White Nile","population":345068,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.66,13.17]}},
+{"type":"Feature","properties":{"nom":"Medani","region":"Gezira","population":332714,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.52,14.4]}},
+{"type":"Feature","properties":{"nom":"El Fasher","region":"Northern Darfur","population":252609,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.35,13.63]}},
+{"type":"Feature","properties":{"nom":"Gedaref","region":"Gedarif","population":201282,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.38,14.04]}},
+{"type":"Feature","properties":{"nom":"Shendi","region":"River Nile","population":186611,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.42,16.68]}},
+{"type":"Feature","properties":{"nom":"Ad Damazin","region":"Blue Nile","population":186051,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.35,11.77]}},
+{"type":"Feature","properties":{"nom":"Kadugli","region":"South Kordufan","population":176931,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.7,11.01]}},
+{"type":"Feature","properties":{"nom":"Atbarah","region":"River Nile","population":168612,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.98,17.71]}},
+{"type":"Feature","properties":{"nom":"Geneina","region":"West Darfur","population":162981,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.44,13.45]}}
+]}

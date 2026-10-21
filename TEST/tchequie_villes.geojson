@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"tchequie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Prague","region":"Prague","population":1162000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[14.423,50.087]}},
+{"type":"Feature","properties":{"nom":"Ostrava","region":"Moravskoslezský","population":478963,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.25,49.83]}},
+{"type":"Feature","properties":{"nom":"Brno","region":"Kraj Vysocina","population":388277,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.61,49.2]}},
+{"type":"Feature","properties":{"nom":"Pizen","region":"Karlovarský","population":164180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.36,49.74]}},
+{"type":"Feature","properties":{"nom":"Zlín","region":"Kraj Vysocina","population":124610,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.65,49.23]}},
+{"type":"Feature","properties":{"nom":"Pardubice","region":"Královéhradecký","population":107064,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.76,50.04]}},
+{"type":"Feature","properties":{"nom":"Liberec","region":"Liberecký","population":102175,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.08,50.8]}},
+{"type":"Feature","properties":{"nom":"Olomouc","region":"Moravskoslezský","population":101268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.257,49.587]}},
+{"type":"Feature","properties":{"nom":"Ceské Budejovice","region":"Jihoceský","population":98851,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.46,48.98]}},
+{"type":"Feature","properties":{"nom":"Hradec Králové","region":"Královéhradecký","population":95195,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.812,50.206]}},
+{"type":"Feature","properties":{"nom":"Usti Nad Labem","region":"Liberecký","population":94105,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.081,50.663]}},
+{"type":"Feature","properties":{"nom":"Jihlava","region":"Kraj Vysocina","population":53921,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.583,49.4]}}
+]}

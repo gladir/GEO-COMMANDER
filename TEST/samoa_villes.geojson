@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"samoa_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Apia","region":null,"population":61916,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-171.769,-13.836]}}
+]}

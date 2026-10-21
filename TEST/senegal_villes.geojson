@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"senegal_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dakar","region":"Dakar","population":2604000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-17.475,14.718]}},
+{"type":"Feature","properties":{"nom":"Thiès","region":"Thiès","population":293001,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.93,14.81]}},
+{"type":"Feature","properties":{"nom":"Kaolack","region":"Kaolack","population":277812,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.1,14.15]}},
+{"type":"Feature","properties":{"nom":"Ziguinchor","region":"Ziguinchor","population":191716,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.29,12.59]}},
+{"type":"Feature","properties":{"nom":"Diourbel","region":"Diourbel","population":148024,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.24,14.66]}},
+{"type":"Feature","properties":{"nom":"Tambacounda","region":"Tambacounda","population":89212,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-13.68,13.78]}},
+{"type":"Feature","properties":{"nom":"Louga","region":"Louga","population":85075,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.25,15.61]}},
+{"type":"Feature","properties":{"nom":"Kolda","region":"Kolda","population":69267,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.95,12.91]}},
+{"type":"Feature","properties":{"nom":"Fatick","region":"Fatick","population":24243,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.416,14.344]}},
+{"type":"Feature","properties":{"nom":"Kaédi","region":"Matam","population":21656,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-13.5,16.15]}},
+{"type":"Feature","properties":{"nom":"Kédougou","region":"Tambacounda","population":18226,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-12.18,12.56]}}
+]}
