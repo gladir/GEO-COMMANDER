@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"lavaltrie_rail",
+"features":[
+{"type":"Feature","properties":{"nom":"Subdivision Sorel","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.23753,45.849],[-73.23722,45.84924],[-73.23551,45.85093],[-73.22887,45.85935],[-73.22774,45.86077],[-73.22489,45.86438],[-73.22387,45.86564],[-73.218,45.87306]]}}
+]}

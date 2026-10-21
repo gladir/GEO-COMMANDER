@@ -114,7 +114,8 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   amqui, levis, granby, drummondville, saintjerome, sainteustache, boisbriand,
   terrebonne, mirabel, longueuil, boucherville, brossard, chambly,
   chateauguay, beauharnois, montsainthilaire, saintjeansurrichelieu,
-  repentigny, mascouche, saintadele (Sainte-Adele) et saintsauveur.
+  repentigny, mascouche, saintadele (Sainte-Adele), saintsauveur, lavaltrie,
+  lassomption, joliette et rawdon.
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -303,6 +304,7 @@ Liste des projets :
   italie.qgs               Carte de l'Italie
   jamaique.qgs             Carte de la Jamaïque
   japon.qgs                Carte du Japon
+  joliette.qgs             Carte de Joliette (Québec) avec ses rues
   jonquiere.qgs            Carte de Jonquière (Saguenay, Québec) avec ses rues
   jordanie.qgs             Carte de la Jordanie
   kansas.qgs               Carte de l'État du Kansas
@@ -320,9 +322,11 @@ Liste des projets :
   lachute.qgs              Carte de la ville de Lachute (Québec) avec ses rues
   lamalbaie.qgs            Carte de la ville de La Malbaie (Québec) avec ses rues
   laos.qgs                 Carte du Laos
+  lassomption.qgs          Carte de L'Assomption (Québec) avec ses rues
   lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
   laval.qgs                Carte de la ville de Laval (Québec)
   laval_ouest.qgs          Carte de Laval-Ouest (Laval, Québec) avec ses rues
+  lavaltrie.qgs            Carte de Lavaltrie (Québec) avec ses rues
   lecaire.qgs              Carte de la ville du Caire (Égypte)
   lesotho.qgs              Carte du Lesotho
   lettonie.qgs             Carte de la Lettonie
@@ -448,6 +452,7 @@ Liste des projets :
   quebec_centreville.qgs   Carte du centre-ville de Québec (Québec) avec ses rues
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
+  rawdon.qgs               Carte de Rawdon (Québec) avec ses rues
   rdominicaine.qgs         Carte de la République dominicaine
   repentigny.qgs           Carte de Repentigny (Québec) avec ses rues
   reunion.qgs              Carte de la Réunion
