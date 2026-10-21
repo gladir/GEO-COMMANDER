@@ -1,17 +1,26 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte de la ville de Fort Worth (Texas) - comté de Tarrant" version="3.34.0-Pascal">
-  <title>Carte de la ville de Fort Worth (Texas) - comté de Tarrant</title>
+<qgis projectname="Carte de la ville de Fort Worth (Texas) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de la ville de Fort Worth (Texas) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
     <layer-tree-layer id="VILLES_1" name="Villes" source="./fortworth_villes.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="COMTE_DE_TARRANT__FORT_WORTH__2" name="Comte de Tarrant (Fort Worth)" source="./fortworth_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="COMTES_VOISINS_3" name="Comtes voisins" source="./fortworth_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___COMTE_DE_TARRANT__FORT_WORTH__2" name="Contours : Comte de Tarrant (Fort Worth)" source="./fortworth_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___COMTES_VOISINS_3" name="Contours : Comtes voisins" source="./fortworth_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_4" name="Rues principales" source="./fortworth_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_5" name="Rues secondaires" source="./fortworth_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_6" name="Rues locales" source="./fortworth_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_7" name="Ruelles et voies de service" source="./fortworth_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_8" name="Sentiers et pistes cyclables" source="./fortworth_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_9" name="Voies ferrees" source="./fortworth_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_10" name="Cours d eau" source="./fortworth_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_11" name="Parcs et espaces verts" source="./fortworth_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_12" name="Plans d eau" source="./fortworth_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-10870821</xmin><ymin>3823788</ymin><xmax>-10790046</xmax><ymax>3906363</ymax></extent>
+    <extent><xmin>-10840292</xmin><ymin>3858859</ymin><xmax>-10829160</xmax><ymax>3866801</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
@@ -23,21 +32,93 @@
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
     </maplayer>
-    <maplayer type="vector" geometry="Polygon">
-      <id>COMTE_DE_TARRANT__FORT_WORTH__2</id>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___COMTE_DE_TARRANT__FORT_WORTH__2</id>
       <datasource>./fortworth_ville.geojson</datasource>
-      <layername>Comte de Tarrant (Fort Worth)</layername>
+      <layername>Contours : Comte de Tarrant (Fort Worth)</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___COMTES_VOISINS_3</id>
+      <datasource>./fortworth_voisines.geojson</datasource>
+      <layername>Contours : Comtes voisins</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_4</id>
+      <datasource>./fortworth_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_5</id>
+      <datasource>./fortworth_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_6</id>
+      <datasource>./fortworth_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_7</id>
+      <datasource>./fortworth_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_8</id>
+      <datasource>./fortworth_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_9</id>
+      <datasource>./fortworth_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_10</id>
+      <datasource>./fortworth_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>COMTES_VOISINS_3</id>
-      <datasource>./fortworth_voisines.geojson</datasource>
-      <layername>Comtes voisins</layername>
+      <id>PARCS_ET_ESPACES_VERTS_11</id>
+      <datasource>./fortworth_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_12</id>
+      <datasource>./fortworth_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
     </maplayer>
   </projectlayers>
 </qgis>

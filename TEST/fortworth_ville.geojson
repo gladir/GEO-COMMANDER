@@ -1,4 +1,4 @@
 {"type":"FeatureCollection","name":"fortworth_ville",
 "features":[
-{"type":"Feature","properties":{"ville":"Fort Worth","nom":"Comté de Tarrant"},"geometry":{"type":"Polygon","coordinates":[[[-97.54419,32.99418],[-97.55059,32.5554],[-97.03839,32.54867],[-97.0348,32.78605],[-97.03602,32.80517],[-97.03409,32.81667],[-97.03229,32.98933],[-97.39849,32.99084],[-97.54419,32.99418]]]}}
+{"type":"Feature","properties":{"ville":"Fort Worth","nom":"Comté de Tarrant"},"geometry":{"type":"LineString","coordinates":[[-97.54419,32.99418],[-97.55059,32.5554],[-97.03839,32.54867],[-97.0348,32.78605],[-97.03602,32.80517],[-97.03409,32.81667],[-97.03229,32.98933],[-97.39849,32.99084],[-97.54419,32.99418]]}}
 ]}
