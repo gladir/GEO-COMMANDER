@@ -3,7 +3,7 @@ GEO Commander - Ensemble de commande ecrit en Pascal (Turbo Pascal ou Free Pasca
 
 ![image](https://user-images.githubusercontent.com/11842176/171527776-3fb9d57b-57e4-4c16-8e4d-32694a13d419.png)
 
-Aperçu de la commande QGIS avoir ouvert TEST/saintedorothee.qgs :
+Aperçu de la commande QGIS après avoir ouvert TEST/saintedorothee.qgs :
 
 <img width="637" height="481" alt="image" src="https://github.com/user-attachments/assets/dacf05ef-4d61-4ad6-babd-b55df1f9cf0e" />
 
