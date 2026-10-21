@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"virginie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Virginia Beach","population":1491000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.98,36.855]}},
+{"type":"Feature","properties":{"nom":"Norfolk","population":1047869,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.28,36.85]}},
+{"type":"Feature","properties":{"nom":"Richmond","population":912000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-77.452,37.552]}},
+{"type":"Feature","properties":{"nom":"Hampton","population":366766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.35,37.03]}},
+{"type":"Feature","properties":{"nom":"Roanoke","population":198171,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.942,37.271]}},
+{"type":"Feature","properties":{"nom":"Fredericksburg","population":133134,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.461,38.304]}},
+{"type":"Feature","properties":{"nom":"Alexandria","population":127273,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.055,38.804]}},
+{"type":"Feature","properties":{"nom":"Petersburg","population":118577,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.402,37.228]}},
+{"type":"Feature","properties":{"nom":"Lynchburg","population":103893,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.142,37.414]}},
+{"type":"Feature","properties":{"nom":"Charlottesville","population":87925,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.477,38.029]}},
+{"type":"Feature","properties":{"nom":"Blacksburg","population":67508,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.414,37.229]}},
+{"type":"Feature","properties":{"nom":"Winchester","population":53941,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.167,39.179]}},
+{"type":"Feature","properties":{"nom":"Danville","population":45894,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.395,36.586]}},
+{"type":"Feature","properties":{"nom":"Harrisonburg","population":42538,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.869,38.449]}},
+{"type":"Feature","properties":{"nom":"Bristol","population":37443,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.176,36.612]}}
+]}

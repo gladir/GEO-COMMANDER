@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"utah_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Salt Lake City","population":966000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-111.932,40.777]}},
+{"type":"Feature","properties":{"nom":"Ogden","population":377224,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.968,41.232]}},
+{"type":"Feature","properties":{"nom":"Provo","population":356712,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.638,40.249]}},
+{"type":"Feature","properties":{"nom":"St. George","population":98638,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-113.583,37.104]}},
+{"type":"Feature","properties":{"nom":"Logan","population":72490,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.834,41.736]}},
+{"type":"Feature","properties":{"nom":"Cedar City","population":27738,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-113.061,37.677]}},
+{"type":"Feature","properties":{"nom":"Vernal","population":14353,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.528,40.455]}},
+{"type":"Feature","properties":{"nom":"Price","population":10281,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-110.81,39.6]}},
+{"type":"Feature","properties":{"nom":"Richfield","population":7621,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.083,38.772]}},
+{"type":"Feature","properties":{"nom":"Moab","population":5730,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.549,38.574]}},
+{"type":"Feature","properties":{"nom":"Nephi","population":5117,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.835,39.71]}},
+{"type":"Feature","properties":{"nom":"Kanab","population":3442,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.525,37.047]}},
+{"type":"Feature","properties":{"nom":"Parowan","population":2571,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.827,37.843]}},
+{"type":"Feature","properties":{"nom":"Monticello","population":1864,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.342,37.872]}}
+]}

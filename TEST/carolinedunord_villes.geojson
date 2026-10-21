@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"carolinedunord_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Raleigh","population":1163515,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-78.647,35.773]}},
+{"type":"Feature","properties":{"nom":"Charlotte","population":995000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.832,35.207]}},
+{"type":"Feature","properties":{"nom":"Greensboro","population":388887,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.8,36.07]}},
+{"type":"Feature","properties":{"nom":"Durham","population":309495,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.92,36.0]}},
+{"type":"Feature","properties":{"nom":"Winston-Salem","population":281683,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.26,36.105]}},
+{"type":"Feature","properties":{"nom":"Fayetteville","population":243306,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.887,35.051]}},
+{"type":"Feature","properties":{"nom":"Wilmington","population":161560,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.945,34.226]}},
+{"type":"Feature","properties":{"nom":"Asheville","population":142755,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.554,35.601]}},
+{"type":"Feature","properties":{"nom":"Greenville","population":92565,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.367,35.613]}},
+{"type":"Feature","properties":{"nom":"Hickory","population":89462,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.341,35.733]}},
+{"type":"Feature","properties":{"nom":"Jacksonville","population":77288,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.431,34.754]}},
+{"type":"Feature","properties":{"nom":"Rocky Mount","population":58361,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.791,35.938]}},
+{"type":"Feature","properties":{"nom":"Goldsboro","population":47602,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.993,35.385]}},
+{"type":"Feature","properties":{"nom":"Salisbury","population":41352,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.474,35.671]}},
+{"type":"Feature","properties":{"nom":"Lumberton","population":32785,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.012,34.627]}},
+{"type":"Feature","properties":{"nom":"Kitty Hawk","population":3413,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.705,36.077]}}
+]}

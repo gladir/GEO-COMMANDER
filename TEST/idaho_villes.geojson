@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"idaho_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Boise","population":338071,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-116.227,43.609]}},
+{"type":"Feature","properties":{"nom":"Caldwell","population":132476,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-116.671,43.661]}},
+{"type":"Feature","properties":{"nom":"Idaho Falls","population":79399,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.033,43.467]}},
+{"type":"Feature","properties":{"nom":"Pocatello","population":63998,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.445,42.871]}},
+{"type":"Feature","properties":{"nom":"Lewiston","population":49289,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-117.017,46.417]}},
+{"type":"Feature","properties":{"nom":"Twin Falls","population":47315,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.461,42.561]}},
+{"type":"Feature","properties":{"nom":"Coeur d'Alene","population":34514,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-116.779,47.678]}},
+{"type":"Feature","properties":{"nom":"Burley","population":14042,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-113.792,42.536]}},
+{"type":"Feature","properties":{"nom":"Salmon","population":3601,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-113.895,45.176]}},
+{"type":"Feature","properties":{"nom":"Montpelier","population":2997,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.297,42.323]}},
+{"type":"Feature","properties":{"nom":"Wallace","population":1028,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-115.927,47.474]}}
+]}

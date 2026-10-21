@@ -51,6 +51,13 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   de Tokyo et de Moscou sont romanises automatiquement (approximatif). Les
   stations de Tokyo et de Moscou sont des gares proches des lignes.
 - moscou.qgs : rues et quartiers de Moscou (Overture Maps).
+- Etats americains (kansas, etat_newyork, alabama ... wyoming, 45 cartes) :
+  comtes geoBoundaries (CC BY 4.0, USA ADM2), limites des etats, lacs,
+  rivieres et villes Natural Earth. Chaque comte est rattache a l'etat qui
+  contient son point representatif ; trois corrections manuelles (Dunklin au
+  Missouri, San Juan et Island dans l'etat de Washington). Les comtes
+  d'Hawai sont au nombre de 5 ; la Louisiane montre des paroisses et la
+  Virginie ses comtes et villes independantes. Les limites sont simplifiees.
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -81,6 +88,7 @@ Liste des projets :
   afghanistan.qgs          Carte de l'Afghanistan
   afrique.qgs              Carte de l'Afrique
   afriquedusud.qgs         Carte de l'Afrique du Sud
+  alabama.qgs              Carte de l'État de l'Alabama
   alaska.qgs               Carte de l'Alaska
   albanie.qgs              Carte de l'Albanie
   alberta.qgs              Carte de la province de l'Alberta
@@ -98,6 +106,8 @@ Liste des projets :
   antillesneerlandaises.qgs Carte des Antilles néerlandaises
   arabiesaoudite.qgs       Carte de l'Arabie Saoudite
   argentine.qgs            Carte de l'Argentine
+  arizona.qgs              Carte de l'État de l'Arizona
+  arkansas.qgs             Carte de l'État de l'Arkansas
   armenie.qgs              Carte de l'Arménie
   aruba.qgs                Carte de l'Aruba
   asie.qgs                 Carte de l'Asie
@@ -118,16 +128,24 @@ Liste des projets :
   canada.qgs               Carte du Canada
   canada_mines.qgs         Carte des mines du Canada (sélection)
   canada_rail.qgs          Les voies ferroviaires du Canada
+  carolinedunord.qgs       Carte de l'État de la Caroline du Nord
+  carolinedusud.qgs        Carte de l'État de la Caroline du Sud
   charlevoix.qgs           Carte de Charlevoix
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chine.qgs                Carte de la Chine
   colombiebritannique.qgs  Carte de la province de la Colombie-Britannique
+  colorado.qgs             Carte de l'État du Colorado
+  connecticut.qgs          Carte de l'État du Connecticut
   coreenord.qgs            Carte de la Corée du Nord
   coreesud.qgs             Carte de la Corée du Sud
   cuba.qgs                 Carte de Cuba
+  dakotadunord.qgs         Carte de l'État du Dakota du Nord
+  dakotadusud.qgs          Carte de l'État du Dakota du Sud
   dallas.qgs               Carte de la ville de Dallas (États-Unis) avec ses rues
+  delaware.qgs             Carte de l'État du Delaware
   egypte.qgs               Carte de l'Égypte
   espagne.qgs              Carte de l'Espagne
+  etat_newyork.qgs         Carte de l'État de New York
   etatsunis.qgs            Carte des États-Unis
   etatsunis_mines.qgs      Carte des mines des États-Unis (sélection)
   etatsunis_rail.qgs       Les voies ferroviaires des États-Unis
@@ -142,17 +160,25 @@ Liste des projets :
   gaspe.qgs                Carte de la ville de Gaspé (Québec) avec ses rues
   gaspesie.qgs             Carte de la Gaspésie (et Îles-de-la-Madeleine)
   gatineau.qgs             Carte de la ville de Gatineau (Québec) avec ses rues
+  georgie.qgs              Carte de l'État de Géorgie
   grece.qgs                Carte de la Grèce
   guadeloupe.qgs           Carte de la Guadeloupe
+  hawaii.qgs               Carte de l'État d'Hawaï
   houston.qgs              Carte de la ville de Houston (États-Unis) avec ses rues
+  idaho.qgs                Carte de l'État de l'Idaho
   ilebizard.qgs            Carte de l'Île Bizard (Montréal)
   ileduprinceedouard.qgs   Carte de la province de l'Île-du-Prince-Édouard
+  illinois.qgs             Carte de l'État de l'Illinois
+  indiana.qgs              Carte de l'État de l'Indiana
+  iowa.qgs                 Carte de l'État de l'Iowa
   irak.qgs                 Carte de l'Irak
   iran.qgs                 Carte de l'Iran
   italie.qgs               Carte de l'Italie
   jamaique.qgs             Carte de la Jamaïque
   japon.qgs                Carte du Japon
   jordanie.qgs             Carte de la Jordanie
+  kansas.qgs               Carte de l'État du Kansas
+  kentucky.qgs             Carte de l'État du Kentucky
   kyoto.qgs                Carte de la ville de Kyoto (Japon) avec ses rues
   lac_ontario.qgs          Carte du lac Ontario
   lac_saintjean.qgs        Carte du lac Saint-Jean
@@ -165,9 +191,13 @@ Liste des projets :
   lituanie.qgs             Carte de la Lituanie
   londres.qgs              Carte de la ville de Londres (Royaume-Uni) avec ses rues
   losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
+  louisiane.qgs            Carte de l'État de la Louisiane
+  maine.qgs                Carte de l'État du Maine
   manitoba.qgs             Carte du Manitoba
   maroc.qgs                Carte du Maroc
   marseille.qgs            Carte de la ville de Marseille (France) avec ses rues
+  maryland.qgs             Carte de l'État du Maryland
+  massachusetts.qgs        Carte de l'État du Massachusetts
   metro_londres.qgs        Le métro de Londres (London Underground)
   metro_montreal.qgs       Le métro de Montréal (STM)
   metro_moscou.qgs         Le métro de Moscou
@@ -176,13 +206,22 @@ Liste des projets :
   mexico.qgs               Carte de la ville de Mexico (Mexique) avec ses rues
   mexique.qgs              Carte du Mexique
   miami.qgs                Carte de la ville de Miami (États-Unis) avec ses rues
+  michigan.qgs             Carte de l'État du Michigan
+  minnesota.qgs            Carte de l'État du Minnesota
+  mississippi.qgs          Carte de l'État du Mississippi
+  missouri.qgs             Carte de l'État du Missouri
   monde.qgs                Carte du monde
   mongolie.qgs             Carte de la Mongolie
+  montana.qgs              Carte de l'État du Montana
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
   moscou.qgs               Carte de la ville de Moscou (Russie) avec ses rues
   munich.qgs               Carte de la ville de Munich (Allemagne) avec ses rues
   nagoya.qgs               Carte de la ville de Nagoya (Japon) avec ses rues
+  nebraska.qgs             Carte de l'État du Nebraska
+  nevada.qgs               Carte de l'État du Nevada
+  newhampshire.qgs         Carte de l'État du New Hampshire
+  newjersey.qgs            Carte de l'État du New Jersey
   newyork.qgs              Carte de la ville de New York (États-Unis) avec ses rues
   nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
   nouveaumexique.qgs       Carte du Nouveau-Mexique
@@ -192,12 +231,16 @@ Liste des projets :
   ocean_indien.qgs         Carte de l'océan Indien
   ocean_pacifique.qgs      Carte de l'océan Pacifique
   oceanie.qgs              Carte de l'Océanie
+  ohio.qgs                 Carte de l'État de l'Ohio
+  oklahoma.qgs             Carte de l'État de l'Oklahoma
   ontario.qgs              Carte de la province de l'Ontario
+  oregon.qgs               Carte de l'État de l'Oregon
   osaka.qgs                Carte de la ville d'Osaka (Japon) avec ses rues
   ottawa.qgs               Carte de la ville d'Ottawa (Canada)
   panama.qgs               Carte du Panama
   paris.qgs                Carte de la ville de Paris (France) avec ses rues
   pekin.qgs                Carte de la ville de Pékin (Chine)
+  pennsylvanie.qgs         Carte de l'État de Pennsylvanie
   perce.qgs                Carte de la ville de Percé (Québec) avec ses rues
   philadelphie.qgs         Carte de la ville de Philadelphie (États-Unis) avec ses rues
   portugal.qgs             Carte du Portugal
@@ -206,6 +249,7 @@ Liste des projets :
   quebec_centreville.qgs   Carte du centre-ville de Québec (Québec) avec ses rues
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
+  rhodeisland.qgs          Carte de l'État de Rhode Island
   rimouski.qgs             Carte de la ville de Rimouski (Québec) avec ses rues
   rome.qgs                 Carte de la ville de Rome (Italie) avec ses rues
   roumanie.qgs             Carte de la Roumanie
@@ -223,14 +267,22 @@ Liste des projets :
   septiles.qgs             Carte de Sept-Îles (Québec) avec ses rues
   sherbrooke.qgs           Carte de la ville de Sherbrooke (Québec) avec ses rues
   sydney.qgs               Carte de la ville de Sydney (Australie)
+  tennessee.qgs            Carte de l'État du Tennessee
   terrebonne.qgs           Carte de la ville de Terrebonne (Québec)
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
   tokyo.qgs                Carte de la ville de Tokyo (Japon) avec ses rues
   toronto.qgs              Carte de la ville de Toronto (Canada) avec ses rues
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec) avec ses rues
+  utah.qgs                 Carte de l'État de l'Utah
   vancouver.qgs            Carte de la ville de Vancouver (Canada) avec ses rues
+  vermont.qgs              Carte de l'État du Vermont
   vietnam.qgs              Carte du Vietnam
   villequebec.qgs          Carte de la ville de Québec (Québec)
+  virginie.qgs             Carte de l'État de Virginie
+  virginieoccidentale.qgs  Carte de l'État de la Virginie-Occidentale
+  washington.qgs           Carte de l'État de Washington
+  wisconsin.qgs            Carte de l'État du Wisconsin
+  wyoming.qgs              Carte de l'État du Wyoming
   yokohama.qgs             Carte de la ville de Yokohama (Japon) avec ses rues
   yukon.qgs                Carte du Yukon

@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"washington_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Seattle","population":3074000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.315,47.6]}},
+{"type":"Feature","properties":{"nom":"Tacoma","population":719868,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.447,47.241]}},
+{"type":"Feature","properties":{"nom":"Vancouver","population":525802,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.64,45.63]}},
+{"type":"Feature","properties":{"nom":"Everett","population":486903,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.2,47.96]}},
+{"type":"Feature","properties":{"nom":"Spokane","population":347705,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-117.42,47.67]}},
+{"type":"Feature","properties":{"nom":"Olympia","population":156984,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-122.899,47.038]}},
+{"type":"Feature","properties":{"nom":"Bremerton","population":126820,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.642,47.574]}},
+{"type":"Feature","properties":{"nom":"Kennewick","population":102504,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-119.136,46.211]}},
+{"type":"Feature","properties":{"nom":"Bellingham","population":99662,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.487,48.76]}},
+{"type":"Feature","properties":{"nom":"Yakima","population":99287,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-120.505,46.602]}},
+{"type":"Feature","properties":{"nom":"Longview","population":66231,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.937,46.139]}},
+{"type":"Feature","properties":{"nom":"Wenatchee","population":62625,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-120.309,47.424]}},
+{"type":"Feature","properties":{"nom":"Walla Walla","population":45150,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-118.342,46.065]}},
+{"type":"Feature","properties":{"nom":"Richland","population":44869,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-119.291,46.292]}},
+{"type":"Feature","properties":{"nom":"Aberdeen","population":32745,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.814,46.975]}},
+{"type":"Feature","properties":{"nom":"Centralia","population":18880,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.953,46.716]}}
+]}

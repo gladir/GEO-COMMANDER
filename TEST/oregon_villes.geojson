@@ -1,0 +1,21 @@
+{"type":"FeatureCollection","name":"oregon_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Portland","population":1875000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.682,45.522]}},
+{"type":"Feature","properties":{"nom":"Eugene","population":245158,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.1,44.05]}},
+{"type":"Feature","properties":{"nom":"Salem","population":229010,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-123.024,44.928]}},
+{"type":"Feature","properties":{"nom":"Medford","population":108525,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.874,42.327]}},
+{"type":"Feature","properties":{"nom":"Bend","population":75441,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-121.309,44.054]}},
+{"type":"Feature","properties":{"nom":"Corvallis","population":59030,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.28,44.572]}},
+{"type":"Feature","properties":{"nom":"Springfield","population":56032,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-122.978,44.052]}},
+{"type":"Feature","properties":{"nom":"Albany","population":51376,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.087,44.62]}},
+{"type":"Feature","properties":{"nom":"Grants Pass","population":46189,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.327,42.44]}},
+{"type":"Feature","properties":{"nom":"Klamath Falls","population":42978,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-121.781,42.225]}},
+{"type":"Feature","properties":{"nom":"Coos Bay","population":31976,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-124.217,43.367]}},
+{"type":"Feature","properties":{"nom":"Roseburg","population":30479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.356,43.218]}},
+{"type":"Feature","properties":{"nom":"Pendleton","population":16799,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-118.787,45.673]}},
+{"type":"Feature","properties":{"nom":"La Grande","population":15004,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-118.087,45.325]}},
+{"type":"Feature","properties":{"nom":"Ontario","population":12187,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-116.962,44.027]}},
+{"type":"Feature","properties":{"nom":"Astoria","population":10011,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.83,46.188]}},
+{"type":"Feature","properties":{"nom":"Tillamook","population":8145,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.843,45.455]}},
+{"type":"Feature","properties":{"nom":"John Day","population":1573,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-118.952,44.417]}}
+]}

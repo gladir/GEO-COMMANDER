@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"nevada_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Las Vegas","population":1823000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-115.151,36.165]}},
+{"type":"Feature","properties":{"nom":"Reno","population":328585,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-119.82,39.53]}},
+{"type":"Feature","properties":{"nom":"Carson City","population":57341,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-119.766,39.164]}},
+{"type":"Feature","properties":{"nom":"Elko","population":19252,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-115.762,40.833]}},
+{"type":"Feature","properties":{"nom":"Boulder City","population":15479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.832,35.979]}},
+{"type":"Feature","properties":{"nom":"Winnemucca","population":9666,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-117.735,40.973]}},
+{"type":"Feature","properties":{"nom":"Ely","population":4216,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.888,39.247]}},
+{"type":"Feature","properties":{"nom":"Tonopah","population":3261,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-117.229,38.067]}}
+]}

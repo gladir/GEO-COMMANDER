@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"vermont_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Burlington","population":93807,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.212,44.476]}},
+{"type":"Feature","properties":{"nom":"Montpelier","population":8538,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-72.576,44.26]}}
+]}

@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"montana_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Billings","population":104552,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.54,45.788]}},
+{"type":"Feature","properties":{"nom":"Missoula","population":72856,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-113.993,46.872]}},
+{"type":"Feature","properties":{"nom":"Great Falls","population":66558,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.3,47.5]}},
+{"type":"Feature","properties":{"nom":"Bozeman","population":44921,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.038,45.68]}},
+{"type":"Feature","properties":{"nom":"Helena","population":38725,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-112.035,46.593]}},
+{"type":"Feature","properties":{"nom":"Butte","population":34190,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.534,46.004]}},
+{"type":"Feature","properties":{"nom":"Kalispell","population":32062,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.316,48.198]}},
+{"type":"Feature","properties":{"nom":"Havre","population":11154,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.678,48.545]}},
+{"type":"Feature","properties":{"nom":"Miles City","population":8615,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.84,46.409]}},
+{"type":"Feature","properties":{"nom":"Glendive","population":5856,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.71,47.109]}},
+{"type":"Feature","properties":{"nom":"Polson","population":5326,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.157,47.688]}},
+{"type":"Feature","properties":{"nom":"Dillon","population":4463,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.684,45.216]}},
+{"type":"Feature","properties":{"nom":"Hardin","population":4448,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.612,45.732]}},
+{"type":"Feature","properties":{"nom":"Glasgow","population":3240,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.635,48.184]}}
+]}

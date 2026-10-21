@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"oklahoma_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tulsa","population":946962,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.93,36.12]}},
+{"type":"Feature","properties":{"nom":"Oklahoma City","population":788000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-97.521,35.472]}},
+{"type":"Feature","properties":{"nom":"Norman","population":113525,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.442,35.22]}},
+{"type":"Feature","properties":{"nom":"Lawton","population":91752,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.41,34.599]}},
+{"type":"Feature","properties":{"nom":"Stillwater","population":47667,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.068,36.135]}},
+{"type":"Feature","properties":{"nom":"Enid","population":46138,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.878,36.396]}},
+{"type":"Feature","properties":{"nom":"Muskogee","population":39295,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.369,35.748]}},
+{"type":"Feature","properties":{"nom":"Bartlesville","population":34610,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.981,36.747]}},
+{"type":"Feature","properties":{"nom":"Shawnee","population":29628,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.934,35.343]}},
+{"type":"Feature","properties":{"nom":"Ponca City","population":25273,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.085,36.707]}},
+{"type":"Feature","properties":{"nom":"Ardmore","population":24960,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.129,34.181]}},
+{"type":"Feature","properties":{"nom":"McAlester","population":21668,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.766,34.933]}},
+{"type":"Feature","properties":{"nom":"Woodward","population":12931,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-99.398,36.433]}},
+{"type":"Feature","properties":{"nom":"Guymon","population":11178,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.48,36.686]}}
+]}

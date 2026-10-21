@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"georgie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Atlanta","population":4506000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-84.368,33.739]}},
+{"type":"Feature","properties":{"nom":"Augusta","population":262332,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.985,33.461]}},
+{"type":"Feature","properties":{"nom":"Columbus","population":217980,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.98,32.47]}},
+{"type":"Feature","properties":{"nom":"Savannah","population":180187,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.11,32.021]}},
+{"type":"Feature","properties":{"nom":"Macon","population":115592,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.63,32.85]}},
+{"type":"Feature","properties":{"nom":"Athens","population":110301,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.378,33.961]}},
+{"type":"Feature","properties":{"nom":"Albany","population":88766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.156,31.579]}},
+{"type":"Feature","properties":{"nom":"Marietta","population":61360,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.543,33.956]}},
+{"type":"Feature","properties":{"nom":"Valdosta","population":61179,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.279,30.833]}},
+{"type":"Feature","properties":{"nom":"Dalton","population":58557,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.97,34.77]}},
+{"type":"Feature","properties":{"nom":"Brunswick","population":47085,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.492,31.15]}},
+{"type":"Feature","properties":{"nom":"La Grange","population":31776,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.032,33.036]}},
+{"type":"Feature","properties":{"nom":"Dublin","population":22623,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.918,32.537]}},
+{"type":"Feature","properties":{"nom":"Waycross","population":19824,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.355,31.214]}},
+{"type":"Feature","properties":{"nom":"Douglas","population":13441,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.851,31.508]}}
+]}

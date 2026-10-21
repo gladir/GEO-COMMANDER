@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"mississippi_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Jackson","population":250902,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-90.185,32.299]}},
+{"type":"Feature","properties":{"nom":"Southaven","population":121268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.003,34.969]}},
+{"type":"Feature","properties":{"nom":"Gulfport","population":82165,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.093,30.368]}},
+{"type":"Feature","properties":{"nom":"Hattiesburg","population":58874,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.29,31.327]}},
+{"type":"Feature","properties":{"nom":"Biloxi","population":50644,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.885,30.396]}},
+{"type":"Feature","properties":{"nom":"Meridian","population":42290,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.704,32.364]}},
+{"type":"Feature","properties":{"nom":"Greenville","population":38107,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.062,33.41]}},
+{"type":"Feature","properties":{"nom":"Tupelo","population":35956,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.703,34.258]}},
+{"type":"Feature","properties":{"nom":"Laurel","population":28841,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.139,31.697]}},
+{"type":"Feature","properties":{"nom":"Vicksburg","population":25701,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.878,32.352]}},
+{"type":"Feature","properties":{"nom":"Natchez","population":23863,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.388,31.555]}}
+]}

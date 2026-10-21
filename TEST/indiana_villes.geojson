@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"indiana_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Indianapolis","population":1436000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-86.172,39.752]}},
+{"type":"Feature","properties":{"nom":"Gary","population":591180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.33,41.58]}},
+{"type":"Feature","properties":{"nom":"Fort Wayne","population":299871,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.13,41.08]}},
+{"type":"Feature","properties":{"nom":"South Bend","population":239822,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.25,41.683]}},
+{"type":"Feature","properties":{"nom":"Evansville","population":174102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.556,37.975]}},
+{"type":"Feature","properties":{"nom":"Elkhart","population":149190,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.969,41.683]}},
+{"type":"Feature","properties":{"nom":"Lafayette","population":133977,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.878,40.417]}},
+{"type":"Feature","properties":{"nom":"New Albany","population":120625,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.821,38.311]}},
+{"type":"Feature","properties":{"nom":"Bloomington","population":100310,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.526,39.166]}},
+{"type":"Feature","properties":{"nom":"Muncie","population":85449,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.386,40.194]}},
+{"type":"Feature","properties":{"nom":"Terre Haute","population":73236,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.414,39.467]}},
+{"type":"Feature","properties":{"nom":"Kokomo","population":61121,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.134,40.487]}},
+{"type":"Feature","properties":{"nom":"Richmond","population":44400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.89,39.829]}},
+{"type":"Feature","properties":{"nom":"Marion","population":38297,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.659,40.558]}}
+]}

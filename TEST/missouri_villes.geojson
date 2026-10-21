@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"missouri_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"St. Louis","population":2199000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.242,38.637]}},
+{"type":"Feature","properties":{"nom":"Kansas City","population":1469000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.606,39.109]}},
+{"type":"Feature","properties":{"nom":"Columbia","population":398093,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.334,38.952]}},
+{"type":"Feature","properties":{"nom":"St. Charles","population":360485,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.506,38.784]}},
+{"type":"Feature","properties":{"nom":"Springfield","population":210939,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.32,37.18]}},
+{"type":"Feature","properties":{"nom":"Independence","population":148102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.415,39.091]}},
+{"type":"Feature","properties":{"nom":"St. Joseph","population":78012,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.846,39.769]}},
+{"type":"Feature","properties":{"nom":"Joplin","population":73763,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.513,37.085]}},
+{"type":"Feature","properties":{"nom":"Jefferson City","population":55139,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-92.173,38.577]}},
+{"type":"Feature","properties":{"nom":"Poplar Bluff","population":20662,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.403,36.76]}},
+{"type":"Feature","properties":{"nom":"Kirksville","population":19193,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.583,40.194]}}
+]}

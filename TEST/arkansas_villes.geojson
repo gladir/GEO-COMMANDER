@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"arkansas_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Little Rock","population":270893,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-92.331,34.736]}},
+{"type":"Feature","properties":{"nom":"Fayetteville","population":151671,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.157,36.063]}},
+{"type":"Feature","properties":{"nom":"Fort Smith","population":93988,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.398,35.386]}},
+{"type":"Feature","properties":{"nom":"Texarkana","population":74414,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.037,33.442]}},
+{"type":"Feature","properties":{"nom":"Conway","population":61995,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.451,35.091]}},
+{"type":"Feature","properties":{"nom":"Jonesboro","population":58619,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.704,35.843]}},
+{"type":"Feature","properties":{"nom":"Pine Bluff","population":53217,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.003,34.229]}},
+{"type":"Feature","properties":{"nom":"Hot Springs","population":44182,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.055,34.504]}},
+{"type":"Feature","properties":{"nom":"Paragould","population":23450,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.503,36.057]}},
+{"type":"Feature","properties":{"nom":"El Dorado","population":22416,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.663,33.214]}}
+]}

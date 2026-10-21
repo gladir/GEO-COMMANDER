@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"tennessee_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Memphis","population":1081000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.029,35.145]}},
+{"type":"Feature","properties":{"nom":"Nashville","population":877000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-86.782,36.172]}},
+{"type":"Feature","properties":{"nom":"Knoxville","population":655400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.92,35.97]}},
+{"type":"Feature","properties":{"nom":"Barlett","population":286423,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.841,35.223]}},
+{"type":"Feature","properties":{"nom":"Chattanooga","population":257589,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.25,35.07]}},
+{"type":"Feature","properties":{"nom":"Clarksville","population":132536,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.359,36.53]}},
+{"type":"Feature","properties":{"nom":"Columbia","population":116091,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.035,35.615]}},
+{"type":"Feature","properties":{"nom":"Murfreesboro","population":115774,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.39,35.846]}},
+{"type":"Feature","properties":{"nom":"Johnson City","population":77538,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.354,36.313]}},
+{"type":"Feature","properties":{"nom":"Jackson","population":63196,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.814,35.615]}},
+{"type":"Feature","properties":{"nom":"Kingsport","population":57467,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.562,36.548]}},
+{"type":"Feature","properties":{"nom":"Oak Ridge","population":33556,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.27,36.011]}}
+]}

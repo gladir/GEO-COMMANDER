@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"etat_newyork_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"New York","population":19040000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.996,40.722]}},
+{"type":"Feature","properties":{"nom":"Buffalo","population":1016000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.882,42.882]}},
+{"type":"Feature","properties":{"nom":"Albany","population":870716,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-73.758,42.654]}},
+{"type":"Feature","properties":{"nom":"Rochester","population":755000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.622,43.172]}},
+{"type":"Feature","properties":{"nom":"Syracuse","population":662577,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.15,43.05]}},
+{"type":"Feature","properties":{"nom":"Poughkeepsie","population":170996,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.921,41.7]}},
+{"type":"Feature","properties":{"nom":"Niagara Falls","population":153134,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.037,43.095]}},
+{"type":"Feature","properties":{"nom":"Schenectady","population":149255,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.94,42.815]}},
+{"type":"Feature","properties":{"nom":"Binghamton","population":139895,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.918,42.099]}},
+{"type":"Feature","properties":{"nom":"Utica","population":105150,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.233,43.101]}},
+{"type":"Feature","properties":{"nom":"Elmira","population":62376,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.808,42.09]}},
+{"type":"Feature","properties":{"nom":"Ithaca","population":59930,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.497,42.441]}},
+{"type":"Feature","properties":{"nom":"Saratoga Springs","population":55793,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.785,43.083]}},
+{"type":"Feature","properties":{"nom":"Jamestown","population":45756,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.236,42.097]}},
+{"type":"Feature","properties":{"nom":"Watertown","population":33821,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.911,43.975]}},
+{"type":"Feature","properties":{"nom":"Plattsburgh","population":29238,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.458,44.695]}}
+]}

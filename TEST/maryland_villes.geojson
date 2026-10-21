@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"maryland_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Baltimore","population":2255000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.615,39.282]}},
+{"type":"Feature","properties":{"nom":"Annapolis","population":81300,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-76.492,38.978]}},
+{"type":"Feature","properties":{"nom":"Hagerstown","population":79662,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.72,39.642]}},
+{"type":"Feature","properties":{"nom":"St. Charles","population":69208,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.939,38.603]}},
+{"type":"Feature","properties":{"nom":"Cumberland","population":21316,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.763,39.653]}}
+]}

@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"dakotadunord_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Fargo","population":162842,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.789,46.877]}},
+{"type":"Feature","properties":{"nom":"Bismarck","population":63871,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-100.783,46.808]}},
+{"type":"Feature","properties":{"nom":"Grand Forks","population":58566,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.032,47.925]}},
+{"type":"Feature","properties":{"nom":"Minot","population":39439,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.296,48.232]}},
+{"type":"Feature","properties":{"nom":"Dickinson","population":16399,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.789,46.884]}},
+{"type":"Feature","properties":{"nom":"Jamestown","population":15081,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.703,46.906]}},
+{"type":"Feature","properties":{"nom":"Williston","population":13564,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.628,48.157]}},
+{"type":"Feature","properties":{"nom":"Devils Lake","population":7813,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.86,48.112]}}
+]}

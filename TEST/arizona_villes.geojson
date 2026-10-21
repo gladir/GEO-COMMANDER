@@ -1,0 +1,22 @@
+{"type":"FeatureCollection","name":"arizona_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Phoenix","population":3551000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-112.067,33.448]}},
+{"type":"Feature","properties":{"nom":"Mesa","population":1085394,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.821,33.415]}},
+{"type":"Feature","properties":{"nom":"Tucson","population":823000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-110.892,32.207]}},
+{"type":"Feature","properties":{"nom":"Glendale","population":500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.174,33.535]}},
+{"type":"Feature","properties":{"nom":"Yuma","population":92489,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.624,32.685]}},
+{"type":"Feature","properties":{"nom":"Flagstaff","population":63993,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.651,35.198]}},
+{"type":"Feature","properties":{"nom":"Lake Havasu City","population":56133,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.308,34.498]}},
+{"type":"Feature","properties":{"nom":"Prescott","population":55038,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.448,34.59]}},
+{"type":"Feature","properties":{"nom":"Casa Grande","population":44655,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.757,32.879]}},
+{"type":"Feature","properties":{"nom":"Kingman","population":42182,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.052,35.19]}},
+{"type":"Feature","properties":{"nom":"Bullhead City","population":37989,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.567,35.148]}},
+{"type":"Feature","properties":{"nom":"Douglas","population":30185,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.548,31.359]}},
+{"type":"Feature","properties":{"nom":"Scottsdale","population":15401,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-111.925,33.489]}},
+{"type":"Feature","properties":{"nom":"Safford","population":10668,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.707,32.834]}},
+{"type":"Feature","properties":{"nom":"Winslow","population":9931,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-110.697,35.024]}},
+{"type":"Feature","properties":{"nom":"Willcox","population":5146,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.831,32.253]}},
+{"type":"Feature","properties":{"nom":"Gila Bend","population":2088,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.725,32.95]}},
+{"type":"Feature","properties":{"nom":"Tombstone","population":1570,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-110.067,31.713]}},
+{"type":"Feature","properties":{"nom":"Grand Canyon","population":1550,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-112.139,36.055]}}
+]}

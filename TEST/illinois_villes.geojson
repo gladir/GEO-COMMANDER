@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"illinois_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Chicago","population":8990000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.635,41.848]}},
+{"type":"Feature","properties":{"nom":"Joliet","population":578460,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.107,41.53]}},
+{"type":"Feature","properties":{"nom":"Elgin","population":389514,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.29,42.039]}},
+{"type":"Feature","properties":{"nom":"Evanston","population":350000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.7,42.048]}},
+{"type":"Feature","properties":{"nom":"Aurora","population":350000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.3,41.765]}},
+{"type":"Feature","properties":{"nom":"Rockford","population":255978,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.07,42.27]}},
+{"type":"Feature","properties":{"nom":"Waukegan","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.845,42.364]}},
+{"type":"Feature","properties":{"nom":"Peoria","population":172308,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.579,40.689]}},
+{"type":"Feature","properties":{"nom":"Rock Island","population":165728,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.535,41.493]}},
+{"type":"Feature","properties":{"nom":"Urbana","population":144074,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.204,40.11]}},
+{"type":"Feature","properties":{"nom":"Belleville","population":143900,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.0,38.525]}},
+{"type":"Feature","properties":{"nom":"Springfield","population":134715,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-89.637,39.788]}},
+{"type":"Feature","properties":{"nom":"Bloomington","population":128979,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.994,40.485]}},
+{"type":"Feature","properties":{"nom":"Alton","population":84276,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.184,38.891]}},
+{"type":"Feature","properties":{"nom":"Decatur","population":77868,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.955,39.841]}},
+{"type":"Feature","properties":{"nom":"Kankakee","population":69608,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.861,41.12]}},
+{"type":"Feature","properties":{"nom":"Quincy","population":47108,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.41,39.936]}},
+{"type":"Feature","properties":{"nom":"Cape Girardeau","population":40427,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.518,37.306]}},
+{"type":"Feature","properties":{"nom":"Carbondale","population":32444,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.22,37.727]}},
+{"type":"Feature","properties":{"nom":"Galesburg","population":32094,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.371,40.948]}}
+]}

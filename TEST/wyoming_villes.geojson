@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"wyoming_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Cheyenne","population":72927,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-104.82,41.14]}},
+{"type":"Feature","properties":{"nom":"Casper","population":60791,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.323,42.847]}},
+{"type":"Feature","properties":{"nom":"Gillette","population":29113,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.505,44.283]}},
+{"type":"Feature","properties":{"nom":"Laramie","population":26934,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.591,41.311]}},
+{"type":"Feature","properties":{"nom":"Riverton","population":11508,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.395,43.028]}},
+{"type":"Feature","properties":{"nom":"Green River","population":11358,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.465,41.515]}},
+{"type":"Feature","properties":{"nom":"Cody","population":9161,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.057,44.523]}},
+{"type":"Feature","properties":{"nom":"Rawlins","population":8533,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.234,41.791]}},
+{"type":"Feature","properties":{"nom":"Powell","population":6895,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.758,44.759]}},
+{"type":"Feature","properties":{"nom":"Lander","population":6821,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.733,42.833]}},
+{"type":"Feature","properties":{"nom":"Douglas","population":6298,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.385,42.756]}},
+{"type":"Feature","properties":{"nom":"Thermopolis","population":3445,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.215,43.646]}}
+]}

@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"newjersey_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Trenton","population":366513,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-74.743,40.217]}},
+{"type":"Feature","properties":{"nom":"Newark","population":280123,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.17,40.7]}},
+{"type":"Feature","properties":{"nom":"Paterson","population":151205,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.17,40.92]}},
+{"type":"Feature","properties":{"nom":"Atlantic City","population":76573,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.423,39.365]}}
+]}

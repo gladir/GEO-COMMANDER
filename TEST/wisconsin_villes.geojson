@@ -1,0 +1,21 @@
+{"type":"FeatureCollection","name":"wisconsin_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Milwaukee","population":1388000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.917,43.03]}},
+{"type":"Feature","properties":{"nom":"Madison","population":327447,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-89.401,43.073]}},
+{"type":"Feature","properties":{"nom":"Waukesha","population":249912,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.231,43.012]}},
+{"type":"Feature","properties":{"nom":"Appleton","population":203665,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.401,44.269]}},
+{"type":"Feature","properties":{"nom":"Green Bay","population":198611,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.0,44.53]}},
+{"type":"Feature","properties":{"nom":"Racine","population":131654,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.812,42.728]}},
+{"type":"Feature","properties":{"nom":"La Crosse","population":87381,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.239,43.801]}},
+{"type":"Feature","properties":{"nom":"Eau Claire","population":79740,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.498,44.811]}},
+{"type":"Feature","properties":{"nom":"Wausau","population":75422,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.63,44.959]}},
+{"type":"Feature","properties":{"nom":"Oshkosh","population":72698,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.543,44.025]}},
+{"type":"Feature","properties":{"nom":"Janesville","population":69278,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.022,42.683]}},
+{"type":"Feature","properties":{"nom":"Fond du Lac","population":54299,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.447,43.773]}},
+{"type":"Feature","properties":{"nom":"Sheboygan","population":53705,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.714,43.751]}},
+{"type":"Feature","properties":{"nom":"West Bend","population":34530,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.183,43.426]}},
+{"type":"Feature","properties":{"nom":"Superior","population":27580,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.104,46.721]}},
+{"type":"Feature","properties":{"nom":"Marinette","population":27169,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.63,45.1]}},
+{"type":"Feature","properties":{"nom":"Tomah","population":12997,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.504,43.985]}},
+{"type":"Feature","properties":{"nom":"Rhinelander","population":11483,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.412,45.64]}}
+]}
