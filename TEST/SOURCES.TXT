@@ -106,7 +106,9 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   houston, newyork, tokyo, mexico, yokohama, vancouver, troisrivieres,
   sapporo, perce, philadelphie, osaka, nagoya, miami, marseille, lachute,
   kyoto, gatineau, gaspe, fortworth, chicago, bruxelles, blainville,
-  bagdad et atlanta (et moscou).
+  bagdad et atlanta (et moscou, chibougamau, saintfelicien,
+  labrecque, jonquiere, lamalbaie et baiesaintpaul ; limites municipales
+  geoBoundaries ; jonquiere.qgs montre le contour de Saguenay).
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -155,6 +157,7 @@ Liste des projets :
   bagdad.qgs               Carte de la ville de Bagdad (Irak) avec ses rues
   bahamas.qgs              Carte des Bahamas
   bahrein.qgs              Carte du Bahreïn
+  baiesaintpaul.qgs        Carte de la ville de Baie-Saint-Paul (Québec) avec ses rues
   bangladesh.qgs           Carte du Bangladesh
   barbade.qgs              Carte de la Barbade
   barcelone.qgs            Carte de la ville de Barcelone (Espagne) avec ses rues
@@ -190,6 +193,7 @@ Liste des projets :
   carolinedusud.qgs        Carte de l'État de la Caroline du Sud
   centrafrique.qgs         Carte de la République centrafricaine
   charlevoix.qgs           Carte de Charlevoix
+  chibougamau.qgs          Carte de la ville de Chibougamau (Québec) avec ses rues
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chili.qgs                Carte du Chili
   chine.qgs                Carte de la Chine
@@ -283,6 +287,7 @@ Liste des projets :
   italie.qgs               Carte de l'Italie
   jamaique.qgs             Carte de la Jamaïque
   japon.qgs                Carte du Japon
+  jonquiere.qgs            Carte de Jonquière (Saguenay, Québec) avec ses rues
   jordanie.qgs             Carte de la Jordanie
   kansas.qgs               Carte de l'État du Kansas
   kazakhstan.qgs           Carte du Kazakhstan
@@ -292,10 +297,12 @@ Liste des projets :
   kiribati.qgs             Carte du Kiribati
   koweit.qgs               Carte du Koweït
   kyoto.qgs                Carte de la ville de Kyoto (Japon) avec ses rues
+  labrecque.qgs            Carte de Labrecque (Québec) avec ses rues
   lac_ontario.qgs          Carte du lac Ontario
   lac_saintjean.qgs        Carte du lac Saint-Jean
   lac_superieur.qgs        Carte du lac Supérieur
   lachute.qgs              Carte de la ville de Lachute (Québec) avec ses rues
+  lamalbaie.qgs            Carte de la ville de La Malbaie (Québec) avec ses rues
   laos.qgs                 Carte du Laos
   lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
   laval.qgs                Carte de la ville de Laval (Québec)
@@ -434,6 +441,7 @@ Liste des projets :
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
   saintehelene.qgs         Carte de Sainte-Hélène (île)
   saintelucie.qgs          Carte de Sainte-Lucie
+  saintfelicien.qgs        Carte de la ville de Saint-Félicien (Québec) avec ses rues
   saintmarin.qgs           Carte de Saint-Marin
   saintpierre.qgs          Carte de Saint-Pierre-et-Miquelon
   saintvincent.qgs         Carte de Saint-Vincent-et-les-Grenadines

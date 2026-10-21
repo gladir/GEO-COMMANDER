@@ -1,0 +1,22 @@
+{"type":"FeatureCollection","name":"chibougamau_major",
+"features":[
+{"type":"Feature","properties":{"nom":"Route 167 Sud","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.3859,49.90554],[-74.38608,49.90529],[-74.3863,49.90501],[-74.3867,49.90462],[-74.38989,49.9019],[-74.39074,49.90103],[-74.39121,49.9002],[-74.39149,49.89909],[-74.39216,49.89544],[-74.3924,49.89482],[-74.39277,49.89423],[-74.39332,49.89357],[-74.3951,49.89167]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.3856,49.90999],[-74.38559,49.90685],[-74.38561,49.90639],[-74.3857,49.90601],[-74.3859,49.90554]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.38552,49.91134],[-74.38556,49.91116],[-74.38561,49.9108],[-74.3856,49.90999]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.38514,49.91204],[-74.38524,49.91191],[-74.38552,49.91134]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.3827,49.91342],[-74.38305,49.91333],[-74.38374,49.91307],[-74.3842,49.91284],[-74.38473,49.91246],[-74.38507,49.91212],[-74.38514,49.91204]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.37911,49.9136],[-74.38014,49.91359],[-74.38143,49.91357],[-74.38171,49.91356],[-74.38196,49.91354],[-74.38221,49.91351],[-74.3827,49.91342]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.37799,49.91359],[-74.37821,49.9136],[-74.37911,49.9136]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.3742,49.91362],[-74.37799,49.91359]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.37156,49.91362],[-74.3742,49.91362]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.37004,49.91363],[-74.37156,49.91362]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.36761,49.91364],[-74.37004,49.91363]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.36606,49.91364],[-74.36761,49.91364]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.36291,49.91365],[-74.36606,49.91364]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.35975,49.91365],[-74.36291,49.91365]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.35654,49.91365],[-74.35975,49.91365]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.35385,49.91367],[-74.35446,49.91365],[-74.35654,49.91365]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.3514,49.91437],[-74.35277,49.91392],[-74.35323,49.91378],[-74.35353,49.91372],[-74.35385,49.91367]]}},
+{"type":"Feature","properties":{"nom":"3e Rue","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.34736,49.91537],[-74.34776,49.91531],[-74.34844,49.91519],[-74.34895,49.9151],[-74.3491,49.91506],[-74.34934,49.915],[-74.3514,49.91437]]}},
+{"type":"Feature","properties":{"nom":"Route 167 Nord","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-74.34736,49.91537],[-74.34688,49.91541],[-74.34644,49.91544],[-74.34604,49.91545],[-74.34507,49.91546],[-74.33899,49.91553],[-74.33487,49.91557],[-74.3292,49.91575],[-74.32549,49.91585],[-74.32268,49.91589],[-74.32091,49.91589],[-74.32017,49.91588],[-74.31932,49.91585],[-74.31656,49.91573],[-74.31578,49.91571],[-74.31511,49.91572],[-74.31245,49.91577],[-74.31211,49.91576],[-74.31169,49.91574],[-74.31125,49.9157],[-74.31078,49.91564],[-74.31061,49.91561],[-74.31037,49.91555],[-74.31011,49.91547],[-74.30964,49.9153],[-74.30902,49.91506],[-74.30869,49.91496],[-74.30817,49.91484],[-74.308,49.91482]]}}
+]}

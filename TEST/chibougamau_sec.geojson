@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"chibougamau_sec",
+"features":[
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37791,49.91522],[-74.37781,49.91538],[-74.37754,49.91568],[-74.37724,49.91589],[-74.37577,49.91659]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37799,49.91359],[-74.37795,49.91435]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37795,49.91435],[-74.37791,49.91522]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37484,49.91703],[-74.37275,49.91801]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37577,49.91659],[-74.37484,49.91703]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37275,49.91801],[-74.37184,49.91845]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.37184,49.91845],[-74.36884,49.91987]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36789,49.92031],[-74.36706,49.92071]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36877,49.9199],[-74.36789,49.92031]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36884,49.91987],[-74.36877,49.9199]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36706,49.92071],[-74.36675,49.92097],[-74.36617,49.92157]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36617,49.92157],[-74.36598,49.9218],[-74.36359,49.92454],[-74.36314,49.92492]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.3615,49.92591],[-74.36022,49.9266]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36314,49.92492],[-74.36305,49.92498],[-74.36219,49.92548],[-74.3615,49.92591]]}},
+{"type":"Feature","properties":{"nom":"Chemin Merrill","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-74.36022,49.9266],[-74.36002,49.92673],[-74.35959,49.92707],[-74.35885,49.9278],[-74.35865,49.92812],[-74.35846,49.92871],[-74.35858,49.92954],[-74.35889,49.93023],[-74.35953,49.93108],[-74.36015,49.93171],[-74.36109,49.93254],[-74.3614,49.93296],[-74.36151,49.93333],[-74.36152,49.93362],[-74.36135,49.93428]]}}
+]}

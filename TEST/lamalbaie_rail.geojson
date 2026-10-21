@@ -1,0 +1,6 @@
+{"type":"FeatureCollection","name":"lamalbaie_rail",
+"features":[
+{"type":"Feature","properties":{"nom":"Subdivision Charlevoix","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-70.14447,47.62024],[-70.14423,47.62043],[-70.14366,47.62104]]}},
+{"type":"Feature","properties":{"nom":"Subdivision Charlevoix","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-70.14366,47.62104],[-70.14329,47.62132],[-70.14279,47.62155],[-70.1425,47.62172],[-70.14224,47.62195],[-70.14134,47.623]]}},
+{"type":"Feature","properties":{"nom":"Subdivision Charlevoix","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-70.14127,47.625],[-70.1419,47.62331],[-70.14216,47.6228],[-70.14247,47.62236],[-70.14325,47.62147],[-70.14366,47.62104]]}}
+]}
