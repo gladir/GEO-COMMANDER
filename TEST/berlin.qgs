@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Berlin (Allemagne)" version="3.34.0-Pascal">
+  <title>Carte de la ville de Berlin (Allemagne)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="QUARTIERS__ORTSTEILE__1" name="Quartiers (Ortsteile)" source="./berlin_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="DISTRICTS_VOISINS_2" name="Districts voisins" source="./berlin_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>1442009</xmin><ymin>6849238</ymin><xmax>1546865</xmax><ymax>6935594</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Polygon">
+      <id>QUARTIERS__ORTSTEILE__1</id>
+      <datasource>./berlin_ville.geojson</datasource>
+      <layername>Quartiers (Ortsteile)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>DISTRICTS_VOISINS_2</id>
+      <datasource>./berlin_voisines.geojson</datasource>
+      <layername>Districts voisins</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

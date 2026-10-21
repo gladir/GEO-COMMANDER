@@ -1,21 +1,71 @@
 Sources des donnees d'exemple (projets .qgs du dossier TEST)
 
 - Natural Earth (naturalearthdata.com), domaine public : pays, regions,
-  villes, lacs et rivieres de monde.qgs, canada.qgs, septiles.qgs, russie.qgs,
-  france.qgs, chine.qgs, bresil.qgs, japon.qgs, etatsunis.qgs, mexique.qgs,
-  royaumeuni.qgs, allemagne.qgs, italie.qgs, espagne.qgs, portugal.qgs,
-  albanie.qgs, salvador.qgs, et les rivieres
-  et lacs de alma.qgs, laval.qgs et paris.qgs. Donnees simplifiees.
+  villes, lacs et rivieres des cartes de pays et de provinces, et rivieres et
+  lacs des cartes de villes. Donnees simplifiees.
 - geoBoundaries (geoboundaries.org), licence CC BY 4.0 : limites des
-  municipalites (alma.qgs, laval.qgs), arrondissements et comtes
-  (londres.qgs, tokyo.qgs, newyork.qgs, mexico.qgs) et comtes voisins
-  (chicago.qgs, losangeles.qgs).
+  municipalites, districts, arrondissements, comtes et regions
+  administratives (cartes de villes du Quebec, Pekin, Rome, Osaka, Kyoto,
+  Londres, Tokyo, New York, Mexico et Berlin (voisins), comtes voisins des
+  villes americaines, regions administratives du Quebec).
 - gregoiredavid/france-geojson (GitHub), Licence Ouverte Etalab : communes
   autour de Paris (paris.qgs).
-- codeforamerica/click_that_hood (GitHub) : arrondissements de Paris et
-  quartiers de Chicago et de Los Angeles (licence non verifiee).
+- codeforamerica/click_that_hood (GitHub) : arrondissements de Paris,
+  quartiers de Chicago, Los Angeles, Dallas et Houston et quartiers de Berlin
+  (licence non verifiee).
 - septiles_lieux.geojson et paris_sites.geojson : positions saisies a la main,
   approximatives.
 
 Les contours sont simplifies pour l'affichage : ils ne conviennent pas a des
 mesures precises.
+
+Liste des projets :
+  albanie.qgs        Carte de l'Albanie
+  allemagne.qgs      Carte de l'Allemagne
+  alma.qgs           Carte de la ville d'Alma (Québec)
+  australie.qgs      Carte de l'Australie
+  berlin.qgs         Carte de la ville de Berlin (Allemagne)
+  bresil.qgs         Carte du Brésil
+  canada.qgs         Carte du Canada
+  chicago.qgs        Carte de la ville de Chicago (États-Unis)
+  chine.qgs          Carte de la Chine
+  coreesud.qgs       Carte de la Corée du Sud
+  cuba.qgs           Carte de Cuba
+  dallas.qgs         Carte de la ville de Dallas (États-Unis)
+  espagne.qgs        Carte de l'Espagne
+  etatsunis.qgs      Carte des États-Unis
+  france.qgs         Carte de la France
+  gaspe.qgs          Carte de la ville de Gaspé (Québec)
+  houston.qgs        Carte de la ville de Houston (États-Unis)
+  irak.qgs           Carte de l'Irak
+  iran.qgs           Carte de l'Iran
+  italie.qgs         Carte de l'Italie
+  japon.qgs          Carte du Japon
+  kyoto.qgs          Carte de la ville de Kyoto (Japon)
+  laval.qgs          Carte de la ville de Laval (Québec)
+  londres.qgs        Carte de la ville de Londres (Royaume-Uni)
+  losangeles.qgs     Carte de la ville de Los Angeles (États-Unis)
+  mexico.qgs         Carte de la ville de Mexico (Mexique)
+  mexique.qgs        Carte du Mexique
+  monde.qgs          Carte du monde
+  newyork.qgs        Carte de la ville de New York (États-Unis)
+  osaka.qgs          Carte de la ville d'Osaka (Japon)
+  panama.qgs         Carte du Panama
+  paris.qgs          Carte de la ville de Paris (France)
+  pekin.qgs          Carte de la ville de Pékin (Chine)
+  perce.qgs          Carte de la ville de Percé (Québec)
+  portugal.qgs       Carte du Portugal
+  quebec.qgs         Carte de la province de Québec
+  rimouski.qgs       Carte de la ville de Rimouski (Québec)
+  rome.qgs           Carte de la ville de Rome (Italie)
+  roumanie.qgs       Carte de la Roumanie
+  royaumeuni.qgs     Carte du Royaume-Uni
+  russie.qgs         Carte de la Russie
+  saguenay.qgs       Carte de la ville de Saguenay (Québec)
+  saintanne.qgs      Carte de la ville de Sainte-Anne-des-Monts (Québec)
+  salvador.qgs       Carte du Salvador
+  septiles.qgs       Carte de Sept-Îles
+  tokyo.qgs          Carte de la ville de Tokyo (Japon)
+  troisrivieres.qgs  Carte de la ville de Trois-Rivières (Québec)
+  vietnam.qgs        Carte du Vietnam
+  villequebec.qgs    Carte de la ville de Québec (Québec)

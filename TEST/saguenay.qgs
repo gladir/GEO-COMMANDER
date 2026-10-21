@@ -1,0 +1,52 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Saguenay (Québec)" version="3.34.0-Pascal">
+  <title>Carte de la ville de Saguenay (Québec)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="LACS_1" name="Lacs" source="./saguenay_lacs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RIVIERES_2" name="Rivieres" source="./saguenay_rivieres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VILLE_3" name="Ville" source="./saguenay_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="MUNICIPALITES_VOISINES_4" name="Municipalites voisines" source="./saguenay_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-8000408</xmin><ymin>6116356</ymin><xmax>-7835388</xmax><ymax>6224018</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Polygon">
+      <id>LACS_1</id>
+      <datasource>./saguenay_lacs.geojson</datasource>
+      <layername>Lacs</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RIVIERES_2</id>
+      <datasource>./saguenay_rivieres.geojson</datasource>
+      <layername>Rivieres</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>VILLE_3</id>
+      <datasource>./saguenay_ville.geojson</datasource>
+      <layername>Ville</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>MUNICIPALITES_VOISINES_4</id>
+      <datasource>./saguenay_voisines.geojson</datasource>
+      <layername>Municipalites voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

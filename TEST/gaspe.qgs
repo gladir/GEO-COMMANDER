@@ -1,0 +1,43 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Gaspé (Québec)" version="3.34.0-Pascal">
+  <title>Carte de la ville de Gaspé (Québec)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="RIVIERES_1" name="Rivieres" source="./gaspe_rivieres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VILLE_2" name="Ville" source="./gaspe_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="MUNICIPALITES_VOISINES_3" name="Municipalites voisines" source="./gaspe_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-7229966</xmin><ymin>6197283</ymin><xmax>-7119365</xmax><ymax>6323751</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Line">
+      <id>RIVIERES_1</id>
+      <datasource>./gaspe_rivieres.geojson</datasource>
+      <layername>Rivieres</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>VILLE_2</id>
+      <datasource>./gaspe_ville.geojson</datasource>
+      <layername>Ville</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>MUNICIPALITES_VOISINES_3</id>
+      <datasource>./gaspe_voisines.geojson</datasource>
+      <layername>Municipalites voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

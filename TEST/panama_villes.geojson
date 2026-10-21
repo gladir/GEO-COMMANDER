@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"panama_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Panama City","region":"Panama","population":1281000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-79.535,8.97]}},
+{"type":"Feature","properties":{"nom":"Colón","region":"Colón","population":204000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.875,9.365]}},
+{"type":"Feature","properties":{"nom":"David","region":"Chiriquí","population":110037,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.433,8.433]}},
+{"type":"Feature","properties":{"nom":"Balboa","region":"Panama","population":62882,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.567,8.95]}},
+{"type":"Feature","properties":{"nom":"Santiago","region":"Veraguas","population":45955,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.983,8.1]}},
+{"type":"Feature","properties":{"nom":"Chitré","region":"Herrera","population":44082,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.42,7.97]}},
+{"type":"Feature","properties":{"nom":"Penonome","region":"Coclé","population":28766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.36,8.51]}},
+{"type":"Feature","properties":{"nom":"Puerto Armuelles","region":"Chiriquí","population":27147,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.87,8.28]}},
+{"type":"Feature","properties":{"nom":"Las Tablas","region":"Los Santos","population":11358,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.28,7.76]}},
+{"type":"Feature","properties":{"nom":"Bocas del Toro","region":"Bocas del Toro","population":9883,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.247,9.335]}},
+{"type":"Feature","properties":{"nom":"Almirante","region":"Bocas del Toro","population":8114,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.4,9.3]}},
+{"type":"Feature","properties":{"nom":"La Palma","region":"Darién","population":1845,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.14,8.398]}},
+{"type":"Feature","properties":{"nom":"Jaqué","region":"Darién","population":1357,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.166,7.519]}},
+{"type":"Feature","properties":{"nom":"El Porvenir","region":"Kuna Yala","population":10,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.972,9.542]}}
+]}
