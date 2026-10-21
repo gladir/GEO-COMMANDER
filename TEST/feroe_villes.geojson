@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"feroe_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tórshavn","region":"Eysturoyar","population":14398,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.82,62.03]}},
+{"type":"Feature","properties":{"nom":"Klaksvík","region":"Eysturoyar","population":4664,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.539,62.237]}}
+]}

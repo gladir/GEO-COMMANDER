@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"fidji_villes","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::4326"}},
+"features":[
+{"type":"Feature","properties":{"nom":"Nandi","population":42284,"capitale":"non"},"geometry":{"type":"Point","coordinates":[177.417,-17.8]}},
+{"type":"Feature","properties":{"nom":"Lautoka","population":55894,"capitale":"non"},"geometry":{"type":"Point","coordinates":[177.467,-17.616]}},
+{"type":"Feature","properties":{"nom":"Labasa","population":24187,"capitale":"non"},"geometry":{"type":"Point","coordinates":[179.383,-16.417]}},
+{"type":"Feature","properties":{"nom":"Suva","population":175399,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[178.442,-18.133]}}
+]}

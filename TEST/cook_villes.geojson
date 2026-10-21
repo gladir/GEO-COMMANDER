@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"cook_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Avarua","region":null,"population":5445,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-159.785,-21.196]}}
+]}

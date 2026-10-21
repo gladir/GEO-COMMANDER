@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"viergesus_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Christiansted","region":null,"population":32543,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.75,17.75]}}
+]}

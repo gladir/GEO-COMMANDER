@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"malouines_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Stanley","region":null,"population":2213,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.85,-51.7]}},
+{"type":"Feature","properties":{"nom":"Fox Bay","region":null,"population":120,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-60.087,-51.951]}}
+]}

@@ -1,0 +1,6 @@
+{"type":"FeatureCollection","name":"salomon_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Honiara","region":"Guadalcanal","population":76328,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[159.95,-9.438]}},
+{"type":"Feature","properties":{"nom":"Gizo","region":"Choiseul","population":6154,"capitale":"non"},"geometry":{"type":"Point","coordinates":[156.835,-8.1]}},
+{"type":"Feature","properties":{"nom":"Lata","region":"Temotu","population":553,"capitale":"non"},"geometry":{"type":"Point","coordinates":[165.857,-10.738]}}
+]}

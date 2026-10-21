@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"maurice_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Port Louis","region":null,"population":595491,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[57.5,-20.167]}},
+{"type":"Feature","properties":{"nom":"Curepipe","region":null,"population":299975,"capitale":"non"},"geometry":{"type":"Point","coordinates":[57.517,-20.316]}}
+]}

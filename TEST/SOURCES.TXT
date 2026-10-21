@@ -72,6 +72,12 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   ne montre que la France metropolitaine (Corse comprise) ; guyane.qgs la
   Guyane francaise ; l'Equateur est cadre sur le continent (sans les
   Galapagos).
+- christmas.qgs et cocos.qgs : contours des territoires et de leur zone
+  maritime d'Overture Maps (derives d'OpenStreetMap, ODbL) ; Natural Earth
+  ne contient pas ces deux iles. fidji.qgs : longitudes de 0 a 360 degres
+  (declarees en EPSG:4326). Les contours des petites iles (Norfolk, Heard,
+  Turques-et-Caiques, Maurice, etc.) sont tres generalises (Natural Earth
+  10 m). Les iles Bouvet : voir bouvet.qgs.
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -154,6 +160,7 @@ Liste des projets :
   bulgarie.qgs             Carte de la Bulgarie
   burkinafaso.qgs          Carte du Burkina Faso
   burundi.qgs              Carte du Burundi
+  caimans.qgs              Carte des îles Caïmans
   californie.qgs           Carte de la Californie
   cambodge.qgs             Carte du Cambodge
   cameroun.qgs             Carte du Cameroun
@@ -167,13 +174,16 @@ Liste des projets :
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chili.qgs                Carte du Chili
   chine.qgs                Carte de la Chine
+  christmas.qgs            Carte de l'île Christmas (Australie)
   chypre.qgs               Carte de Chypre
+  cocos.qgs                Carte des îles Cocos (Keeling) (Australie)
   colombie.qgs             Carte de la Colombie
   colombiebritannique.qgs  Carte de la province de la Colombie-Britannique
   colorado.qgs             Carte de l'État du Colorado
   comores.qgs              Carte des Comores
   congo.qgs                Carte du Congo (République du Congo)
   connecticut.qgs          Carte de l'État du Connecticut
+  cook.qgs                 Carte des îles Cook
   coreenord.qgs            Carte de la Corée du Nord
   coreesud.qgs             Carte de la Corée du Sud
   costarica.qgs            Carte du Costa Rica
@@ -200,6 +210,8 @@ Liste des projets :
   etatsunis_rail.qgs       Les voies ferroviaires des États-Unis
   ethiopie.qgs             Carte de l'Éthiopie
   europe.qgs               Carte de l'Europe
+  feroe.qgs                Carte des îles Féroé
+  fidji.qgs                Carte des îles Fidji
   finlande.qgs             Carte de la Finlande
   fleuve_amazone.qgs       Carte du fleuve Amazone
   fleuve_amour.qgs         Carte du fleuve Amour
@@ -231,12 +243,18 @@ Liste des projets :
   guyane.qgs               Carte de la Guyane française
   haiti.qgs                Carte de Haïti
   hawaii.qgs               Carte de l'État d'Hawaï
+  heardmcdonald.qgs        Carte des îles Heard et McDonald
+  honduras.qgs             Carte du Honduras
+  hongkong.qgs             Carte de Hong Kong
+  hongrie.qgs              Carte de la Hongrie
   houston.qgs              Carte de la ville de Houston (États-Unis) avec ses rues
   idaho.qgs                Carte de l'État de l'Idaho
   ilebizard.qgs            Carte de l'Île Bizard (Montréal)
   ileduprinceedouard.qgs   Carte de la province de l'Île-du-Prince-Édouard
   illinois.qgs             Carte de l'État de l'Illinois
+  inde.qgs                 Carte de l'Inde
   indiana.qgs              Carte de l'État de l'Indiana
+  indonesie.qgs            Carte de l'Indonésie
   iowa.qgs                 Carte de l'État de l'Iowa
   irak.qgs                 Carte de l'Irak
   iran.qgs                 Carte de l'Iran
@@ -260,11 +278,14 @@ Liste des projets :
   losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
   louisiane.qgs            Carte de l'État de la Louisiane
   maine.qgs                Carte de l'État du Maine
+  malouines.qgs            Carte des îles Malouines (Falkland)
   manitoba.qgs             Carte du Manitoba
   maroc.qgs                Carte du Maroc
   marseille.qgs            Carte de la ville de Marseille (France) avec ses rues
+  marshall.qgs             Carte des îles Marshall
   maryland.qgs             Carte de l'État du Maryland
   massachusetts.qgs        Carte de l'État du Massachusetts
+  maurice.qgs              Carte de l'île Maurice
   metro_londres.qgs        Le métro de Londres (London Underground)
   metro_montreal.qgs       Le métro de Montréal (STM)
   metro_moscou.qgs         Le métro de Moscou
@@ -290,6 +311,7 @@ Liste des projets :
   newhampshire.qgs         Carte de l'État du New Hampshire
   newjersey.qgs            Carte de l'État du New Jersey
   newyork.qgs              Carte de la ville de New York (États-Unis) avec ses rues
+  norfolk.qgs              Carte de l'île Norfolk
   nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
   nouveaumexique.qgs       Carte du Nouveau-Mexique
   nouvelleecosse.qgs       Carte de la Nouvelle-Écosse
@@ -326,6 +348,7 @@ Liste des projets :
   saguenay.qgs             Carte de la ville de Saguenay (Québec) avec ses rues
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec) avec ses rues
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
+  salomon.qgs              Carte des îles Salomon
   salvador.qgs             Carte du Salvador
   sandiego.qgs             Carte de la ville de San Diego (Californie) avec ses rues
   sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
@@ -342,10 +365,13 @@ Liste des projets :
   tokyo.qgs                Carte de la ville de Tokyo (Japon) avec ses rues
   toronto.qgs              Carte de la ville de Toronto (Canada) avec ses rues
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec) avec ses rues
+  turquescaiques.qgs       Carte des îles Turques-et-Caïques
   utah.qgs                 Carte de l'État de l'Utah
   vancouver.qgs            Carte de la ville de Vancouver (Canada) avec ses rues
   vatican.qgs              Carte de l'État de la Cité du Vatican
   vermont.qgs              Carte de l'État du Vermont
+  viergesgb.qgs            Carte des îles Vierges britanniques
+  viergesus.qgs            Carte des îles Vierges américaines
   vietnam.qgs              Carte du Vietnam
   villequebec.qgs          Carte de la ville de Québec (Québec)
   virginie.qgs             Carte de l'État de Virginie
