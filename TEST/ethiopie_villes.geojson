@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"ethiopie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Addis Ababa","region":"Addis Ababa","population":3100000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[38.698,9.035]}},
+{"type":"Feature","properties":{"nom":"Nazret","region":"Addis Ababa","population":476892,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.27,8.55]}},
+{"type":"Feature","properties":{"nom":"Dire Dawa","region":"Dire Dawa","population":252279,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.86,9.59]}},
+{"type":"Feature","properties":{"nom":"Bahir Dar","region":"Amhara","population":206748,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.383,11.6]}},
+{"type":"Feature","properties":{"nom":"Dese","region":"Amhara","population":183802,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.63,11.13]}},
+{"type":"Feature","properties":{"nom":"Harar","region":"Addis Ababa","population":174994,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.15,9.32]}},
+{"type":"Feature","properties":{"nom":"Gondar","region":"Amhara","population":156230,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.46,12.61]}},
+{"type":"Feature","properties":{"nom":"Awasa","region":"Southern Nations, Nationalities and Peoples","population":133097,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.477,7.06]}},
+{"type":"Feature","properties":{"nom":"Jima","region":"Addis Ababa","population":128306,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.83,7.68]}},
+{"type":"Feature","properties":{"nom":"Giyon","region":"Addis Ababa","population":114534,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.97,8.53]}},
+{"type":"Feature","properties":{"nom":"Shashemene","region":"Addis Ababa","population":114350,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.59,7.2]}},
+{"type":"Feature","properties":{"nom":"Adigrat","region":"Tigray","population":104021,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.47,14.28]}},
+{"type":"Feature","properties":{"nom":"Mekele","region":"Tigray","population":95856,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.47,13.5]}},
+{"type":"Feature","properties":{"nom":"Hosaina","region":"Southern Nations, Nationalities and Peoples","population":89300,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.85,7.55]}},
+{"type":"Feature","properties":{"nom":"Asela","region":"Addis Ababa","population":82240,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.14,7.95]}},
+{"type":"Feature","properties":{"nom":"Gode","region":"Somali","population":75000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.45,5.95]}},
+{"type":"Feature","properties":{"nom":"Nekemte","region":"Addis Ababa","population":73018,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.53,9.09]}},
+{"type":"Feature","properties":{"nom":"Debre Markos","region":"Amhara","population":70758,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.72,10.34]}},
+{"type":"Feature","properties":{"nom":"Arba Minch","region":"Southern Nations, Nationalities and Peoples","population":69622,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.55,6.04]}},
+{"type":"Feature","properties":{"nom":"Sodo","region":"Southern Nations, Nationalities and Peoples","population":65737,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.75,6.9]}}
+]}

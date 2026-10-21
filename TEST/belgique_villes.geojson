@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"belgique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Brussels","region":"Brussels","population":1743000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[4.331,50.835]}},
+{"type":"Feature","properties":{"nom":"Antwerpen","region":"Antwerp","population":920000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.413,51.222]}},
+{"type":"Feature","properties":{"nom":"Liège","region":"Liege","population":749110,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.58,50.63]}},
+{"type":"Feature","properties":{"nom":"Gent","region":"East Flanders","population":444336,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.7,51.03]}},
+{"type":"Feature","properties":{"nom":"Charleroi","region":"Charleroi","population":345367,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.45,50.42]}},
+{"type":"Feature","properties":{"nom":"Brugge","region":"Brugge","population":146469,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.23,51.22]}},
+{"type":"Feature","properties":{"nom":"Namur","region":"Namur","population":106284,"capitale":"non"},"geometry":{"type":"Point","coordinates":[4.87,50.47]}},
+{"type":"Feature","properties":{"nom":"Mons","region":"Hainaut","population":91277,"capitale":"non"},"geometry":{"type":"Point","coordinates":[3.939,50.446]}},
+{"type":"Feature","properties":{"nom":"Hasselt","region":"Limburg","population":69222,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.339,50.929]}},
+{"type":"Feature","properties":{"nom":"Arlon","region":"Arlon","population":26179,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.817,49.683]}}
+]}

@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"jordanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Amman","region":"Amman","population":1060000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[35.931,31.952]}},
+{"type":"Feature","properties":{"nom":"Az Zarqa","region":"Zarqa","population":894691,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.1,32.07]}},
+{"type":"Feature","properties":{"nom":"Irbid","region":"Irbid","population":650000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.85,32.55]}},
+{"type":"Feature","properties":{"nom":"As Salt","region":"Balqa","population":140689,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.727,32.039]}},
+{"type":"Feature","properties":{"nom":"Al Aqabah","region":"Aqaba","population":95048,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.078,29.527]}},
+{"type":"Feature","properties":{"nom":"Al Karak","region":"Karak","population":80062,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.705,31.185]}},
+{"type":"Feature","properties":{"nom":"Al Mafraq","region":"Mafraq","population":57118,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.233,32.283]}},
+{"type":"Feature","properties":{"nom":"Ma'an","region":"Ma`an","population":50350,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.736,30.192]}},
+{"type":"Feature","properties":{"nom":"At Tafilah","region":"Tafilah","population":25429,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.6,30.833]}}
+]}

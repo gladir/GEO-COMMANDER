@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"nouveaubrunswick_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Moncton","population":90635,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.767,46.083]}},
+{"type":"Feature","properties":{"nom":"Saint John","population":87857,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.077,45.267]}},
+{"type":"Feature","properties":{"nom":"Fredericton","population":52337,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-66.633,45.95]}},
+{"type":"Feature","properties":{"nom":"Edmundston","population":17894,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.333,47.379]}},
+{"type":"Feature","properties":{"nom":"Bathurst","population":6111,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.65,47.6]}}
+]}

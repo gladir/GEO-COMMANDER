@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"lituanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Vilnius","region":"Vilniaus","population":542366,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[25.317,54.683]}},
+{"type":"Feature","properties":{"nom":"Kaunas","region":"Kauno","population":374643,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.88,54.95]}},
+{"type":"Feature","properties":{"nom":"Klaipeda","region":"Klaipedos","population":192307,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.12,55.72]}},
+{"type":"Feature","properties":{"nom":"Siauliai","region":"Siauliai","population":133528,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.325,55.939]}},
+{"type":"Feature","properties":{"nom":"Panevezys","region":"Panevezio","population":127405,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.37,55.74]}}
+]}

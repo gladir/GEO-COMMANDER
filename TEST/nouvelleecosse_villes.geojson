@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"nouvelleecosse_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Halifax","population":359111,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-63.6,44.65]}},
+{"type":"Feature","properties":{"nom":"Sydney","population":37538,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-60.18,46.066]}},
+{"type":"Feature","properties":{"nom":"New Glasgow","population":20322,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-62.633,45.583]}},
+{"type":"Feature","properties":{"nom":"Amherst","population":9336,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.217,45.817]}},
+{"type":"Feature","properties":{"nom":"Yarmouth","population":7500,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.113,43.831]}},
+{"type":"Feature","properties":{"nom":"Antigonish","population":6739,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-61.998,45.627]}},
+{"type":"Feature","properties":{"nom":"Liverpool","population":4331,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.72,44.04]}},
+{"type":"Feature","properties":{"nom":"Digby","population":3949,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.76,44.623]}},
+{"type":"Feature","properties":{"nom":"Windsor","population":3864,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.129,44.981]}},
+{"type":"Feature","properties":{"nom":"Shelburne","population":3167,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.319,43.766]}},
+{"type":"Feature","properties":{"nom":"Baddeck","population":852,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-60.754,46.1]}}
+]}

@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"guadeloupe_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Pointe-à-Pitre","population":145511},"geometry":{"type":"Point","coordinates":[-61.533,16.241]}},
+{"type":"Feature","properties":{"nom":"Basse-terre","population":307},"geometry":{"type":"Point","coordinates":[-61.705,16.01]}}
+]}

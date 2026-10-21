@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Bruxelles (Belgique)" version="3.34.0-Pascal">
+  <title>Carte de la ville de Bruxelles (Belgique)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="COMMUNES_DE_LA_REGION_DE_BRUXELLES-CAPITALE_1" name="Communes de la Region de Bruxelles-Capitale" source="./bruxelles_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COMMUNES_VOISINES_2" name="Communes voisines" source="./bruxelles_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>467223</xmin><ymin>6574675</ymin><xmax>503975</xmax><ymax>6611259</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Polygon">
+      <id>COMMUNES_DE_LA_REGION_DE_BRUXELLES-CAPITALE_1</id>
+      <datasource>./bruxelles_ville.geojson</datasource>
+      <layername>Communes de la Region de Bruxelles-Capitale</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>COMMUNES_VOISINES_2</id>
+      <datasource>./bruxelles_voisines.geojson</datasource>
+      <layername>Communes voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"manitoba_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Winnipeg","population":632063,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-97.166,49.883]}},
+{"type":"Feature","properties":{"nom":"Brandon","population":28418,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-99.95,49.833]}},
+{"type":"Feature","properties":{"nom":"Thompson","population":13727,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.867,55.75]}},
+{"type":"Feature","properties":{"nom":"Selkirk","population":9986,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.883,50.15]}},
+{"type":"Feature","properties":{"nom":"Steinbach","population":9729,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.683,49.517]}},
+{"type":"Feature","properties":{"nom":"Dauphin","population":9077,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.05,51.15]}},
+{"type":"Feature","properties":{"nom":"Flin Flon","population":6393,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.883,54.767]}},
+{"type":"Feature","properties":{"nom":"The Pas","population":6055,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.233,53.817]}},
+{"type":"Feature","properties":{"nom":"Norway House","population":6000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.833,53.967]}},
+{"type":"Feature","properties":{"nom":"Gimli","population":2623,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.0,50.633]}},
+{"type":"Feature","properties":{"nom":"Nelson House","population":2500,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.85,55.8]}},
+{"type":"Feature","properties":{"nom":"Gillam","population":1281,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.7,56.35]}},
+{"type":"Feature","properties":{"nom":"Churchill","population":1000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.166,58.766]}},
+{"type":"Feature","properties":{"nom":"Berens River","population":892,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.033,52.367]}},
+{"type":"Feature","properties":{"nom":"Shamattawa","population":870,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.083,55.85]}},
+{"type":"Feature","properties":{"nom":"Lynn Lake","population":482,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.05,56.85]}},
+{"type":"Feature","properties":{"nom":"Pukatawagan","population":431,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.317,55.733]}},
+{"type":"Feature","properties":{"nom":"Brochet","population":278,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.667,57.883]}},
+{"type":"Feature","properties":{"nom":"Oxford House","population":184,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.267,54.95]}},
+{"type":"Feature","properties":{"nom":"Island Lake","population":10,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.767,53.967]}}
+]}
