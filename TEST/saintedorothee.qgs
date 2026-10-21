@@ -1,43 +1,115 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte du quartier Sainte-Dorothée (Laval, Québec)" version="3.34.0-Pascal">
-  <title>Carte du quartier Sainte-Dorothée (Laval, Québec)</title>
+<qgis projectname="Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
-    <layer-tree-layer id="REPERE_SAINTE-DOROTHEE__APPROXIMATIF__1" name="Repere Sainte-Dorothee (approximatif)" source="./saintedorothee_repere.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="LAVAL_2" name="Laval" source="./saintedorothee_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="MUNICIPALITES_VOISINES_3" name="Municipalites voisines" source="./saintedorothee_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIMITE_DU_QUARTIER_1" name="Limite du quartier" source="./saintedorothee_quartier.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="QUARTIERS_VOISINS_2" name="Quartiers voisins" source="./saintedorothee_voisins.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_3" name="Rues principales" source="./saintedorothee_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_4" name="Rues secondaires" source="./saintedorothee_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_5" name="Rues locales" source="./saintedorothee_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_6" name="Ruelles et voies de service" source="./saintedorothee_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_7" name="Sentiers et pistes cyclables" source="./saintedorothee_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_8" name="Voies ferrees" source="./saintedorothee_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_9" name="Cours d eau" source="./saintedorothee_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_10" name="Parcs et espaces verts" source="./saintedorothee_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_11" name="Plans d eau" source="./saintedorothee_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-8234303</xmin><ymin>5692645</ymin><xmax>-8204246</xmax><ymax>5716479</ymax></extent>
+    <extent><xmin>-8223560</xmin><ymin>5701853</ymin><xmax>-8211315</xmax><ymax>5710594</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
-    <maplayer type="vector" geometry="Point">
-      <id>REPERE_SAINTE-DOROTHEE__APPROXIMATIF__1</id>
-      <datasource>./saintedorothee_repere.geojson</datasource>
-      <layername>Repere Sainte-Dorothee (approximatif)</layername>
+    <maplayer type="vector" geometry="Line">
+      <id>LIMITE_DU_QUARTIER_1</id>
+      <datasource>./saintedorothee_quartier.geojson</datasource>
+      <layername>Limite du quartier</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>QUARTIERS_VOISINS_2</id>
+      <datasource>./saintedorothee_voisins.geojson</datasource>
+      <layername>Quartiers voisins</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_3</id>
+      <datasource>./saintedorothee_major.geojson</datasource>
+      <layername>Rues principales</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
     </maplayer>
-    <maplayer type="vector" geometry="Polygon">
-      <id>LAVAL_2</id>
-      <datasource>./saintedorothee_ville.geojson</datasource>
-      <layername>Laval</layername>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_4</id>
+      <datasource>./saintedorothee_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_5</id>
+      <datasource>./saintedorothee_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_6</id>
+      <datasource>./saintedorothee_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_7</id>
+      <datasource>./saintedorothee_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_8</id>
+      <datasource>./saintedorothee_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_9</id>
+      <datasource>./saintedorothee_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>MUNICIPALITES_VOISINES_3</id>
-      <datasource>./saintedorothee_voisines.geojson</datasource>
-      <layername>Municipalites voisines</layername>
+      <id>PARCS_ET_ESPACES_VERTS_10</id>
+      <datasource>./saintedorothee_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_11</id>
+      <datasource>./saintedorothee_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
     </maplayer>
   </projectlayers>
 </qgis>

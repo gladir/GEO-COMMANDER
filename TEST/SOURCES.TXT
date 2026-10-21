@@ -31,15 +31,15 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
 - fleuve_saintlaurent_trace.geojson : trace du Saint-Laurent dessinee a la
   main a partir de reperes, approximative (Natural Earth n'a pas de ligne
   centrale pour ce fleuve).
-- saintedorothee.qgs : seul un repere approximatif est fourni (aucune limite
-  de quartier disponible). Charlevoix et l'Abitibi sont approximes a partir
+- Charlevoix et l'Abitibi sont approximes a partir
   de listes de municipalites ; la Gaspesie comprend les Iles-de-la-Madeleine
   (region administrative).
 
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau, parcs et limite du quartier
-  de montreal_centreville.qgs, quebec_centreville.qgs et laval_ouest.qgs.
+  de montreal_centreville.qgs, quebec_centreville.qgs, laval_ouest.qgs et
+  saintedorothee.qgs.
   Les trottoirs et passages pietons ne sont pas inclus ; les 'ruelles et voies
   de service' comprennent stationnements et acces. Chaque couche est limitee
   a quelques milliers d'entites ; activer Vue > Etiquettes pour afficher les
@@ -176,7 +176,7 @@ Liste des projets :
   russie.qgs               Carte de la Russie
   saguenay.qgs             Carte de la ville de Saguenay (Québec)
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec)
-  saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec)
+  saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
   salvador.qgs             Carte du Salvador
   sandiego.qgs             Carte de la ville de San Diego (Californie)
   sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
