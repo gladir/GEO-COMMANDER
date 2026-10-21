@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"emirats_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dubai","region":"Dubay","population":1379000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.287,25.215]}},
+{"type":"Feature","properties":{"nom":"Sharjah","region":"Sharjah","population":1103027,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.406,25.371]}},
+{"type":"Feature","properties":{"nom":"Abu Dhabi","region":"Abu Dhabi","population":603492,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[54.367,24.467]}},
+{"type":"Feature","properties":{"nom":"Al Ayn","region":"Abu Dhabi","population":408733,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.74,24.23]}},
+{"type":"Feature","properties":{"nom":"Ras al Khaymah","region":"Ras Al Khaymah","population":160849,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.943,25.792]}},
+{"type":"Feature","properties":{"nom":"Al Fujayrah","region":"Fujayrah","population":94163,"capitale":"non"},"geometry":{"type":"Point","coordinates":[56.337,25.123]}},
+{"type":"Feature","properties":{"nom":"Jabal Ali","region":"Dubay","population":80000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.011,24.976]}},
+{"type":"Feature","properties":{"nom":"Umm al Qaywayn","region":"Umm Al Qaywayn","population":44411,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.553,25.565]}}
+]}

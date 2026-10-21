@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"guineebissau_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bissau","region":"Bissau","population":403339,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-15.598,11.865]}},
+{"type":"Feature","properties":{"nom":"Bafatá","region":"Bafatá","population":29704,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.666,12.167]}},
+{"type":"Feature","properties":{"nom":"Gabú","region":"Gabú","population":14430,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.234,12.28]}},
+{"type":"Feature","properties":{"nom":"Bolama","region":"Bolama","population":10769,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.483,11.583]}},
+{"type":"Feature","properties":{"nom":"Cacheu","region":"Cacheu","population":10490,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.165,12.269]}},
+{"type":"Feature","properties":{"nom":"Catió","region":"Tombali","population":9898,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.254,11.273]}},
+{"type":"Feature","properties":{"nom":"Farim","region":"Oio","population":6792,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.227,12.493]}},
+{"type":"Feature","properties":{"nom":"Fulacunda","region":"Quinara","population":1311,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.195,11.773]}}
+]}

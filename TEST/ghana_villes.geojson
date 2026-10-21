@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"ghana_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Accra","region":"Greater Accra","population":2121000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-0.219,5.552]}},
+{"type":"Feature","properties":{"nom":"Kumasi","region":"Ashanti","population":1646000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.632,6.692]}},
+{"type":"Feature","properties":{"nom":"Tamale","region":"Northern","population":360579,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.84,9.4]}},
+{"type":"Feature","properties":{"nom":"Sekondi","region":"Western","population":286248,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.704,4.943]}},
+{"type":"Feature","properties":{"nom":"Tema","region":"Greater Accra","population":209000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.01,5.64]}},
+{"type":"Feature","properties":{"nom":"Obuasi","region":"Ashanti","population":180117,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.66,6.19]}},
+{"type":"Feature","properties":{"nom":"Koforidua","region":"Eastern","population":156653,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.26,6.09]}},
+{"type":"Feature","properties":{"nom":"Cape Coast","region":"Central","population":143015,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.25,5.11]}},
+{"type":"Feature","properties":{"nom":"Ho","region":"Volta","population":93044,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.47,6.6]}},
+{"type":"Feature","properties":{"nom":"Bolgatanga","region":"Upper East","population":82177,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.85,10.79]}},
+{"type":"Feature","properties":{"nom":"Wa","region":"Upper West","population":78107,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.5,10.06]}},
+{"type":"Feature","properties":{"nom":"Bawku","region":"Upper East","population":73594,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.24,11.06]}},
+{"type":"Feature","properties":{"nom":"Sunyani","region":"Brong Ahafo","population":70299,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.336,7.336]}},
+{"type":"Feature","properties":{"nom":"Nkawkaw","region":"Eastern","population":62667,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.78,6.55]}},
+{"type":"Feature","properties":{"nom":"Berekum","region":"Brong Ahafo","population":46287,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.59,7.45]}}
+]}

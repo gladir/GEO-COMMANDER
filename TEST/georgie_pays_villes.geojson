@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"georgie_pays_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tbilisi","region":"Tbilisi","population":1100000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[44.789,41.727]}},
+{"type":"Feature","properties":{"nom":"Kutaisi","region":"Imereti","population":183945,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.73,42.25]}},
+{"type":"Feature","properties":{"nom":"Rustavi","region":"Kvemo Kartli","population":157063,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.05,41.57]}},
+{"type":"Feature","properties":{"nom":"Batumi","region":"Ajaria","population":155542,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.63,41.6]}},
+{"type":"Feature","properties":{"nom":"Sukhumi","region":"Abkhazia","population":81546,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.02,43.02]}},
+{"type":"Feature","properties":{"nom":"Poti","region":"Samegrelo-Zemo Svaneti","population":47149,"capitale":"non"},"geometry":{"type":"Point","coordinates":[41.672,42.156]}},
+{"type":"Feature","properties":{"nom":"Tskhinvali","region":"Shida Kartli","population":38502,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.975,42.232]}}
+]}

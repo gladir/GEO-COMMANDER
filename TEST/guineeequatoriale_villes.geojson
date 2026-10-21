@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"guineeequatoriale_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bata","region":"Litoral","population":173046,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.77,1.87]}},
+{"type":"Feature","properties":{"nom":"Malabo","region":"Bioko Norte","population":155963,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[8.783,3.75]}},
+{"type":"Feature","properties":{"nom":"Luba","region":"Bioko Sur","population":8655,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.55,3.45]}},
+{"type":"Feature","properties":{"nom":"Evinayong","region":"Centro Sur","population":8462,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.567,1.45]}},
+{"type":"Feature","properties":{"nom":"Mongomo","region":"Wele-Nzás","population":6560,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.317,1.634]}},
+{"type":"Feature","properties":{"nom":"Calatrava","region":"Litoral","population":628,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.419,1.116]}}
+]}

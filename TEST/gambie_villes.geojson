@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"gambie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Brikama","region":"Banjul","population":195136,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.66,13.28]}},
+{"type":"Feature","properties":{"nom":"Banjul","region":"Banjul","population":43094,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-16.592,13.454]}},
+{"type":"Feature","properties":{"nom":"Mansa Konko","region":"Lower River","population":18672,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.543,13.455]}},
+{"type":"Feature","properties":{"nom":"Basse Santa Su","region":"Upper River","population":14380,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.223,13.31]}},
+{"type":"Feature","properties":{"nom":"Bansang","region":"Maccarthy Island","population":7615,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.65,13.434]}},
+{"type":"Feature","properties":{"nom":"Georgetown","region":"Maccarthy Island","population":3584,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.767,13.551]}},
+{"type":"Feature","properties":{"nom":"Kerewan","region":"Lower River","population":2751,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.095,13.494]}}
+]}

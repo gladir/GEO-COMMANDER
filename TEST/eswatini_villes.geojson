@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"eswatini_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Manzini","region":"Manzini","population":110537,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.388,-26.495]}},
+{"type":"Feature","properties":{"nom":"Mbabane","region":"Hhohho","population":90138,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[31.133,-26.317]}},
+{"type":"Feature","properties":{"nom":"Lobamba","region":"Manzini","population":9782,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[31.2,-26.467]}},
+{"type":"Feature","properties":{"nom":"Siteki","region":"Lubombo","population":6152,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.952,-26.455]}},
+{"type":"Feature","properties":{"nom":"Piggs Peak","region":"Hhohho","population":5750,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.247,-25.961]}},
+{"type":"Feature","properties":{"nom":"Golela","region":"Shiselweni","population":3695,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.9,-27.296]}},
+{"type":"Feature","properties":{"nom":"Hlatikulu","region":"Shiselweni","population":2748,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.31,-26.961]}}
+]}

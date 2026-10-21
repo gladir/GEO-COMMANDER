@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"groenland_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nuuk","region":"Kommuneqarfik Sermersooq","population":14798,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-51.733,64.198]}},
+{"type":"Feature","properties":{"nom":"Sisimiut","region":"Qeqqata Kommunia","population":5227,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-53.667,66.95]}},
+{"type":"Feature","properties":{"nom":"Ilulissat","region":"Qaasuitsup Kommunia","population":4413,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-51.1,69.217]}},
+{"type":"Feature","properties":{"nom":"Qaqortoq","region":"Kommune Kujalleq","population":3224,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-46.036,60.729]}},
+{"type":"Feature","properties":{"nom":"Paamiut","region":"Kommuneqarfik Sermersooq","population":1862,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-49.635,62.004]}},
+{"type":"Feature","properties":{"nom":"Tasiilaq","region":null,"population":1829,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-37.634,65.602]}},
+{"type":"Feature","properties":{"nom":"Qasigiannguit","region":"Qaasuitsup Kommunia","population":1341,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-51.179,68.819]}},
+{"type":"Feature","properties":{"nom":"Uummannaq","region":null,"population":1299,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-52.123,70.675]}},
+{"type":"Feature","properties":{"nom":"Upernavik","region":"Qaasuitsup Kommunia","population":1129,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.142,72.709]}},
+{"type":"Feature","properties":{"nom":"Qaanaaq","region":"Qaasuitsup Kommunia","population":616,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-69.23,77.467]}},
+{"type":"Feature","properties":{"nom":"Kangerlussuaq","region":"Qeqqata Kommunia","population":556,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-50.71,67.014]}},
+{"type":"Feature","properties":{"nom":"Ittoqqortoormiit","region":"Kommuneqarfik Sermersooq","population":469,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-21.967,70.483]}},
+{"type":"Feature","properties":{"nom":"Kullorsuaq","region":null,"population":450,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.225,74.578]}},
+{"type":"Feature","properties":{"nom":"Kulusuk","region":"Kommuneqarfik Sermersooq","population":286,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-37.183,65.567]}},
+{"type":"Feature","properties":{"nom":"Tasiusaq","region":null,"population":250,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.06,73.369]}}
+]}

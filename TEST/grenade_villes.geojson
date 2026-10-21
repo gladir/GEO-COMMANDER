@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"grenade_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Saint George's","region":null,"population":33734,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-61.742,12.053]}}
+]}

@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"guyane_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Cayenne","region":"Guinaa","population":61550,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-52.33,4.933]}},
+{"type":"Feature","properties":{"nom":"Saint-Laurent-du-Maroni","region":"Guinaa","population":24287,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.033,5.498]}},
+{"type":"Feature","properties":{"nom":"Kourou","region":"Guinaa","population":24029,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-52.65,5.16]}},
+{"type":"Feature","properties":{"nom":"Sinnamary","region":"Guinaa","population":3180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-52.96,5.38]}},
+{"type":"Feature","properties":{"nom":"Saint-Georges","region":"Amapá","population":2742,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-51.81,3.91]}},
+{"type":"Feature","properties":{"nom":"Roura","region":"Guinaa","population":2229,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-52.33,4.73]}},
+{"type":"Feature","properties":{"nom":"Iracoubo","region":"Guinaa","population":1536,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-53.22,5.48]}}
+]}

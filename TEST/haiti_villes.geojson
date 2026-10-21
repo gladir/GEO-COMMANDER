@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"haiti_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Port-au-Prince","region":"Ouest","population":1998000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-72.338,18.543]}},
+{"type":"Feature","properties":{"nom":"Cap-Haïtien","region":"Nord","population":281487,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.213,19.759]}},
+{"type":"Feature","properties":{"nom":"Les Cayes","region":"Sud","population":175457,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.75,18.2]}},
+{"type":"Feature","properties":{"nom":"Gonaïves","region":"L'Artibonite","population":166678,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.683,19.45]}},
+{"type":"Feature","properties":{"nom":"Port-De-Paix","region":"Nord-Ouest","population":34657,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.829,19.932]}},
+{"type":"Feature","properties":{"nom":"Jacmel","region":"Sud-Est","population":33563,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.537,18.235]}},
+{"type":"Feature","properties":{"nom":"Jérémie","region":"Grand'Anse","population":30917,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.118,18.634]}},
+{"type":"Feature","properties":{"nom":"Hinche","region":"Centre","population":18590,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.004,19.143]}},
+{"type":"Feature","properties":{"nom":"Fort-Liberté","region":"Nord-Est","population":11465,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.845,19.666]}}
+]}

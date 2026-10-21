@@ -65,6 +65,13 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   0 a 360 degres (declarees en EPSG:4326). bouvet.qgs : ile Bouvet
   (Natural Earth, contour tres generalise). chypre.qgs : la partie nord de
   l'ile est affichee en gris comme territoire voisin.
+- vatican.qgs et gibraltar.qgs : le contour vient d'Overture Maps (division
+  administrative derivee d'OpenStreetMap, ODbL) ; les pays voisins viennent de
+  Natural Earth, dont la position est decalee de plusieurs centaines de metres
+  a cette echelle (le trace du Gibraltar est approximatif). france_metro.qgs
+  ne montre que la France metropolitaine (Corse comprise) ; guyane.qgs la
+  Guyane francaise ; l'Equateur est cadre sur le continent (sans les
+  Galapagos).
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -181,25 +188,48 @@ Liste des projets :
   djibouti.qgs             Carte de Djibouti
   dominique.qgs            Carte de la Dominique
   egypte.qgs               Carte de l'Égypte
+  emirats.qgs              Carte des Émirats arabes unis
+  equateur.qgs             Carte de l'Équateur
+  erythree.qgs             Carte de l'Érythrée
   espagne.qgs              Carte de l'Espagne
+  estonie.qgs              Carte de l'Estonie
+  eswatini.qgs             Carte d'Eswatini
   etat_newyork.qgs         Carte de l'État de New York
   etatsunis.qgs            Carte des États-Unis
   etatsunis_mines.qgs      Carte des mines des États-Unis (sélection)
   etatsunis_rail.qgs       Les voies ferroviaires des États-Unis
   ethiopie.qgs             Carte de l'Éthiopie
   europe.qgs               Carte de l'Europe
+  finlande.qgs             Carte de la Finlande
   fleuve_amazone.qgs       Carte du fleuve Amazone
   fleuve_amour.qgs         Carte du fleuve Amour
   fleuve_saintlaurent.qgs  Carte du fleuve Saint-Laurent
   floride.qgs              Carte de la Floride
   fortworth.qgs            Carte de la ville de Fort Worth (Texas) avec ses rues
   france.qgs               Carte de la France
+  france_metro.qgs         Carte de la France métropolitaine
+  gabon.qgs                Carte du Gabon
+  gambie.qgs               Carte de la Gambie
   gaspe.qgs                Carte de la ville de Gaspé (Québec) avec ses rues
   gaspesie.qgs             Carte de la Gaspésie (et Îles-de-la-Madeleine)
   gatineau.qgs             Carte de la ville de Gatineau (Québec) avec ses rues
   georgie.qgs              Carte de l'État de Géorgie
+  georgie_pays.qgs         Carte de la Géorgie (pays)
+  georgiedusud.qgs         Carte de la Géorgie du Sud et des îles Sandwich du Sud
+  ghana.qgs                Carte du Ghana
+  gibraltar.qgs            Carte de Gibraltar
   grece.qgs                Carte de la Grèce
+  grenade.qgs              Carte de la Grenade
+  groenland.qgs            Carte du Groenland
   guadeloupe.qgs           Carte de la Guadeloupe
+  guam.qgs                 Carte de Guam
+  guatemala.qgs            Carte du Guatemala
+  guinee.qgs               Carte de la Guinée
+  guineebissau.qgs         Carte de la Guinée-Bissau
+  guineeequatoriale.qgs    Carte de la Guinée équatoriale
+  guyana.qgs               Carte du Guyana
+  guyane.qgs               Carte de la Guyane française
+  haiti.qgs                Carte de Haïti
   hawaii.qgs               Carte de l'État d'Hawaï
   houston.qgs              Carte de la ville de Houston (États-Unis) avec ses rues
   idaho.qgs                Carte de l'État de l'Idaho
@@ -314,6 +344,7 @@ Liste des projets :
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec) avec ses rues
   utah.qgs                 Carte de l'État de l'Utah
   vancouver.qgs            Carte de la ville de Vancouver (Canada) avec ses rues
+  vatican.qgs              Carte de l'État de la Cité du Vatican
   vermont.qgs              Carte de l'État du Vermont
   vietnam.qgs              Carte du Vietnam
   villequebec.qgs          Carte de la ville de Québec (Québec)

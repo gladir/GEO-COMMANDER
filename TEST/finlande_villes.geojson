@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"finlande_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Helsinki","region":"Southern Finland","population":1115000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[24.932,60.164]}},
+{"type":"Feature","properties":{"nom":"Tampere","region":"Pirkanmaa","population":259279,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.75,61.5]}},
+{"type":"Feature","properties":{"nom":"Turku","region":"Finland Proper","population":175945,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.255,60.454]}},
+{"type":"Feature","properties":{"nom":"Oulu","region":"Northern Ostrobothnia","population":136752,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.47,65.0]}},
+{"type":"Feature","properties":{"nom":"Lahti","region":"Päijänne Tavastia","population":98826,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.665,60.994]}},
+{"type":"Feature","properties":{"nom":"Jyväskylä","region":"Central Finland","population":98136,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.75,62.26]}},
+{"type":"Feature","properties":{"nom":"Kuopio","region":"Eastern Finland","population":91900,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.695,62.894]}},
+{"type":"Feature","properties":{"nom":"Pori","region":"Satakunta","population":76772,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.775,61.479]}},
+{"type":"Feature","properties":{"nom":"Lappeenranta","region":"South Karelia","population":59276,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.183,61.067]}},
+{"type":"Feature","properties":{"nom":"Vaasa","region":"Western Finland","population":57014,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.6,63.1]}},
+{"type":"Feature","properties":{"nom":"Joensuu","region":"North Karelia","population":53388,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.767,62.6]}},
+{"type":"Feature","properties":{"nom":"Hämeenlinna","region":"Tavastia Proper","population":47261,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.472,60.997]}},
+{"type":"Feature","properties":{"nom":"Kokkola","region":"Western Finland","population":46714,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.117,63.833]}},
+{"type":"Feature","properties":{"nom":"Mikkeli","region":"Southern Savonia","population":46550,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.285,61.69]}},
+{"type":"Feature","properties":{"nom":"Rovaniemi","region":"Lapland","population":34781,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.716,66.5]}}
+]}

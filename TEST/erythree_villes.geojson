@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"erythree_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Asmara","region":"Anseba","population":620802,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[38.933,15.333]}},
+{"type":"Feature","properties":{"nom":"Mendefera","region":"Maekel","population":257390,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.816,14.886]}},
+{"type":"Feature","properties":{"nom":"Keren","region":"Semenawi Keyih Bahri","population":150000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.454,15.781]}},
+{"type":"Feature","properties":{"nom":"Massawa","region":"Debub","population":142564,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.45,15.61]}},
+{"type":"Feature","properties":{"nom":"Assab","region":"Debubawi Keyih Bahri","population":105496,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.73,13.01]}},
+{"type":"Feature","properties":{"nom":"Agordat","region":"Gash Barka","population":28600,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.887,15.549]}},
+{"type":"Feature","properties":{"nom":"Tessenei","region":"Gash Barka","population":15255,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.657,15.11]}}
+]}
