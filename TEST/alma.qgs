@@ -1,52 +1,115 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte de la ville d'Alma (Québec)" version="3.34.0-Pascal">
-  <title>Carte de la ville d'Alma (Québec)</title>
+<qgis projectname="Carte de la ville d'Alma (Québec) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de la ville d'Alma (Québec) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
-    <layer-tree-layer id="LACS_1" name="Lacs" source="./alma_lacs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="RIVIERES_2" name="Rivieres" source="./alma_rivieres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="VILLE_3" name="Ville" source="./alma_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="MUNICIPALITES_VOISINES_4" name="Municipalites voisines" source="./alma_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIMITE_DU_QUARTIER_1" name="Limite du quartier" source="./alma_quartier.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="MUNICIPALITES_VOISINES_2" name="Municipalites voisines" source="./alma_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_3" name="Rues principales" source="./alma_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_4" name="Rues secondaires" source="./alma_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_5" name="Rues locales" source="./alma_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_6" name="Ruelles et voies de service" source="./alma_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_7" name="Sentiers et pistes cyclables" source="./alma_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_8" name="Voies ferrees" source="./alma_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_9" name="Cours d eau" source="./alma_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_10" name="Parcs et espaces verts" source="./alma_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_11" name="Plans d eau" source="./alma_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-8004500</xmin><ymin>6177072</ymin><xmax>-7952366</xmax><ymax>6234001</ymax></extent>
+    <extent><xmin>-7986060</xmin><ymin>6192544</ymin><xmax>-7968249</xmax><ymax>6205156</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
-    <maplayer type="vector" geometry="Polygon">
-      <id>LACS_1</id>
-      <datasource>./alma_lacs.geojson</datasource>
-      <layername>Lacs</layername>
+    <maplayer type="vector" geometry="Line">
+      <id>LIMITE_DU_QUARTIER_1</id>
+      <datasource>./alma_quartier.geojson</datasource>
+      <layername>Limite du quartier</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Line">
-      <id>RIVIERES_2</id>
-      <datasource>./alma_rivieres.geojson</datasource>
-      <layername>Rivieres</layername>
+      <id>MUNICIPALITES_VOISINES_2</id>
+      <datasource>./alma_voisines.geojson</datasource>
+      <layername>Municipalites voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_3</id>
+      <datasource>./alma_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_4</id>
+      <datasource>./alma_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_5</id>
+      <datasource>./alma_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_6</id>
+      <datasource>./alma_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_7</id>
+      <datasource>./alma_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_8</id>
+      <datasource>./alma_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_9</id>
+      <datasource>./alma_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>VILLE_3</id>
-      <datasource>./alma_ville.geojson</datasource>
-      <layername>Ville</layername>
-      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
-      <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
-    </maplayer>
-    <maplayer type="vector" geometry="Polygon">
-      <id>MUNICIPALITES_VOISINES_4</id>
-      <datasource>./alma_voisines.geojson</datasource>
-      <layername>Municipalites voisines</layername>
+      <id>PARCS_ET_ESPACES_VERTS_10</id>
+      <datasource>./alma_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_11</id>
+      <datasource>./alma_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
     </maplayer>
   </projectlayers>
 </qgis>

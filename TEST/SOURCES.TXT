@@ -38,8 +38,8 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau, parcs et limite du quartier
-  de montreal_centreville.qgs, quebec_centreville.qgs, laval_ouest.qgs et
-  saintedorothee.qgs.
+  de montreal_centreville.qgs, quebec_centreville.qgs, laval_ouest.qgs,
+  saintedorothee.qgs et alma.qgs (limites municipales : geoBoundaries).
   Les trottoirs et passages pietons ne sont pas inclus ; les 'ruelles et voies
   de service' comprennent stationnements et acces. Chaque couche est limitee
   a quelques milliers d'entites ; activer Vue > Etiquettes pour afficher les
@@ -58,7 +58,7 @@ Liste des projets :
   alberta.qgs              Carte de la province de l'Alberta
   algerie.qgs              Carte de l'Algérie
   allemagne.qgs            Carte de l'Allemagne
-  alma.qgs                 Carte de la ville d'Alma (Québec)
+  alma.qgs                 Carte de la ville d'Alma (Québec) avec ses rues
   amerique_centrale.qgs    Carte de l'Amérique centrale
   amerique_nord.qgs        Carte de l'Amérique du Nord
   amerique_sud.qgs         Carte de l'Amérique du Sud
