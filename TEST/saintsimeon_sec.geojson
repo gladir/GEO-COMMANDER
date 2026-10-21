@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"saintsimeon_sec",
+"features":[
+{"type":"Feature","properties":{"nom":"","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.87446,47.84106],[-69.87455,47.84096],[-69.87472,47.84083]]}},
+{"type":"Feature","properties":{"nom":"","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.87472,47.84083],[-69.87385,47.84043]]}},
+{"type":"Feature","properties":{"nom":"","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.87446,47.84106],[-69.87437,47.84114],[-69.87428,47.84132],[-69.87425,47.84139],[-69.87427,47.84146],[-69.87435,47.84152],[-69.87447,47.84154],[-69.87458,47.84152],[-69.87463,47.84147],[-69.87463,47.84139],[-69.87458,47.84124]]}},
+{"type":"Feature","properties":{"nom":"","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.87458,47.84124],[-69.87446,47.84106]]}},
+{"type":"Feature","properties":{"nom":"Rue du Festival","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.87788,47.84448],[-69.87739,47.84409],[-69.87725,47.84393],[-69.87685,47.84341],[-69.87585,47.84204],[-69.87528,47.84126],[-69.87517,47.84113],[-69.87509,47.84105],[-69.87497,47.84097],[-69.87472,47.84083]]}},
+{"type":"Feature","properties":{"nom":"Chemin de Port-au-Persil","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.89398,47.8196],[-69.89436,47.81887],[-69.89456,47.81836],[-69.89491,47.81619]]}},
+{"type":"Feature","properties":{"nom":"Chemin de Port-au-Persil","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.88974,47.82529],[-69.88977,47.82505],[-69.88983,47.82487],[-69.89026,47.824],[-69.89055,47.82361],[-69.89227,47.82202],[-69.89276,47.8215],[-69.89341,47.82059],[-69.89398,47.8196]]}},
+{"type":"Feature","properties":{"nom":"Chemin de Port-au-Persil","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.89516,47.81421],[-69.89521,47.81387],[-69.89534,47.81329],[-69.8956,47.81261],[-69.89607,47.81191],[-69.89688,47.81086]]}},
+{"type":"Feature","properties":{"nom":"Chemin de Port-au-Persil","type":"tertiary"},"geometry":{"type":"LineString","coordinates":[[-69.89491,47.81619],[-69.89516,47.81421]]}}
+]}

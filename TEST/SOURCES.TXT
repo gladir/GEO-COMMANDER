@@ -109,6 +109,10 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   bagdad et atlanta (et moscou, chibougamau, saintfelicien,
   labrecque, jonquiere, lamalbaie et baiesaintpaul ; limites municipales
   geoBoundaries ; jonquiere.qgs montre le contour de Saguenay).
+  Autres villes du Quebec avec leurs rues (limites geoBoundaries) : baiecomeau,
+  portcartier, tadoussac, troispistoles, riviereduloup, saintsimeon, matane,
+  amqui, levis, granby, drummondville, saintjerome, sainteustache, boisbriand,
+  terrebonne, mirabel, longueuil, boucherville, brossard et chambly.
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -137,6 +141,7 @@ Liste des projets :
   amerique_centrale.qgs    Carte de l'Amérique centrale
   amerique_nord.qgs        Carte de l'Amérique du Nord
   amerique_sud.qgs         Carte de l'Amérique du Sud
+  amqui.qgs                Carte de la ville d'Amqui (Québec) avec ses rues
   andorre.qgs              Carte de l'Andorre
   angola.qgs               Carte de l'Angola
   anguilla.qgs             Carte de l'Anguilla
@@ -157,10 +162,12 @@ Liste des projets :
   bagdad.qgs               Carte de la ville de Bagdad (Irak) avec ses rues
   bahamas.qgs              Carte des Bahamas
   bahrein.qgs              Carte du Bahreïn
+  baiecomeau.qgs           Carte de la ville de Baie-Comeau (Québec) avec ses rues
   baiesaintpaul.qgs        Carte de la ville de Baie-Saint-Paul (Québec) avec ses rues
   bangladesh.qgs           Carte du Bangladesh
   barbade.qgs              Carte de la Barbade
   barcelone.qgs            Carte de la ville de Barcelone (Espagne) avec ses rues
+  beauharnois.qgs          Carte de Beauharnois (Québec)
   belgique.qgs             Carte de la Belgique
   belize.qgs               Carte de Belize
   benin.qgs                Carte du Bénin
@@ -170,12 +177,15 @@ Liste des projets :
   bielorussie.qgs          Carte de la Biélorussie
   biot.qgs                 Carte du Territoire britannique de l'océan Indien (Chagos)
   blainville.qgs           Carte de la ville de Blainville (Québec) avec ses rues
+  boisbriand.qgs           Carte de la ville de Boisbriand (Québec) avec ses rues
   bolivie.qgs              Carte de la Bolivie
   bosnie.qgs               Carte de la Bosnie-Herzégovine
   boston.qgs               Carte de la ville de Boston (États-Unis)
   botswana.qgs             Carte du Botswana
+  boucherville.qgs         Carte de Boucherville (Québec) avec ses rues
   bouvet.qgs               Carte de l'île Bouvet
   bresil.qgs               Carte du Brésil
+  brossard.qgs             Carte de Brossard (Québec) avec ses rues
   brunei.qgs               Carte de Brunei
   bruxelles.qgs            Carte de la ville de Bruxelles (Belgique) avec ses rues
   bulgarie.qgs             Carte de la Bulgarie
@@ -192,7 +202,9 @@ Liste des projets :
   carolinedunord.qgs       Carte de l'État de la Caroline du Nord
   carolinedusud.qgs        Carte de l'État de la Caroline du Sud
   centrafrique.qgs         Carte de la République centrafricaine
+  chambly.qgs              Carte de Chambly (Québec) avec ses rues
   charlevoix.qgs           Carte de Charlevoix
+  chateauguay.qgs          Carte de Châteauguay (Québec)
   chibougamau.qgs          Carte de la ville de Chibougamau (Québec) avec ses rues
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chili.qgs                Carte du Chili
@@ -220,6 +232,7 @@ Liste des projets :
   delaware.qgs             Carte de l'État du Delaware
   djibouti.qgs             Carte de Djibouti
   dominique.qgs            Carte de la Dominique
+  drummondville.qgs        Carte de Drummondville (Québec) avec ses rues
   egypte.qgs               Carte de l'Égypte
   emirats.qgs              Carte des Émirats arabes unis
   equateur.qgs             Carte de l'Équateur
@@ -253,6 +266,7 @@ Liste des projets :
   georgiedusud.qgs         Carte de la Géorgie du Sud et des îles Sandwich du Sud
   ghana.qgs                Carte du Ghana
   gibraltar.qgs            Carte de Gibraltar
+  granby.qgs               Carte de Granby (Québec) avec ses rues
   grece.qgs                Carte de la Grèce
   grenade.qgs              Carte de la Grenade
   groenland.qgs            Carte du Groenland
@@ -310,12 +324,14 @@ Liste des projets :
   lecaire.qgs              Carte de la ville du Caire (Égypte)
   lesotho.qgs              Carte du Lesotho
   lettonie.qgs             Carte de la Lettonie
+  levis.qgs                Carte de Lévis (Québec) avec ses rues
   liban.qgs                Carte du Liban
   liberia.qgs              Carte du Libéria
   libye.qgs                Carte de la Libye
   liechtenstein.qgs        Carte du Liechtenstein
   lituanie.qgs             Carte de la Lituanie
   londres.qgs              Carte de la ville de Londres (Royaume-Uni) avec ses rues
+  longueuil.qgs            Carte de Longueuil (Québec) avec ses rues
   losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
   louisiane.qgs            Carte de l'État de la Louisiane
   luxembourg.qgs           Carte du Luxembourg
@@ -336,7 +352,9 @@ Liste des projets :
   marshall.qgs             Carte des îles Marshall
   martinique.qgs           Carte de la Martinique
   maryland.qgs             Carte de l'État du Maryland
+  mascouche.qgs            Carte de Mascouche (Québec)
   massachusetts.qgs        Carte de l'État du Massachusetts
+  matane.qgs               Carte de la ville de Matane (Québec) avec ses rues
   maurice.qgs              Carte de l'île Maurice
   mauritanie.qgs           Carte de la Mauritanie
   mayotte.qgs              Carte de Mayotte
@@ -351,6 +369,7 @@ Liste des projets :
   michigan.qgs             Carte de l'État du Michigan
   micronesie.qgs           Carte de la Micronésie
   minnesota.qgs            Carte de l'État du Minnesota
+  mirabel.qgs              Carte de Mirabel (Québec) avec ses rues
   mississippi.qgs          Carte de l'État du Mississippi
   missouri.qgs             Carte de l'État du Missouri
   moldavie.qgs             Carte de la Moldavie
@@ -360,6 +379,7 @@ Liste des projets :
   montana.qgs              Carte de l'État du Montana
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
+  montsainthilaire.qgs     Carte de Mont-Saint-Hilaire (Québec)
   montserrat.qgs           Carte de Montserrat
   moscou.qgs               Carte de la ville de Moscou (Russie) avec ses rues
   mozambique.qgs           Carte du Mozambique
@@ -417,6 +437,7 @@ Liste des projets :
   pitcairn.qgs             Carte de Pitcairn
   pologne.qgs              Carte de la Pologne
   polynesiefr.qgs          Carte de la Polynésie française
+  portcartier.qgs          Carte de la ville de Port-Cartier (Québec) avec ses rues
   portorico.qgs            Carte de Porto Rico
   portugal.qgs             Carte du Portugal
   qatar.qgs                Carte du Qatar
@@ -426,9 +447,11 @@ Liste des projets :
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
   rdominicaine.qgs         Carte de la République dominicaine
+  repentigny.qgs           Carte de Repentigny (Québec)
   reunion.qgs              Carte de la Réunion
   rhodeisland.qgs          Carte de l'État de Rhode Island
   rimouski.qgs             Carte de la ville de Rimouski (Québec) avec ses rues
+  riviereduloup.qgs        Carte de la ville de Rivière-du-Loup (Québec) avec ses rues
   rome.qgs                 Carte de la ville de Rome (Italie) avec ses rues
   roumanie.qgs             Carte de la Roumanie
   royaumeuni.qgs           Carte du Royaume-Uni
@@ -436,14 +459,20 @@ Liste des projets :
   rwanda.qgs               Carte du Rwanda
   saguenay.qgs             Carte de la ville de Saguenay (Québec) avec ses rues
   saharaoccidental.qgs     Carte du Sahara occidental
+  saintadele.qgs           Carte de Sainte-Adèle (Québec)
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec) avec ses rues
   saintchristophe.qgs      Carte de Saint-Christophe-et-Niévès
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
   saintehelene.qgs         Carte de Sainte-Hélène (île)
   saintelucie.qgs          Carte de Sainte-Lucie
+  sainteustache.qgs        Carte de la ville de Saint-Eustache (Québec) avec ses rues
   saintfelicien.qgs        Carte de la ville de Saint-Félicien (Québec) avec ses rues
+  saintjeansurrichelieu.qgs Carte de Saint-Jean-sur-Richelieu (Québec)
+  saintjerome.qgs          Carte de Saint-Jérôme (Québec) avec ses rues
   saintmarin.qgs           Carte de Saint-Marin
   saintpierre.qgs          Carte de Saint-Pierre-et-Miquelon
+  saintsauveur.qgs         Carte de Saint-Sauveur (Québec)
+  saintsimeon.qgs          Carte de Saint-Siméon (Québec) avec ses rues
   saintvincent.qgs         Carte de Saint-Vincent-et-les-Grenadines
   salomon.qgs              Carte des îles Salomon
   salvador.qgs             Carte du Salvador
@@ -474,12 +503,13 @@ Liste des projets :
   syrie.qgs                Carte de la Syrie (République arabe syrienne)
   taaf.qgs                 Carte des Terres australes et antarctiques françaises
   tadjikistan.qgs          Carte du Tadjikistan
+  tadoussac.qgs            Carte de Tadoussac (Québec) avec ses rues
   taiwan.qgs               Carte de Taïwan
   tanzanie.qgs             Carte de la Tanzanie
   tchad.qgs                Carte du Tchad
   tchequie.qgs             Carte de la République tchèque
   tennessee.qgs            Carte de l'État du Tennessee
-  terrebonne.qgs           Carte de la ville de Terrebonne (Québec)
+  terrebonne.qgs           Carte de Terrebonne (Québec) avec ses rues
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
   thailande.qgs            Carte de la Thaïlande
@@ -489,6 +519,7 @@ Liste des projets :
   tonga.qgs                Carte des Tonga
   toronto.qgs              Carte de la ville de Toronto (Canada) avec ses rues
   trinite.qgs              Carte de Trinité-et-Tobago
+  troispistoles.qgs        Carte de Trois-Pistoles (Québec) avec ses rues
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec) avec ses rues
   tunisie.qgs              Carte de la Tunisie
   turkmenistan.qgs         Carte du Turkménistan

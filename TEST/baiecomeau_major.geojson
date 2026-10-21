@@ -1,0 +1,21 @@
+{"type":"FeatureCollection","name":"baiecomeau_major",
+"features":[
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19126,49.22324],[-68.19176,49.22246],[-68.19316,49.22111]]}},
+{"type":"Feature","properties":{"nom":"","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19415,49.21476],[-68.19448,49.21482],[-68.19472,49.21492],[-68.19495,49.21512]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19495,49.21512],[-68.19479,49.2147]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19472,49.21452],[-68.19479,49.2147]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19503,49.21535],[-68.19495,49.21512]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Pierre-Ouellet","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19479,49.2147],[-68.19583,49.21459]]}},
+{"type":"Feature","properties":{"nom":"","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19503,49.21535],[-68.19507,49.21517],[-68.19523,49.21495],[-68.19544,49.21479],[-68.19583,49.21459]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Pierre-Ouellet","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.197,49.21423],[-68.19472,49.21452]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19316,49.22111],[-68.19517,49.21927],[-68.19567,49.21847],[-68.19577,49.218],[-68.19578,49.21752],[-68.19569,49.21706],[-68.19511,49.21557],[-68.19503,49.21535]]}},
+{"type":"Feature","properties":{"nom":"","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19709,49.21446],[-68.197,49.21423]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Pierre-Ouellet","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19583,49.21459],[-68.19709,49.21446]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.1909,49.22509],[-68.19102,49.224],[-68.19126,49.22324]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.18926,49.23041],[-68.18986,49.22972],[-68.19021,49.2292],[-68.19043,49.22871],[-68.1906,49.22801]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.1906,49.22801],[-68.1909,49.22509]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Pierre-Ouellet","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.2244,49.20887],[-68.21983,49.20899],[-68.21846,49.20912],[-68.21715,49.20938],[-68.21389,49.21031],[-68.21235,49.21069],[-68.21085,49.21098],[-68.2064,49.21165],[-68.20547,49.21177],[-68.20437,49.21195],[-68.20324,49.21222],[-68.2023,49.21254],[-68.1997,49.21365],[-68.1992,49.21382],[-68.19846,49.21401],[-68.197,49.21423]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Pierre-Ouellet","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.19709,49.21446],[-68.19799,49.21432],[-68.19906,49.21404],[-68.20293,49.21242],[-68.2042,49.21207],[-68.20525,49.2119],[-68.20583,49.21181],[-68.20644,49.21172],[-68.21074,49.21109],[-68.21228,49.2108],[-68.21358,49.2105],[-68.21716,49.20948],[-68.21819,49.20926],[-68.21927,49.20913],[-68.22035,49.20907],[-68.2244,49.20897]]}},
+{"type":"Feature","properties":{"nom":"Route 138","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.15758,49.25472],[-68.15793,49.2534],[-68.15841,49.25245],[-68.15993,49.25027]]}},
+{"type":"Feature","properties":{"nom":"Boulevard Comeau","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-68.15993,49.25027],[-68.16411,49.24427],[-68.16517,49.24288],[-68.16707,49.24098],[-68.17287,49.23579],[-68.17358,49.23524],[-68.17395,49.23502],[-68.1748,49.23468],[-68.17598,49.23443],[-68.17692,49.23438],[-68.17955,49.23455],[-68.18048,49.23456],[-68.18135,49.23445],[-68.18261,49.23416],[-68.18376,49.23369],[-68.18726,49.23194],[-68.18837,49.23121],[-68.18883,49.23084],[-68.18926,49.23041]]}}
+]}

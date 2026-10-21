@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"saintsimeon_parcs",
+"features":[
+{"type":"Feature","properties":{"nom":"Cimetière de Saint-Siméon"},"geometry":{"type":"Polygon","coordinates":[[[-69.8823,47.83738],[-69.88358,47.83811],[-69.88267,47.83892],[-69.88179,47.83828],[-69.8823,47.83738]]]}},
+{"type":"Feature","properties":{"nom":""},"geometry":{"type":"Polygon","coordinates":[[[-69.87388,47.84996],[-69.87433,47.84907],[-69.87583,47.84914],[-69.87388,47.84996]]]}}
+]}
