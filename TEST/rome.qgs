@@ -1,34 +1,124 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte de la ville de Rome (Italie)" version="3.34.0-Pascal">
-  <title>Carte de la ville de Rome (Italie)</title>
+<qgis projectname="Carte de la ville de Rome (Italie) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de la ville de Rome (Italie) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
-    <layer-tree-layer id="VILLE_1" name="Ville" source="./rome_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="COMMUNES_VOISINES_2" name="Communes voisines" source="./rome_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___VILLE_1" name="Contours : Ville" source="./rome_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___COMMUNES_VOISINES_2" name="Contours : Communes voisines" source="./rome_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_3" name="Rues principales" source="./rome_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_4" name="Rues secondaires" source="./rome_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES__1_2__5" name="Rues locales (1/2)" source="./rome_loc1.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES__2_2__6" name="Rues locales (2/2)" source="./rome_loc2.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_7" name="Ruelles et voies de service" source="./rome_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_8" name="Sentiers et pistes cyclables" source="./rome_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_9" name="Voies ferrees" source="./rome_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_10" name="Cours d eau" source="./rome_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_11" name="Parcs et espaces verts" source="./rome_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_12" name="Plans d eau" source="./rome_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>1348063</xmin><ymin>5095066</ymin><xmax>1444924</xmax><ymax>5196706</ymax></extent>
+    <extent><xmin>1383145</xmin><ymin>5140928</ymin><xmax>1395390</xmax><ymax>5149602</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
-    <maplayer type="vector" geometry="Polygon">
-      <id>VILLE_1</id>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___VILLE_1</id>
       <datasource>./rome_ville.geojson</datasource>
-      <layername>Ville</layername>
+      <layername>Contours : Ville</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___COMMUNES_VOISINES_2</id>
+      <datasource>./rome_voisines.geojson</datasource>
+      <layername>Contours : Communes voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_3</id>
+      <datasource>./rome_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_4</id>
+      <datasource>./rome_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES__1_2__5</id>
+      <datasource>./rome_loc1.geojson</datasource>
+      <layername>Rues locales (1/2)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES__2_2__6</id>
+      <datasource>./rome_loc2.geojson</datasource>
+      <layername>Rues locales (2/2)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_7</id>
+      <datasource>./rome_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_8</id>
+      <datasource>./rome_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_9</id>
+      <datasource>./rome_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_10</id>
+      <datasource>./rome_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>COMMUNES_VOISINES_2</id>
-      <datasource>./rome_voisines.geojson</datasource>
-      <layername>Communes voisines</layername>
+      <id>PARCS_ET_ESPACES_VERTS_11</id>
+      <datasource>./rome_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_12</id>
+      <datasource>./rome_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
     </maplayer>
   </projectlayers>
 </qgis>

@@ -37,9 +37,17 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
 
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
-  rues, voies ferrees, plans d'eau, cours d'eau, parcs et limite du quartier
-  de montreal_centreville.qgs, quebec_centreville.qgs, laval_ouest.qgs,
-  saintedorothee.qgs et alma.qgs (limites municipales : geoBoundaries).
+  rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
+  suivantes, qui montrent le centre de la ville (limites municipales et
+  quartiers : geoBoundaries ou sources ci-dessus) : montreal_centreville,
+  quebec_centreville, laval_ouest, saintedorothee, alma, septiles,
+  sherbrooke, schefferville, paris, londres, rome, berlin, munich,
+  barcelone, sandiego, dallas, houston, newyork, tokyo et mexico.
+  Pour les grandes villes, les rues ne couvrent que le centre (environ
+  5 a 10 km de large) ; les contours de la ville restent complets et on
+  peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
+  plusieurs couches (1/2, 2/2...) pour rester sous la limite de 8 000
+  entites par couche de Turbo Pascal.
   Les trottoirs et passages pietons ne sont pas inclus ; les 'ruelles et voies
   de service' comprennent stationnements et acces. Chaque couche est limitee
   a quelques milliers d'entites ; activer Vue > Etiquettes pour afficher les
@@ -79,9 +87,9 @@ Liste des projets :
   azerbaidjan.qgs          Carte de l'Azerbaïdjan
   bagdad.qgs               Carte de la ville de Bagdad (Irak)
   bahamas.qgs              Carte des Bahamas
-  barcelone.qgs            Carte de la ville de Barcelone (Espagne)
+  barcelone.qgs            Carte de la ville de Barcelone (Espagne) avec ses rues
   belgique.qgs             Carte de la Belgique
-  berlin.qgs               Carte de la ville de Berlin (Allemagne)
+  berlin.qgs               Carte de la ville de Berlin (Allemagne) avec ses rues
   blainville.qgs           Carte de la ville de Blainville (Québec)
   boston.qgs               Carte de la ville de Boston (États-Unis)
   bresil.qgs               Carte du Brésil
@@ -96,7 +104,7 @@ Liste des projets :
   coreenord.qgs            Carte de la Corée du Nord
   coreesud.qgs             Carte de la Corée du Sud
   cuba.qgs                 Carte de Cuba
-  dallas.qgs               Carte de la ville de Dallas (États-Unis)
+  dallas.qgs               Carte de la ville de Dallas (États-Unis) avec ses rues
   egypte.qgs               Carte de l'Égypte
   espagne.qgs              Carte de l'Espagne
   etatsunis.qgs            Carte des États-Unis
@@ -114,7 +122,7 @@ Liste des projets :
   gatineau.qgs             Carte de la ville de Gatineau (Québec)
   grece.qgs                Carte de la Grèce
   guadeloupe.qgs           Carte de la Guadeloupe
-  houston.qgs              Carte de la ville de Houston (États-Unis)
+  houston.qgs              Carte de la ville de Houston (États-Unis) avec ses rues
   ilebizard.qgs            Carte de l'Île Bizard (Montréal)
   ileduprinceedouard.qgs   Carte de la province de l'Île-du-Prince-Édouard
   irak.qgs                 Carte de l'Irak
@@ -133,21 +141,21 @@ Liste des projets :
   laval_ouest.qgs          Carte de Laval-Ouest (Laval, Québec) avec ses rues
   lecaire.qgs              Carte de la ville du Caire (Égypte)
   lituanie.qgs             Carte de la Lituanie
-  londres.qgs              Carte de la ville de Londres (Royaume-Uni)
+  londres.qgs              Carte de la ville de Londres (Royaume-Uni) avec ses rues
   losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
   manitoba.qgs             Carte du Manitoba
   maroc.qgs                Carte du Maroc
   marseille.qgs            Carte de la ville de Marseille (France)
-  mexico.qgs               Carte de la ville de Mexico (Mexique)
+  mexico.qgs               Carte de la ville de Mexico (Mexique) avec ses rues
   mexique.qgs              Carte du Mexique
   miami.qgs                Carte de la ville de Miami (États-Unis)
   monde.qgs                Carte du monde
   mongolie.qgs             Carte de la Mongolie
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
-  munich.qgs               Carte de la ville de Munich (Allemagne)
+  munich.qgs               Carte de la ville de Munich (Allemagne) avec ses rues
   nagoya.qgs               Carte de la ville de Nagoya (Japon)
-  newyork.qgs              Carte de la ville de New York (États-Unis)
+  newyork.qgs              Carte de la ville de New York (États-Unis) avec ses rues
   nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
   nouveaumexique.qgs       Carte du Nouveau-Mexique
   nouvelleecosse.qgs       Carte de la Nouvelle-Écosse
@@ -159,7 +167,7 @@ Liste des projets :
   osaka.qgs                Carte de la ville d'Osaka (Japon)
   ottawa.qgs               Carte de la ville d'Ottawa (Canada)
   panama.qgs               Carte du Panama
-  paris.qgs                Carte de la ville de Paris (France)
+  paris.qgs                Carte de la ville de Paris (France) avec ses rues
   pekin.qgs                Carte de la ville de Pékin (Chine)
   perce.qgs                Carte de la ville de Percé (Québec)
   philadelphie.qgs         Carte de la ville de Philadelphie (États-Unis)
@@ -170,7 +178,7 @@ Liste des projets :
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
   rimouski.qgs             Carte de la ville de Rimouski (Québec)
-  rome.qgs                 Carte de la ville de Rome (Italie)
+  rome.qgs                 Carte de la ville de Rome (Italie) avec ses rues
   roumanie.qgs             Carte de la Roumanie
   royaumeuni.qgs           Carte du Royaume-Uni
   russie.qgs               Carte de la Russie
@@ -178,18 +186,18 @@ Liste des projets :
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec)
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
   salvador.qgs             Carte du Salvador
-  sandiego.qgs             Carte de la ville de San Diego (Californie)
+  sandiego.qgs             Carte de la ville de San Diego (Californie) avec ses rues
   sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
   sapporo.qgs              Carte de la ville de Sapporo (Japon)
   saskatchewan.qgs         Carte de la province de la Saskatchewan
-  schefferville.qgs        Carte de la ville de Schefferville (Québec)
-  septiles.qgs             Carte de Sept-Îles
-  sherbrooke.qgs           Carte de la ville de Sherbrooke (Québec)
+  schefferville.qgs        Carte de la ville de Schefferville (Québec) avec ses rues
+  septiles.qgs             Carte de Sept-Îles (Québec) avec ses rues
+  sherbrooke.qgs           Carte de la ville de Sherbrooke (Québec) avec ses rues
   sydney.qgs               Carte de la ville de Sydney (Australie)
   terrebonne.qgs           Carte de la ville de Terrebonne (Québec)
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
-  tokyo.qgs                Carte de la ville de Tokyo (Japon)
+  tokyo.qgs                Carte de la ville de Tokyo (Japon) avec ses rues
   toronto.qgs              Carte de la ville de Toronto (Canada)
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec)
   vancouver.qgs            Carte de la ville de Vancouver (Canada)

@@ -1,34 +1,106 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte de la ville de Schefferville (Québec)" version="3.34.0-Pascal">
-  <title>Carte de la ville de Schefferville (Québec)</title>
+<qgis projectname="Carte de la ville de Schefferville (Québec) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de la ville de Schefferville (Québec) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
-    <layer-tree-layer id="VILLE_1" name="Ville" source="./schefferville_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="MUNICIPALITES_VOISINES_2" name="Municipalites voisines" source="./schefferville_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___CONTOURS___VILLE_1" name="Contours : Contours : Ville" source="./schefferville_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___CONTOURS___MUNICIPALITES_VOISINES_2" name="Contours : Contours : Municipalites voisines" source="./schefferville_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_3" name="Rues secondaires" source="./schefferville_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_4" name="Rues locales" source="./schefferville_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_5" name="Ruelles et voies de service" source="./schefferville_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_6" name="Sentiers et pistes cyclables" source="./schefferville_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_7" name="Voies ferrees" source="./schefferville_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_8" name="Cours d eau" source="./schefferville_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_9" name="Parcs et espaces verts" source="./schefferville_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_10" name="Plans d eau" source="./schefferville_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-7447193</xmin><ymin>7315256</ymin><xmax>-7430611</xmax><ymax>7338695</ymax></extent>
+    <extent><xmin>-7441708</xmin><ymin>7321737</ymin><xmax>-7435029</xmax><ymax>7326488</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
-    <maplayer type="vector" geometry="Polygon">
-      <id>VILLE_1</id>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___CONTOURS___VILLE_1</id>
       <datasource>./schefferville_ville.geojson</datasource>
-      <layername>Ville</layername>
+      <layername>Contours : Contours : Ville</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
-      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___CONTOURS___MUNICIPALITES_VOISINES_2</id>
+      <datasource>./schefferville_voisines.geojson</datasource>
+      <layername>Contours : Contours : Municipalites voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_3</id>
+      <datasource>./schefferville_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_4</id>
+      <datasource>./schefferville_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_5</id>
+      <datasource>./schefferville_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_6</id>
+      <datasource>./schefferville_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_7</id>
+      <datasource>./schefferville_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_8</id>
+      <datasource>./schefferville_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
     </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>MUNICIPALITES_VOISINES_2</id>
-      <datasource>./schefferville_voisines.geojson</datasource>
-      <layername>Municipalites voisines</layername>
+      <id>PARCS_ET_ESPACES_VERTS_9</id>
+      <datasource>./schefferville_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_10</id>
+      <datasource>./schefferville_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
     </maplayer>
   </projectlayers>
 </qgis>

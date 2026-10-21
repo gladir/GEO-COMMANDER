@@ -1,16 +1,25 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="Carte de Sept-Îles" version="3.34.0-Pascal">
-  <title>Carte de Sept-Îles</title>
+<qgis projectname="Carte de Sept-Îles (Québec) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de Sept-Îles (Québec) avec ses rues</title>
   <projectCrs>
     <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
   </projectCrs>
   <layer-tree-group>
     <layer-tree-layer id="LIEUX_1" name="Lieux" source="./septiles_lieux.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
-    <layer-tree-layer id="TERRE_2" name="Terre" source="./septiles_terre.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_2" name="Rues principales" source="./septiles_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_3" name="Rues secondaires" source="./septiles_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES_4" name="Rues locales" source="./septiles_loc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_5" name="Ruelles et voies de service" source="./septiles_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_6" name="Sentiers et pistes cyclables" source="./septiles_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_7" name="Voies ferrees" source="./septiles_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_8" name="Cours d eau" source="./septiles_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_9" name="Parcs et espaces verts" source="./septiles_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_10" name="Plans d eau" source="./septiles_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="TERRE_11" name="Terre" source="./septiles_terre.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
   </layer-tree-group>
   <mapcanvas name="theMapCanvas">
     <units>0</units>
-    <extent><xmin>-7491802</xmin><ymin>6428976</ymin><xmax>-7313691</xmax><ymax>6533322</ymax></extent>
+    <extent><xmin>-7398293</xmin><ymin>6475508</ymin><xmax>-7380482</xmax><ymax>6488205</ymax></extent>
     <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
   </mapcanvas>
   <projectlayers>
@@ -22,8 +31,80 @@
       <provider encoding="UTF-8">ogr</provider>
       <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
     </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_2</id>
+      <datasource>./septiles_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_3</id>
+      <datasource>./septiles_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES_4</id>
+      <datasource>./septiles_loc.geojson</datasource>
+      <layername>Rues locales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_5</id>
+      <datasource>./septiles_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_6</id>
+      <datasource>./septiles_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_7</id>
+      <datasource>./septiles_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_8</id>
+      <datasource>./septiles_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
     <maplayer type="vector" geometry="Polygon">
-      <id>TERRE_2</id>
+      <id>PARCS_ET_ESPACES_VERTS_9</id>
+      <datasource>./septiles_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_10</id>
+      <datasource>./septiles_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>TERRE_11</id>
       <datasource>./septiles_terre.geojson</datasource>
       <layername>Terre</layername>
       <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
