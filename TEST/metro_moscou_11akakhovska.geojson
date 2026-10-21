@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"metro_moscou_11akakhovska",
+"features":[
+{"type":"Feature","properties":{"nom":"Ligne 11A Kakhovskaia"},"geometry":{"type":"LineString","coordinates":[[37.61919,55.65333],[37.6058,55.65317],[37.59817,55.65296]]}},
+{"type":"Feature","properties":{"nom":"Ligne 11A Kakhovskaia"},"geometry":{"type":"LineString","coordinates":[[37.64862,55.65521],[37.64667,55.65408],[37.64501,55.65354],[37.64229,55.65311],[37.63784,55.65289],[37.63135,55.6529],[37.61924,55.65337]]}}
+]}

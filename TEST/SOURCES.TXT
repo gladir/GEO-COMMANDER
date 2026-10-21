@@ -37,6 +37,20 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
 
 - Natural Earth (chemins de fer, domaine public) : canada_rail.qgs et
   etatsunis_rail.qgs (reseau generalise, pas toutes les lignes).
+- ocean_arctique.qgs : donnees Natural Earth reprojetees en projection polaire
+  stereographique spherique (declaree EPSG:3995, les coordonnees sont en
+  metres) ; la grille de 30 degres est dessinee avec la meme projection.
+- Metros : metro_montreal, metro_paris et metro_londres viennent des fichiers
+  yul.geojson, par.geojson et lon.geojson du depot GitHub BarKuperman/
+  transit-overlay-subway-builder-mod (donnees derivees d'OpenStreetMap, ODbL) ;
+  metro_tokyo vient d'Overture Maps (lignes identifiees par leur nom, les
+  troncons sans nom sont rattaches a la ligne voisine : quelques erreurs sont
+  possibles) ; metro_moscou combine sputnik-maps/subwayshapes (GitHub, ODbL,
+  donnees anciennes sans les lignes recentes) et, pour la Grande ligne
+  circulaire et la ligne Nekrassovskaia, Overture Maps. Les noms de stations
+  de Tokyo et de Moscou sont romanises automatiquement (approximatif). Les
+  stations de Tokyo et de Moscou sont des gares proches des lignes.
+- moscou.qgs : rues et quartiers de Moscou (Overture Maps).
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -48,7 +62,7 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   houston, newyork, tokyo, mexico, yokohama, vancouver, troisrivieres,
   sapporo, perce, philadelphie, osaka, nagoya, miami, marseille, lachute,
   kyoto, gatineau, gaspe, fortworth, chicago, bruxelles, blainville,
-  bagdad et atlanta.
+  bagdad et atlanta (et moscou).
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -154,6 +168,11 @@ Liste des projets :
   manitoba.qgs             Carte du Manitoba
   maroc.qgs                Carte du Maroc
   marseille.qgs            Carte de la ville de Marseille (France) avec ses rues
+  metro_londres.qgs        Le métro de Londres (London Underground)
+  metro_montreal.qgs       Le métro de Montréal (STM)
+  metro_moscou.qgs         Le métro de Moscou
+  metro_paris.qgs          Le métro de Paris (RATP)
+  metro_tokyo.qgs          Le métro de Tokyo (Tokyo Metro et Toei)
   mexico.qgs               Carte de la ville de Mexico (Mexique) avec ses rues
   mexique.qgs              Carte du Mexique
   miami.qgs                Carte de la ville de Miami (États-Unis) avec ses rues
@@ -161,12 +180,14 @@ Liste des projets :
   mongolie.qgs             Carte de la Mongolie
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
+  moscou.qgs               Carte de la ville de Moscou (Russie) avec ses rues
   munich.qgs               Carte de la ville de Munich (Allemagne) avec ses rues
   nagoya.qgs               Carte de la ville de Nagoya (Japon) avec ses rues
   newyork.qgs              Carte de la ville de New York (États-Unis) avec ses rues
   nouveaubrunswick.qgs     Carte du Nouveau-Brunswick
   nouveaumexique.qgs       Carte du Nouveau-Mexique
   nouvelleecosse.qgs       Carte de la Nouvelle-Écosse
+  ocean_arctique.qgs       Carte de l'océan Arctique (projection polaire stéréographique)
   ocean_atlantique.qgs     Carte de l'océan Atlantique
   ocean_indien.qgs         Carte de l'océan Indien
   ocean_pacifique.qgs      Carte de l'océan Pacifique

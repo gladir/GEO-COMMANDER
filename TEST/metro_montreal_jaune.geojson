@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"metro_montreal_jaune",
+"features":[
+{"type":"Feature","properties":{"nom":"Ligne 4 jaune"},"geometry":{"type":"LineString","coordinates":[[-73.56101,45.51519],[-73.53313,45.51243],[-73.5221,45.52489]]}},
+{"type":"Feature","properties":{"nom":"Ligne 4 jaune"},"geometry":{"type":"LineString","coordinates":[[-73.5221,45.52489],[-73.53313,45.51243],[-73.56101,45.51519]]}}
+]}
