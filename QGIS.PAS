@@ -16,7 +16,8 @@
   systemes sont affiches tels quels, sans reprojection).
 
   Les algorithmes de traitement (Vecteur, Raster, Traitement) sont executes par
-  QGIS_PROCESS (QGIS_PROCESS.EXE doit etre dans le meme repertoire, le repertoire
+  QGIS_PROCESS (QGIS_PROCESS.EXE doit etre dans le meme repertoire, le
+    repertoire
   courant ou le PATH).
 
   Syntaxe : QGIS [options] [fichiers]
@@ -44,7 +45,7 @@ Program QGIS;
  {$OVERFLOWCHECKS OFF}
 {$ELSE}
  {$N+,E+}
- {$M 16384,0,400000}
+ {$M 49152,0,400000}
 {$ENDIF}
 
 Uses {$IFDEF FPC}
@@ -194,6 +195,16 @@ Type
   RData:PSingleArr;
  End;
 
+ TLayArr=Array[1..MaxLayers]of TLayer;
+ PLayArr=^TLayArr;
+
+ TAlgo=Record
+  Id:String[44];
+  Title:String[43];
+ End;
+ TAlgoArr=Array[1..MaxAlgos]of TAlgo;
+ PAlgoArr=^TAlgoArr;
+
  TEvent=Record
   What:Byte;
   X,Y:LongInt;
@@ -253,7 +264,7 @@ Var
  Background:Byte;
 
  { Projet }
- Lay:Array[1..MaxLayers]of TLayer;
+ Lay:PLayArr;
  NLay,ActiveLay:Integer;
  ProjCrsId:Byte;
  ProjCRS:String[24];
@@ -297,8 +308,7 @@ Var
  { Traitement }
  QPath:String;
  NAlgo:Integer;
- AlgoId:Array[1..MaxAlgos]of String[44];
- AlgoTitle:Array[1..MaxAlgos]of String[43];
+ Algos:PAlgoArr;
  LastAlgo:String;
  LastLog:String;
  RunCount:LongInt;
@@ -1069,8 +1079,10 @@ End;
 { ------------------------------------------------------------------ }
 
 Const
- LayerColors:Array[0..7]of Byte=(LightGreen,LightBlue,Yellow,LightRed,LightCyan,LightMagenta,Brown,LightGray);
- LayerDark:Array[0..15]of Byte=(Black,Blue,Green,Cyan,Red,Magenta,Brown,DarkGray,Black,Blue,Green,Cyan,Red,Magenta,Brown,DarkGray);
+ LayerColors:Array[0..7]of Byte=(LightGreen,LightBlue,Yellow,LightRed,
+   LightCyan,LightMagenta,Brown,LightGray);
+ LayerDark:Array[0..15]of Byte=(Black,Blue,Green,Cyan,Red,Magenta,Brown,
+   DarkGray,Black,Blue,Green,Cyan,Red,Magenta,Brown,DarkGray);
 
 Var
  LoadErr:String;
@@ -1261,7 +1273,8 @@ End;
 
 Function FeatAttr(Var L:TLayer;F:PFeature;Idx:Integer):String;
 Begin
- If(F=Nil)or(Idx<1)or(Idx>F^.NA)or(F^.Attr=Nil)Then FeatAttr:='' Else FeatAttr:=F^.Attr^[Idx-1]^;
+ If(F=Nil)or(Idx<1)or(Idx>F^.NA)or(F^.Attr=Nil)Then FeatAttr:='' Else
+   FeatAttr:=F^.Attr^[Idx-1]^;
 End;
 
 { Guess du SCR d'une couche d'apres l'etendue de ses coordonnees }
@@ -1269,7 +1282,8 @@ Procedure GuessCrs(Var L:TLayer);
 Begin
  If L.CRS<>'EPSG:4326' Then Exit;
  If Not L.HasExt Then Exit;
- If(L.MinX<-180.001)or(L.MaxX>180.001)or(L.MinY<-90.001)or(L.MaxY>90.001)Then Begin
+ If(L.MinX<-180.001)or(L.MaxX>180.001)or(L.MinY<-90.001)or(L.MaxY>90.001)Then
+   Begin
   L.CRS:='EPSG:3857';
   L.CrsId:=crs3857;
  End;
@@ -1776,7 +1790,8 @@ Begin
  U:=StrUp(S);
  DetectPrj:='';
  If S='' Then Exit;
- If(Pos('WEB_MERCATOR',U)>0)or(Pos('PSEUDO-MERCATOR',U)>0)or(Pos('"EPSG","3857"',U)>0)Then Begin
+ If(Pos('WEB_MERCATOR',U)>0)or(Pos('PSEUDO-MERCATOR',
+   U)>0)or(Pos('"EPSG","3857"',U)>0)Then Begin
   DetectPrj:='EPSG:3857';
   Exit;
  End;
@@ -1907,7 +1922,8 @@ Begin
        Fld:='';
        For I:=0 to 10 do If DH[I]<>0 Then Fld:=Fld+Chr(DH[I]);
        DbfLen[NDf]:=DH[16];
-       If NDf=1 Then DbfOff[NDf]:=1 Else DbfOff[NDf]:=DbfOff[NDf-1]+DbfLen[NDf-1];
+       If NDf=1 Then DbfOff[NDf]:=1 Else DbfOff[NDf]:=DbfOff[NDf-1]+
+         DbfLen[NDf-1];
        DbfIdx[NDf]:=FieldIndex(L,Fld);
        Inc(Cnt);
       End;
@@ -1925,7 +1941,8 @@ Begin
  While Ok and Not Eof(SF)do Begin
   {$I-}BlockRead(SF,RH,8,Got);{$I+}
   If(IOResult<>0)or(Got<8)Then Ok:=False Else Begin
-   ContLen:=(LongInt(RH[4])*16777216+LongInt(RH[5])*65536+LongInt(RH[6])*256+RH[7])*2;
+   ContLen:=(LongInt(RH[4])*16777216+LongInt(RH[5])*65536+LongInt(RH[6])*256+
+     RH[7])*2;
    Inc(Rn);
    ResetTmp;
    If(ContLen<4)or(ContLen>SBufMax)Then Begin
@@ -1965,7 +1982,8 @@ Begin
        If ContLen>=44 Then Begin
         NP:=RdL(36);
         NPt:=RdL(40);
-        If(NP>0)and(NP<=MaxPartsF)and(NPt>0)and(44+NP*4+NPt*16<=ContLen)Then Begin
+        If(NP>0)and(NP<=MaxPartsF)and(NPt>0)and(44+NP*4+NPt*16<=ContLen)Then
+          Begin
          For I:=0 to NPt-1 do
           AddTmpPt(RdD(44+NP*4+I*16),RdD(52+NP*4+I*16));
          For Part:=0 to NP-1 do Begin
@@ -2201,7 +2219,8 @@ Begin
  End;
 End;
 
-{ Champ contenant du WKT : analyse directement dans le flux (longueur illimitee) }
+{ Champ contenant du WKT : analyse directement dans le flux (longueur
+  illimitee) }
 Procedure CsvWktField(Delim:Char;Var RowEnd:Boolean);
 Var
  C:Char;
@@ -2304,9 +2323,12 @@ Begin
  End;
  XCol:=0;YCol:=0;WCol:=0;
  For I:=1 to NC do Begin
-  If(XCol=0)and ColIs(Names[I],'x,lon,long,longitude,lng,lon_dd,easting,xcoord')Then XCol:=I;
-  If(YCol=0)and ColIs(Names[I],'y,lat,latitude,lat_dd,northing,ycoord')Then YCol:=I;
-  If(WCol=0)and ColIs(Names[I],'wkt,geom,geometry,the_geom,wkt_geom')Then WCol:=I;
+  If(XCol=0)and ColIs(Names[I],
+    'x,lon,long,longitude,lng,lon_dd,easting,xcoord')Then XCol:=I;
+  If(YCol=0)and ColIs(Names[I],'y,lat,latitude,lat_dd,northing,ycoord')Then
+    YCol:=I;
+  If(WCol=0)and ColIs(Names[I],'wkt,geom,geometry,the_geom,wkt_geom')Then
+    WCol:=I;
  End;
  If(XCol=0)or(YCol=0)Then Begin
   XCol:=0;YCol:=0;
@@ -2391,10 +2413,13 @@ Begin
   If Key='ncols' Then Begin AscToken(S);StrToLong(S,NC);End Else
   If Key='nrows' Then Begin AscToken(S);StrToLong(S,NR);End Else
   If Key='xllcorner' Then Begin AscToken(S);StrToReal(S,XLL);End Else
-  If Key='xllcenter' Then Begin AscToken(S);StrToReal(S,XLL);XCenter:=True;End Else
+  If Key='xllcenter' Then Begin AscToken(S);StrToReal(S,XLL);XCenter:=True;
+    End Else
   If Key='yllcorner' Then Begin AscToken(S);StrToReal(S,YLL);End Else
-  If Key='yllcenter' Then Begin AscToken(S);StrToReal(S,YLL);YCenter:=True;End Else
-  If Key='cellsize' Then Begin AscToken(S);StrToReal(S,Cell);HaveCell:=True;End Else
+  If Key='yllcenter' Then Begin AscToken(S);StrToReal(S,YLL);YCenter:=True;
+    End Else
+  If Key='cellsize' Then Begin AscToken(S);StrToReal(S,Cell);HaveCell:=True;
+    End Else
   If Key='nodata_value' Then Begin AscToken(S);StrToReal(S,NoData);End
   Else Pend:=True;
  End;
@@ -2486,7 +2511,8 @@ End;
 
 Function ExtIsVector(Const E:String):Boolean;
 Begin
- ExtIsVector:=(E='.geojson')or(E='.json')or(E='.shp')or(E='.csv')or(E='.txt')or(E='.tsv');
+ ExtIsVector:=(E='.geojson')or(E='.json')or(E='.shp')or(E='.csv')or(E='.txt')
+   or(E='.tsv');
 End;
 
 Function AddLayerFromFile(Const FN,LName:String):Integer;
@@ -2507,32 +2533,34 @@ Begin
  End;
  E:=ExtOf(FN);
  If Not(ExtIsVector(E)or(E='.asc'))Then Begin
-  LoadErr:='Format non pris en charge ('+E+') ; utiliser GeoJSON, SHP, CSV ou ASC';
+  LoadErr:='Format non pris en charge ('+E+
+    ') ; utiliser GeoJSON, SHP, CSV ou ASC';
   Exit;
  End;
- For I:=NLay downto 1 do Lay[I+1]:=Lay[I];
- InitLayer(Lay[1]);
+ For I:=NLay downto 1 do Lay^[I+1]:=Lay^[I];
+ InitLayer(Lay^[1]);
  Inc(NLay);
- Lay[1].Used:=True;
- If LName<>'' Then Lay[1].Name:=Copy(LName,1,40) Else Lay[1].Name:=Copy(BaseOf(FN),1,40);
- Lay[1].Source:=FN;
- Lay[1].Color:=LayerColors[ColorCount mod 8];
+ Lay^[1].Used:=True;
+ If LName<>'' Then Lay^[1].Name:=Copy(LName,1,
+   40) Else Lay^[1].Name:=Copy(BaseOf(FN),1,40);
+ Lay^[1].Source:=FN;
+ Lay^[1].Color:=LayerColors[ColorCount mod 8];
  Inc(ColorCount);
- If E='.asc' Then Ok:=LoadASC(Lay[1],FN) Else
- If(E='.geojson')or(E='.json')Then Ok:=LoadGeoJSON(Lay[1],FN) Else
- If E='.shp' Then Ok:=LoadShapefile(Lay[1],FN)
-             Else Ok:=LoadCSV(Lay[1],FN);
+ If E='.asc' Then Ok:=LoadASC(Lay^[1],FN) Else
+ If(E='.geojson')or(E='.json')Then Ok:=LoadGeoJSON(Lay^[1],FN) Else
+ If E='.shp' Then Ok:=LoadShapefile(Lay^[1],FN)
+             Else Ok:=LoadCSV(Lay^[1],FN);
  If Not Ok Then Begin
-  FreeLayerData(Lay[1]);
-  For I:=1 to NLay-1 do Lay[I]:=Lay[I+1];
+  FreeLayerData(Lay^[1]);
+  For I:=1 to NLay-1 do Lay^[I]:=Lay^[I+1];
   Dec(NLay);
   Exit;
  End;
- If Lay[1].Kind=0 Then Lay[1].Kind:=lkVector;
- If Lay[1].Kind=lkVector Then PickLabelField(Lay[1]);
+ If Lay^[1].Kind=0 Then Lay^[1].Kind:=lkVector;
+ If Lay^[1].Kind=lkVector Then PickLabelField(Lay^[1]);
  If NLay=1 Then Begin
-  ProjCrsId:=Lay[1].CrsId;
-  ProjCRS:=Lay[1].CRS;
+  ProjCrsId:=Lay^[1].CrsId;
+  ProjCRS:=Lay^[1].CRS;
  End;
  ActiveLay:=1;
  Dirty:=True;
@@ -2544,8 +2572,8 @@ Var
  I:Integer;
 Begin
  If(Idx<1)or(Idx>NLay)Then Exit;
- FreeLayerData(Lay[Idx]);
- For I:=Idx to NLay-1 do Lay[I]:=Lay[I+1];
+ FreeLayerData(Lay^[Idx]);
+ For I:=Idx to NLay-1 do Lay^[I]:=Lay^[I+1];
  Dec(NLay);
  If ActiveLay>NLay Then ActiveLay:=NLay;
  If(ActiveLay=0)and(NLay>0)Then ActiveLay:=1;
@@ -2581,7 +2609,8 @@ Begin
   If C<' ' Then R:=R+' ' Else
   If Ord(C)>127 Then Begin
    H:='0123456789abcdef';
-   R:=R+'\u00'+H[(Cp437ToLatin1[Ord(C)]shr 4)+1]+H[(Cp437ToLatin1[Ord(C)]and 15)+1];
+   R:=R+'\u00'+H[(Cp437ToLatin1[Ord(C)]shr 4)+1]+H[(Cp437ToLatin1[Ord(C)]and
+     15)+1];
   End
    Else R:=R+C;
  End;
@@ -2596,7 +2625,8 @@ Begin
  If S='' Then Exit;
  If Not(S[1] in['0'..'9','-'])Then Exit;
  If(Length(S)>1)and(S[1]='0')and(S[2] in['0'..'9'])Then Exit;
- If(Length(S)>1)and(S[1]='-')and(S[2]='0')and(Length(S)>2)and(S[3] in['0'..'9'])Then Exit;
+ If(Length(S)>1)and(S[1]='-')and(S[2]='0')and(Length(S)>2)
+   and(S[3] in['0'..'9'])Then Exit;
  If Pos('E',StrUp(S))>0 Then Exit;
  LooksNumeric:=StrToReal(S,V);
 End;
@@ -2709,7 +2739,8 @@ Begin
  Write(T,'{"type":"FeatureCollection","name":"',JEsc(L.Name),'",');
  If L.CRS<>'EPSG:4326' Then
   If Copy(L.CRS,1,5)='EPSG:' Then
-   Write(T,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::',Copy(L.CRS,6,10),'"}},');
+   Write(T,'"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::',
+     Copy(L.CRS,6,10),'"}},');
  WriteLn(T,'"features":[');
  Comma:=False;
  For I:=1 to L.NF do Begin
@@ -2772,7 +2803,8 @@ Begin
  Y1:=MinD(B,D);Y2:=MaxD(B,D);
 End;
 
-Function ExportDXF(Const FN:String;UseExt:Boolean;EX1,EY1,EX2,EY2:Double):Boolean;
+Function ExportDXF(Const FN:String;UseExt:Boolean;EX1,EY1,EX2,
+  EY2:Double):Boolean;
 Var
  T:Text;
  I,K,J,A,B,P:LongInt;
@@ -2791,8 +2823,8 @@ Begin
  If IOResult<>0 Then Exit;
  MnX:=1E300;MnY:=1E300;MxX:=-1E300;MxY:=-1E300;
  For L:=1 to NLay do
-  If(Lay[L].Kind=lkVector)and Lay[L].HasExt Then Begin
-   LayerProjExtent(Lay[L],FX1,FY1,FX2,FY2);
+  If(Lay^[L].Kind=lkVector)and Lay^[L].HasExt Then Begin
+   LayerProjExtent(Lay^[L],FX1,FY1,FX2,FY2);
    MnX:=MinD(MnX,FX1);MnY:=MinD(MnY,FY1);MxX:=MaxD(MxX,FX2);MxY:=MaxD(MxY,FY2);
   End;
  If MnX>MxX Then Begin
@@ -2815,32 +2847,33 @@ Begin
  DxfG(T,72,'65');DxfG(T,73,'0');DxfG(T,40,'0.0');
  DxfG(T,0,'ENDTAB');
  K:=0;
- For L:=1 to NLay do If Lay[L].Kind=lkVector Then Inc(K);
+ For L:=1 to NLay do If Lay^[L].Kind=lkVector Then Inc(K);
  DxfG(T,0,'TABLE');DxfG(T,2,'LAYER');DxfG(T,70,IntStr(K+1));
- DxfG(T,0,'LAYER');DxfG(T,2,'0');DxfG(T,70,'0');DxfG(T,62,'7');DxfG(T,6,'CONTINUOUS');
+ DxfG(T,0,'LAYER');DxfG(T,2,'0');DxfG(T,70,'0');DxfG(T,62,'7');DxfG(T,6,
+   'CONTINUOUS');
  For L:=1 to NLay do
-  If Lay[L].Kind=lkVector Then Begin
-   DxfG(T,0,'LAYER');DxfG(T,2,Sanitize(Lay[L].Name));DxfG(T,70,'0');
-   DxfG(T,62,IntStr(1+(Lay[L].Color mod 7)));DxfG(T,6,'CONTINUOUS');
+  If Lay^[L].Kind=lkVector Then Begin
+   DxfG(T,0,'LAYER');DxfG(T,2,Sanitize(Lay^[L].Name));DxfG(T,70,'0');
+   DxfG(T,62,IntStr(1+(Lay^[L].Color mod 7)));DxfG(T,6,'CONTINUOUS');
   End;
  DxfG(T,0,'ENDTAB');
  DxfG(T,0,'ENDSEC');
  DxfG(T,0,'SECTION');DxfG(T,2,'ENTITIES');
  For L:=1 to NLay do
-  If Lay[L].Kind=lkVector Then Begin
-   LName:=Sanitize(Lay[L].Name);
-   For I:=1 to Lay[L].NF do Begin
-    F:=Lay[L].Feats^[I];
+  If Lay^[L].Kind=lkVector Then Begin
+   LName:=Sanitize(Lay^[L].Name);
+   For I:=1 to Lay^[L].NF do Begin
+    F:=Lay^[L].Feats^[I];
     If F^.Kind<>gkNone Then Begin
      FX1:=F^.MinX;FY1:=F^.MinY;FX2:=F^.MaxX;FY2:=F^.MaxY;
-     TransformToProj(Lay[L],FX1,FY1);
-     TransformToProj(Lay[L],FX2,FY2);
+     TransformToProj(Lay^[L],FX1,FY1);
+     TransformToProj(Lay^[L],FX2,FY2);
      If Not UseExt or((MaxD(FX1,FX2)>=EX1)and(MinD(FX1,FX2)<=EX2)and
                       (MaxD(FY1,FY2)>=EY1)and(MinD(FY1,FY2)<=EY2))Then Begin
       If F^.Kind=gkPoint Then Begin
        For J:=0 to F^.NPts-1 do Begin
         X:=F^.Pts^[J].X;Y:=F^.Pts^[J].Y;
-        TransformToProj(Lay[L],X,Y);
+        TransformToProj(Lay^[L],X,Y);
         DxfG(T,0,'POINT');DxfG(T,8,LName);DxfXYZ(T,X,Y);
         Inc(DxfCnt);
        End;
@@ -2856,7 +2889,7 @@ Begin
         For J:=A to B-1 do Begin
          Pt:=F^.Pts^[J];
          X:=Pt.X;Y:=Pt.Y;
-         TransformToProj(Lay[L],X,Y);
+         TransformToProj(Lay^[L],X,Y);
          DxfG(T,0,'VERTEX');DxfG(T,8,LName);DxfXYZ(T,X,Y);
         End;
         DxfG(T,0,'SEQEND');DxfG(T,8,LName);
@@ -2879,8 +2912,10 @@ End;
 
 Const
  VgaPal:Array[0..15,0..2]of Byte=(
-  (0,0,0),(0,0,170),(0,170,0),(0,170,170),(170,0,0),(170,0,170),(170,85,0),(170,170,170),
-  (85,85,85),(85,85,255),(85,255,85),(85,255,255),(255,85,85),(255,85,255),(255,255,85),(255,255,255));
+  (0,0,0),(0,0,170),(0,170,0),(0,170,170),(170,0,0),(170,0,170),(170,85,0),
+    (170,170,170),
+  (85,85,85),(85,85,255),(85,255,85),(85,255,255),(255,85,85),(255,85,255),
+    (255,255,85),(255,255,255));
  PngBlk=32768;
 
 Var
@@ -2964,7 +2999,8 @@ Begin
  Assign(F,FN);
  {$I-}Rewrite(F,1);{$I+}
  If IOResult<>0 Then Exit;
- Sig[0]:=137;Sig[1]:=80;Sig[2]:=78;Sig[3]:=71;Sig[4]:=13;Sig[5]:=10;Sig[6]:=26;Sig[7]:=10;
+ Sig[0]:=137;Sig[1]:=80;Sig[2]:=78;Sig[3]:=71;Sig[4]:=13;Sig[5]:=10;Sig[6]:=26;
+   Sig[7]:=10;
  BlockWrite(F,Sig,8);
  PutBE(Ihdr,OffW);
  Z[0]:=0;
@@ -3084,17 +3120,23 @@ Begin
  If OptConfigPath<>'' Then Root:=JoinPath(OptConfigPath,'profiles') Else
  If OptProfilesPath<>'' Then Root:=OptProfilesPath Else Begin
   {$IFDEF UNIX}
-  If GetEnv('HOME')<>'' Then Root:=JoinPath(GetEnv('HOME'),'.local/share/QGIS/QGIS3/profiles')
-                        Else Root:=JoinPath(DirOf(ParamStr(0)),'QGIS3/profiles');
+  If GetEnv('HOME')<>'' Then Root:=JoinPath(GetEnv('HOME'),
+    '.local/share/QGIS/QGIS3/profiles')
+                        Else Root:=JoinPath(DirOf(ParamStr(0)),
+                          'QGIS3/profiles');
   {$ELSE}
-  If GetEnv('APPDATA')<>'' Then Root:=JoinPath(GetEnv('APPDATA'),'QGIS\QGIS3\profiles')
-                           Else Root:=JoinPath(DirOf(ParamStr(0)),'QGIS3\profiles');
+  If GetEnv('APPDATA')<>'' Then Root:=JoinPath(GetEnv('APPDATA'),
+    'QGIS\QGIS3\profiles')
+                           Else Root:=JoinPath(DirOf(ParamStr(0)),
+                             'QGIS3\profiles');
   {$ENDIF}
  End;
  If OptProfile<>'' Then Prof:=OptProfile Else Prof:='default';
  ProfileDir:=JoinPath(Root,Prof);
- If OptOptionsPath<>'' Then SettingsFile:=JoinPath(JoinPath(OptOptionsPath,'QGIS'),'QGIS3.ini')
-                       Else SettingsFile:=JoinPath(JoinPath(ProfileDir,'QGIS'),'QGIS3.ini');
+ If OptOptionsPath<>'' Then SettingsFile:=JoinPath(JoinPath(OptOptionsPath,
+   'QGIS'),'QGIS3.ini')
+                       Else SettingsFile:=JoinPath(JoinPath(ProfileDir,'QGIS'),
+                         'QGIS3.ini');
  TmpDir:=JoinPath(ProfileDir,'tmp');
  ProcDir:=JoinPath(ProfileDir,'process');
 End;
@@ -3345,7 +3387,8 @@ Begin
 End;
 
 { Coupe un texte (lignes separees par '|') pour tenir dans Width caracteres }
-Procedure TextToLines(Const Txt:String;Width:Integer;Var P:PLineList;Var N:Integer);
+Procedure TextToLines(Const Txt:String;Width:Integer;Var P:PLineList;
+  Var N:Integer);
 Var
  I,Last:Integer;
  Cur,Word:String;
@@ -3423,7 +3466,8 @@ Var
  P:String;
 Begin
  P:=JoinPath(Dir,'');
- If(Dir<>'')and(StrLow(Copy(Src,1,Length(P)))=StrLow(P))Then RelPath:='./'+Copy(Src,Length(P)+1,255)
+ If(Dir<>'')and(StrLow(Copy(Src,1,Length(P)))=StrLow(P))Then RelPath:='./'+
+   Copy(Src,Length(P)+1,255)
                                                          Else RelPath:=Src;
 End;
 
@@ -3445,7 +3489,7 @@ Var
  X1,Y1,X2,Y2:Double;
  Function LId(I:Integer):String;
  Begin
-  LId:=Sanitize(Lay[I].Name)+'_'+IntStr(I);
+  LId:=Sanitize(Lay^[I].Name)+'_'+IntStr(I);
  End;
 Begin
  SaveProject:=False;
@@ -3454,16 +3498,18 @@ Begin
  {$I-}Rewrite(T);{$I+}
  If IOResult<>0 Then Exit;
  WriteLn(T,'<!DOCTYPE qgis PUBLIC ''http://mrcc.com/qgis.dtd'' ''SYSTEM''>');
- WriteLn(T,'<qgis projectname="',XmlEsc(ProjTitle),'" version="',QgisCompat,'.0-Pascal">');
+ WriteLn(T,'<qgis projectname="',XmlEsc(ProjTitle),'" version="',QgisCompat,
+   '.0-Pascal">');
  WriteLn(T,'  <title>',XmlEsc(ProjTitle),'</title>');
  WriteLn(T,'  <projectCrs>');
  WriteLn(T,'    <spatialrefsys><authid>',ProjCRS,'</authid></spatialrefsys>');
  WriteLn(T,'  </projectCrs>');
  WriteLn(T,'  <layer-tree-group>');
  For I:=1 to NLay do Begin
-  Write(T,'    <layer-tree-layer id="',LId(I),'" name="',XmlEsc(Lay[I].Name),'" source="',XmlEsc(RelPath(Dir,Lay[I].Source)),'" providerKey=');
-  If Lay[I].Kind=lkRaster Then Write(T,'"gdal"') Else Write(T,'"ogr"');
-  If Lay[I].Visible Then WriteLn(T,' checked="Qt::Checked" expanded="1"/>')
+  Write(T,'    <layer-tree-layer id="',LId(I),'" name="',XmlEsc(Lay^[I].Name),
+    '" source="',XmlEsc(RelPath(Dir,Lay^[I].Source)),'" providerKey=');
+  If Lay^[I].Kind=lkRaster Then Write(T,'"gdal"') Else Write(T,'"ogr"');
+  If Lay^[I].Visible Then WriteLn(T,' checked="Qt::Checked" expanded="1"/>')
                     Else WriteLn(T,' checked="Qt::Unchecked" expanded="1"/>');
  End;
  WriteLn(T,'  </layer-tree-group>');
@@ -3471,21 +3517,29 @@ Begin
  Y1:=CY-UPP*(ClipB-ClipT)/2;Y2:=CY+UPP*(ClipB-ClipT)/2;
  WriteLn(T,'  <mapcanvas name="theMapCanvas">');
  WriteLn(T,'    <units>',Ord(ProjCrsId=crs3857),'</units>');
- WriteLn(T,'    <extent><xmin>',NumStr(X1),'</xmin><ymin>',NumStr(Y1),'</ymin><xmax>',NumStr(X2),'</xmax><ymax>',NumStr(Y2),'</ymax></extent>');
- WriteLn(T,'    <destinationsrs><spatialrefsys><authid>',ProjCRS,'</authid></spatialrefsys></destinationsrs>');
+ WriteLn(T,'    <extent><xmin>',NumStr(X1),'</xmin><ymin>',NumStr(Y1),
+   '</ymin><xmax>',NumStr(X2),'</xmax><ymax>',NumStr(Y2),'</ymax></extent>');
+ WriteLn(T,'    <destinationsrs><spatialrefsys><authid>',ProjCRS,
+   '</authid></spatialrefsys></destinationsrs>');
  WriteLn(T,'  </mapcanvas>');
  WriteLn(T,'  <projectlayers>');
  For I:=1 to NLay do Begin
   Id:=LId(I);
-  If Lay[I].Kind=lkRaster Then WriteLn(T,'    <maplayer type="raster">')
-  Else WriteLn(T,'    <maplayer type="vector" geometry="',GeomName(Lay[I].GType),'">');
+  If Lay^[I].Kind=lkRaster Then WriteLn(T,'    <maplayer type="raster">')
+  Else WriteLn(T,'    <maplayer type="vector" geometry="',
+    GeomName(Lay^[I].GType),'">');
   WriteLn(T,'      <id>',Id,'</id>');
-  WriteLn(T,'      <datasource>',XmlEsc(RelPath(Dir,Lay[I].Source)),'</datasource>');
-  WriteLn(T,'      <layername>',XmlEsc(Lay[I].Name),'</layername>');
-  WriteLn(T,'      <srs><spatialrefsys><authid>',Lay[I].CRS,'</authid></spatialrefsys></srs>');
-  If Lay[I].Kind=lkRaster Then WriteLn(T,'      <provider>gdal</provider>')
-                          Else WriteLn(T,'      <provider encoding="UTF-8">ogr</provider>');
-  WriteLn(T,'      <customproperties><Option type="Map"><Option name="pascal_color" value="',Lay[I].Color,'" type="QString"/></Option></customproperties>');
+  WriteLn(T,'      <datasource>',XmlEsc(RelPath(Dir,Lay^[I].Source)),
+    '</datasource>');
+  WriteLn(T,'      <layername>',XmlEsc(Lay^[I].Name),'</layername>');
+  WriteLn(T,'      <srs><spatialrefsys><authid>',Lay^[I].CRS,
+    '</authid></spatialrefsys></srs>');
+  If Lay^[I].Kind=lkRaster Then WriteLn(T,'      <provider>gdal</provider>')
+                          Else WriteLn(T,
+                            '      <provider encoding="UTF-8">ogr</provider>');
+  WriteLn(T,'      <customproperties><Option type="Map"><Option name="pascal'+
+    '_color" value="',Lay^[I].Color,
+      '" type="QString"/></Option></customproperties>');
   WriteLn(T,'    </maplayer>');
  End;
  WriteLn(T,'  </projectlayers>');
@@ -3572,7 +3626,8 @@ Begin
  XText:=XmlUnesc(XSub(A,B));
 End;
 
-{ Valeur de l'attribut Name dans l'etiquette ouvrante comprise dans [From,Upto] }
+{ Valeur de l'attribut Name dans l'etiquette ouvrante comprise dans
+  [From,Upto] }
 Function XAttr(From,Upto:LongInt;Const Name:String):String;
 Var
  A,B:LongInt;
@@ -3637,7 +3692,8 @@ Begin
  LoadWarn:='';
  PExtOk:=False;
  If ExtOf(FN)='.qgz' Then Begin
-  LoadErr:='Les projets compresses .qgz ne sont pas pris en charge ; enregistrer en .qgs';
+  LoadErr:='Les projets compresses .qgz ne sont pas pris en charge ; enregis'+
+    'trer en .qgs';
   Exit;
  End;
  If Not FileExist(FN)Then Begin
@@ -3745,9 +3801,9 @@ Begin
   Id:=Ml[K].Name;
   If AddLayerFromFile(S,Id)>0 Then Begin
    Inc(Loaded);
-   If Ml[K].Col>=0 Then Lay[1].Color:=Ml[K].Col;
+   If Ml[K].Col>=0 Then Lay^[1].Color:=Ml[K].Col;
    For J:=1 to NT do
-    If Tree[J].Id=Ml[K].Id Then Lay[1].Visible:=Tree[J].Chk;
+    If Tree[J].Id=Ml[K].Id Then Lay^[1].Visible:=Tree[J].Chk;
   End
    Else
   Begin
@@ -3759,7 +3815,8 @@ Begin
  XBuf:=Nil;
  ProjFile:=FN;
  Dirty:=False;
- If Skipped>0 Then LoadWarn:=IntStr(Skipped)+' couche(s) non chargee(s) : '+LoadWarn;
+ If Skipped>0 Then LoadWarn:=IntStr(Skipped)+' couche(s) non chargee(s) : '+
+   LoadWarn;
  If NLay>0 Then ActiveLay:=1;
  LoadProject:=True;
 End;
@@ -3860,7 +3917,8 @@ End;
 
 Procedure ZoomWorld;
 Begin
- If ProjCrsId=crs3857 Then ZoomToExtent(-20037508,-20037508,20037508,20037508) Else
+ If ProjCrsId=crs3857 Then ZoomToExtent(-20037508,-20037508,20037508,
+   20037508) Else
  If ProjCrsId=crs4326 Then ZoomToExtent(-180,-90,180,90)
                       Else ZoomToExtent(-1000,-1000,1000,1000);
 End;
@@ -3873,8 +3931,8 @@ Var
 Begin
  Any:=False;
  For I:=1 to NLay do
-  If(Lay[I].Visible or Not OnlyVisible)and Lay[I].HasExt Then Begin
-   LayerProjExtent(Lay[I],A,B,C,D);
+  If(Lay^[I].Visible or Not OnlyVisible)and Lay^[I].HasExt Then Begin
+   LayerProjExtent(Lay^[I],A,B,C,D);
    If Any Then Begin
     X1:=MinD(X1,A);Y1:=MinD(Y1,B);X2:=MaxD(X2,C);Y2:=MaxD(Y2,D);
    End
@@ -3900,8 +3958,8 @@ Var
  X1,Y1,X2,Y2:Double;
 Begin
  If(I<1)or(I>NLay)Then Exit;
- If Not Lay[I].HasExt Then Exit;
- LayerProjExtent(Lay[I],X1,Y1,X2,Y2);
+ If Not Lay^[I].HasExt Then Exit;
+ LayerProjExtent(Lay^[I],X1,Y1,X2,Y2);
  ZoomToExtent(X1,Y1,X2,Y2);
 End;
 
@@ -3915,13 +3973,13 @@ Var
 Begin
  Any:=False;
  For I:=1 to NLay do
-  If Lay[I].Kind=lkVector Then
-   For J:=1 to Lay[I].NF do Begin
-    F:=Lay[I].Feats^[J];
+  If Lay^[I].Kind=lkVector Then
+   For J:=1 to Lay^[I].NF do Begin
+    F:=Lay^[I].Feats^[J];
     If F^.Sel and(F^.Kind<>gkNone)Then Begin
      A:=F^.MinX;B:=F^.MinY;C:=F^.MaxX;D:=F^.MaxY;
-     TransformToProj(Lay[I],A,B);
-     TransformToProj(Lay[I],C,D);
+     TransformToProj(Lay^[I],A,B);
+     TransformToProj(Lay^[I],C,D);
      If Any Then Begin
       X1:=MinD(X1,MinD(A,C));Y1:=MinD(Y1,MinD(B,D));
       X2:=MaxD(X2,MaxD(A,C));Y2:=MaxD(Y2,MaxD(B,D));
@@ -4101,7 +4159,8 @@ Begin
  A:=0;
  For P:=0 to ScParts-1 do Begin
   B:=ScEnds^[P];
-  If(B-A=1)and(Abs(ScPts^[A].X)<1E7)and(Abs(ScPts^[A].Y)<1E7)Then SPix(Round(ScPts^[A].X),Round(ScPts^[A].Y),C);
+  If(B-A=1)and(Abs(ScPts^[A].X)<1E7)and(Abs(ScPts^[A].Y)<1E7)Then
+    SPix(Round(ScPts^[A].X),Round(ScPts^[A].Y),C);
   For I:=A to B-2 do
    SLineD(ScPts^[I].X,ScPts^[I].Y,ScPts^[I+1].X,ScPts^[I+1].Y,C);
   If Closed and(B-A>2)Then
@@ -4165,7 +4224,8 @@ End;
 
 Function RampColor(T:Double):Byte;
 Const
- Ramp:Array[0..9]of Byte=(Blue,LightBlue,Cyan,LightCyan,LightGreen,Green,Yellow,Brown,LightRed,White);
+ Ramp:Array[0..9]of Byte=(Blue,LightBlue,Cyan,LightCyan,LightGreen,Green,
+   Yellow,Brown,LightRed,White);
 Var
  I:Integer;
 Begin
@@ -4266,7 +4326,8 @@ Begin
      TX:=Round(MapToPxX(X))-Length(S)*4;
      TY:=Round(MapToPxY(Y))-4;
     End;
-    If(TX>=ClipL)and(TX+Length(S)*8<=ClipR)and(TY>=ClipT)and(TY+8<=ClipB)Then Begin
+    If(TX>=ClipL)and(TX+Length(S)*8<=ClipR)and(TY>=ClipT)and(TY+
+      8<=ClipB)Then Begin
      OutTextXY(TX,TY,S);
      Inc(Cnt);
     End;
@@ -4328,28 +4389,31 @@ Begin
  SBar(ClipL,ClipT,ClipR,ClipB,Background);
  If ShowGrid Then DrawGrid;
  For I:=NLay downto 1 do
-  If Lay[I].Visible Then Begin
-   If Lay[I].Kind=lkRaster Then DrawRaster(Lay[I]) Else Begin
-    For J:=1 to Lay[I].NF do Begin
-     F:=Lay[I].Feats^[J];
-     If(F^.Kind<>gkNone)and Not F^.Sel and FeatInView(Lay[I],F)Then DrawFeatureScr(Lay[I],F,False);
+  If Lay^[I].Visible Then Begin
+   If Lay^[I].Kind=lkRaster Then DrawRaster(Lay^[I]) Else Begin
+    For J:=1 to Lay^[I].NF do Begin
+     F:=Lay^[I].Feats^[J];
+     If(F^.Kind<>gkNone)and Not F^.Sel and FeatInView(Lay^[I],
+       F)Then DrawFeatureScr(Lay^[I],F,False);
     End;
-    For J:=1 to Lay[I].NF do Begin
-     F:=Lay[I].Feats^[J];
-     If(F^.Kind<>gkNone)and F^.Sel and FeatInView(Lay[I],F)Then DrawFeatureScr(Lay[I],F,True);
+    For J:=1 to Lay^[I].NF do Begin
+     F:=Lay^[I].Feats^[J];
+     If(F^.Kind<>gkNone)and F^.Sel and FeatInView(Lay^[I],
+       F)Then DrawFeatureScr(Lay^[I],F,True);
     End;
    End;
   End;
  If ShowLabels Then
   For I:=NLay downto 1 do
-   If Lay[I].Visible and(Lay[I].Kind=lkVector)Then DrawLabels(Lay[I]);
+   If Lay^[I].Visible and(Lay^[I].Kind=lkVector)Then DrawLabels(Lay^[I]);
  If MeasN>0 Then DrawMeasure;
  DrawScaleBar;
 End;
 
 { Rendu hors ecran dans OffBuf (largeur W, hauteur H) ; l'etendue est celle du
   projet (UseExt faux) ou celle donnee dans le SCR du projet }
-Function RenderOffscreen(W,H:LongInt;UseExt:Boolean;EX1,EY1,EX2,EY2:Double):Boolean;
+Function RenderOffscreen(W,H:LongInt;UseExt:Boolean;EX1,EY1,EX2,
+  EY2:Double):Boolean;
 Var
  SvL,SvT,SvR,SvB:LongInt;
  SvCX,SvCY,SvU:Double;
@@ -4798,7 +4862,8 @@ Begin
  AskYesNo:=Res;
 End;
 
-Function InputBox(Const Title,Prompt:String;Var S:String;MaxLen:Integer):Boolean;
+Function InputBox(Const Title,Prompt:String;Var S:String;
+  MaxLen:Integer):Boolean;
 Var
  D:TDlg;
  E:TEvent;
@@ -4875,8 +4940,10 @@ Begin
  InputBox:=Res;
 End;
 
-{ Selection dans une liste avec filtre a la frappe ; Sel recoit l'index d'origine }
-Function PickList(Const Title:String;P:PLineList;N:Integer;Var Sel:Integer;Filterable:Boolean):Boolean;
+{ Selection dans une liste avec filtre a la frappe ; Sel recoit l'index
+  d'origine }
+Function PickList(Const Title:String;P:PLineList;N:Integer;Var Sel:Integer;
+  Filterable:Boolean):Boolean;
 Var
  D:TDlg;
  Lb:TListBox;
@@ -4979,7 +5046,8 @@ Begin
 End;
 
 { Boite de dialogue de selection de fichier }
-Function FileDlg(Const Title,Filter:String;Save:Boolean;Var Path:String):Boolean;
+Function FileDlg(Const Title,Filter:String;Save:Boolean;
+  Var Path:String):Boolean;
 Var
  D:TDlg;
  Lb:TListBox;
@@ -5133,7 +5201,8 @@ Begin
  BX:=D.X+D.W div 2-100;
  BY:=D.Y+D.H-30;
  HM;
- If Save Then DrawButton(BX,BY,80,22,'Enregistrer',False) Else DrawButton(BX,BY,80,22,'Ouvrir',False);
+ If Save Then DrawButton(BX,BY,80,22,'Enregistrer',False) Else DrawButton(BX,
+   BY,80,22,'Ouvrir',False);
  DrawButton(BX+120,BY,80,22,'Annuler',False);
  SM;
  Fill;
@@ -5237,7 +5306,8 @@ Var
    End;
   End;
   Info:=Prm[Foc].Typ;
-  If Prm[Foc].Req Then Info:=Info+' (obligatoire)' Else Info:=Info+' (facultatif)';
+  If Prm[Foc].Req Then Info:=Info+' (obligatoire)' Else Info:=Info+
+    ' (facultatif)';
   Txt(D.X+10,D.Y+D.H-36-12,DarkGray,Copy(Info,1,(D.W-20)div 8));
   Txt(D.X+10,D.Y+D.H-36-22-12,Black,Copy(Prm[Foc].Desc,1,(D.W-20)div 8));
   SM;
@@ -5539,7 +5609,8 @@ Begin
    W:=0;
    For K:=0 to Menus[I].N-1 do Begin
     L:=Length(Menus[I].Items[K].Caption)*8+24;
-    If Menus[I].Items[K].Short<>'' Then L:=L+16+Length(Menus[I].Items[K].Short)*8;
+    If Menus[I].Items[K].Short<>'' Then L:=L+16+
+      Length(Menus[I].Items[K].Short)*8;
     If L>W Then W:=L;
    End;
    Menus[I].W:=W+16;
@@ -5550,12 +5621,14 @@ End;
 
 Function LayerIsVector:Boolean;
 Begin
- LayerIsVector:=(ActiveLay>=1)and(ActiveLay<=NLay)and(Lay[ActiveLay].Kind=lkVector);
+ LayerIsVector:=(ActiveLay>=1)and(ActiveLay<=NLay)
+   and(Lay^[ActiveLay].Kind=lkVector);
 End;
 
 Function LayerIsRaster:Boolean;
 Begin
- LayerIsRaster:=(ActiveLay>=1)and(ActiveLay<=NLay)and(Lay[ActiveLay].Kind=lkRaster);
+ LayerIsRaster:=(ActiveLay>=1)and(ActiveLay<=NLay)
+   and(Lay^[ActiveLay].Kind=lkRaster);
 End;
 
 Function AnyVector:Boolean;
@@ -5563,14 +5636,16 @@ Var
  I:Integer;
 Begin
  AnyVector:=False;
- For I:=1 to NLay do If Lay[I].Kind=lkVector Then AnyVector:=True;
+ For I:=1 to NLay do If Lay^[I].Kind=lkVector Then AnyVector:=True;
 End;
 
 Function IsEnabled(Cmd:Integer):Boolean;
 Begin
  Case Cmd of
-  cmSelAll,cmDeselect,cmSelInvert,cmSelExpr,cmAttrTable,cmSaveLayer:IsEnabled:=LayerIsVector;
-  cmZoomLayer,cmRemoveLayer,cmLayerVis,cmLayerColor,cmLayerProps,cmCrsLayer:IsEnabled:=ActiveLay>0;
+  cmSelAll,cmDeselect,cmSelInvert,cmSelExpr,cmAttrTable,
+    cmSaveLayer:IsEnabled:=LayerIsVector;
+  cmZoomLayer,cmRemoveLayer,cmLayerVis,cmLayerColor,cmLayerProps,
+    cmCrsLayer:IsEnabled:=ActiveLay>0;
   cmLayerFill:IsEnabled:=LayerIsVector;
   cmLayerUp:IsEnabled:=ActiveLay>1;
   cmLayerDown:IsEnabled:=(ActiveLay>0)and(ActiveLay<NLay);
@@ -5582,7 +5657,8 @@ Begin
   cmPlugins:IsEnabled:=Not OptNoPlugins and(QPath<>'');
   cmPython:IsEnabled:=Not OptNoPlugins;
   cmUpdate:IsEnabled:=Not OptNoVerCheck;
-  cmVecBuffer..cmVecExtent,cmRasSlope..cmRasPolygonize,cmToolbox,cmProcLast,cmProcHistory,cmProcLog:
+  cmVecBuffer..cmVecExtent,cmRasSlope..cmRasPolygonize,cmToolbox,cmProcLast,
+    cmProcHistory,cmProcLog:
    IsEnabled:=QPath<>'';
   Else IsEnabled:=True;
  End;
@@ -5602,8 +5678,8 @@ Begin
   cmPanel:IsChecked:=ShowPanel;
   cmCrs4326:IsChecked:=ProjCrsId=crs4326;
   cmCrs3857:IsChecked:=ProjCrsId=crs3857;
-  cmLayerFill:IsChecked:=LayerIsVector and Lay[ActiveLay].Fill;
-  cmLayerVis:IsChecked:=(ActiveLay>0)and Lay[ActiveLay].Visible;
+  cmLayerFill:IsChecked:=LayerIsVector and Lay^[ActiveLay].Fill;
+  cmLayerVis:IsChecked:=(ActiveLay>0)and Lay^[ActiveLay].Visible;
   Else IsChecked:=False;
  End;
 End;
@@ -5720,7 +5796,8 @@ Begin
  If Y>=MenuH Then Exit;
  For I:=0 to NMenus-1 do
   If Not Menus[I].Hidden Then
-   If(X>=Menus[I].X-4)and(X<=Menus[I].X+Length(Menus[I].Title)*8+3)Then MenuBarHit:=I;
+   If(X>=Menus[I].X-4)and(X<=Menus[I].X+Length(Menus[I].Title)*8+
+     3)Then MenuBarHit:=I;
 End;
 
 Function MenuItemHit(M:Integer;X,Y:LongInt):Integer;
@@ -5732,7 +5809,8 @@ Begin
  If(M<0)or(X<Menus[M].DX)or(X>Menus[M].DX+Menus[M].W)Then Exit;
  For I:=0 to Menus[M].N-1 do Begin
   Yt:=MenuH+ItemTop(Menus[M],I);
-  If(Y>=Yt)and(Y<Yt+ItemH(Menus[M],I))and(Menus[M].Items[I].Cmd<>cmNone)Then MenuItemHit:=I;
+  If(Y>=Yt)and(Y<Yt+ItemH(Menus[M],I))and(Menus[M].Items[I].Cmd<>cmNone)Then
+    MenuItemHit:=I;
  End;
 End;
 
@@ -5748,7 +5826,8 @@ Begin
   MenuSel:=MenuSel+Step;
   If MenuSel<0 Then MenuSel:=N-1;
   If MenuSel>=N Then MenuSel:=0;
-  If(Menus[MenuOpen].Items[MenuSel].Cmd<>cmNone)and IsEnabled(Menus[MenuOpen].Items[MenuSel].Cmd)Then Begin
+  If(Menus[MenuOpen].Items[MenuSel].Cmd<>cmNone)
+    and IsEnabled(Menus[MenuOpen].Items[MenuSel].Cmd)Then Begin
    DrawDropdown(MenuOpen);
    Exit;
   End;
@@ -5932,7 +6011,8 @@ Begin
  SetColor(DarkGray);
  Line(0,MenuH+ToolH-1,ScrW-1,MenuH+ToolH-1);
  For I:=1 to NBtn do Begin
-  Down:=IsChecked(TBtn[I].Cmd)and(TBtn[I].Cmd>=cmToolPan)and(TBtn[I].Cmd<=cmToolMeasure);
+  Down:=IsChecked(TBtn[I].Cmd)and(TBtn[I].Cmd>=cmToolPan)
+    and(TBtn[I].Cmd<=cmToolMeasure);
   En:=IsEnabled(TBtn[I].Cmd);
   If Down Then Box3D(TBtn[I].X,MenuH+2,TBtn[I].X+23,MenuH+25,False)
           Else Box3D(TBtn[I].X,MenuH+2,TBtn[I].X+23,MenuH+25,True);
@@ -5988,12 +6068,12 @@ Begin
   SetColor(Black);
   Rectangle(7,Y,16,Y+9);
   If I=ActiveLay Then SetColor(White);
-  If Lay[I].Visible Then Begin
+  If Lay^[I].Visible Then Begin
    Line(9,Y+4,11,Y+7);
    Line(11,Y+7,14,Y+2);
   End;
   { Symbole de la couche }
-  If Lay[I].Kind=lkRaster Then Begin
+  If Lay^[I].Kind=lkRaster Then Begin
    SetFillStyle(SolidFill,LightCyan);
    Bar(20,Y,28,Y+8);
    SetColor(Black);
@@ -6003,9 +6083,9 @@ Begin
   End
    Else
   Begin
-   SetFillStyle(SolidFill,Lay[I].Color);
-   SetColor(LayerDark[Lay[I].Color and 15]);
-   Case Lay[I].GType of
+   SetFillStyle(SolidFill,Lay^[I].Color);
+   SetColor(LayerDark[Lay^[I].Color and 15]);
+   Case Lay^[I].GType of
     gkLine:Begin
      Line(20,Y+8,28,Y);
      Line(20,Y+7,28,Y-1);
@@ -6020,7 +6100,7 @@ Begin
     End;
    End;
   End;
-  S:=Copy(Lay[I].Name,1,(PanelW-38)div 8);
+  S:=Copy(Lay^[I].Name,1,(PanelW-38)div 8);
   Txt(32,Y+1,FC,S);
  End;
  SM;
@@ -6130,7 +6210,8 @@ Var
  AttrZoom:Boolean;
 
 { Choix dans une liste de lignes ; Sel recoit l'index choisi }
-Function SmallPickL(Const Title:String;P:PLineList;N:Integer;Var Sel:Integer):Boolean;
+Function SmallPickL(Const Title:String;P:PLineList;N:Integer;
+  Var Sel:Integer):Boolean;
 Var
  D:TDlg;
  Lb:TListBox;
@@ -6357,7 +6438,7 @@ Var
  N:LongInt;
 Begin
  N:=0;
- For I:=1 to NLay do N:=N+CountSelected(Lay[I]);
+ For I:=1 to NLay do N:=N+CountSelected(Lay^[I]);
  TotalSelected:=N;
 End;
 
@@ -6367,8 +6448,8 @@ Var
  J:LongInt;
 Begin
  For I:=1 to NLay do
-  If Lay[I].Kind=lkVector Then
-   For J:=1 to Lay[I].NF do Lay[I].Feats^[J]^.Sel:=False;
+  If Lay^[I].Kind=lkVector Then
+   For J:=1 to Lay^[I].NF do Lay^[I].Feats^[J]^.Sel:=False;
 End;
 
 { Selection par expression simple : champ OP valeur }
@@ -6411,7 +6492,8 @@ Begin
   Val1:=Trim(Copy(Expr,P+Length(Ops[OpIdx]),255));
  End;
  If Op='<>' Then Op:='!=';
- If(Length(Val1)>=2)and(Val1[1] in['''','"'])Then Val1:=Copy(Val1,2,Length(Val1)-2);
+ If(Length(Val1)>=2)and(Val1[1] in['''','"'])Then Val1:=Copy(Val1,2,
+   Length(Val1)-2);
  If(Length(Fld)>=2)and(Fld[1]='"')Then Fld:=Copy(Fld,2,Length(Fld)-2);
  FI:=0;
  For K:=1 to L.NFld do If StrUp(L.Fld[K])=StrUp(Fld)Then FI:=K;
@@ -6425,7 +6507,8 @@ Begin
    If A<B Then C:=-1 Else If A>B Then C:=1 Else C:=0;
   End
    Else Begin
-   If StrUp(V)<StrUp(Val1)Then C:=-1 Else If StrUp(V)>StrUp(Val1)Then C:=1 Else C:=0;
+   If StrUp(V)<StrUp(Val1)Then C:=-1 Else If StrUp(V)>StrUp(Val1)Then C:=1
+     Else C:=0;
   End;
   Ok:=False;
   If Op='=' Then Ok:=C=0 Else
@@ -6535,29 +6618,31 @@ Var
  Len,Area:Double;
  U,S:String;
 Begin
- F:=Lay[LIdx].Feats^[FIdx];
+ F:=Lay^[LIdx].Feats^[FIdx];
  NewLines(P,N);
- AddLine(P,N,'Couche   : '+Lay[LIdx].Name);
- AddLine(P,N,'Entite   : '+IntStr(FIdx)+' / '+IntStr(Lay[LIdx].NF));
+ AddLine(P,N,'Couche   : '+Lay^[LIdx].Name);
+ AddLine(P,N,'Entite   : '+IntStr(FIdx)+' / '+IntStr(Lay^[LIdx].NF));
  AddLine(P,N,'Geometrie: '+GeomLabel(F^.Kind));
- If Lay[LIdx].CrsId=crsOther Then U:=' (unites de la couche)' Else U:='';
+ If Lay^[LIdx].CrsId=crsOther Then U:=' (unites de la couche)' Else U:='';
  If F^.Kind=gkPoint Then
   AddLine(P,N,'X, Y     : '+NumStr(F^.Pts^[0].X)+', '+NumStr(F^.Pts^[0].Y));
  If F^.Kind in[gkLine,gkPoly]Then Begin
-  FeatureMeasures(Lay[LIdx],F,Len,Area);
+  FeatureMeasures(Lay^[LIdx],F,Len,Area);
   If F^.Kind=gkPoly Then S:='Perimetre: ' Else S:='Longueur : ';
-  If Lay[LIdx].CrsId=crsOther Then AddLine(P,N,S+RealStr(Len,3)+U)
+  If Lay^[LIdx].CrsId=crsOther Then AddLine(P,N,S+RealStr(Len,3)+U)
   Else AddLine(P,N,S+RealStr(Len/1000,3)+' km');
   If F^.Kind=gkPoly Then Begin
-   If Lay[LIdx].CrsId=crsOther Then AddLine(P,N,'Aire     : '+RealStr(Area,3)+U)
+   If Lay^[LIdx].CrsId=crsOther Then AddLine(P,N,'Aire     : '+RealStr(Area,3)+
+     U)
    Else AddLine(P,N,'Aire     : '+RealStr(Area/1000000,3)+' km2');
   End;
  End;
- AddLine(P,N,'Sommets  : '+IntStr(F^.NPts)+' dans '+IntStr(F^.NParts)+' partie(s)');
+ AddLine(P,N,'Sommets  : '+IntStr(F^.NPts)+' dans '+IntStr(F^.NParts)+
+   ' partie(s)');
  AddLine(P,N,'');
  AddLine(P,N,'Attributs :');
- For I:=1 to Lay[LIdx].NFld do
-  AddLine(P,N,'  '+PadR(Lay[LIdx].Fld[I],14)+' = '+FeatAttr(Lay[LIdx],F,I));
+ For I:=1 to Lay^[LIdx].NFld do
+  AddLine(P,N,'  '+PadR(Lay^[LIdx].Fld[I],14)+' = '+FeatAttr(Lay^[LIdx],F,I));
  ViewLines('Resultats de l''identification',P,N,520,300);
  FreeLines(P,N);
 End;
@@ -6569,15 +6654,17 @@ Var
  S:String;
 Begin
  X:=MX;Y:=MY;
- If Lay[LIdx].CrsId<>ProjCrsId Then XfPt(ProjCrsId,Lay[LIdx].CrsId,X,Y);
- C:=Trunc((X-Lay[LIdx].RX0)/Lay[LIdx].RCell);
- R:=Trunc((Lay[LIdx].RY0-Y)/Lay[LIdx].RCell);
- If(X<Lay[LIdx].RX0)or(Y>Lay[LIdx].RY0)or(C<0)or(C>=Lay[LIdx].RW)or(R<0)or(R>=Lay[LIdx].RH)Then
-  SetMsg('Hors de la couche raster '+Lay[LIdx].Name)
+ If Lay^[LIdx].CrsId<>ProjCrsId Then XfPt(ProjCrsId,Lay^[LIdx].CrsId,X,Y);
+ C:=Trunc((X-Lay^[LIdx].RX0)/Lay^[LIdx].RCell);
+ R:=Trunc((Lay^[LIdx].RY0-Y)/Lay^[LIdx].RCell);
+ If(X<Lay^[LIdx].RX0)or(Y>Lay^[LIdx].RY0)or(C<0)or(C>=Lay^[LIdx].RW)or(R<0)
+   or(R>=Lay^[LIdx].RH)Then
+  SetMsg('Hors de la couche raster '+Lay^[LIdx].Name)
  Else Begin
-  V:=Lay[LIdx].RData^[R*Lay[LIdx].RW+C];
+  V:=Lay^[LIdx].RData^[R*Lay^[LIdx].RW+C];
   If V<-1E29 Then S:='aucune donnee' Else S:=NumStr(V);
-  SetMsg(Lay[LIdx].Name+' : colonne '+IntStr(C+1)+', ligne '+IntStr(R+1)+', valeur = '+S);
+  SetMsg(Lay^[LIdx].Name+' : colonne '+IntStr(C+1)+', ligne '+IntStr(R+1)+
+    ', valeur = '+S);
  End;
 End;
 
@@ -6589,33 +6676,35 @@ Var
 Begin
  If(I<1)or(I>NLay)Then Exit;
  NewLines(P,N);
- AddLine(P,N,'Nom      : '+Lay[I].Name);
- AddLine(P,N,'Source   : '+Lay[I].Source);
- AddLine(P,N,'SCR      : '+Lay[I].CRS);
- If Lay[I].Kind=lkRaster Then Begin
+ AddLine(P,N,'Nom      : '+Lay^[I].Name);
+ AddLine(P,N,'Source   : '+Lay^[I].Source);
+ AddLine(P,N,'SCR      : '+Lay^[I].CRS);
+ If Lay^[I].Kind=lkRaster Then Begin
   AddLine(P,N,'Type     : Raster (grille ASCII)');
-  AddLine(P,N,'Taille   : '+IntStr(Lay[I].RW)+' x '+IntStr(Lay[I].RH)+' cellules');
-  AddLine(P,N,'Cellule  : '+NumStr(Lay[I].RCell));
-  AddLine(P,N,'Minimum  : '+NumStr(Lay[I].RMin));
-  AddLine(P,N,'Maximum  : '+NumStr(Lay[I].RMax));
+  AddLine(P,N,'Taille   : '+IntStr(Lay^[I].RW)+' x '+IntStr(Lay^[I].RH)+
+    ' cellules');
+  AddLine(P,N,'Cellule  : '+NumStr(Lay^[I].RCell));
+  AddLine(P,N,'Minimum  : '+NumStr(Lay^[I].RMin));
+  AddLine(P,N,'Maximum  : '+NumStr(Lay^[I].RMax));
  End
   Else
  Begin
-  AddLine(P,N,'Type     : Vecteur - '+GeomLabel(Lay[I].GType));
-  AddLine(P,N,'Entites  : '+IntStr(Lay[I].NF)+' ('+IntStr(CountSelected(Lay[I]))+' selectionnee(s))');
-  AddLine(P,N,'Champs   : '+IntStr(Lay[I].NFld));
+  AddLine(P,N,'Type     : Vecteur - '+GeomLabel(Lay^[I].GType));
+  AddLine(P,N,'Entites  : '+IntStr(Lay^[I].NF)+' ('+
+    IntStr(CountSelected(Lay^[I]))+' selectionnee(s))');
+  AddLine(P,N,'Champs   : '+IntStr(Lay^[I].NFld));
  End;
- If Lay[I].HasExt Then Begin
+ If Lay^[I].HasExt Then Begin
   AddLine(P,N,'Etendue  :');
-  AddLine(P,N,'   X de '+NumStr(Lay[I].MinX)+' a '+NumStr(Lay[I].MaxX));
-  AddLine(P,N,'   Y de '+NumStr(Lay[I].MinY)+' a '+NumStr(Lay[I].MaxY));
+  AddLine(P,N,'   X de '+NumStr(Lay^[I].MinX)+' a '+NumStr(Lay^[I].MaxX));
+  AddLine(P,N,'   Y de '+NumStr(Lay^[I].MinY)+' a '+NumStr(Lay^[I].MaxY));
  End;
- If Lay[I].Kind=lkVector Then Begin
+ If Lay^[I].Kind=lkVector Then Begin
   AddLine(P,N,'');
   AddLine(P,N,'Champs :');
-  For K:=1 to Lay[I].NFld do Begin
-   S:='  '+PadR(Lay[I].Fld[K],24);
-   If K=Lay[I].LblFld Then S:=S+' (etiquette)';
+  For K:=1 to Lay^[I].NFld do Begin
+   S:='  '+PadR(Lay^[I].Fld[K],24);
+   If K=Lay^[I].LblFld Then S:=S+' (etiquette)';
    AddLine(P,N,S);
   End;
  End;
@@ -6685,12 +6774,12 @@ Var
   S:String;
  Begin
   ColW[0]:=7;
-  For C:=1 to Lay[LIdx].NFld do Begin
-   M:=Length(Lay[LIdx].Fld[C]);
-   Lim:=Lay[LIdx].NF;
+  For C:=1 to Lay^[LIdx].NFld do Begin
+   M:=Length(Lay^[LIdx].Fld[C]);
+   Lim:=Lay^[LIdx].NF;
    If Lim>100 Then Lim:=100;
    For R:=1 to Lim do Begin
-    S:=FeatAttr(Lay[LIdx],Lay[LIdx].Feats^[R],C);
+    S:=FeatAttr(Lay^[LIdx],Lay^[LIdx].Feats^[R],C);
     If Length(S)>M Then M:=Length(S);
    End;
    If M>22 Then M:=22;
@@ -6714,9 +6803,10 @@ Var
   For C:=ColOff to NCol-1 do Begin
    If X+ColW[C]*8+4>D.X+W-24 Then C:=NCol Else Begin
     Box3D(X,Y,X+ColW[C]*8+3,Y+13,True);
-    If C=0 Then S:='fid' Else S:=Lay[LIdx].Fld[C];
+    If C=0 Then S:='fid' Else S:=Lay^[LIdx].Fld[C];
     If C=SortCol Then Begin
-     If SortDesc Then S:=Copy(S,1,ColW[C]-1)+#31 Else S:=Copy(S,1,ColW[C]-1)+#30;
+     If SortDesc Then S:=Copy(S,1,ColW[C]-1)+#31 Else S:=Copy(S,1,ColW[C]-1)+
+       #30;
     End;
     Txt(X+2,Y+3,Black,Copy(S,1,ColW[C]));
     X:=X+ColW[C]*8+4;
@@ -6726,31 +6816,34 @@ Var
   Sunken(D.X+8,Y+14,D.X+W-9,Y+14+Rows*12+3,White);
   For R:=0 to Rows-1 do Begin
    Idx:=Top+R;
-   If Idx<=Lay[LIdx].NF Then Begin
+   If Idx<=Lay^[LIdx].NF Then Begin
     Fi:=OrdA^[Idx];
-    Sel:=Lay[LIdx].Feats^[Fi]^.Sel;
+    Sel:=Lay^[LIdx].Feats^[Fi]^.Sel;
     Y:=D.Y+24+14+2+R*12;
     If Sel Then Begin
      SetFillStyle(SolidFill,Blue);
      Fg:=White;
     End
      Else Begin
-     If Idx=Cur Then SetFillStyle(SolidFill,LightCyan) Else SetFillStyle(SolidFill,White);
+     If Idx=Cur Then SetFillStyle(SolidFill,LightCyan) Else
+       SetFillStyle(SolidFill,White);
      Fg:=Black;
     End;
     Bar(D.X+9,Y-1,D.X+W-10,Y+10);
     X:=D.X+8;
     For C:=ColOff to NCol-1 do Begin
      If X+ColW[C]*8+4>D.X+W-24 Then C:=NCol Else Begin
-      If C=0 Then S:=IntStr(Fi) Else S:=FeatAttr(Lay[LIdx],Lay[LIdx].Feats^[Fi],C);
+      If C=0 Then S:=IntStr(Fi) Else S:=FeatAttr(Lay^[LIdx],
+        Lay^[LIdx].Feats^[Fi],C);
       Txt(X+2,Y+1,Fg,Copy(S,1,ColW[C]));
       X:=X+ColW[C]*8+4;
      End;
     End;
    End;
   End;
-  Nsel:=CountSelected(Lay[LIdx]);
-  Txt(D.X+10,D.Y+H-48,Black,IntStr(Lay[LIdx].NF)+' entites, '+IntStr(Nsel)+' selectionnee(s) - Haut/Bas, Espace=selection, Entree=zoom');
+  Nsel:=CountSelected(Lay^[LIdx]);
+  Txt(D.X+10,D.Y+H-48,Black,IntStr(Lay^[LIdx].NF)+' entites, '+IntStr(Nsel)+
+    ' selectionnee(s) - Haut/Bas, Espace=selection, Entree=zoom');
   DrawButton(D.X+W-100,BY,90,22,'Fermer',False);
   DrawButton(D.X+10,BY,120,22,'Deselectionner',False);
   DrawButton(D.X+140,BY,100,22,'Tout select.',False);
@@ -6760,7 +6853,7 @@ Var
  Procedure Fix;
  Begin
   If Cur<1 Then Cur:=1;
-  If Cur>Lay[LIdx].NF Then Cur:=Lay[LIdx].NF;
+  If Cur>Lay^[LIdx].NF Then Cur:=Lay^[LIdx].NF;
   If Cur<Top Then Top:=Cur;
   If Cur>=Top+Rows Then Top:=Cur-Rows+1;
   If Top<1 Then Top:=1;
@@ -6783,32 +6876,32 @@ Var
    SortCol:=C;
    SortDesc:=False;
   End;
-  SortOrder(Lay[LIdx],OrdA,C,SortDesc);
+  SortOrder(Lay^[LIdx],OrdA,C,SortDesc);
   Top:=1;
  End;
  Procedure ToggleCur;
  Var
   F:PFeature;
  Begin
-  F:=Lay[LIdx].Feats^[OrdA^[Cur]];
+  F:=Lay^[LIdx].Feats^[OrdA^[Cur]];
   F^.Sel:=Not F^.Sel;
  End;
 Var
  X1,Y1,X2,Y2:Double;
  R:LongInt;
 Begin
- If(LIdx<1)or(LIdx>NLay)or(Lay[LIdx].Kind<>lkVector)Then Begin
+ If(LIdx<1)or(LIdx>NLay)or(Lay^[LIdx].Kind<>lkVector)Then Begin
   MsgBox('Table d''attributs','Cette couche n''a pas de table d''attributs.');
   Exit;
  End;
- If Lay[LIdx].NF=0 Then Exit;
+ If Lay^[LIdx].NF=0 Then Exit;
  AttrZoom:=False;
- GetMem(OrdA,Lay[LIdx].NF*SizeOf(LongInt));
- For I:=1 to Lay[LIdx].NF do OrdA^[I]:=I;
+ GetMem(OrdA,Lay^[LIdx].NF*SizeOf(LongInt));
+ For I:=1 to Lay^[LIdx].NF do OrdA^[I]:=I;
  W:=ScrW-30;
  H:=ScrH-40;
- DlgOpen(D,W,H,'Table d''attributs - '+Lay[LIdx].Name);
- NCol:=Lay[LIdx].NFld+1;
+ DlgOpen(D,W,H,'Table d''attributs - '+Lay^[LIdx].Name);
+ NCol:=Lay^[LIdx].NFld+1;
  ComputeWidths;
  Rows:=(H-24-14-4-56)div 12;
  BY:=D.Y+H-30;
@@ -6825,7 +6918,7 @@ Begin
       73:Dec(Cur,Rows-1);
       81:Inc(Cur,Rows-1);
       71:Cur:=1;
-      79:Cur:=Lay[LIdx].NF;
+      79:Cur:=Lay^[LIdx].NF;
       75:If ColOff>0 Then Dec(ColOff);
       77:If ColOff<NCol-1 Then Inc(ColOff);
      End;
@@ -6840,7 +6933,7 @@ Begin
     End
      Else
     If E.Key=#13 Then Begin
-     Lay[LIdx].Feats^[OrdA^[Cur]]^.Sel:=True;
+     Lay^[LIdx].Feats^[OrdA^[Cur]]^.Sel:=True;
      AttrZoom:=True;
      Done:=True;
     End;
@@ -6849,12 +6942,12 @@ Begin
    If(E.What=evDown)and(E.Btn=1)Then Begin
     If InRect(E.X,E.Y,D.X+W-100,BY,D.X+W-11,BY+21)Then Done:=True Else
     If InRect(E.X,E.Y,D.X+10,BY,D.X+129,BY+21)Then Begin
-     For I:=1 to Lay[LIdx].NF do Lay[LIdx].Feats^[I]^.Sel:=False;
+     For I:=1 to Lay^[LIdx].NF do Lay^[LIdx].Feats^[I]^.Sel:=False;
      Redraw;
     End
      Else
     If InRect(E.X,E.Y,D.X+140,BY,D.X+239,BY+21)Then Begin
-     For I:=1 to Lay[LIdx].NF do Lay[LIdx].Feats^[I]^.Sel:=True;
+     For I:=1 to Lay^[LIdx].NF do Lay^[LIdx].Feats^[I]^.Sel:=True;
      Redraw;
     End
      Else
@@ -6875,7 +6968,7 @@ Begin
       Else
      If InRect(E.X,E.Y,D.X+9,D.Y+24+14+1,D.X+W-10,D.Y+24+14+Rows*12+1)Then Begin
       R:=Top+(E.Y-(D.Y+24+14+1))div 12;
-      If(R>=1)and(R<=Lay[LIdx].NF)Then Begin
+      If(R>=1)and(R<=Lay^[LIdx].NF)Then Begin
        Cur:=R;
        ToggleCur;
        Redraw;
@@ -6888,7 +6981,7 @@ Begin
    Else WaitTick;
  End;
  DlgClose(D);
- FreeMem(OrdA,Lay[LIdx].NF*SizeOf(LongInt));
+ FreeMem(OrdA,Lay^[LIdx].NF*SizeOf(LongInt));
  FlushEvents;
 End;
 { ------------------------------------------------------------------ }
@@ -6897,7 +6990,8 @@ End;
 
 Procedure HelpLines(P:PLineList;Var N:Integer);
 Begin
- AddLine(P,N,'QGIS - Clone Pascal '+VersionStr+' (compatible QGIS '+QgisCompat+')');
+ AddLine(P,N,'QGIS - Clone Pascal '+VersionStr+' (compatible QGIS '+QgisCompat+
+   ')');
  AddLine(P,N,'');
  AddLine(P,N,'Syntaxe : QGIS [options] [fichiers]');
  AddLine(P,N,'');
@@ -6905,36 +6999,48 @@ Begin
  AddLine(P,N,'  --help                 Affiche l''aide des parametres');
  AddLine(P,N,'  --version              Affiche la version de QGIS');
  AddLine(P,N,'  --nologo               N''affiche pas le logo de demarrage');
- AddLine(P,N,'  --noversioncheck       Desactive la verification de nouvelle version');
+ AddLine(P,N,'  --noversioncheck       Desactive la verification de nouvelle'+
+   ' version');
  AddLine(P,N,'  --noplugins            Desactive le chargement des plugins');
- AddLine(P,N,'  --nocustomization      Desactive les personnalisations de l''interface');
- AddLine(P,N,'                         (CUSTOM.INI du profil, lignes HideMenu=nom)');
- AddLine(P,N,'  --optionspath <path>   Repertoire des options (reglages) de QGIS');
- AddLine(P,N,'  --configpath <path>    Repertoire de configuration (remplace le profil)');
+ AddLine(P,N,'  --nocustomization      Desactive les personnalisations de '+
+   'l''interface');
+ AddLine(P,N,'                         (CUSTOM.INI du profil, lignes HideMen'+
+   'u=nom)');
+ AddLine(P,N,'  --optionspath <path>   Repertoire des options (reglages) de '+
+   'QGIS');
+ AddLine(P,N,'  --configpath <path>    Repertoire de configuration (remplace'+
+   ' le profil)');
  AddLine(P,N,'  --profiles-path <path> Emplacement des profils QGIS');
  AddLine(P,N,'  --profile <nom>        Utilise un profil QGIS particulier');
  AddLine(P,N,'  --project <fichier>    Ouvre un projet QGIS (.qgs)');
- AddLine(P,N,'  --snapshot <fichier>   Produit une capture de la carte (.png ou .bmp)');
+ AddLine(P,N,'  --snapshot <fichier>   Produit une capture de la carte (.png'+
+   ' ou .bmp)');
  AddLine(P,N,'  --width <n>            Largeur de la capture (defaut 800)');
  AddLine(P,N,'  --height <n>           Hauteur de la capture (defaut 600)');
  AddLine(P,N,'  --extent <x1,y1,x2,y2> Etendue de la capture (SCR du projet)');
  AddLine(P,N,'  --code <fichier>       Execute du code Python au demarrage');
  AddLine(P,N,'  --python <fichier>     Execute un script Python');
  AddLine(P,N,'  --dxf-export <fichier> Export DXF des couches vecteur');
- AddLine(P,N,'  --dxf-extent <x1,y1,x2,y2>  Etendue utilisee pour l''export DXF');
+ AddLine(P,N,'  --dxf-extent <x1,y1,x2,y2>  Etendue utilisee pour l''export '+
+   'DXF');
  AddLine(P,N,'  --dxf-scale-denom <n>  Denominateur d''echelle du DXF');
  AddLine(P,N,'  --dxf-encoding <nom>   Encodage du DXF (ex. CP1252)');
  AddLine(P,N,'  --dxf-symbology-mode <no|symbollayer|feature>  (accepte)');
  AddLine(P,N,'  --dxf-preset <nom>     Prereglage de visibilite (accepte)');
  AddLine(P,N,'');
- AddLine(P,N,'Fichiers : projets .qgs, couches .geojson .json .shp .csv, rasters .asc');
+ AddLine(P,N,'Fichiers : projets .qgs, couches .geojson .json .shp .csv, ras'+
+   'ters .asc');
  AddLine(P,N,'');
- AddLine(P,N,'Les algorithmes (menus Vecteur, Raster et Traitement) sont executes par');
- AddLine(P,N,'QGIS_PROCESS, qui doit etre dans le meme repertoire, le repertoire courant');
+ AddLine(P,N,'Les algorithmes (menus Vecteur, Raster et Traitement) sont exe'+
+   'cutes par');
+ AddLine(P,N,'QGIS_PROCESS, qui doit etre dans le meme repertoire, le repert'+
+   'oire courant');
  AddLine(P,N,'ou le PATH.');
  AddLine(P,N,'');
- AddLine(P,N,'Raccourcis : Alt+lettre = menu, Ctrl+N/O/S = projet, Ctrl+V/T/R = ajouter');
- AddLine(P,N,'  F5 rafraichir, F6 table, F9 boite a outils, Home tout, +/- zoom, fleches');
+ AddLine(P,N,'Raccourcis : Alt+lettre = menu, Ctrl+N/O/S = projet, Ctrl+V/T/'+
+   'R = ajouter');
+ AddLine(P,N,'  F5 rafraichir, F6 table, F9 boite a outils, Home tout, +/- z'+
+   'oom, fleches');
  AddLine(P,N,'  deplacement, Ctrl+Q quitter.');
 End;
 
@@ -6961,7 +7067,10 @@ Function NeedQgisProcess:Boolean;
 Begin
  NeedQgisProcess:=QPath<>'';
  If QPath='' Then
-  MsgBox('QGIS_PROCESS introuvable','Les algorithmes de traitement sont executes par QGIS_PROCESS. Placer QGIS_PROCESS (ou QGIS_PROCESS.EXE) dans le meme repertoire que QGIS, dans le repertoire courant ou dans le PATH.');
+  MsgBox('QGIS_PROCESS introuvable',
+    'Les algorithmes de traitement sont executes par QGIS_PROCESS. Placer QG'+
+      'IS_PROCESS (ou QGIS_PROCESS.EXE) dans le meme repertoire que QGIS, da'+
+        'ns le repertoire courant ou dans le PATH.');
 End;
 
 Function LoadAlgos:Boolean;
@@ -6973,6 +7082,7 @@ Begin
  LoadAlgos:=NAlgo>0;
  If NAlgo>0 Then Exit;
  If Not NeedQgisProcess Then Exit;
+ If Algos=Nil Then GetMem(Algos,SizeOf(TAlgoArr));
  SetMsg('Lecture de la liste des algorithmes...');
  If QpRun('list',ListFile)<>0 Then Begin
   SetMsg('');
@@ -6987,8 +7097,8 @@ Begin
    T:=Pos(' ',S);
    If T>0 Then Begin
     Inc(NAlgo);
-    AlgoId[NAlgo]:=Copy(S,1,T-1);
-    AlgoTitle[NAlgo]:=Trim(Copy(S,T+1,255));
+    Algos^[NAlgo].Id:=Copy(S,1,T-1);
+    Algos^[NAlgo].Title:=Trim(Copy(S,T+1,255));
    End;
   End;
  End;
@@ -7002,18 +7112,20 @@ Function LayerGeoJsonPath(I:Integer):String;
 Var
  E,Path:String;
 Begin
- E:=ExtOf(Lay[I].Source);
- If((E='.geojson')or(E='.json'))and FileExist(Lay[I].Source)Then Begin
-  LayerGeoJsonPath:=Lay[I].Source;
+ E:=ExtOf(Lay^[I].Source);
+ If((E='.geojson')or(E='.json'))and FileExist(Lay^[I].Source)Then Begin
+  LayerGeoJsonPath:=Lay^[I].Source;
   Exit;
  End;
  EnsureDirs;
- Path:=JoinPath(ProcDir,'layer_'+Sanitize(Lay[I].Name)+'.geojson');
- If WriteGeoJSON(Lay[I],Path,False)Then LayerGeoJsonPath:=Path Else LayerGeoJsonPath:='';
+ Path:=JoinPath(ProcDir,'layer_'+Sanitize(Lay^[I].Name)+'.geojson');
+ If WriteGeoJSON(Lay^[I],Path,False)Then LayerGeoJsonPath:=Path Else
+   LayerGeoJsonPath:='';
 End;
 
 { Lit les parametres d'un algorithme dans la sortie de "help" }
-Function ReadHelp(Const Id:String;Var Prm:Array of TParam;Var NP:Integer;Var Title:String):Boolean;
+Function ReadHelp(Const Id:String;Var Prm:Array of TParam;Var NP:Integer;
+  Var Title:String):Boolean;
 Var
  P:PLineList;
  N,I:Integer;
@@ -7067,7 +7179,7 @@ Var
 Begin
  NextVectorLayer:=0;
  For I:=After+1 to NLay do
-  If Lay[I].Kind=lkVector Then Begin
+  If Lay^[I].Kind=lkVector Then Begin
    NextVectorLayer:=I;
    Exit;
   End;
@@ -7079,7 +7191,7 @@ Var
 Begin
  NextRasterLayer:=0;
  For I:=After+1 to NLay do
-  If Lay[I].Kind=lkRaster Then Begin
+  If Lay^[I].Kind=lkRaster Then Begin
    NextRasterLayer:=I;
    Exit;
   End;
@@ -7119,7 +7231,7 @@ Begin
     Cur:=NextRasterLayer(0);
     If Cur=ActiveLay Then Cur:=NextRasterLayer(Cur);
    End;
-   If Cur>0 Then Prm[I].Value:=Lay[Cur].Source;
+   If Cur>0 Then Prm[I].Value:=Lay^[Cur].Source;
   End
    Else
   If T='vectorDestination' Then
@@ -7180,7 +7292,8 @@ Begin
  SetMsg('Lecture des parametres de '+Id+'...');
  If Not ReadHelp(Id,Prm,NP,Title)Then Begin
   SetMsg('');
-  MsgBox('Algorithme inconnu','QGIS_PROCESS ne connait pas l''algorithme '+Id+'.');
+  MsgBox('Algorithme inconnu','QGIS_PROCESS ne connait pas l''algorithme '+Id+
+    '.');
   Exit;
  End;
  SetMsg('');
@@ -7194,14 +7307,16 @@ Begin
   For I:=0 to NP-1 do
    If Ok and Prm[I].Req and(Prm[I].Value='')Then Begin
     Ok:=False;
-    MsgBox('Parametre manquant','Le parametre '+Prm[I].Name+' est obligatoire.');
+    MsgBox('Parametre manquant','Le parametre '+Prm[I].Name+
+      ' est obligatoire.');
    End;
  End;
  SetMsg('Execution de '+Id+'...');
  ScriptOpen;
  ScriptAdd(QuoteArg(QPath)+' run '+Id);
  For I:=0 to NP-1 do
-  If Prm[I].Value<>'' Then ScriptAdd(' '+QuoteArg('--'+Prm[I].Name+'='+Prm[I].Value));
+  If Prm[I].Value<>'' Then ScriptAdd(' '+QuoteArg('--'+Prm[I].Name+'='+
+    Prm[I].Value));
  Code:=ScriptRun(LogFile);
  Assign(H,HistoryFile);
  {$I-}Append(H);{$I+}
@@ -7246,11 +7361,12 @@ Var
 Begin
  If Not LoadAlgos Then Exit;
  NewLines(P,N);
- For I:=1 to NAlgo do AddLine(P,N,PadR(AlgoId[I],42)+AlgoTitle[I]);
+ For I:=1 to NAlgo do AddLine(P,N,PadR(Algos^[I].Id,42)+Algos^[I].Title);
  Sel:=1;
- If PickList('Boite a outils de traitement (taper pour filtrer)',P,N,Sel,True)Then Begin
+ If PickList('Boite a outils de traitement (taper pour filtrer)',P,N,Sel,
+   True)Then Begin
   FreeLines(P,N);
-  RunAlgorithm(AlgoId[Sel]);
+  RunAlgorithm(Algos^[Sel].Id);
  End
   Else FreeLines(P,N);
 End;
@@ -7270,8 +7386,11 @@ End;
 { ------------------------------------------------------------------ }
 
 Const
- ColorNames='Vert clair|Bleu clair|Jaune|Rouge clair|Cyan clair|Magenta clair|Brun|Gris clair|Vert|Bleu|Rouge|Magenta|Cyan|Noir|Gris fonce|Blanc';
- ColorCodes:Array[1..16]of Byte=(LightGreen,LightBlue,Yellow,LightRed,LightCyan,LightMagenta,Brown,LightGray,Green,Blue,Red,Magenta,Cyan,Black,DarkGray,White);
+ ColorNames='Vert clair|Bleu clair|Jaune|Rouge clair|Cyan clair|Magenta clai'+
+   'r|Brun|Gris clair|Vert|Bleu|Rouge|Magenta|Cyan|Noir|Gris fonce|Blanc';
+ ColorCodes:Array[1..16]of Byte=(LightGreen,LightBlue,Yellow,LightRed,
+   LightCyan,LightMagenta,Brown,LightGray,Green,Blue,Red,Magenta,Cyan,Black,
+     DarkGray,White);
 
 Var
  Dragging,RubberOn:Boolean;
@@ -7279,7 +7398,8 @@ Var
 
 Function ConfirmDiscard:Boolean;
 Begin
- If Dirty and(NLay>0)Then ConfirmDiscard:=AskYesNo('QGIS','Le projet a ete modifie. Abandonner les modifications ?')
+ If Dirty and(NLay>0)Then ConfirmDiscard:=AskYesNo('QGIS',
+   'Le projet a ete modifie. Abandonner les modifications ?')
                      Else ConfirmDiscard:=True;
 End;
 
@@ -7296,8 +7416,9 @@ End;
 Procedure AddFile(Const FN:String);
 Begin
  If AddLayerFromFile(FN,'')>0 Then Begin
-  If Truncated Then SetMsg('Attention : couche tronquee (limite de memoire atteinte)')
-               Else SetMsg('Couche ajoutee : '+Lay[1].Name);
+  If Truncated Then SetMsg('Attention : couche tronquee (limite de memoire a'+
+    'tteinte)')
+               Else SetMsg('Couche ajoutee : '+Lay^[1].Name);
   If NLay=1 Then Begin
    SetupCanvas;
    ZoomAll;
@@ -7333,7 +7454,8 @@ Begin
  If FileDlg('Enregistrer le projet sous','.qgs',True,Path)Then Begin
   If ExtOf(Path)<>'.qgs' Then Path:=Path+'.qgs';
   If FileExist(Path)Then
-   If Not AskYesNo('Enregistrer',FileOf(Path)+' existe deja. Remplacer ?')Then Exit;
+   If Not AskYesNo('Enregistrer',FileOf(Path)+' existe deja. Remplacer ?')Then
+     Exit;
   ProjFile:=Path;
   If SaveProject(Path)Then Begin
    Dirty:=False;
@@ -7364,7 +7486,8 @@ Var
  Ok:Boolean;
 Begin
  Path:=JoinPath(LastDir,'carte.png');
- If Not FileDlg('Exporter la carte en image (.png ou .bmp)','.png;.bmp',True,Path)Then Exit;
+ If Not FileDlg('Exporter la carte en image (.png ou .bmp)','.png;.bmp',True,
+   Path)Then Exit;
  If ExtOf(Path)<>'.bmp' Then Begin
   If ExtOf(Path)<>'.png' Then Path:=Path+'.png';
  End;
@@ -7388,8 +7511,10 @@ Begin
  Path:=JoinPath(LastDir,'export.dxf');
  If Not FileDlg('Exporter en DXF','.dxf',True,Path)Then Exit;
  If ExtOf(Path)<>'.dxf' Then Path:=Path+'.dxf';
- If ExportDXF(Path,False,0,0,0,0)Then SetMsg('DXF enregistre ('+IntStr(DxfCnt)+' entites) : '+Path)
-                                 Else MsgBox('Erreur','Impossible d''ecrire '+Path);
+ If ExportDXF(Path,False,0,0,0,0)Then SetMsg('DXF enregistre ('+IntStr(DxfCnt)+
+   ' entites) : '+Path)
+                                 Else MsgBox('Erreur','Impossible d''ecrire '+
+                                   Path);
 End;
 
 Procedure SetTool(T:Byte);
@@ -7429,9 +7554,12 @@ Var
 Begin
  If Not LayerIsVector Then Exit;
  S:='';
- If InputBox('Selection par expression','champ = valeur  (=, !=, <, >, <=, >=, LIKE)',S,80)Then Begin
-  N:=SelectByExpr(Lay[ActiveLay],S);
-  If N<0 Then MsgBox('Expression invalide','Syntaxe : champ OP valeur, ou OP est =, !=, <, >, <=, >= ou LIKE. Champs de la couche : '+IntStr(Lay[ActiveLay].NFld))
+ If InputBox('Selection par expression',
+   'champ = valeur  (=, !=, <, >, <=, >=, LIKE)',S,80)Then Begin
+  N:=SelectByExpr(Lay^[ActiveLay],S);
+  If N<0 Then MsgBox('Expression invalide',
+    'Syntaxe : champ OP valeur, ou OP est =, !=, <, >, <=, >= ou LIKE. Champ'+
+      's de la couche : '+IntStr(Lay^[ActiveLay].NFld))
   Else Begin
    RedrawMapArea;
    SelectionMsg;
@@ -7447,7 +7575,7 @@ Begin
  A:=ActiveLay;
  B:=A+Dir;
  If(A<1)or(B<1)or(B>NLay)Then Exit;
- T:=Lay[A];Lay[A]:=Lay[B];Lay[B]:=T;
+ T:=Lay^[A];Lay^[A]:=Lay^[B];Lay^[B]:=T;
  ActiveLay:=B;
  Dirty:=True;
  FullRedraw;
@@ -7499,7 +7627,10 @@ End;
 
 Procedure DoAbout;
 Begin
- ShowText('A propos de QGIS','QGIS - Clone Pascal '+VersionStr+'|Compatible avec les parametres de QGIS '+QgisCompat+'|Turbo Pascal 7 / Free Pascal|Projet GEO Commander - https://www.gladir.com/geo-commander|Auteur : Sylvain Maltais (support@gladir.com)');
+ ShowText('A propos de QGIS','QGIS - Clone Pascal '+VersionStr+
+   '|Compatible avec les parametres de QGIS '+QgisCompat+
+     '|Turbo Pascal 7 / Free Pascal|Projet GEO Commander - https://www.gladi'+
+       'r.com/geo-commander|Auteur : Sylvain Maltais (support@gladir.com)');
 End;
 
 Procedure DoPython;
@@ -7544,7 +7675,8 @@ Begin
   End;
   cmOpen:Begin
    Path:=ProjFile;
-   If FileDlg('Ouvrir un projet QGIS (.qgs)','.qgs',False,Path)Then OpenProjectFile(Path);
+   If FileDlg('Ouvrir un projet QGIS (.qgs)','.qgs',False,
+     Path)Then OpenProjectFile(Path);
   End;
   cmRecent:Begin
    NewLines(P,N);
@@ -7560,7 +7692,8 @@ Begin
   cmExportDXF:DoExportDXF;
   cmProjProps:Begin
    S:=ProjTitle;
-   If InputBox('Proprietes du projet','Titre du projet (SCR : '+ProjCRS+')',S,60)Then Begin
+   If InputBox('Proprietes du projet','Titre du projet (SCR : '+ProjCRS+')',S,
+     60)Then Begin
     ProjTitle:=S;
     Dirty:=True;
     DrawStatusInfo;
@@ -7569,7 +7702,7 @@ Begin
   cmQuit:If ConfirmDiscard Then Running:=False;
 
   cmSelAll:Begin
-   For I:=1 to Lay[ActiveLay].NF do Lay[ActiveLay].Feats^[I]^.Sel:=True;
+   For I:=1 to Lay^[ActiveLay].NF do Lay^[ActiveLay].Feats^[I]^.Sel:=True;
    RedrawMapArea;
    SelectionMsg;
   End;
@@ -7579,7 +7712,7 @@ Begin
    SelectionMsg;
   End;
   cmSelInvert:Begin
-   InvertSelection(Lay[ActiveLay]);
+   InvertSelection(Lay^[ActiveLay]);
    RedrawMapArea;
    SelectionMsg;
   End;
@@ -7627,7 +7760,8 @@ Begin
     RedrawMapArea;
     SelectionMsg;
    End
-    Else MsgBox('Table d''attributs','Selectionner une couche vecteur dans le panneau des couches.');
+    Else MsgBox('Table d''attributs',
+      'Selectionner une couche vecteur dans le panneau des couches.');
   End;
   cmLabels:Begin
    ShowLabels:=Not ShowLabels;
@@ -7645,15 +7779,18 @@ Begin
 
   cmAddVector:Begin
    Path:='';
-   If FileDlg('Ajouter une couche vecteur','.geojson;.json;.shp;.csv;.txt',False,Path)Then AddFile(Path);
+   If FileDlg('Ajouter une couche vecteur','.geojson;.json;.shp;.csv;.txt',
+     False,Path)Then AddFile(Path);
   End;
   cmAddCSV:Begin
    Path:='';
-   If FileDlg('Ajouter un texte delimite','.csv;.txt;.tsv',False,Path)Then AddFile(Path);
+   If FileDlg('Ajouter un texte delimite','.csv;.txt;.tsv',False,
+     Path)Then AddFile(Path);
   End;
   cmAddRaster:Begin
    Path:='';
-   If FileDlg('Ajouter une couche raster (grille ASCII)','.asc',False,Path)Then AddFile(Path);
+   If FileDlg('Ajouter une couche raster (grille ASCII)','.asc',False,
+     Path)Then AddFile(Path);
   End;
   cmRemoveLayer:Begin
    RemoveLayerAt(ActiveLay);
@@ -7662,26 +7799,29 @@ Begin
   cmLayerUp:MoveLayer(-1);
   cmLayerDown:MoveLayer(1);
   cmLayerVis:Begin
-   Lay[ActiveLay].Visible:=Not Lay[ActiveLay].Visible;
+   Lay^[ActiveLay].Visible:=Not Lay^[ActiveLay].Visible;
    Dirty:=True;
    FullRedraw;
   End;
   cmLayerFill:Begin
-   Lay[ActiveLay].Fill:=Not Lay[ActiveLay].Fill;
+   Lay^[ActiveLay].Fill:=Not Lay^[ActiveLay].Fill;
    FullRedraw;
   End;
   cmLayerColor:Begin
-   ChooseColor(Lay[ActiveLay].Color,'Couleur de la couche');
+   ChooseColor(Lay^[ActiveLay].Color,'Couleur de la couche');
    Dirty:=True;
    FullRedraw;
   End;
   cmLayerProps:LayerProperties(ActiveLay);
   cmSaveLayer:Begin
-   Path:=JoinPath(LastDir,Sanitize(Lay[ActiveLay].Name)+'.geojson');
-   If FileDlg('Enregistrer la couche en GeoJSON','.geojson;.json',True,Path)Then Begin
-    If(ExtOf(Path)<>'.geojson')and(ExtOf(Path)<>'.json')Then Path:=Path+'.geojson';
-    If WriteGeoJSON(Lay[ActiveLay],Path,(CountSelected(Lay[ActiveLay])>0)and
-       AskYesNo('Enregistrer','Enregistrer seulement les entites selectionnees ?'))Then
+   Path:=JoinPath(LastDir,Sanitize(Lay^[ActiveLay].Name)+'.geojson');
+   If FileDlg('Enregistrer la couche en GeoJSON','.geojson;.json',True,
+     Path)Then Begin
+    If(ExtOf(Path)<>'.geojson')and(ExtOf(Path)<>'.json')Then Path:=Path+
+      '.geojson';
+    If WriteGeoJSON(Lay^[ActiveLay],Path,(CountSelected(Lay^[ActiveLay])>0)and
+       AskYesNo('Enregistrer',
+         'Enregistrer seulement les entites selectionnees ?'))Then
      SetMsg('Couche enregistree : '+Path)
     Else MsgBox('Erreur','Impossible d''ecrire '+Path);
    End;
@@ -7689,7 +7829,7 @@ Begin
 
   cmCrs4326:SetProjCrs(crs4326,'EPSG:4326');
   cmCrs3857:SetProjCrs(crs3857,'EPSG:3857');
-  cmCrsLayer:SetProjCrs(Lay[ActiveLay].CrsId,Lay[ActiveLay].CRS);
+  cmCrsLayer:SetProjCrs(Lay^[ActiveLay].CrsId,Lay^[ActiveLay].CRS);
   cmBackground:Begin
    ChooseColor(Background,'Couleur de fond de la carte');
    RedrawMapArea;
@@ -7697,7 +7837,8 @@ Begin
   cmProfileInfo,cmCmdLine:DoCmdLineInfo;
 
   cmPlugins:Begin
-   If QpRun('plugins',LogFile)=0 Then ViewFile('Gestionnaire d''extensions',LogFile)
+   If QpRun('plugins',LogFile)=0 Then ViewFile('Gestionnaire d''extensions',
+     LogFile)
    Else MsgBox('Erreur','Impossible d''obtenir la liste des extensions.');
   End;
   cmPython:DoPython;
@@ -7725,15 +7866,18 @@ Begin
    FullRedraw;
   End;
   cmProcLast:Begin
-   If LastAlgo='' Then MsgBox('Traitement','Aucun algorithme n''a encore ete execute.')
+   If LastAlgo='' Then MsgBox('Traitement',
+     'Aucun algorithme n''a encore ete execute.')
                   Else ProcAlgo(LastAlgo);
   End;
   cmProcHistory:Begin
-   If FileExist(HistoryFile)Then ViewFile('Historique de traitement',HistoryFile)
+   If FileExist(HistoryFile)Then ViewFile('Historique de traitement',
+     HistoryFile)
    Else MsgBox('Traitement','L''historique est vide.');
   End;
   cmProcLog:Begin
-   If(LastLog<>'')and FileExist(LastLog)Then ViewFile('Journal du dernier algorithme',LastLog)
+   If(LastLog<>'')and FileExist(LastLog)Then
+     ViewFile('Journal du dernier algorithme',LastLog)
    Else MsgBox('Traitement','Aucun journal disponible.');
   End;
 
@@ -7744,7 +7888,9 @@ Begin
    FreeLines(P,N);
   End;
   cmAbout:DoAbout;
-  cmUpdate:MsgBox('Mise a jour','Aucune mise a jour disponible : la verification n''est pas possible hors ligne.');
+  cmUpdate:MsgBox('Mise a jour',
+    'Aucune mise a jour disponible : la verification n''est pas possible hor'+
+      's ligne.');
  End;
  DrawToolbar;
 End;
@@ -7780,7 +7926,8 @@ Begin
  Tot:=0;
  For I:=2 to MeasN do Tot:=Tot+ProjDist(MeasPts[I-1],MeasPts[I]);
  If ProjCrsId=crsOther Then SetMsg('Distance : '+RealStr(Tot,3)+' unites')
- Else If Tot>=1000 Then SetMsg('Distance : '+RealStr(Tot/1000,3)+' km ('+RealStr(Tot,0)+' m)')
+ Else If Tot>=1000 Then SetMsg('Distance : '+RealStr(Tot/1000,3)+' km ('+
+   RealStr(Tot,0)+' m)')
  Else SetMsg('Distance : '+RealStr(Tot,2)+' m');
  RedrawMapArea;
 End;
@@ -7820,25 +7967,25 @@ Begin
   tlMeasure:MeasureAdd(MX,MY);
   tlIdentify:Begin
    If ActiveLay<1 Then SetMsg('Aucune couche active') Else
-   If Lay[ActiveLay].Kind=lkRaster Then IdentifyRaster(ActiveLay,MX,MY)
+   If Lay^[ActiveLay].Kind=lkRaster Then IdentifyRaster(ActiveLay,MX,MY)
    Else Begin
     { Couche active d'abord, puis les autres couches visibles }
     L:=ActiveLay;
-    Idx:=FeatureAt(Lay[L],E.X,E.Y,5);
+    Idx:=FeatureAt(Lay^[L],E.X,E.Y,5);
     K:=0;
     While(Idx=0)and(K<NLay)do Begin
      Inc(K);
-     If(K<>ActiveLay)and Lay[K].Visible and(Lay[K].Kind=lkVector)Then Begin
-      Idx:=FeatureAt(Lay[K],E.X,E.Y,5);
+     If(K<>ActiveLay)and Lay^[K].Visible and(Lay^[K].Kind=lkVector)Then Begin
+      Idx:=FeatureAt(Lay^[K],E.X,E.Y,5);
       If Idx>0 Then L:=K;
      End;
     End;
     If Idx>0 Then Begin
-     WasSel:=Lay[L].Feats^[Idx]^.Sel;
-     Lay[L].Feats^[Idx]^.Sel:=True;
+     WasSel:=Lay^[L].Feats^[Idx]^.Sel;
+     Lay^[L].Feats^[Idx]^.Sel:=True;
      RedrawMapArea;
      IdentifyFeature(L,Idx);
-     Lay[L].Feats^[Idx]^.Sel:=WasSel;
+     Lay^[L].Feats^[Idx]^.Sel:=WasSel;
      RedrawMapArea;
     End
      Else SetMsg('Aucune entite a cet endroit');
@@ -7877,16 +8024,16 @@ Begin
   End;
   tlSelect:Begin
    If ActiveLay<1 Then Exit;
-   If Lay[ActiveLay].Kind<>lkVector Then Begin
+   If Lay^[ActiveLay].Kind<>lkVector Then Begin
     SetMsg('La couche active n''est pas une couche vecteur');
     Exit;
    End;
    ClearSelection;
    If(Abs(DX)<4)and(Abs(DY)<4)Then Begin
-    Idx:=FeatureAt(Lay[ActiveLay],E.X,E.Y,5);
-    If Idx>0 Then Lay[ActiveLay].Feats^[Idx]^.Sel:=True;
+    Idx:=FeatureAt(Lay^[ActiveLay],E.X,E.Y,5);
+    If Idx>0 Then Lay^[ActiveLay].Feats^[Idx]^.Sel:=True;
    End
-    Else SelectInRect(Lay[ActiveLay],DragX0,DragY0,E.X,E.Y,False);
+    Else SelectInRect(Lay^[ActiveLay],DragX0,DragY0,E.X,E.Y,False);
    RedrawMapArea;
    SelectionMsg;
   End;
@@ -7923,9 +8070,10 @@ Begin
  If E.Btn=2 Then Begin
   ActiveLay:=I;
   DrawPanel;
-  S:='Zoom sur la couche|Table d''attributs|Proprietes|Monter|Descendre|Changer la couleur|Supprimer';
+  S:='Zoom sur la couche|Table d''attributs|Proprietes|Monter|Descendre|Chan'+
+    'ger la couleur|Supprimer';
   Sel:=1;
-  If SmallPick(Lay[I].Name,S,Sel)Then Begin
+  If SmallPick(Lay^[I].Name,S,Sel)Then Begin
    Case Sel of
     1:ExecCmd(cmZoomLayer);
     2:ExecCmd(cmAttrTable);
@@ -7939,7 +8087,7 @@ Begin
   Exit;
  End;
  If OnCheck Then Begin
-  Lay[I].Visible:=Not Lay[I].Visible;
+  Lay^[I].Visible:=Not Lay^[I].Visible;
   Dirty:=True;
   RedrawMapArea;
   DrawPanel;
@@ -8243,7 +8391,8 @@ Begin
    End
     Else
    If Nm='--version' Then Begin
-    WriteLn('QGIS ',VersionStr,' ''Pascal'' (clone compatible QGIS ',QgisCompat,')');
+    WriteLn('QGIS ',VersionStr,' ''Pascal'' (clone compatible QGIS ',
+      QgisCompat,')');
     Halt(0);
    End
     Else
@@ -8271,7 +8420,8 @@ Begin
    End
     Else
    If Nm='--height' Then Begin
-    If Not StrToLong(Need,OptHeight)Then BadOption('--height attend un entier.');
+    If Not StrToLong(Need,OptHeight)Then
+      BadOption('--height attend un entier.');
    End
     Else
    { Options acceptees sans effet }
@@ -8328,7 +8478,9 @@ End;
 Procedure InitGlobals;
 Begin
  InitCharsets;
- FillChar(Lay,SizeOf(Lay),0);
+ GetMem(Lay,SizeOf(TLayArr));
+ FillChar(Lay^,SizeOf(TLayArr),0);
+ Algos:=Nil;
  NLay:=0;ActiveLay:=0;
  ProjCrsId:=crs4326;
  ProjCRS:='EPSG:4326';
@@ -8421,9 +8573,11 @@ Begin
  End
   Else
  Begin
-  If Code=-1 Then WriteLn('Erreur : impossible d''executer l''interpreteur Python.')
+  If Code=-1 Then WriteLn('Erreur : impossible d''executer l''interpreteur P'+
+    'ython.')
   Else Begin
-   If Code<>0 Then WriteLn('Le script Python s''est termine avec le code ',Code);
+   If Code<>0 Then WriteLn('Le script Python s''est termine avec le code ',
+     Code);
    Script:=ReadFirstLine(LogFile);
   End;
  End;
@@ -8491,9 +8645,11 @@ Begin
    RunHeadless:=3;
    Exit;
   End;
-  If ExtOf(OptSnapshot)='.bmp' Then Ok:=SaveBMP(OptSnapshot) Else Ok:=SavePNG(OptSnapshot);
+  If ExtOf(OptSnapshot)='.bmp' Then Ok:=SaveBMP(OptSnapshot) Else
+    Ok:=SavePNG(OptSnapshot);
   FreeOffscreen;
-  If Ok Then WriteLn('Capture enregistree : ',OptSnapshot,' (',OptWidth,'x',OptHeight,')')
+  If Ok Then WriteLn('Capture enregistree : ',OptSnapshot,' (',OptWidth,'x',
+    OptHeight,')')
   Else Begin
    WriteLn('Erreur : impossible d''ecrire ',OptSnapshot);
    RunHeadless:=3;
@@ -8533,10 +8689,13 @@ Begin
  SetColor(Black);
  OutTextXY(X-Length('QGIS - Clone Pascal')*4,Y+90,'QGIS - Clone Pascal');
  OutTextXY(X-Length('Version '+VersionStr)*4,Y+106,'Version '+VersionStr);
- OutTextXY(X-Length('Compatible avec les parametres de QGIS '+QgisCompat)*4,Y+122,'Compatible avec les parametres de QGIS '+QgisCompat);
+ OutTextXY(X-Length('Compatible avec les parametres de QGIS '+QgisCompat)*4,Y+
+   122,'Compatible avec les parametres de QGIS '+QgisCompat);
  SetColor(DarkGray);
- OutTextXY(X-Length('GEO Commander - gladir.com')*4,Y+150,'GEO Commander - gladir.com');
- If OptNoPlugins Then OutTextXY(X-Length('(extensions desactivees)')*4,Y+170,'(extensions desactivees)');
+ OutTextXY(X-Length('GEO Commander - gladir.com')*4,Y+150,
+   'GEO Commander - gladir.com');
+ If OptNoPlugins Then OutTextXY(X-Length('(extensions desactivees)')*4,Y+170,
+   '(extensions desactivees)');
  SM;
  N:=0;
  While N<150 do Begin
@@ -8566,7 +8725,8 @@ Begin
  If(OptProject<>'')or(OptNFiles>0)Then Begin
   LoadStartup(True);
   SetupCanvas;
-  If PExtOk and(OptProject<>'')Then ZoomToExtent(PEx1,PEy1,PEx2,PEy2) Else ZoomAll;
+  If PExtOk and(OptProject<>'')Then ZoomToExtent(PEx1,PEy1,PEx2,
+    PEy2) Else ZoomAll;
   RedrawAll;
  End;
  If(OptCode<>'')or(OptPython<>'')Then Begin
