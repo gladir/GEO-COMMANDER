@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"martinique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Fort-de-France","region":"Martinique","population":253995,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-61.08,14.61]}}
+]}

@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"liban_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Beirut","region":"Beirut","population":1846000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[35.508,33.874]}},
+{"type":"Feature","properties":{"nom":"Tarabulus","region":"North Lebanon","population":530000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.832,34.438]}},
+{"type":"Feature","properties":{"nom":"Saida","region":"South Lebanon","population":173894,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.369,33.563]}},
+{"type":"Feature","properties":{"nom":"Nabatiye et Tahta","region":"An Nabatiyah","population":80000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.45,33.383]}},
+{"type":"Feature","properties":{"nom":"Zahlé","region":"Mount Lebanon","population":78145,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.904,33.85]}},
+{"type":"Feature","properties":{"nom":"B'abda","region":"Mount Lebanon","population":9000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.533,33.833]}}
+]}

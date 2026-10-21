@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"malte_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Valletta","region":null,"population":368250,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[14.515,35.9]}}
+]}

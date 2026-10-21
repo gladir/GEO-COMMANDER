@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"laos_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Vientiane","region":"Vientiane [prefecture]","population":754000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[102.6,17.967]}},
+{"type":"Feature","properties":{"nom":"Louangphrabang","region":"Louangphrabang","population":107142,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.142,19.885]}},
+{"type":"Feature","properties":{"nom":"Pakxe","region":"Champasak","population":102775,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.818,15.122]}},
+{"type":"Feature","properties":{"nom":"Savannakhet","region":"Savannakhét","population":84898,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.773,16.538]}},
+{"type":"Feature","properties":{"nom":"Thakhek","region":"Khammouan","population":76928,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.836,17.411]}},
+{"type":"Feature","properties":{"nom":"Xam Nua","region":"Houaphan","population":38992,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.033,20.417]}},
+{"type":"Feature","properties":{"nom":"Phonsavan","region":"Xiangkhoang","population":37507,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.196,19.452]}},
+{"type":"Feature","properties":{"nom":"Xaignabouri","region":"Xaignabouri","population":16200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.75,19.25]}},
+{"type":"Feature","properties":{"nom":"Champasak","region":"Champasak","population":12994,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.867,14.883]}},
+{"type":"Feature","properties":{"nom":"Ban Houayxay","region":"Bokeo","population":6347,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.413,20.277]}},
+{"type":"Feature","properties":{"nom":"Phongsali","region":"Phôngsali","population":6000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.1,21.683]}},
+{"type":"Feature","properties":{"nom":"Saravan","region":"Saravan","population":5521,"capitale":"non"},"geometry":{"type":"Point","coordinates":[106.427,15.716]}},
+{"type":"Feature","properties":{"nom":"Attapu","region":"Attapu","population":4297,"capitale":"non"},"geometry":{"type":"Point","coordinates":[106.839,14.808]}},
+{"type":"Feature","properties":{"nom":"Louang Namtha","region":"Louang Namtha","population":3225,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.417,20.95]}}
+]}

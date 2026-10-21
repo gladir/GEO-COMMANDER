@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"mauritanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nouakchott","region":"Nouakchott","population":742144,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-15.975,18.086]}},
+{"type":"Feature","properties":{"nom":"Saint-Louis","region":"Trarza","population":220792,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-16.51,16.02]}},
+{"type":"Feature","properties":{"nom":"Nema","region":"Hodh ech Chargui","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.25,16.617]}},
+{"type":"Feature","properties":{"nom":"Nouadhibou","region":"Dakhlet Nouadhibou","population":86738,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-17.056,20.9]}},
+{"type":"Feature","properties":{"nom":"Kiffa","region":"Assaba","population":73930,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-11.4,16.62]}},
+{"type":"Feature","properties":{"nom":"Zouirat","region":"Tiris Zemmour","population":56345,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-12.483,22.73]}},
+{"type":"Feature","properties":{"nom":"Rosso","region":"Trarza","population":47203,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.813,16.524]}},
+{"type":"Feature","properties":{"nom":"Atar","region":"Adrar","population":44265,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-13.05,20.517]}},
+{"type":"Feature","properties":{"nom":"Tidjikdja","region":"Tagant","population":19981,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-11.417,18.55]}},
+{"type":"Feature","properties":{"nom":"Boutilimit","region":"Trarza","population":14142,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.7,17.55]}},
+{"type":"Feature","properties":{"nom":"Bogue","region":"Brakna","population":10415,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.27,16.59]}},
+{"type":"Feature","properties":{"nom":"Aleg","region":"Brakna","population":8388,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-13.909,17.058]}},
+{"type":"Feature","properties":{"nom":"Fderik","region":"Tiris Zemmour","population":5760,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-12.707,22.679]}},
+{"type":"Feature","properties":{"nom":"Ayoun el Atrous","region":"Hodh el Gharbi","population":1423,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.617,16.667]}},
+{"type":"Feature","properties":{"nom":"Sélibaby","region":"Guidimaka","population":460,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-12.183,15.167]}}
+]}

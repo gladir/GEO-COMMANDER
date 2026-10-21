@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"liechtenstein_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Vaduz","region":null,"population":36281,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[9.517,47.134]}}
+]}

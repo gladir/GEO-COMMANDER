@@ -78,6 +78,10 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   (declarees en EPSG:4326). Les contours des petites iles (Norfolk, Heard,
   Turques-et-Caiques, Maurice, etc.) sont tres generalises (Natural Earth
   10 m). Les iles Bouvet : voir bouvet.qgs.
+- kiribati.qgs : longitudes de 0 a 360 degres (declarees en EPSG:4326) ; les
+  atolls (Kiribati, Maldives) sont tres petits a cette echelle et peu visibles.
+  martinique.qgs et mayotte.qgs : departements d'outre-mer extraits de la
+  France (Natural Earth).
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -258,34 +262,62 @@ Liste des projets :
   iowa.qgs                 Carte de l'État de l'Iowa
   irak.qgs                 Carte de l'Irak
   iran.qgs                 Carte de l'Iran
+  irlande.qgs              Carte de l'Irlande
+  islande.qgs              Carte de l'Islande
+  israel.qgs               Carte d'Israël
   italie.qgs               Carte de l'Italie
   jamaique.qgs             Carte de la Jamaïque
   japon.qgs                Carte du Japon
   jordanie.qgs             Carte de la Jordanie
   kansas.qgs               Carte de l'État du Kansas
+  kazakhstan.qgs           Carte du Kazakhstan
   kentucky.qgs             Carte de l'État du Kentucky
+  kenya.qgs                Carte du Kenya
+  kirghizistan.qgs         Carte du Kirghizistan
+  kiribati.qgs             Carte du Kiribati
+  koweit.qgs               Carte du Koweït
   kyoto.qgs                Carte de la ville de Kyoto (Japon) avec ses rues
   lac_ontario.qgs          Carte du lac Ontario
   lac_saintjean.qgs        Carte du lac Saint-Jean
   lac_superieur.qgs        Carte du lac Supérieur
   lachute.qgs              Carte de la ville de Lachute (Québec) avec ses rues
+  laos.qgs                 Carte du Laos
   lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
   laval.qgs                Carte de la ville de Laval (Québec)
   laval_ouest.qgs          Carte de Laval-Ouest (Laval, Québec) avec ses rues
   lecaire.qgs              Carte de la ville du Caire (Égypte)
+  lesotho.qgs              Carte du Lesotho
+  lettonie.qgs             Carte de la Lettonie
+  liban.qgs                Carte du Liban
+  liberia.qgs              Carte du Libéria
+  libye.qgs                Carte de la Libye
+  liechtenstein.qgs        Carte du Liechtenstein
   lituanie.qgs             Carte de la Lituanie
   londres.qgs              Carte de la ville de Londres (Royaume-Uni) avec ses rues
   losangeles.qgs           Carte de la ville de Los Angeles (États-Unis)
   louisiane.qgs            Carte de l'État de la Louisiane
+  luxembourg.qgs           Carte du Luxembourg
+  macao.qgs                Carte de Macao
+  macedoine.qgs            Carte de la Macédoine du Nord
+  madagascar.qgs           Carte de Madagascar
   maine.qgs                Carte de l'État du Maine
+  malaisie.qgs             Carte de la Malaisie
+  malawi.qgs               Carte du Malawi
+  maldives.qgs             Carte des Maldives
+  mali.qgs                 Carte du Mali
   malouines.qgs            Carte des îles Malouines (Falkland)
+  malte.qgs                Carte de Malte
   manitoba.qgs             Carte du Manitoba
+  mariannes.qgs            Carte des Mariannes du Nord
   maroc.qgs                Carte du Maroc
   marseille.qgs            Carte de la ville de Marseille (France) avec ses rues
   marshall.qgs             Carte des îles Marshall
+  martinique.qgs           Carte de la Martinique
   maryland.qgs             Carte de l'État du Maryland
   massachusetts.qgs        Carte de l'État du Massachusetts
   maurice.qgs              Carte de l'île Maurice
+  mauritanie.qgs           Carte de la Mauritanie
+  mayotte.qgs              Carte de Mayotte
   metro_londres.qgs        Le métro de Londres (London Underground)
   metro_montreal.qgs       Le métro de Montréal (STM)
   metro_moscou.qgs         Le métro de Moscou

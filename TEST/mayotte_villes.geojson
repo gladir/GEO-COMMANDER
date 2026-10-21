@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"mayotte_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dzaoudzi","region":"Moyotte","population":32057,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.275,-12.787]}}
+]}

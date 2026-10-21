@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"liberia_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Monrovia","region":"Montserrado","population":1041000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-10.8,6.315]}},
+{"type":"Feature","properties":{"nom":"Buchanan","region":"Grand Bassa","population":48315,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-10.052,5.916]}},
+{"type":"Feature","properties":{"nom":"Gbarnga","region":"Bong","population":45835,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.49,7.01]}},
+{"type":"Feature","properties":{"nom":"Kakata","region":"Margibi","population":33945,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-10.349,6.526]}},
+{"type":"Feature","properties":{"nom":"Harper","region":"Maryland","population":32661,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.717,4.375]}},
+{"type":"Feature","properties":{"nom":"Voinjama","region":"Lofa","population":26594,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.75,8.417]}},
+{"type":"Feature","properties":{"nom":"Zwedru","region":"GrandGedeh","population":25678,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.13,6.07]}},
+{"type":"Feature","properties":{"nom":"Robertsport","region":"Grand Cape Mount","population":11969,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-11.369,6.753]}},
+{"type":"Feature","properties":{"nom":"Sanniquellie","region":"Nimba","population":11415,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.685,7.371]}},
+{"type":"Feature","properties":{"nom":"Greenville","region":"Sinoe","population":10374,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.039,5.011]}},
+{"type":"Feature","properties":{"nom":"Bensonville","region":"Montserrado","population":4089,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-10.6,6.433]}},
+{"type":"Feature","properties":{"nom":"Barclayville","region":"GrandKru","population":2733,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.232,4.674]}},
+{"type":"Feature","properties":{"nom":"Rivercess","region":"River Cess","population":2578,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.578,5.465]}}
+]}

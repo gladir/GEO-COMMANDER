@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"kirghizistan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bishkek","region":"Bishkek","population":837000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[74.583,42.875]}},
+{"type":"Feature","properties":{"nom":"Osh","region":"Osh","population":391277,"capitale":"non"},"geometry":{"type":"Point","coordinates":[72.79,40.54]}},
+{"type":"Feature","properties":{"nom":"Jalal Abad","region":"Jalal-Abad","population":248899,"capitale":"non"},"geometry":{"type":"Point","coordinates":[73.003,40.943]}},
+{"type":"Feature","properties":{"nom":"Tokmak","region":"Bishkek","population":112860,"capitale":"non"},"geometry":{"type":"Point","coordinates":[75.285,42.83]}},
+{"type":"Feature","properties":{"nom":"Kara Balta","region":"Bishkek","population":74133,"capitale":"non"},"geometry":{"type":"Point","coordinates":[73.886,42.831]}},
+{"type":"Feature","properties":{"nom":"Karakol","region":"Ysyk-Köl","population":70171,"capitale":"non"},"geometry":{"type":"Point","coordinates":[78.382,42.492]}},
+{"type":"Feature","properties":{"nom":"Naryn","region":"Naryn","population":52300,"capitale":"non"},"geometry":{"type":"Point","coordinates":[75.991,41.426]}},
+{"type":"Feature","properties":{"nom":"Balykchy","region":"Ysyk-Köl","population":40527,"capitale":"non"},"geometry":{"type":"Point","coordinates":[76.185,42.456]}},
+{"type":"Feature","properties":{"nom":"Talas","region":"Talas","population":35172,"capitale":"non"},"geometry":{"type":"Point","coordinates":[72.243,42.518]}},
+{"type":"Feature","properties":{"nom":"Toktogul","region":"Jalal-Abad","population":26115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[72.937,41.883]}},
+{"type":"Feature","properties":{"nom":"Tash Komur","region":"Jalal-Abad","population":23594,"capitale":"non"},"geometry":{"type":"Point","coordinates":[72.231,41.342]}},
+{"type":"Feature","properties":{"nom":"Cholpon Ata","region":"Ysyk-Köl","population":18595,"capitale":"non"},"geometry":{"type":"Point","coordinates":[77.081,42.651]}},
+{"type":"Feature","properties":{"nom":"At Bashy","region":"Naryn","population":15601,"capitale":"non"},"geometry":{"type":"Point","coordinates":[75.797,41.172]}},
+{"type":"Feature","properties":{"nom":"Kok Yangak","region":"Jalal-Abad","population":15000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[73.206,41.031]}}
+]}

@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"malawi_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Lilongwe","region":"Lilongwe","population":646750,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[33.783,-13.983]}},
+{"type":"Feature","properties":{"nom":"Blantyre","region":"Blantyre","population":584877,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.99,-15.79]}},
+{"type":"Feature","properties":{"nom":"Mzuzu","region":"Mzimba","population":110201,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.02,-11.46]}},
+{"type":"Feature","properties":{"nom":"Mangochi","region":"Mangochi","population":97711,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.27,-14.46]}},
+{"type":"Feature","properties":{"nom":"Zomba","region":"Zomba","population":80932,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.31,-15.39]}},
+{"type":"Feature","properties":{"nom":"Salima","region":"Salima","population":71181,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.433,-13.783]}},
+{"type":"Feature","properties":{"nom":"Nkhotakota","region":"Nkhotakota","population":59854,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.3,-12.916]}},
+{"type":"Feature","properties":{"nom":"Karonga","region":"Chitipa","population":34207,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.933,-9.933]}},
+{"type":"Feature","properties":{"nom":"Chiromo","region":"Nsanje","population":25235,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.133,-16.55]}},
+{"type":"Feature","properties":{"nom":"Nkhata Bay","region":"Nkhata Bay","population":22108,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.3,-11.6]}},
+{"type":"Feature","properties":{"nom":"Nsanje","region":"Nsanje","population":21774,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.267,-16.917]}},
+{"type":"Feature","properties":{"nom":"Mzimba","region":"Mzimba","population":19308,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.6,-11.9]}},
+{"type":"Feature","properties":{"nom":"Mchinji","region":"Mchinji","population":18305,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.9,-13.8]}},
+{"type":"Feature","properties":{"nom":"Mulanje","region":"Mulanje","population":16483,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.5,-16.033]}},
+{"type":"Feature","properties":{"nom":"Dedza","region":"Dedza","population":15608,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.333,-14.367]}}
+]}

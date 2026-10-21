@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"islande_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Reykjavík","region":"Suðurnes","population":166212,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-21.937,64.143]}},
+{"type":"Feature","properties":{"nom":"Akureyri","region":"Akureyri","population":16563,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-18.1,65.667]}},
+{"type":"Feature","properties":{"nom":"Keflavík","region":"Suðurnes","population":7930,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-22.567,64.017]}},
+{"type":"Feature","properties":{"nom":"Selfoss","region":"Biskupstungnahreppur","population":6275,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-20.997,63.933]}},
+{"type":"Feature","properties":{"nom":"Sauðárkrókur","region":"Akrahreppur","population":2682,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-19.639,65.746]}},
+{"type":"Feature","properties":{"nom":"Ísafjörður","region":"Vestfirðir","population":2534,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-23.15,66.083]}},
+{"type":"Feature","properties":{"nom":"Egilsstaðir","region":"Austur-Hérað","population":2265,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-14.395,65.267]}},
+{"type":"Feature","properties":{"nom":"Borgarnes","region":"Vesturland","population":1783,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-21.862,64.57]}},
+{"type":"Feature","properties":{"nom":"Höfn","region":"Sveitarfélagið Hornafjörður","population":1695,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-15.214,64.272]}}
+]}
