@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"yukon_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Whitehorse","population":23276,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-135.05,60.717]}},
+{"type":"Feature","properties":{"nom":"Dawson City","population":1319,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-139.417,64.067]}},
+{"type":"Feature","properties":{"nom":"Watson Lake","population":802,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-128.712,60.062]}},
+{"type":"Feature","properties":{"nom":"Burwash Landing","population":73,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-139,61.35]}}
+]}

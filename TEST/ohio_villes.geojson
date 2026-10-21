@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"ohio_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Cleveland","population":1890000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.697,41.472]}},
+{"type":"Feature","properties":{"nom":"Cincinnati","population":1636000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.459,39.164]}},
+{"type":"Feature","properties":{"nom":"Columbus","population":1270000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-82.992,39.982]}},
+{"type":"Feature","properties":{"nom":"Dayton","population":773000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.202,39.752]}},
+{"type":"Feature","properties":{"nom":"Akron","population":703200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.52,41.07]}},
+{"type":"Feature","properties":{"nom":"Toledo","population":469924,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.553,41.64]}},
+{"type":"Feature","properties":{"nom":"Youngstown","population":311990,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.65,41.1]}},
+{"type":"Feature","properties":{"nom":"Canton","population":258660,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.379,40.799]}},
+{"type":"Feature","properties":{"nom":"Springfield","population":84576,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.8,39.92]}},
+{"type":"Feature","properties":{"nom":"Mansfield","population":77768,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.516,40.758]}},
+{"type":"Feature","properties":{"nom":"Lima","population":68364,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.105,40.743]}},
+{"type":"Feature","properties":{"nom":"Lancaster","population":48829,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.605,39.719]}},
+{"type":"Feature","properties":{"nom":"Zanesville","population":40052,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.013,39.94]}},
+{"type":"Feature","properties":{"nom":"Bowling Green","population":37080,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.651,41.375]}}
+]}

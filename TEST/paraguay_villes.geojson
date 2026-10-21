@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"paraguay_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Asunción","region":"Asunción","population":1870000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-57.626,-25.291]}},
+{"type":"Feature","properties":{"nom":"San Lorenzo","region":"Asunción","population":500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.52,-25.34]}},
+{"type":"Feature","properties":{"nom":"Encarnación","region":"Itapúa","population":357119,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.874,-27.347]}},
+{"type":"Feature","properties":{"nom":"Ciudad del Este","region":"Alto Paran","population":320872,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.616,-25.517]}},
+{"type":"Feature","properties":{"nom":"Pedro Juan Caballero","region":"Amambay","population":102787,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.76,-22.545]}},
+{"type":"Feature","properties":{"nom":"Coronel Oviedo","region":"Caaguazú","population":88101,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.44,-25.45]}},
+{"type":"Feature","properties":{"nom":"Concepción","region":"Concepción","population":59118,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.434,-23.406]}},
+{"type":"Feature","properties":{"nom":"Villarrica","region":"Guairá","population":41157,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.433,-25.75]}},
+{"type":"Feature","properties":{"nom":"Itá","region":"Asunción","population":41090,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.36,-25.51]}},
+{"type":"Feature","properties":{"nom":"Ypacaraí","region":"Asunción","population":30150,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.28,-25.41]}},
+{"type":"Feature","properties":{"nom":"Pilar","region":"Peembucy","population":28435,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.3,-26.869]}},
+{"type":"Feature","properties":{"nom":"Caacupé","region":"Cordillera","population":21696,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.14,-25.387]}},
+{"type":"Feature","properties":{"nom":"Paraguarí","region":"Paraguarí","population":18881,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.16,-25.62]}},
+{"type":"Feature","properties":{"nom":"Bella Vista","region":"Amambay","population":16852,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.52,-22.13]}},
+{"type":"Feature","properties":{"nom":"Horqueta","region":"Concepción","population":16171,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.05,-23.34]}}
+]}

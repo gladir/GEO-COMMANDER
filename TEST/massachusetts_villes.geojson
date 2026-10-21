@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"massachusetts_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Boston","population":4467000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-71.072,42.332]}},
+{"type":"Feature","properties":{"nom":"Lowell","population":723629,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.317,42.634]}},
+{"type":"Feature","properties":{"nom":"Springfield","population":421780,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.58,42.12]}},
+{"type":"Feature","properties":{"nom":"Salem","population":335509,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.883,42.522]}},
+{"type":"Feature","properties":{"nom":"Worcester","population":287365,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.8,42.27]}},
+{"type":"Feature","properties":{"nom":"New Bedford","population":136082,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.945,41.656]}},
+{"type":"Feature","properties":{"nom":"Pittsfield","population":46230,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.26,42.448]}}
+]}

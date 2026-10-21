@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"moldavie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Chisinau","region":"Chisinau","population":688134,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[28.858,47.005]}},
+{"type":"Feature","properties":{"nom":"Tiraspol","region":"Bender","population":157000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.64,46.853]}},
+{"type":"Feature","properties":{"nom":"Balti","region":"Balti","population":151355,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.905,47.759]}},
+{"type":"Feature","properties":{"nom":"Cahul","region":"Cahul","population":63407,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.194,45.908]}},
+{"type":"Feature","properties":{"nom":"Dubasari","region":"Transnistria","population":23254,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.161,47.263]}}
+]}

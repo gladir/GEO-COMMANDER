@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"autriche_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Vienna","region":"Wien","population":2400000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[16.365,48.202]}},
+{"type":"Feature","properties":{"nom":"Linz","region":"Oberösterreich","population":349161,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.289,48.319]}},
+{"type":"Feature","properties":{"nom":"Graz","region":"Steiermark","population":263234,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.41,47.078]}},
+{"type":"Feature","properties":{"nom":"Salzburg","region":"Salzburg","population":206279,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.04,47.81]}},
+{"type":"Feature","properties":{"nom":"Innsbruck","region":"Tirol","population":155214,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.41,47.28]}},
+{"type":"Feature","properties":{"nom":"Klagenfurt","region":"Kärnten","population":90610,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.31,46.62]}},
+{"type":"Feature","properties":{"nom":"Wiener Neustadt","region":"Niederösterreich","population":82762,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.25,47.816]}},
+{"type":"Feature","properties":{"nom":"Bregenz","region":"Vorarlberg","population":26928,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.767,47.517]}},
+{"type":"Feature","properties":{"nom":"Eisenstadt","region":"Burgenland","population":13165,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.533,47.833]}}
+]}

@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"yougoslavie_capitales",
+"features":[
+{"type":"Feature","properties":{"nom":"Ljubljana","pays":"Slovenia","population":314807},"geometry":{"type":"Point","coordinates":[14.515,46.055]}},
+{"type":"Feature","properties":{"nom":"Podgorica","pays":"Montenegro","population":145850},"geometry":{"type":"Point","coordinates":[19.266,42.466]}},
+{"type":"Feature","properties":{"nom":"Pristina","pays":"Kosovo","population":465186},"geometry":{"type":"Point","coordinates":[21.166,42.667]}},
+{"type":"Feature","properties":{"nom":"Skopje","pays":"North Macedonia","population":494087},"geometry":{"type":"Point","coordinates":[21.433,42.0]}},
+{"type":"Feature","properties":{"nom":"Zagreb","pays":"Croatia","population":722526},"geometry":{"type":"Point","coordinates":[16.0,45.8]}},
+{"type":"Feature","properties":{"nom":"Belgrade","pays":"Serbia","population":1099000},"geometry":{"type":"Point","coordinates":[20.466,44.821]}},
+{"type":"Feature","properties":{"nom":"Sarajevo","pays":"Bosnia and Herzegovina","population":696731},"geometry":{"type":"Point","coordinates":[18.383,43.85]}}
+]}

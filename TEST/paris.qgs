@@ -1,0 +1,133 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de la ville de Paris (France) avec ses rues" version="3.34.0-Pascal">
+  <title>Carte de la ville de Paris (France) avec ses rues</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="SITES_1" name="Sites" source="./paris_sites.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___ARRONDISSEMENTS_2" name="Contours : Arrondissements" source="./paris_arrondissements.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="CONTOURS___COMMUNES_VOISINES_3" name="Contours : Communes voisines" source="./paris_communes.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_PRINCIPALES_4" name="Rues principales" source="./paris_major.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_SECONDAIRES_5" name="Rues secondaires" source="./paris_sec.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES__1_2__6" name="Rues locales (1/2)" source="./paris_loc1.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUES_LOCALES__2_2__7" name="Rues locales (2/2)" source="./paris_loc2.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="RUELLES_ET_VOIES_DE_SERVICE_8" name="Ruelles et voies de service" source="./paris_svc.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="SENTIERS_ET_PISTES_CYCLABLES_9" name="Sentiers et pistes cyclables" source="./paris_path.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="VOIES_FERREES_10" name="Voies ferrees" source="./paris_rail.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="COURS_D_EAU_11" name="Cours d eau" source="./paris_cours_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PARCS_ET_ESPACES_VERTS_12" name="Parcs et espaces verts" source="./paris_parcs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_13" name="Plans d eau" source="./paris_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>254365</xmin><ymin>6245558</ymin><xmax>267723</xmax><ymax>6255032</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>SITES_1</id>
+      <datasource>./paris_sites.geojson</datasource>
+      <layername>Sites</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___ARRONDISSEMENTS_2</id>
+      <datasource>./paris_arrondissements.geojson</datasource>
+      <layername>Contours : Arrondissements</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>CONTOURS___COMMUNES_VOISINES_3</id>
+      <datasource>./paris_communes.geojson</datasource>
+      <layername>Contours : Communes voisines</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_PRINCIPALES_4</id>
+      <datasource>./paris_major.geojson</datasource>
+      <layername>Rues principales</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_SECONDAIRES_5</id>
+      <datasource>./paris_sec.geojson</datasource>
+      <layername>Rues secondaires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES__1_2__6</id>
+      <datasource>./paris_loc1.geojson</datasource>
+      <layername>Rues locales (1/2)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUES_LOCALES__2_2__7</id>
+      <datasource>./paris_loc2.geojson</datasource>
+      <layername>Rues locales (2/2)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>RUELLES_ET_VOIES_DE_SERVICE_8</id>
+      <datasource>./paris_svc.geojson</datasource>
+      <layername>Ruelles et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>SENTIERS_ET_PISTES_CYCLABLES_9</id>
+      <datasource>./paris_path.geojson</datasource>
+      <layername>Sentiers et pistes cyclables</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>VOIES_FERREES_10</id>
+      <datasource>./paris_rail.geojson</datasource>
+      <layername>Voies ferrees</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>COURS_D_EAU_11</id>
+      <datasource>./paris_cours_eau.geojson</datasource>
+      <layername>Cours d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PARCS_ET_ESPACES_VERTS_12</id>
+      <datasource>./paris_parcs.geojson</datasource>
+      <layername>Parcs et espaces verts</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_13</id>
+      <datasource>./paris_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

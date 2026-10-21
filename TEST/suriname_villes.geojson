@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"suriname_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Paramaribo","region":"Paramaribo","population":254169,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-55.167,5.835]}},
+{"type":"Feature","properties":{"nom":"Cottica","region":"Sipaliwini","population":29210,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.233,3.85]}},
+{"type":"Feature","properties":{"nom":"Nieuw Nickerie","region":"Nickerie","population":15992,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.99,5.95]}},
+{"type":"Feature","properties":{"nom":"Brokopondo","region":"Brokopondo","population":8340,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.02,5.04]}},
+{"type":"Feature","properties":{"nom":"Moengo","region":"Marowijne","population":7766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.41,5.63]}},
+{"type":"Feature","properties":{"nom":"Nieuw Amsterdam","region":"Commewijne","population":4935,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.07,5.91]}},
+{"type":"Feature","properties":{"nom":"Brownsweg","region":"Brokopondo","population":4582,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.17,5.02]}},
+{"type":"Feature","properties":{"nom":"Groningen","region":"Saramacca","population":3216,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.481,5.797]}},
+{"type":"Feature","properties":{"nom":"Onverwacht","region":"Para","population":2105,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.2,5.6]}},
+{"type":"Feature","properties":{"nom":"Totness","region":"Coronie","population":1685,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.32,5.89]}}
+]}

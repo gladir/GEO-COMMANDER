@@ -1,0 +1,6 @@
+{"type":"FeatureCollection","name":"macedoine_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Skopje","region":"Centar","population":494087,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[21.433,42.0]}},
+{"type":"Feature","properties":{"nom":"Tetovo","region":"Tetovo","population":119132,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.97,42.009]}},
+{"type":"Feature","properties":{"nom":"Bitola","region":"Bitola","population":86528,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.34,41.039]}}
+]}

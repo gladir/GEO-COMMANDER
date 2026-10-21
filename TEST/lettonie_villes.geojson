@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"lettonie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Riga","region":"Riga","population":742572,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[24.1,56.95]}},
+{"type":"Feature","properties":{"nom":"Daugavpils","region":"Daugavpils","population":111564,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.51,55.88]}},
+{"type":"Feature","properties":{"nom":"Liepaga","region":"Liepaja","population":85132,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.01,56.51]}},
+{"type":"Feature","properties":{"nom":"Jelgava","region":"Jelgava","population":67207,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.713,56.653]}},
+{"type":"Feature","properties":{"nom":"Ventspils","region":"Ventspils","population":42884,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.561,57.39]}},
+{"type":"Feature","properties":{"nom":"Rezekne","region":"Latgale","population":38340,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.317,56.5]}}
+]}

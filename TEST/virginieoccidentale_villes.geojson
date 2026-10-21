@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"virginieoccidentale_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Charleston","population":123799,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-81.633,38.35]}},
+{"type":"Feature","properties":{"nom":"Huntington","population":85396,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.445,38.42]}},
+{"type":"Feature","properties":{"nom":"Parkersburg","population":61935,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.562,39.267]}},
+{"type":"Feature","properties":{"nom":"Morgantown","population":58808,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.956,39.63]}},
+{"type":"Feature","properties":{"nom":"Wheeling","population":52492,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.721,40.064]}},
+{"type":"Feature","properties":{"nom":"Beckley","population":37836,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.183,37.78]}},
+{"type":"Feature","properties":{"nom":"Clarksburg","population":28773,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.337,39.283]}},
+{"type":"Feature","properties":{"nom":"White Sulphur Springs","population":2407,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.303,37.794]}}
+]}

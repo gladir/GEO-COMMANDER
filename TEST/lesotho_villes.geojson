@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"lesotho_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Maseru","region":"Maseru","population":361324,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[27.483,-29.317]}},
+{"type":"Feature","properties":{"nom":"Mafetang","region":"Mafeteng","population":57059,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.25,-29.817]}},
+{"type":"Feature","properties":{"nom":"Hlotse","region":"Leribe","population":47675,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.056,-28.878]}},
+{"type":"Feature","properties":{"nom":"Mohales Hoek","region":"Mohale's Hoek","population":24992,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.48,-30.159]}},
+{"type":"Feature","properties":{"nom":"Moyeni","region":"Quthing","population":24130,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.716,-30.411]}},
+{"type":"Feature","properties":{"nom":"Butha-Buthe","region":"Leribe","population":16330,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.25,-28.75]}},
+{"type":"Feature","properties":{"nom":"Mokhotlong","region":"Mokhotlong","population":8809,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.078,-29.291]}},
+{"type":"Feature","properties":{"nom":"Teyateyaneng","region":"Berea","population":5115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.753,-29.153]}}
+]}

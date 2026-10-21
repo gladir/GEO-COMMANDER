@@ -1,0 +1,21 @@
+{"type":"FeatureCollection","name":"minnesota_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Minneapolis","population":2616000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.254,44.982]}},
+{"type":"Feature","properties":{"nom":"St.  Paul","population":734854,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-93.085,44.944]}},
+{"type":"Feature","properties":{"nom":"Lakeville","population":261308,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.243,44.65]}},
+{"type":"Feature","properties":{"nom":"St. Cloud","population":112794,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.162,45.561]}},
+{"type":"Feature","properties":{"nom":"Rochester","population":108511,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.47,44.022]}},
+{"type":"Feature","properties":{"nom":"Duluth","population":84800,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.106,46.783]}},
+{"type":"Feature","properties":{"nom":"Mankato","population":56325,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.999,44.164]}},
+{"type":"Feature","properties":{"nom":"Moorhead","population":35528,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.742,46.874]}},
+{"type":"Feature","properties":{"nom":"Winona","population":32897,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.639,44.05]}},
+{"type":"Feature","properties":{"nom":"Brainerd","population":28187,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.201,46.358]}},
+{"type":"Feature","properties":{"nom":"Faribault","population":25376,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.268,44.29]}},
+{"type":"Feature","properties":{"nom":"Albert Lea","population":20522,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.369,43.648]}},
+{"type":"Feature","properties":{"nom":"Willmar","population":18473,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.043,45.122]}},
+{"type":"Feature","properties":{"nom":"International Falls","population":15240,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.411,48.601]}},
+{"type":"Feature","properties":{"nom":"Bemidji","population":14796,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.88,47.474]}},
+{"type":"Feature","properties":{"nom":"Virginia","population":8709,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.536,47.524]}},
+{"type":"Feature","properties":{"nom":"Crookston","population":8653,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.608,47.774]}},
+{"type":"Feature","properties":{"nom":"Ely","population":3731,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.826,47.9]}}
+]}

@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"salvador_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"San Salvador","region":"San Salvador","population":1433000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-89.216,13.703]}},
+{"type":"Feature","properties":{"nom":"Santa Ana","region":"Santa Ana","population":234478,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.56,13.995]}},
+{"type":"Feature","properties":{"nom":"San Miguel","region":"San Miguel","population":201563,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.183,13.483]}},
+{"type":"Feature","properties":{"nom":"Sonsonate","region":"Sonsonate","population":168947,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.73,13.72]}},
+{"type":"Feature","properties":{"nom":"Nueva San Salvador","region":"La Libertad","population":124694,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.29,13.674]}},
+{"type":"Feature","properties":{"nom":"Usulután","region":"Usulután","population":51910,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.432,13.346]}},
+{"type":"Feature","properties":{"nom":"Cojutepeque","region":"Cuscatlán","population":48411,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.933,13.717]}},
+{"type":"Feature","properties":{"nom":"Zacatecoluca","region":"La Paz","population":39613,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.868,13.508]}},
+{"type":"Feature","properties":{"nom":"San Vicente","region":"San Vicente","population":37326,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.785,13.641]}},
+{"type":"Feature","properties":{"nom":"Ahuachapán","region":"Ahuachapán","population":34102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.845,13.919]}},
+{"type":"Feature","properties":{"nom":"Chalatenango","region":"Chalatenango","population":29271,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.907,14.01]}},
+{"type":"Feature","properties":{"nom":"Sensuntepeque","region":"Cabañas","population":26989,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.63,13.88]}}
+]}

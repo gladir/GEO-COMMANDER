@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"libye_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tripoli","region":"Tajura' wa an Nawahi al Arba","population":2189000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[13.18,32.892]}},
+{"type":"Feature","properties":{"nom":"Banghazi","region":"Benghazi","population":1180000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.065,32.119]}},
+{"type":"Feature","properties":{"nom":"Misrata","region":"Misratah","population":386120,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.1,32.38]}},
+{"type":"Feature","properties":{"nom":"Tubruq","region":"Al Butnan","population":263527,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.96,32.08]}},
+{"type":"Feature","properties":{"nom":"Al Khums","region":"Al Marqab","population":201943,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.26,32.66]}},
+{"type":"Feature","properties":{"nom":"Az Zawiyah","region":"Az Zawiyah","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.72,32.76]}},
+{"type":"Feature","properties":{"nom":"Zuwara","region":"An Nuqat al Khams","population":180310,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.079,32.934]}},
+{"type":"Feature","properties":{"nom":"Al Marj","region":"Al Hizam Al Akhdar","population":169540,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.83,32.5]}},
+{"type":"Feature","properties":{"nom":"Gharyan","region":"Mizdah","population":146810,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.02,32.17]}},
+{"type":"Feature","properties":{"nom":"Ajdabiya","region":"Ajdabiya","population":143833,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.22,30.77]}},
+{"type":"Feature","properties":{"nom":"Surt","region":"Surt","population":128123,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.59,31.21]}},
+{"type":"Feature","properties":{"nom":"Darnah","region":"Al Qubbah","population":127974,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.639,32.765]}},
+{"type":"Feature","properties":{"nom":"Sabha","region":"Sabha","population":100249,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.433,27.033]}},
+{"type":"Feature","properties":{"nom":"Nalut","region":"Ghadamis","population":66609,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.97,31.88]}},
+{"type":"Feature","properties":{"nom":"Bani Walid","region":"Bani Walid","population":65392,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.99,31.77]}}
+]}

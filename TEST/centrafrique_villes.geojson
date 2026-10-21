@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"centrafrique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bangui","region":"Bangui","population":831925,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[18.558,4.367]}},
+{"type":"Feature","properties":{"nom":"Mbaïki","region":"Lobaye","population":67132,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.0,3.87]}},
+{"type":"Feature","properties":{"nom":"Bossangoa","region":"Ouham","population":63064,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.45,6.484]}},
+{"type":"Feature","properties":{"nom":"Bambari","region":"Ouaka","population":62098,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.667,5.762]}},
+{"type":"Feature","properties":{"nom":"Berbérati","region":"Mambéré-Kadéï","population":61815,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.78,4.25]}},
+{"type":"Feature","properties":{"nom":"Kaga Bandoro","region":"Nana-Grébizi","population":56520,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.18,6.98]}},
+{"type":"Feature","properties":{"nom":"Bozoum","region":"Ouham-Pendé","population":40201,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.383,6.317]}},
+{"type":"Feature","properties":{"nom":"Carnot","region":"Mambéré-Kadéï","population":38071,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.867,4.934]}},
+{"type":"Feature","properties":{"nom":"Bouar","region":"Nana-Mambéré","population":34372,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.6,5.95]}},
+{"type":"Feature","properties":{"nom":"Sibut","region":"Kémo","population":34267,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.083,5.734]}},
+{"type":"Feature","properties":{"nom":"Bangassou","region":"Mbomou","population":32841,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.817,4.734]}},
+{"type":"Feature","properties":{"nom":"Bria","region":"Haute-Kotto","population":29027,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.983,6.533]}},
+{"type":"Feature","properties":{"nom":"Nola","region":"Sangha-Mbaéré","population":26809,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.067,3.534]}},
+{"type":"Feature","properties":{"nom":"Zemio","region":"Haut-Mbomou","population":20000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.133,5.034]}},
+{"type":"Feature","properties":{"nom":"Mobaye","region":"Basse-Kotto","population":19431,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.18,4.32]}}
+]}

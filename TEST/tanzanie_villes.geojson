@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"tanzanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dar es Salaam","region":"Dar-Es-Salaam","population":2930000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[39.266,-6.798]}},
+{"type":"Feature","properties":{"nom":"Moshi","region":"Kilimanjaro","population":721018,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.34,-3.34]}},
+{"type":"Feature","properties":{"nom":"Mwanza","region":"Mwanza","population":493944,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.93,-2.52]}},
+{"type":"Feature","properties":{"nom":"Zanzibar","region":"Zanzibar West","population":403658,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.2,-6.16]}},
+{"type":"Feature","properties":{"nom":"Arusha","region":"Arusha","population":341136,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.67,-3.36]}},
+{"type":"Feature","properties":{"nom":"Mbeya","region":"Mbeya","population":291649,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.43,-8.89]}},
+{"type":"Feature","properties":{"nom":"Morogoro","region":"Morogoro","population":250902,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.66,-6.82]}},
+{"type":"Feature","properties":{"nom":"Tanga","region":"Tanga","population":224876,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.09,-5.07]}},
+{"type":"Feature","properties":{"nom":"Dodoma","region":"Dodoma","population":218269,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[35.75,-6.183]}},
+{"type":"Feature","properties":{"nom":"Kigoma","region":"Kigoma","population":164268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.61,-4.88]}},
+{"type":"Feature","properties":{"nom":"Tabora","region":"Tabora","population":146495,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.8,-5.02]}},
+{"type":"Feature","properties":{"nom":"Musoma","region":"Mara","population":133156,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.8,-1.49]}},
+{"type":"Feature","properties":{"nom":"Tukuyu","region":"Mbeya","population":127570,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.64,-9.25]}},
+{"type":"Feature","properties":{"nom":"Songea","region":"Ruvuma","population":126449,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.65,-10.68]}},
+{"type":"Feature","properties":{"nom":"Iringa","region":"Iringa","population":111820,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.69,-7.77]}}
+]}

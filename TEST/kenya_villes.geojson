@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"kenya_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nairobi","region":"Nairobi","population":3010000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[36.815,-1.281]}},
+{"type":"Feature","properties":{"nom":"Mombasa","region":"Coast","population":882000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.688,-4.038]}},
+{"type":"Feature","properties":{"nom":"Kisumu","region":"Nyanza","population":395615,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.75,-0.09]}},
+{"type":"Feature","properties":{"nom":"Nakuru","region":"Rift Valley","population":364727,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.07,-0.28]}},
+{"type":"Feature","properties":{"nom":"Eldoret","region":"Rift Valley","population":353381,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.27,0.52]}},
+{"type":"Feature","properties":{"nom":"Kitale","region":"Rift Valley","population":150495,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.99,1.03]}},
+{"type":"Feature","properties":{"nom":"Machakos","region":"Eastern","population":144925,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.26,-1.51]}},
+{"type":"Feature","properties":{"nom":"Thika","region":"Central","population":99322,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.09,-1.04]}},
+{"type":"Feature","properties":{"nom":"Kericho","region":"Rift Valley","population":98852,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.28,-0.36]}},
+{"type":"Feature","properties":{"nom":"Malindi","region":"Coast","population":94016,"capitale":"non"},"geometry":{"type":"Point","coordinates":[40.1,-3.21]}},
+{"type":"Feature","properties":{"nom":"Kendu Bay","region":"Nyanza","population":91248,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.64,-0.36]}},
+{"type":"Feature","properties":{"nom":"Kilifi","region":"Coast","population":80339,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.85,-3.61]}},
+{"type":"Feature","properties":{"nom":"Sotik","region":"Rift Valley","population":71285,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.12,-0.68]}},
+{"type":"Feature","properties":{"nom":"Garissa","region":"North-Eastern","population":67861,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.67,-0.44]}},
+{"type":"Feature","properties":{"nom":"Kakamega","region":"Western","population":63426,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.73,0.29]}}
+]}

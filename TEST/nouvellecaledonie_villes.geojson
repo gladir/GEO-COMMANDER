@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"nouvellecaledonie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nouméa","region":"Sud","population":93060,"capitale":"non"},"geometry":{"type":"Point","coordinates":[166.444,-22.263]}}
+]}

@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"alabama_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Birmingham","population":1128047,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.825,33.53]}},
+{"type":"Feature","properties":{"nom":"Mobile","population":253466,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.05,30.68]}},
+{"type":"Feature","properties":{"nom":"Huntsville","population":212733,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.61,34.72]}},
+{"type":"Feature","properties":{"nom":"Montgomery","population":198325,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-86.279,32.362]}},
+{"type":"Feature","properties":{"nom":"Tuscaloosa","population":121373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.544,33.225]}},
+{"type":"Feature","properties":{"nom":"Auburn","population":73929,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.481,32.61]}},
+{"type":"Feature","properties":{"nom":"Dothan","population":61741,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.391,31.223]}},
+{"type":"Feature","properties":{"nom":"Florence","population":45349,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.677,34.8]}},
+{"type":"Feature","properties":{"nom":"Gadsden","population":41709,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.007,34.015]}},
+{"type":"Feature","properties":{"nom":"Enterprise","population":24205,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.844,31.328]}},
+{"type":"Feature","properties":{"nom":"Selma","population":20126,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.021,32.408]}}
+]}

@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"danemark_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"København","region":"Hovedstaden","population":1085000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[12.562,55.681]}},
+{"type":"Feature","properties":{"nom":"Århus","region":"Midtjylland","population":237551,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.211,56.157]}},
+{"type":"Feature","properties":{"nom":"Odense","region":"Syddanmark","population":158222,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.383,55.4]}},
+{"type":"Feature","properties":{"nom":"Aalborg","region":"Nordjylland","population":122219,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.917,57.034]}},
+{"type":"Feature","properties":{"nom":"Esbjerg","region":"Syddanmark","population":72205,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.45,55.467]}},
+{"type":"Feature","properties":{"nom":"Vejle","region":"Syddanmark","population":51177,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.535,55.709]}},
+{"type":"Feature","properties":{"nom":"Roskilde","region":"Sjaælland","population":44285,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.083,55.65]}},
+{"type":"Feature","properties":{"nom":"Viborg","region":"Midtjylland","population":34831,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.4,56.433]}},
+{"type":"Feature","properties":{"nom":"Svendborg","region":"Syddanmark","population":29180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.617,55.07]}},
+{"type":"Feature","properties":{"nom":"Hillerød","region":"Hovedstaden","population":28313,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.317,55.933]}},
+{"type":"Feature","properties":{"nom":"Frederikshavn","region":"Nordjylland","population":24103,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.533,57.434]}},
+{"type":"Feature","properties":{"nom":"Sorø","region":"Sjaælland","population":7167,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.567,55.433]}}
+]}

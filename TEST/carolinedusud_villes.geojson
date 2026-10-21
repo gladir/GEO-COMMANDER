@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"carolinedusud_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Charleston","population":411940,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.992,32.792]}},
+{"type":"Feature","properties":{"nom":"Columbia","population":398093,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-81.031,33.997]}},
+{"type":"Feature","properties":{"nom":"Greenville","population":350954,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.394,34.853]}},
+{"type":"Feature","properties":{"nom":"Spartanburg","population":124126,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.932,34.949]}},
+{"type":"Feature","properties":{"nom":"Rock Hill","population":94564,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.03,34.94]}},
+{"type":"Feature","properties":{"nom":"Anderson","population":61558,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.65,34.504]}},
+{"type":"Feature","properties":{"nom":"Florence","population":57438,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.763,34.196]}},
+{"type":"Feature","properties":{"nom":"Sumter","population":50868,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.342,33.921]}},
+{"type":"Feature","properties":{"nom":"Myrtle Beach","population":49357,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.887,33.689]}},
+{"type":"Feature","properties":{"nom":"Aiken","population":46196,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.721,33.549]}},
+{"type":"Feature","properties":{"nom":"Orangeburg","population":35472,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.862,33.497]}},
+{"type":"Feature","properties":{"nom":"Beaufort","population":31626,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.69,32.432]}}
+]}

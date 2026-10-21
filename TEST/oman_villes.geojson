@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"oman_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Muscat","region":"Muscat","population":734697,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[58.378,23.585]}},
+{"type":"Feature","properties":{"nom":"Seeb","region":"Muscat","population":237816,"capitale":"non"},"geometry":{"type":"Point","coordinates":[58.183,23.68]}},
+{"type":"Feature","properties":{"nom":"Salalah","region":"Dhofar","population":203877,"capitale":"non"},"geometry":{"type":"Point","coordinates":[54.085,17.025]}},
+{"type":"Feature","properties":{"nom":"Suhar","region":"Al Batnah","population":151349,"capitale":"non"},"geometry":{"type":"Point","coordinates":[56.734,24.362]}},
+{"type":"Feature","properties":{"nom":"Ibri","region":"Al Dhahira","population":101640,"capitale":"non"},"geometry":{"type":"Point","coordinates":[56.517,23.225]}},
+{"type":"Feature","properties":{"nom":"Nizwa","region":"Ad Dakhliyah","population":72076,"capitale":"non"},"geometry":{"type":"Point","coordinates":[57.531,22.926]}},
+{"type":"Feature","properties":{"nom":"Sur","region":"Ash Sharqiyah","population":71152,"capitale":"non"},"geometry":{"type":"Point","coordinates":[59.535,22.576]}},
+{"type":"Feature","properties":{"nom":"Alayat Samail","region":"Ad Dakhliyah","population":47718,"capitale":"non"},"geometry":{"type":"Point","coordinates":[57.978,23.303]}},
+{"type":"Feature","properties":{"nom":"Hilf","region":"Ash Sharqiyah","population":8500,"capitale":"non"},"geometry":{"type":"Point","coordinates":[58.877,20.656]}},
+{"type":"Feature","properties":{"nom":"Mirbat","region":"Dhofar","population":1120,"capitale":"non"},"geometry":{"type":"Point","coordinates":[54.692,16.992]}}
+]}

@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"ouganda_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kampala","region":"Kampala","population":1420000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[32.581,0.319]}},
+{"type":"Feature","properties":{"nom":"Mbale","region":"Bungokho","population":402368,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.17,1.09]}},
+{"type":"Feature","properties":{"nom":"Jinja","region":"Jinja","population":301619,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.2,0.44]}},
+{"type":"Feature","properties":{"nom":"Arua","region":"Arua Municipality","population":250000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.9,3.02]}},
+{"type":"Feature","properties":{"nom":"Entebbe","region":"Wakiso","population":175128,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.46,0.06]}},
+{"type":"Feature","properties":{"nom":"Tororo","region":"Tororo","population":150000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.17,0.71]}},
+{"type":"Feature","properties":{"nom":"Gulu","region":"Aswa","population":146858,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.28,2.78]}},
+{"type":"Feature","properties":{"nom":"Lira","region":"Lira","population":135445,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.89,2.26]}},
+{"type":"Feature","properties":{"nom":"Mbarara","region":"Kashari","population":83700,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.65,-0.6]}},
+{"type":"Feature","properties":{"nom":"Bombo","region":"Bamunanika","population":75000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.533,0.583]}},
+{"type":"Feature","properties":{"nom":"Kasese","region":"Kasese","population":67269,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.081,0.171]}},
+{"type":"Feature","properties":{"nom":"Masaka","region":"Masaka","population":65373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.73,-0.33]}},
+{"type":"Feature","properties":{"nom":"Kitgum","region":"Kitgum","population":56891,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.87,3.3]}},
+{"type":"Feature","properties":{"nom":"Busia","region":"Busia","population":47100,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.076,0.454]}},
+{"type":"Feature","properties":{"nom":"Iganga","region":"Iganga","population":45024,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.469,0.609]}}
+]}

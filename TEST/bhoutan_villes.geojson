@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"bhoutan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Thimphu","region":"Thimphu","population":98676,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[89.639,27.473]}},
+{"type":"Feature","properties":{"nom":"Paro","region":"Thimphu","population":15000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[89.417,27.429]}},
+{"type":"Feature","properties":{"nom":"Punakha","region":"Punakha","population":5000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[89.864,27.584]}},
+{"type":"Feature","properties":{"nom":"Wangdue Prodrang","region":"Wangdi Phodrang","population":5000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[89.917,27.433]}}
+]}

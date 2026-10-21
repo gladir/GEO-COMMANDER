@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"amerique_centrale_lacs",
+"features":[
+{"type":"Feature","properties":{"nom":"Lago de Nicaragua"},"geometry":{"type":"Polygon","coordinates":[[[-84.86,11.15],[-85.29,11.18],[-85.79,11.51],[-85.89,11.9],[-85.57,11.94],[-85.04,11.52],[-84.86,11.15]]]}}
+]}

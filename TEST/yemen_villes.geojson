@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"yemen_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Sanaa","region":"Amanat Al Asimah","population":2008000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[44.205,15.357]}},
+{"type":"Feature","properties":{"nom":"Aden","region":"`Adan","population":1000000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.009,12.78]}},
+{"type":"Feature","properties":{"nom":"Al Hudaydah","region":"Al Hudaydah","population":780000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.951,14.8]}},
+{"type":"Feature","properties":{"nom":"Taizz","region":"Ta`izz","population":751000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.037,13.606]}},
+{"type":"Feature","properties":{"nom":"Al Mukalla","region":"Hadramawt","population":258132,"capitale":"non"},"geometry":{"type":"Point","coordinates":[49.126,14.541]}},
+{"type":"Feature","properties":{"nom":"Ibb","region":"Ibb","population":234837,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.171,13.976]}},
+{"type":"Feature","properties":{"nom":"Hajjah","region":"Hajjah","population":208287,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.602,15.692]}},
+{"type":"Feature","properties":{"nom":"Dhamar","region":"Dhamar","population":191259,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.387,14.557]}},
+{"type":"Feature","properties":{"nom":"Zabid","region":"Al Hudaydah","population":152504,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.316,14.195]}},
+{"type":"Feature","properties":{"nom":"Sadah","region":"Sa`dah","population":105542,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.85,16.94]}},
+{"type":"Feature","properties":{"nom":"Saywun","region":"Hadramawt","population":68747,"capitale":"non"},"geometry":{"type":"Point","coordinates":[48.787,15.943]}},
+{"type":"Feature","properties":{"nom":"Lahij","region":"Lahij","population":66288,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.884,13.058]}},
+{"type":"Feature","properties":{"nom":"Ash Shihr","region":"Hadramawt","population":54274,"capitale":"non"},"geometry":{"type":"Point","coordinates":[49.609,14.759]}},
+{"type":"Feature","properties":{"nom":"Rida","region":"Al Bayda'","population":45233,"capitale":"non"},"geometry":{"type":"Point","coordinates":[44.834,14.429]}},
+{"type":"Feature","properties":{"nom":"Al Bayda","region":"Al Bayda'","population":37821,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.574,13.979]}}
+]}

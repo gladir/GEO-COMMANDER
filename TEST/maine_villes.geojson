@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"maine_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Portland","population":135866,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.246,43.672]}},
+{"type":"Feature","properties":{"nom":"Lewiston","population":57688,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.215,44.101]}},
+{"type":"Feature","properties":{"nom":"Bangor","population":50213,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.778,44.801]}},
+{"type":"Feature","properties":{"nom":"Waterville","population":25152,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-69.646,44.552]}},
+{"type":"Feature","properties":{"nom":"Augusta","population":24042,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-69.78,44.311]}},
+{"type":"Feature","properties":{"nom":"Presque Isle","population":9466,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.012,46.676]}},
+{"type":"Feature","properties":{"nom":"Houlton","population":6703,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.84,46.126]}},
+{"type":"Feature","properties":{"nom":"Bar Harbor","population":6090,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.204,44.388]}},
+{"type":"Feature","properties":{"nom":"Calais","population":3306,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.242,45.166]}}
+]}

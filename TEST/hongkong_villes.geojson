@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"hongkong_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Hong Kong","region":null,"population":7206000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[114.183,22.307]}}
+]}

@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"uruguay_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Montevideo","region":"Montevideo","population":1513000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-56.187,-34.905]}},
+{"type":"Feature","properties":{"nom":"Rivera","region":"Rivera","population":200000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.56,-30.9]}},
+{"type":"Feature","properties":{"nom":"Punta del Este","region":"Maldonado","population":159000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.95,-34.97]}},
+{"type":"Feature","properties":{"nom":"Salto","region":"Salto","population":105690,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.969,-31.39]}},
+{"type":"Feature","properties":{"nom":"Paysandú","region":"Paysandú","population":79016,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.08,-32.33]}},
+{"type":"Feature","properties":{"nom":"Melo","region":"Cerro Largo","population":55494,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.18,-32.359]}},
+{"type":"Feature","properties":{"nom":"Maldonado","region":"Maldonado","population":55478,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.96,-34.91]}},
+{"type":"Feature","properties":{"nom":"Tacuarembó","region":"Tacuarembó","population":54277,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.98,-31.71]}},
+{"type":"Feature","properties":{"nom":"Mercedes","region":"Soriano","population":42359,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.03,-33.26]}},
+{"type":"Feature","properties":{"nom":"Artigas","region":"Artigas","population":41909,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.486,-30.416]}},
+{"type":"Feature","properties":{"nom":"Minas","region":"Lavalleja","population":41180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-55.23,-34.37]}},
+{"type":"Feature","properties":{"nom":"San José de Mayo","region":"San José","population":36529,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.71,-34.35]}},
+{"type":"Feature","properties":{"nom":"Durazno","region":"Durazno","population":34037,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.51,-33.41]}},
+{"type":"Feature","properties":{"nom":"Florida","region":"Florida","population":32234,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-56.215,-34.099]}},
+{"type":"Feature","properties":{"nom":"Treinta y Tres","region":"Treinta y Tres","population":27684,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-54.38,-33.23]}}
+]}

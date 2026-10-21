@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"brunei_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bandar Seri Begawan","region":"Brunei and Muara","population":296500,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[114.933,4.883]}}
+]}

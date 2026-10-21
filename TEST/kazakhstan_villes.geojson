@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"kazakhstan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Almaty","region":"Almaty","population":1209000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[76.913,43.327]}},
+{"type":"Feature","properties":{"nom":"Shymkent","region":"South Kazakhstan","population":465392,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.595,42.32]}},
+{"type":"Feature","properties":{"nom":"Qaraghandy","region":"Qaraghandy","population":451800,"capitale":"non"},"geometry":{"type":"Point","coordinates":[73.115,49.885]}},
+{"type":"Feature","properties":{"nom":"Taraz","region":"Zhambyl","population":358153,"capitale":"non"},"geometry":{"type":"Point","coordinates":[71.365,42.9]}},
+{"type":"Feature","properties":{"nom":"Nur-Sultan","region":"Aqmola","population":345604,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[71.428,51.181]}},
+{"type":"Feature","properties":{"nom":"Pavlodar","region":"Pavlodar","population":329002,"capitale":"non"},"geometry":{"type":"Point","coordinates":[76.95,52.3]}},
+{"type":"Feature","properties":{"nom":"Oskemen","region":"East Kazakhstan","population":319067,"capitale":"non"},"geometry":{"type":"Point","coordinates":[82.615,49.99]}},
+{"type":"Feature","properties":{"nom":"Semey","region":"East Kazakhstan","population":311353,"capitale":"non"},"geometry":{"type":"Point","coordinates":[80.275,50.435]}},
+{"type":"Feature","properties":{"nom":"Qyzylorda","region":"Qyzylorda","population":300000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[65.465,44.8]}},
+{"type":"Feature","properties":{"nom":"Aqtobe","region":"Aqtöbe","population":262457,"capitale":"non"},"geometry":{"type":"Point","coordinates":[57.17,50.28]}},
+{"type":"Feature","properties":{"nom":"Oostanay","region":"Qostanay","population":236901,"capitale":"non"},"geometry":{"type":"Point","coordinates":[63.628,53.221]}},
+{"type":"Feature","properties":{"nom":"Petropavlovsk","region":"North Kazakhstan","population":228238,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.22,54.88]}},
+{"type":"Feature","properties":{"nom":"Oral","region":"West Kazakhstan","population":209788,"capitale":"non"},"geometry":{"type":"Point","coordinates":[51.335,51.271]}},
+{"type":"Feature","properties":{"nom":"Atyrau","region":"Atyrau","population":182753,"capitale":"non"},"geometry":{"type":"Point","coordinates":[51.92,47.113]}},
+{"type":"Feature","properties":{"nom":"Temirtau","region":"Qaraghandy","population":170600,"capitale":"non"},"geometry":{"type":"Point","coordinates":[72.965,50.065]}},
+{"type":"Feature","properties":{"nom":"Mangyshlak","region":"Mangghystau","population":147443,"capitale":"non"},"geometry":{"type":"Point","coordinates":[51.142,43.69]}},
+{"type":"Feature","properties":{"nom":"Kokshetau","region":"Aqmola","population":128873,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.42,53.3]}},
+{"type":"Feature","properties":{"nom":"Ekibastuz","region":"Pavlodar","population":127868,"capitale":"non"},"geometry":{"type":"Point","coordinates":[75.32,51.73]}},
+{"type":"Feature","properties":{"nom":"Rudniy","region":"Qostanay","population":124000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[63.13,52.953]}},
+{"type":"Feature","properties":{"nom":"Zhezqazghan","region":"Qaraghandy","population":104357,"capitale":"non"},"geometry":{"type":"Point","coordinates":[67.77,47.78]}}
+]}

@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"saskatchewan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Saskatoon","population":198958,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.67,52.17]}},
+{"type":"Feature","properties":{"nom":"Regina","population":176183,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-104.617,50.45]}},
+{"type":"Feature","properties":{"nom":"Prince Albert","population":34609,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.75,53.2]}},
+{"type":"Feature","properties":{"nom":"Moose Jaw","population":32166,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.55,50.4]}},
+{"type":"Feature","properties":{"nom":"North Battleford","population":19440,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.283,52.767]}},
+{"type":"Feature","properties":{"nom":"Yorkton","population":15172,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.467,51.217]}},
+{"type":"Feature","properties":{"nom":"Swift Current","population":14906,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.767,50.284]}},
+{"type":"Feature","properties":{"nom":"Weyburn","population":9362,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.85,49.667]}},
+{"type":"Feature","properties":{"nom":"Meadow Lake","population":5882,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.435,54.13]}},
+{"type":"Feature","properties":{"nom":"Kindersley","population":4383,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-109.133,51.467]}},
+{"type":"Feature","properties":{"nom":"Melville","population":4279,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.8,50.933]}},
+{"type":"Feature","properties":{"nom":"La Ronge","population":3783,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.3,55.1]}},
+{"type":"Feature","properties":{"nom":"Biggar","population":2192,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.983,52.05]}},
+{"type":"Feature","properties":{"nom":"Hudson Bay","population":2157,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.383,52.85]}},
+{"type":"Feature","properties":{"nom":"Stony Rapids","population":152,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.833,59.267]}},
+{"type":"Feature","properties":{"nom":"Uranium City","population":89,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.617,59.567]}}
+]}

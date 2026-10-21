@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"ileduprinceedouard_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Charlottetown","population":42402,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-63.131,46.249]}}
+]}

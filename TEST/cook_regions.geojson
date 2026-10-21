@@ -1,0 +1,11 @@
+{"type":"FeatureCollection","name":"cook_regions",
+"features":[
+{"type":"Feature","properties":{"nom":"Mangaia","type":"","code":"CK-X03~"},"geometry":{"type":"Polygon","coordinates":[[[-157.935,-21.878],[-157.887,-21.926],[-157.928,-21.939],[-157.961,-21.924],[-157.964,-21.9],[-157.935,-21.878]]]}},
+{"type":"Feature","properties":{"nom":"Mitiaro","type":"","code":"CK-X05~"},"geometry":{"type":"Polygon","coordinates":[[[-157.708,-19.767],[-157.708,-19.841],[-157.722,-19.856],[-157.742,-19.805],[-157.708,-19.767]]]}},
+{"type":"Feature","properties":{"nom":"Rarotonga","type":"","code":"CK-X04~"},"geometry":{"type":"Polygon","coordinates":[[[-159.798,-21.186],[-159.743,-21.202],[-159.743,-21.254],[-159.846,-21.234],[-159.831,-21.196],[-159.798,-21.186]]]}},
+{"type":"Feature","properties":{"nom":"Mauke","type":"","code":"CK-X06~"},"geometry":{"type":"Polygon","coordinates":[[[-157.313,-20.155],[-157.318,-20.172],[-157.34,-20.176],[-157.349,-20.143],[-157.313,-20.155]]]}},
+{"type":"Feature","properties":{"nom":"Atiu","type":"","code":"CK-X01~"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-158.078,-19.994],[-158.082,-20.013],[-158.115,-20.016],[-158.135,-19.976],[-158.078,-19.994]]]]}},
+{"type":"Feature","properties":{"nom":"Aitutaki","type":"","code":"CK-X02~"},"geometry":{"type":"Polygon","coordinates":[[[-158.925,-19.269],[-158.956,-19.245],[-158.918,-19.261],[-158.925,-19.269]]]}},
+{"type":"Feature","properties":{"nom":"Manihiki","type":"","code":"CK-X10~"},"geometry":{"type":"Polygon","coordinates":[[[-160.986,-10.382],[-160.996,-10.372],[-160.938,-10.423],[-160.986,-10.382]]]}},
+{"type":"Feature","properties":{"nom":"Palmerston","type":"","code":"CK-X07~"},"geometry":{"type":"Polygon","coordinates":[[[-159.785,-18.831],[-159.761,-18.845],[-159.77,-18.834],[-159.776,-18.878],[-159.794,-18.887],[-159.802,-18.866],[-159.785,-18.831]]]}}
+]}

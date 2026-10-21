@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"colombie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bogota","region":"Bogota","population":7772000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-74.085,4.598]}},
+{"type":"Feature","properties":{"nom":"Medellín","region":"Antioquia","population":3297000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.577,6.277]}},
+{"type":"Feature","properties":{"nom":"Cali","region":"Valle del Cauca","population":2254000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.502,3.402]}},
+{"type":"Feature","properties":{"nom":"Barranquilla","region":"Atlántico","population":1798000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.802,10.962]}},
+{"type":"Feature","properties":{"nom":"Bucaramanga","region":"Santander","population":1009000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.128,7.132]}},
+{"type":"Feature","properties":{"nom":"Cartagena","region":"Bolívar","population":887000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.516,10.402]}},
+{"type":"Feature","properties":{"nom":"Cúcuta","region":"Norte de Santander","population":722146,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.52,7.92]}},
+{"type":"Feature","properties":{"nom":"Soledad","region":"Atlántico","population":698852,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.77,10.92]}},
+{"type":"Feature","properties":{"nom":"Pereira","region":"Risaralda","population":568750,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.68,4.81]}},
+{"type":"Feature","properties":{"nom":"Bello","region":"Antioquia","population":519670,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.57,6.33]}},
+{"type":"Feature","properties":{"nom":"Santa Marta","region":"Magdalena","population":431781,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.202,11.247]}},
+{"type":"Feature","properties":{"nom":"Ibagué","region":"Tolima","population":421685,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.232,4.439]}},
+{"type":"Feature","properties":{"nom":"Pasto","region":"Nariño","population":382236,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.281,1.214]}},
+{"type":"Feature","properties":{"nom":"Manizales","region":"Caldas","population":375848,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.52,5.06]}},
+{"type":"Feature","properties":{"nom":"Villavicencio","region":"Meta","population":374763,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.635,4.153]}}
+]}

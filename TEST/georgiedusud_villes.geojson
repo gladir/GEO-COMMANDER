@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"georgiedusud_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Grytviken","region":null,"population":99,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-36.508,-54.281]}}
+]}

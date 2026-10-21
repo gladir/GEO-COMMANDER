@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"portorico_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"San Juan","region":null,"population":2478905,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.13,18.44]}},
+{"type":"Feature","properties":{"nom":"Mayagüez","region":null,"population":291339,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.14,18.202]}},
+{"type":"Feature","properties":{"nom":"Ponce","region":null,"population":160334,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.617,18.0]}},
+{"type":"Feature","properties":{"nom":"Arecibo","region":null,"population":69307,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.73,18.44]}}
+]}

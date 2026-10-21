@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"quebec_centrales_biomasse",
+"features":[
+{"type":"Feature","properties":{"nom":"Brompton Biomass Cogeneration","puissance_mw":26.0,"combustible":"Biomass","mise_en_service":"","proprietaire":"Kruger Energy"},"geometry":{"type":"Point","coordinates":[-71.9524,45.4807]}},
+{"type":"Feature","properties":{"nom":"Béarn Sawmill","puissance_mw":7.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-79.3356,47.2847]}},
+{"type":"Feature","properties":{"nom":"Chapais","puissance_mw":28.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-74.8568,49.7709]}},
+{"type":"Feature","properties":{"nom":"Dolbeau","puissance_mw":26.5,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-72.2174,48.8794]}},
+{"type":"Feature","properties":{"nom":"Domtar - Windsor","puissance_mw":30.0,"combustible":"Biomass","mise_en_service":"","proprietaire":"Domtar Inc"},"geometry":{"type":"Point","coordinates":[-71.981,45.5658]}},
+{"type":"Feature","properties":{"nom":"Gatineau (Bowater)","puissance_mw":15.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-75.6552,45.4792]}},
+{"type":"Feature","properties":{"nom":"Haute-Yamaska-Roland Thibault Cogeneration","puissance_mw":3.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-72.7809,45.4634]}},
+{"type":"Feature","properties":{"nom":"Lachenaie Landfill","puissance_mw":4.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-73.5346,45.7326]}},
+{"type":"Feature","properties":{"nom":"Lachute LFG","puissance_mw":10.0,"combustible":"Biomass","mise_en_service":"","proprietaire":"Lidya Energy"},"geometry":{"type":"Point","coordinates":[-74.2492,45.6093]}},
+{"type":"Feature","properties":{"nom":"Robert O. Pickard","puissance_mw":2.4,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-75.5875,45.4625]}},
+{"type":"Feature","properties":{"nom":"Saint-Félicien (Fibrek)","puissance_mw":42.7,"combustible":"Biomass","mise_en_service":"","proprietaire":"PF Résolu Canada Inc"},"geometry":{"type":"Point","coordinates":[-72.5128,48.7465]}},
+{"type":"Feature","properties":{"nom":"Saint-Nicéphore LFG","puissance_mw":7.6,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-72.3688,45.8228]}},
+{"type":"Feature","properties":{"nom":"Senneterre","puissance_mw":35.0,"combustible":"Biomass","mise_en_service":"","proprietaire":"Boralex Inc"},"geometry":{"type":"Point","coordinates":[-77.223,48.3838]}},
+{"type":"Feature","properties":{"nom":"Société de Cogénération Saint-Félicien","puissance_mw":21.0,"combustible":"Biomass","mise_en_service":"","proprietaire":"Green Leaf"},"geometry":{"type":"Point","coordinates":[-72.4337,48.6379]}},
+{"type":"Feature","properties":{"nom":"St-Thomas","puissance_mw":9.4,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-73.2555,46.0639]}},
+{"type":"Feature","properties":{"nom":"Thurso 1-2","puissance_mw":24.0,"combustible":"Biomass","mise_en_service":"","proprietaire":""},"geometry":{"type":"Point","coordinates":[-75.2557,45.5982]}}
+]}

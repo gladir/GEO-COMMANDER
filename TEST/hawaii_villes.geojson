@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"hawaii_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Honolulu","population":786000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-157.858,21.303]}},
+{"type":"Feature","properties":{"nom":"Wahiawa","population":174766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-158.024,21.503]}},
+{"type":"Feature","properties":{"nom":"Hilo","population":52391,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-155.082,19.706]}},
+{"type":"Feature","properties":{"nom":"Wailuku","population":52148,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-156.505,20.891]}},
+{"type":"Feature","properties":{"nom":"Lihue","population":15536,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-159.369,21.976]}},
+{"type":"Feature","properties":{"nom":"Kailua-Kona","population":9870,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-155.988,19.638]}}
+]}

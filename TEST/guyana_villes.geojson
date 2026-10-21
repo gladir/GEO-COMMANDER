@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"guyana_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Georgetown","region":"East Berbice-Corentyne","population":264350,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-58.167,6.802]}},
+{"type":"Feature","properties":{"nom":"New Amsterdam","region":"Essequibo Islands-West Demerara","population":46874,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.53,6.25]}},
+{"type":"Feature","properties":{"nom":"Linden","region":"Upper Takutu-Upper Essequibo","population":44690,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.27,5.99]}},
+{"type":"Feature","properties":{"nom":"Corriverton","region":"Mahaica-Berbice","population":12000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-57.17,5.9]}},
+{"type":"Feature","properties":{"nom":"Bartica","region":"Pomeroon-Supenaam","population":11524,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.63,6.41]}},
+{"type":"Feature","properties":{"nom":"Anna Regina","region":"Cuyuni-Mazaruni","population":3113,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.5,7.27]}},
+{"type":"Feature","properties":{"nom":"Mabaruma","region":"Barima-Waini","population":2972,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-59.78,8.2]}},
+{"type":"Feature","properties":{"nom":"Kumaka","region":"Upper Demerara-Berbice","population":2190,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.38,3.9]}},
+{"type":"Feature","properties":{"nom":"Lethem","region":"Upper Demerara-Berbice","population":352,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-59.8,3.39]}},
+{"type":"Feature","properties":{"nom":"Ituni","region":"Upper Takutu-Upper Essequibo","population":100,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-58.25,5.43]}}
+]}

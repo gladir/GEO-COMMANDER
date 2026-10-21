@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"equateur_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Guayaquil","region":"Guayas","population":2514000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.922,-2.218]}},
+{"type":"Feature","properties":{"nom":"Quito","region":"Pichincha","population":1701000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-78.502,-0.213]}},
+{"type":"Feature","properties":{"nom":"Cuenca","region":"Azuay","population":286878,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.0,-2.9]}},
+{"type":"Feature","properties":{"nom":"Ambato","region":"Napo","population":281425,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.62,-1.27]}},
+{"type":"Feature","properties":{"nom":"Portoviejo","region":"Manabi","population":213601,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.46,-1.06]}},
+{"type":"Feature","properties":{"nom":"Machala","region":"El Oro","population":213034,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.96,-3.26]}},
+{"type":"Feature","properties":{"nom":"Manta","region":"Manabi","population":183166,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.73,-0.98]}},
+{"type":"Feature","properties":{"nom":"Sangolquí","region":"Pichincha","population":178582,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.46,-0.31]}},
+{"type":"Feature","properties":{"nom":"Esmeraldas","region":"Esmeraldas","population":173101,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.67,0.93]}},
+{"type":"Feature","properties":{"nom":"Riobamba","region":"Chimborazo","population":172464,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.65,-1.67]}},
+{"type":"Feature","properties":{"nom":"Ibarra","region":"Imbabura","population":146741,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.13,0.36]}},
+{"type":"Feature","properties":{"nom":"Loja","region":"Loja","population":126368,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.21,-3.99]}},
+{"type":"Feature","properties":{"nom":"Milagro","region":"Guayas","population":109970,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.6,-2.18]}},
+{"type":"Feature","properties":{"nom":"Latacunga","region":"Cotopaxi","population":94972,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.61,-0.93]}},
+{"type":"Feature","properties":{"nom":"Tulcán","region":"Carchi","population":83000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.732,0.822]}}
+]}

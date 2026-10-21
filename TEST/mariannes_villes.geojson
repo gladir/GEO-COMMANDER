@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"mariannes_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Capitol Hill","region":null,"population":2500,"capitale":"non"},"geometry":{"type":"Point","coordinates":[145.751,15.211]}}
+]}

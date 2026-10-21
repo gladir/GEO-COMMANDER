@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"kansas_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kansas City","population":501577,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.63,39.114]}},
+{"type":"Feature","properties":{"nom":"Wichita","population":401843,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.328,37.676]}},
+{"type":"Feature","properties":{"nom":"Topeka","population":132091,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-95.67,39.05]}},
+{"type":"Feature","properties":{"nom":"Lawrence","population":92726,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.255,38.96]}},
+{"type":"Feature","properties":{"nom":"Manhattan","population":56949,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.592,39.194]}},
+{"type":"Feature","properties":{"nom":"Salina","population":48031,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.607,38.825]}},
+{"type":"Feature","properties":{"nom":"Hutchinson","population":44477,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.923,38.065]}},
+{"type":"Feature","properties":{"nom":"Emporia","population":29048,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.181,38.404]}},
+{"type":"Feature","properties":{"nom":"Garden City","population":28564,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.864,37.975]}},
+{"type":"Feature","properties":{"nom":"Dodge City","population":25932,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.018,37.76]}},
+{"type":"Feature","properties":{"nom":"Hays","population":21394,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-99.322,38.879]}},
+{"type":"Feature","properties":{"nom":"Coffeyville","population":11760,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.626,37.038]}},
+{"type":"Feature","properties":{"nom":"Goodland","population":4378,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-101.711,39.348]}}
+]}

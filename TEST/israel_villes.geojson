@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"israel_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tel Aviv","region":"Tel Aviv","population":3112000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[34.768,32.082]}},
+{"type":"Feature","properties":{"nom":"Jerusalem","region":"Jerusalem","population":1029300,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[35.207,31.778]}},
+{"type":"Feature","properties":{"nom":"Haifa","region":"Haifa","population":1011000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.978,32.822]}},
+{"type":"Feature","properties":{"nom":"Beer Sheva","region":"HaDarom","population":206408,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.83,31.25]}},
+{"type":"Feature","properties":{"nom":"Nazareth","region":"HaZafon","population":151459,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.296,32.704]}},
+{"type":"Feature","properties":{"nom":"Ramla","region":"HaMerkaz","population":63860,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.867,31.917]}}
+]}

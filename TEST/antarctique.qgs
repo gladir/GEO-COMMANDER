@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de l'Antarctique" version="3.34.0-Pascal">
+  <title>Carte de l'Antarctique</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:4326</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="GRILLE_30_DEGRES_1" name="Grille 30 degres" source="./antarctique_grille.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="ANTARCTIQUE_2" name="Antarctique" source="./antarctique_terre.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-180</xmin><ymin>-90</ymin><xmax>180</xmax><ymax>-58</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Line">
+      <id>GRILLE_30_DEGRES_1</id>
+      <datasource>./antarctique_grille.geojson</datasource>
+      <layername>Grille 30 degres</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>ANTARCTIQUE_2</id>
+      <datasource>./antarctique_terre.geojson</datasource>
+      <layername>Antarctique</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

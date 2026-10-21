@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"perou_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Lima","region":"Lima","population":8012000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-77.052,-12.046]}},
+{"type":"Feature","properties":{"nom":"Callao","region":"Lima","population":876877,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.135,-12.07]}},
+{"type":"Feature","properties":{"nom":"Arequipa","region":"Arequipa","population":815000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.532,-16.418]}},
+{"type":"Feature","properties":{"nom":"Trujillo","region":"La Libertad","population":765171,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.02,-8.12]}},
+{"type":"Feature","properties":{"nom":"Chiclayo","region":"Lambayeque","population":596792,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.837,-6.763]}},
+{"type":"Feature","properties":{"nom":"Iquitos","region":"Loreto","population":458729,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.25,-3.75]}},
+{"type":"Feature","properties":{"nom":"Huancayo","region":"Junín","population":412733,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.2,-12.08]}},
+{"type":"Feature","properties":{"nom":"Piura","region":"Piura","population":396932,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.63,-5.21]}},
+{"type":"Feature","properties":{"nom":"Cusco","region":"Cusco","population":361182,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.972,-13.525]}},
+{"type":"Feature","properties":{"nom":"Chimbote","region":"Ancash","population":349846,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.57,-9.07]}},
+{"type":"Feature","properties":{"nom":"Pucallpa","region":"Ucayali","population":310750,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.535,-8.369]}},
+{"type":"Feature","properties":{"nom":"Tacna","region":"Tacna","population":280098,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.25,-18.0]}},
+{"type":"Feature","properties":{"nom":"Ica","region":"Ica","population":279420,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.725,-14.068]}},
+{"type":"Feature","properties":{"nom":"Juliaca","region":"Callao","population":245675,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.14,-15.5]}},
+{"type":"Feature","properties":{"nom":"Ayacucho","region":"Ayacucho","population":166314,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-74.22,-13.175]}}
+]}

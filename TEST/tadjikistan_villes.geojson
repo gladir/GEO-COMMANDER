@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"tadjikistan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dushanbe","region":"Tadzhikistan Territories","population":1086244,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[68.774,38.56]}},
+{"type":"Feature","properties":{"nom":"Khujand","region":"Leninabad","population":437684,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.62,40.29]}},
+{"type":"Feature","properties":{"nom":"Qurghonteppa","region":"Khatlon","population":311574,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.771,37.837]}},
+{"type":"Feature","properties":{"nom":"Konibodom","region":"Leninabad","population":259876,"capitale":"non"},"geometry":{"type":"Point","coordinates":[70.427,40.292]}},
+{"type":"Feature","properties":{"nom":"Uroteppa","region":"Leninabad","population":156621,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.001,39.922]}},
+{"type":"Feature","properties":{"nom":"Kulob","region":"Khatlon","population":115164,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.776,37.921]}},
+{"type":"Feature","properties":{"nom":"Khorugh","region":"Gorno-Badakhshan","population":30000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[71.548,37.488]}},
+{"type":"Feature","properties":{"nom":"Leninobod","region":"Leninabad","population":11468,"capitale":"non"},"geometry":{"type":"Point","coordinates":[69.0,39.75]}},
+{"type":"Feature","properties":{"nom":"Kuybyshevskiy","region":"Khatlon","population":8925,"capitale":"non"},"geometry":{"type":"Point","coordinates":[68.689,37.979]}}
+]}

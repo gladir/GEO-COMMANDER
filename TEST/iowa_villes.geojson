@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"iowa_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Des Moines","population":380655,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-93.62,41.58]}},
+{"type":"Feature","properties":{"nom":"Davenport","population":255738,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.588,41.554]}},
+{"type":"Feature","properties":{"nom":"Cedar Rapids","population":170621,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.66,41.97]}},
+{"type":"Feature","properties":{"nom":"Council Bluffs","population":101805,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.861,41.262]}},
+{"type":"Feature","properties":{"nom":"Iowa City","population":98516,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.53,41.661]}},
+{"type":"Feature","properties":{"nom":"Waterloo","population":98347,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.343,42.493]}},
+{"type":"Feature","properties":{"nom":"Sioux City","population":90932,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.4,42.5]}},
+{"type":"Feature","properties":{"nom":"Dubuque","population":62483,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.664,42.501]}},
+{"type":"Feature","properties":{"nom":"Ames","population":57104,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.623,42.019]}},
+{"type":"Feature","properties":{"nom":"Burlington","population":29773,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.113,40.808]}},
+{"type":"Feature","properties":{"nom":"Mason City","population":27802,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.201,43.154]}},
+{"type":"Feature","properties":{"nom":"Ft. Dodge","population":26879,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-94.18,42.507]}},
+{"type":"Feature","properties":{"nom":"Ottumwa","population":25982,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.415,41.013]}},
+{"type":"Feature","properties":{"nom":"Spencer","population":11203,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-95.147,43.145]}}
+]}

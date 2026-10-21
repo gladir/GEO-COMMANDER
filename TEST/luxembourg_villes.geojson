@@ -1,0 +1,6 @@
+{"type":"FeatureCollection","name":"luxembourg_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Luxembourg","region":"Luxembourg","population":107260,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[6.13,49.612]}},
+{"type":"Feature","properties":{"nom":"Diekirch","region":"Diekirch","population":6242,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.167,49.883]}},
+{"type":"Feature","properties":{"nom":"Grevenmacher","region":"Grevenmacher","population":3958,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.426,49.68]}}
+]}

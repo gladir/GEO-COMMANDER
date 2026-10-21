@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"kentucky_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Louisville","population":948000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.751,38.227]}},
+{"type":"Feature","properties":{"nom":"Covington","population":585489,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.509,39.084]}},
+{"type":"Feature","properties":{"nom":"Lexington","population":264578,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.5,38.05]}},
+{"type":"Feature","properties":{"nom":"Bowling Green","population":71140,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.444,36.991]}},
+{"type":"Feature","properties":{"nom":"Owensboro","population":67825,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.113,37.775]}},
+{"type":"Feature","properties":{"nom":"Paducah","population":41317,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.6,37.084]}},
+{"type":"Feature","properties":{"nom":"Frankfort","population":36688,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-84.873,38.201]}},
+{"type":"Feature","properties":{"nom":"Hopkinsville","population":35604,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.489,36.865]}},
+{"type":"Feature","properties":{"nom":"Madisonville","population":22294,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.502,37.333]}},
+{"type":"Feature","properties":{"nom":"London","population":7844,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.083,37.129]}}
+]}

@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"nouvellezelande_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Auckland","region":"Auckland","population":1377200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[174.763,-36.848]}},
+{"type":"Feature","properties":{"nom":"Wellington","region":"Manawatu-Wanganui","population":393400,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[174.777,-41.292]}},
+{"type":"Feature","properties":{"nom":"Manukau","region":"Auckland","population":375600,"capitale":"non"},"geometry":{"type":"Point","coordinates":[174.885,-37.0]}},
+{"type":"Feature","properties":{"nom":"Christchurch","region":"Canterbury","population":363200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[172.63,-43.535]}},
+{"type":"Feature","properties":{"nom":"Waitakere","region":"Auckland","population":208100,"capitale":"non"},"geometry":{"type":"Point","coordinates":[174.554,-36.852]}},
+{"type":"Feature","properties":{"nom":"North Shore","region":"Auckland","population":205605,"capitale":"non"},"geometry":{"type":"Point","coordinates":[174.776,-36.791]}},
+{"type":"Feature","properties":{"nom":"Hamilton","region":"Waikato","population":148200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[175.29,-37.778]}},
+{"type":"Feature","properties":{"nom":"Tauranga","region":"Bay of Plenty","population":121500,"capitale":"non"},"geometry":{"type":"Point","coordinates":[176.154,-37.696]}},
+{"type":"Feature","properties":{"nom":"Dunedin","region":"Otago","population":117700,"capitale":"non"},"geometry":{"type":"Point","coordinates":[170.491,-45.885]}},
+{"type":"Feature","properties":{"nom":"Lower Hutt","region":"Wellington","population":102400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[174.912,-41.204]}},
+{"type":"Feature","properties":{"nom":"Palmerston North","region":"Manawatu-Wanganui","population":82400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[175.607,-40.353]}},
+{"type":"Feature","properties":{"nom":"Hastings","region":"Gisborne","population":66100,"capitale":"non"},"geometry":{"type":"Point","coordinates":[176.837,-39.638]}},
+{"type":"Feature","properties":{"nom":"Nelson","region":"Nelson","population":60800,"capitale":"non"},"geometry":{"type":"Point","coordinates":[173.247,-41.293]}},
+{"type":"Feature","properties":{"nom":"Napier","region":"Gisborne","population":57800,"capitale":"non"},"geometry":{"type":"Point","coordinates":[176.926,-39.49]}},
+{"type":"Feature","properties":{"nom":"Rotorua","region":"Auckland","population":56200,"capitale":"non"},"geometry":{"type":"Point","coordinates":[176.248,-38.132]}}
+]}

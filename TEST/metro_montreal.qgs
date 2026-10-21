@@ -1,0 +1,79 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Le métro de Montréal (STM)" version="3.34.0-Pascal">
+  <title>Le métro de Montréal (STM)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="STATIONS_1" name="Stations" source="./metro_montreal_stations.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_1_VERTE_2" name="Ligne 1 verte" source="./metro_montreal_verte.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_2_ORANGE_3" name="Ligne 2 orange" source="./metro_montreal_orange.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_4_JAUNE_4" name="Ligne 4 jaune" source="./metro_montreal_jaune.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_5_BLEUE_5" name="Ligne 5 bleue" source="./metro_montreal_bleue.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_5_BLEUE__PROLONGEMENT_EN_CONSTRUCTION__6" name="Ligne 5 bleue (prolongement en construction)" source="./metro_montreal_bleueext.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_7" name="Plans d eau" source="./metro_montreal_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-8213152</xmin><ymin>5695819</ymin><xmax>-8178643</xmax><ymax>5719662</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>STATIONS_1</id>
+      <datasource>./metro_montreal_stations.geojson</datasource>
+      <layername>Stations</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="0" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_1_VERTE_2</id>
+      <datasource>./metro_montreal_verte.geojson</datasource>
+      <layername>Ligne 1 verte</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_2_ORANGE_3</id>
+      <datasource>./metro_montreal_orange.geojson</datasource>
+      <layername>Ligne 2 orange</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_4_JAUNE_4</id>
+      <datasource>./metro_montreal_jaune.geojson</datasource>
+      <layername>Ligne 4 jaune</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_5_BLEUE_5</id>
+      <datasource>./metro_montreal_bleue.geojson</datasource>
+      <layername>Ligne 5 bleue</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_5_BLEUE__PROLONGEMENT_EN_CONSTRUCTION__6</id>
+      <datasource>./metro_montreal_bleueext.geojson</datasource>
+      <layername>Ligne 5 bleue (prolongement en construction)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_7</id>
+      <datasource>./metro_montreal_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

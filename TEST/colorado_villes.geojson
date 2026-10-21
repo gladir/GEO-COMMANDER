@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"colorado_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Denver","population":2313000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-104.986,39.741]}},
+{"type":"Feature","properties":{"nom":"Aurora","population":587540,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.808,39.696]}},
+{"type":"Feature","properties":{"nom":"Colorado Springs","population":493654,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.792,38.863]}},
+{"type":"Feature","properties":{"nom":"Fort Collins","population":228385,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.059,40.561]}},
+{"type":"Feature","properties":{"nom":"Greeley","population":125410,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.74,40.419]}},
+{"type":"Feature","properties":{"nom":"Boulder","population":122274,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-105.245,40.008]}},
+{"type":"Feature","properties":{"nom":"Pueblo","population":112195,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.63,38.28]}},
+{"type":"Feature","properties":{"nom":"Grand Junction","population":104214,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-108.55,39.094]}},
+{"type":"Feature","properties":{"nom":"Durango","population":23233,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.88,37.276]}},
+{"type":"Feature","properties":{"nom":"Montrose","population":21789,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.866,38.477]}},
+{"type":"Feature","properties":{"nom":"Glenwood Springs","population":14004,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.325,39.547]}},
+{"type":"Feature","properties":{"nom":"Craig","population":9391,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-107.55,40.517]}},
+{"type":"Feature","properties":{"nom":"Trinidad","population":9156,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-104.506,37.171]}},
+{"type":"Feature","properties":{"nom":"Lamar","population":8620,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.619,38.086]}},
+{"type":"Feature","properties":{"nom":"Gunnison","population":7324,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-106.928,38.545]}}
+]}

@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte des mines du Canada (sélection)" version="3.34.0-Pascal">
+  <title>Carte des mines du Canada (sélection)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="MINES__SELECTION__POSITIONS_APPROXIMATIVES__1" name="Mines (selection, positions approximatives)" source="./canada_mines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PROVINCES_ET_TERRITOIRES_2" name="Provinces et territoires" source="./canada_provinces.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-15696048</xmin><ymin>5086374</ymin><xmax>-5788614</xmax><ymax>11753185</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>MINES__SELECTION__POSITIONS_APPROXIMATIVES__1</id>
+      <datasource>./canada_mines.geojson</datasource>
+      <layername>Mines (selection, positions approximatives)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PROVINCES_ET_TERRITOIRES_2</id>
+      <datasource>./canada_provinces.geojson</datasource>
+      <layername>Provinces et territoires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

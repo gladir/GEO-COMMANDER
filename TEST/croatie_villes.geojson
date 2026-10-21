@@ -1,0 +1,13 @@
+{"type":"FeatureCollection","name":"croatie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Zagreb","region":"Grad Zagreb","population":722526,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[16.0,45.8]}},
+{"type":"Feature","properties":{"nom":"Split","region":"Splitsko-Dalmatinska","population":214741,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.47,43.52]}},
+{"type":"Feature","properties":{"nom":"Rijeka","region":"Primorsko-Goranska","population":170992,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.45,45.33]}},
+{"type":"Feature","properties":{"nom":"Slavonski Brod","region":"Brodsko-Posavska","population":97718,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.016,45.16]}},
+{"type":"Feature","properties":{"nom":"Osijek","region":"Osjecko-Baranjska","population":95077,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.68,45.55]}},
+{"type":"Feature","properties":{"nom":"Zadar","region":"Zadarska","population":71258,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.262,44.12]}},
+{"type":"Feature","properties":{"nom":"Pula","region":"Istarska","population":61599,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.848,44.869]}},
+{"type":"Feature","properties":{"nom":"Karlovac","region":"Karlovacka","population":55063,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.548,45.487]}},
+{"type":"Feature","properties":{"nom":"Sibenik","region":"Sibensko-Kninska","population":37112,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.906,43.727]}},
+{"type":"Feature","properties":{"nom":"Dubrovnik","region":"Dubrovacko-Neretvanska","population":36994,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.091,42.661]}}
+]}

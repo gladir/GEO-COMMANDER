@@ -1,0 +1,160 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Le métro de Tokyo (Tokyo Metro et Toei)" version="3.34.0-Pascal">
+  <title>Le métro de Tokyo (Tokyo Metro et Toei)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="STATIONS_1" name="Stations" source="./metro_tokyo_stations.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_ASAKUSA__TOEI__2" name="Ligne Asakusa (Toei)" source="./metro_tokyo_asakusatoei.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_CHIYODA__TOKYO_METRO__3" name="Ligne Chiyoda (Tokyo Metro)" source="./metro_tokyo_chiyodatokyome.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_FUKUTOSHIN__TOKYO_METRO__4" name="Ligne Fukutoshin (Tokyo Metro)" source="./metro_tokyo_fukutoshintoky.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_GINZA__TOKYO_METRO__5" name="Ligne Ginza (Tokyo Metro)" source="./metro_tokyo_ginzatokyometr.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_HANZOMON__TOKYO_METRO__6" name="Ligne Hanzomon (Tokyo Metro)" source="./metro_tokyo_hanzomontokyom.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_HIBIYA__TOKYO_METRO__7" name="Ligne Hibiya (Tokyo Metro)" source="./metro_tokyo_hibiyatokyomet.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_MARUNOUCHI__TOKYO_METRO__8" name="Ligne Marunouchi (Tokyo Metro)" source="./metro_tokyo_marunouchitoky.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_MITA__TOEI__9" name="Ligne Mita (Toei)" source="./metro_tokyo_mitatoei.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_NAMBOKU__TOKYO_METRO__10" name="Ligne Namboku (Tokyo Metro)" source="./metro_tokyo_nambokutokyome.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_OEDO__TOEI__11" name="Ligne Oedo (Toei)" source="./metro_tokyo_oedotoei.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_SHINJUKU__TOEI__12" name="Ligne Shinjuku (Toei)" source="./metro_tokyo_shinjukutoei.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_TOZAI__TOKYO_METRO__13" name="Ligne Tozai (Tokyo Metro)" source="./metro_tokyo_tozaitokyometr.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_YURAKUCHO__TOKYO_METRO__14" name="Ligne Yurakucho (Tokyo Metro)" source="./metro_tokyo_yurakuchotokyo.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_LIGNES_ET_VOIES_DE_SERVICE_15" name="Autres lignes et voies de service" source="./metro_tokyo_autres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_16" name="Plans d eau" source="./metro_tokyo_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>15534635</xmin><ymin>4245721</ymin><xmax>15571370</xmax><ymax>4271764</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>STATIONS_1</id>
+      <datasource>./metro_tokyo_stations.geojson</datasource>
+      <layername>Stations</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="15" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_ASAKUSA__TOEI__2</id>
+      <datasource>./metro_tokyo_asakusatoei.geojson</datasource>
+      <layername>Ligne Asakusa (Toei)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_CHIYODA__TOKYO_METRO__3</id>
+      <datasource>./metro_tokyo_chiyodatokyome.geojson</datasource>
+      <layername>Ligne Chiyoda (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_FUKUTOSHIN__TOKYO_METRO__4</id>
+      <datasource>./metro_tokyo_fukutoshintoky.geojson</datasource>
+      <layername>Ligne Fukutoshin (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_GINZA__TOKYO_METRO__5</id>
+      <datasource>./metro_tokyo_ginzatokyometr.geojson</datasource>
+      <layername>Ligne Ginza (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_HANZOMON__TOKYO_METRO__6</id>
+      <datasource>./metro_tokyo_hanzomontokyom.geojson</datasource>
+      <layername>Ligne Hanzomon (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="5" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_HIBIYA__TOKYO_METRO__7</id>
+      <datasource>./metro_tokyo_hibiyatokyomet.geojson</datasource>
+      <layername>Ligne Hibiya (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_MARUNOUCHI__TOKYO_METRO__8</id>
+      <datasource>./metro_tokyo_marunouchitoky.geojson</datasource>
+      <layername>Ligne Marunouchi (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_MITA__TOEI__9</id>
+      <datasource>./metro_tokyo_mitatoei.geojson</datasource>
+      <layername>Ligne Mita (Toei)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_NAMBOKU__TOKYO_METRO__10</id>
+      <datasource>./metro_tokyo_nambokutokyome.geojson</datasource>
+      <layername>Ligne Namboku (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="3" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_OEDO__TOEI__11</id>
+      <datasource>./metro_tokyo_oedotoei.geojson</datasource>
+      <layername>Ligne Oedo (Toei)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="4" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_SHINJUKU__TOEI__12</id>
+      <datasource>./metro_tokyo_shinjukutoei.geojson</datasource>
+      <layername>Ligne Shinjuku (Toei)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_TOZAI__TOKYO_METRO__13</id>
+      <datasource>./metro_tokyo_tozaitokyometr.geojson</datasource>
+      <layername>Ligne Tozai (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_YURAKUCHO__TOKYO_METRO__14</id>
+      <datasource>./metro_tokyo_yurakuchotokyo.geojson</datasource>
+      <layername>Ligne Yurakucho (Tokyo Metro)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>AUTRES_LIGNES_ET_VOIES_DE_SERVICE_15</id>
+      <datasource>./metro_tokyo_autres.geojson</datasource>
+      <layername>Autres lignes et voies de service</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="8" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_16</id>
+      <datasource>./metro_tokyo_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

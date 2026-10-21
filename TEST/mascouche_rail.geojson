@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"mascouche_rail",
+"features":[
+{"type":"Feature","properties":{"nom":"Subdivision Trois-Rivières","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60253,45.72531],[-73.60668,45.72141],[-73.60746,45.72062],[-73.60918,45.719]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60302,45.72475],[-73.60293,45.72485],[-73.60268,45.72515],[-73.60253,45.72531]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60067,45.72698],[-73.60029,45.72734],[-73.5992,45.72834]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60021,45.72763],[-73.59988,45.72788]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60068,45.72716],[-73.60039,45.72745],[-73.59969,45.72837],[-73.5972,45.73071],[-73.59681,45.73103]]}},
+{"type":"Feature","properties":{"nom":"Subdivision Trois-Rivières","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.59247,45.7347],[-73.59382,45.73343],[-73.5948,45.73252],[-73.59499,45.73236],[-73.59519,45.73221],[-73.59565,45.7319],[-73.59739,45.73075],[-73.59768,45.73054],[-73.59829,45.72998],[-73.59951,45.72885],[-73.59992,45.72839],[-73.6003,45.7279],[-73.60125,45.7266],[-73.60144,45.72637],[-73.60169,45.7261],[-73.60253,45.72531]]}},
+{"type":"Feature","properties":{"nom":"Subdivision Mascouche","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60302,45.72475],[-73.60149,45.72619],[-73.60128,45.7264],[-73.6011,45.7266],[-73.60099,45.72674],[-73.59999,45.7281],[-73.59984,45.72829],[-73.59969,45.72845],[-73.59729,45.7307],[-73.59713,45.73082],[-73.59641,45.73129],[-73.59524,45.73207],[-73.59501,45.73224],[-73.59285,45.73426],[-73.59247,45.7347]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.59988,45.72788],[-73.59968,45.72803],[-73.59906,45.72859],[-73.59703,45.73053],[-73.59641,45.73109],[-73.5959,45.73157]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.59988,45.72788],[-73.59972,45.72798],[-73.5992,45.72834],[-73.59861,45.72888],[-73.59629,45.73107],[-73.5959,45.73157]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.60006,45.72788],[-73.59982,45.72813],[-73.59838,45.72948],[-73.5966,45.73114],[-73.59641,45.73129]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.5961,45.7315],[-73.59713,45.73056],[-73.59837,45.72941],[-73.59961,45.72825],[-73.59993,45.7279],[-73.60039,45.72745]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.5959,45.73157],[-73.59576,45.73171],[-73.59559,45.73184]]}},
+{"type":"Feature","properties":{"nom":"Subdivision Trois-Rivières","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-73.54312,45.781],[-73.5638,45.76161],[-73.56406,45.76136],[-73.56727,45.75836],[-73.59247,45.7347]]}}
+]}

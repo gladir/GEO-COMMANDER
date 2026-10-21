@@ -1,0 +1,142 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Le métro de Londres (London Underground)" version="3.34.0-Pascal">
+  <title>Le métro de Londres (London Underground)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="STATIONS_1" name="Stations" source="./metro_londres_stations.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="ELIZABETH_LINE__CROSSRAIL__2" name="Elizabeth line (Crossrail)" source="./metro_londres_elizabeth.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_BAKERLOO_3" name="Ligne Bakerloo" source="./metro_londres_bakerloo.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_CENTRAL_4" name="Ligne Central" source="./metro_londres_central.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_CIRCLE_5" name="Ligne Circle" source="./metro_londres_circle.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_DISTRICT_6" name="Ligne District" source="./metro_londres_district.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_HAMMERSMITH___CITY_7" name="Ligne Hammersmith &amp; City" source="./metro_londres_hammersmithcit.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_JUBILEE_8" name="Ligne Jubilee" source="./metro_londres_jubilee.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_METROPOLITAN_9" name="Ligne Metropolitan" source="./metro_londres_metropolitan.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_NORTHERN_10" name="Ligne Northern" source="./metro_londres_northern.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_PICCADILLY_11" name="Ligne Piccadilly" source="./metro_londres_piccadilly.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_VICTORIA_12" name="Ligne Victoria" source="./metro_londres_victoria.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_WATERLOO___CITY_13" name="Ligne Waterloo &amp; City" source="./metro_londres_waterloocity.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_14" name="Plans d eau" source="./metro_londres_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-36735</xmin><ymin>6699497</ymin><xmax>8906</xmax><ymax>6728121</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>STATIONS_1</id>
+      <datasource>./metro_londres_stations.geojson</datasource>
+      <layername>Stations</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="0" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>ELIZABETH_LINE__CROSSRAIL__2</id>
+      <datasource>./metro_londres_elizabeth.geojson</datasource>
+      <layername>Elizabeth line (Crossrail)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="5" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_BAKERLOO_3</id>
+      <datasource>./metro_londres_bakerloo.geojson</datasource>
+      <layername>Ligne Bakerloo</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_CENTRAL_4</id>
+      <datasource>./metro_londres_central.geojson</datasource>
+      <layername>Ligne Central</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="4" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_CIRCLE_5</id>
+      <datasource>./metro_londres_circle.geojson</datasource>
+      <layername>Ligne Circle</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_DISTRICT_6</id>
+      <datasource>./metro_londres_district.geojson</datasource>
+      <layername>Ligne District</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="3" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_HAMMERSMITH___CITY_7</id>
+      <datasource>./metro_londres_hammersmithcit.geojson</datasource>
+      <layername>Ligne Hammersmith &amp; City</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_JUBILEE_8</id>
+      <datasource>./metro_londres_jubilee.geojson</datasource>
+      <layername>Ligne Jubilee</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_METROPOLITAN_9</id>
+      <datasource>./metro_londres_metropolitan.geojson</datasource>
+      <layername>Ligne Metropolitan</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="5" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_NORTHERN_10</id>
+      <datasource>./metro_londres_northern.geojson</datasource>
+      <layername>Ligne Northern</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="0" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_PICCADILLY_11</id>
+      <datasource>./metro_londres_piccadilly.geojson</datasource>
+      <layername>Ligne Piccadilly</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="1" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_VICTORIA_12</id>
+      <datasource>./metro_londres_victoria.geojson</datasource>
+      <layername>Ligne Victoria</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="3" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_WATERLOO___CITY_13</id>
+      <datasource>./metro_londres_waterloocity.geojson</datasource>
+      <layername>Ligne Waterloo &amp; City</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_14</id>
+      <datasource>./metro_londres_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

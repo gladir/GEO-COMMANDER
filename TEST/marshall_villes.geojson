@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"marshall_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Majuro","region":null,"population":25400,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[171.38,7.103]}}
+]}

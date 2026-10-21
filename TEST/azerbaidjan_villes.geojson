@@ -1,0 +1,20 @@
+{"type":"FeatureCollection","name":"azerbaidjan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Baku","region":"Baki","population":2122300,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[49.86,40.397]}},
+{"type":"Feature","properties":{"nom":"Ganca","region":"G?nc?","population":303268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[46.35,40.685]}},
+{"type":"Feature","properties":{"nom":"Sumqayt","region":"Sumqayit","population":279159,"capitale":"non"},"geometry":{"type":"Point","coordinates":[49.63,40.58]}},
+{"type":"Feature","properties":{"nom":"Naxcivan","region":"Naxçivan","population":94788,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.412,39.209]}},
+{"type":"Feature","properties":{"nom":"Sirvan","region":"?li Bayramli","population":70684,"capitale":"non"},"geometry":{"type":"Point","coordinates":[48.92,39.932]}},
+{"type":"Feature","properties":{"nom":"Saki","region":"S?ki","population":64968,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.171,41.192]}},
+{"type":"Feature","properties":{"nom":"Lankaran","region":"Astara","population":60180,"capitale":"non"},"geometry":{"type":"Point","coordinates":[48.851,38.754]}},
+{"type":"Feature","properties":{"nom":"Stepanakert","region":"Xocali","population":57473,"capitale":"non"},"geometry":{"type":"Point","coordinates":[46.752,39.816]}},
+{"type":"Feature","properties":{"nom":"Yevlax","region":"Yevlax","population":53716,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.15,40.617]}},
+{"type":"Feature","properties":{"nom":"Kapan","region":"Z?ngilan","population":42288,"capitale":"non"},"geometry":{"type":"Point","coordinates":[46.415,39.202]}},
+{"type":"Feature","properties":{"nom":"Goycay","region":"Göyçay","population":35348,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.741,40.653]}},
+{"type":"Feature","properties":{"nom":"Tovuz","region":"Tovuz","population":12626,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.629,40.992]}},
+{"type":"Feature","properties":{"nom":"Qabala","region":"Q?b?l?","population":11867,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.846,40.981]}},
+{"type":"Feature","properties":{"nom":"Gadabay","region":"G?d?b?y","population":8657,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.816,40.566]}},
+{"type":"Feature","properties":{"nom":"Goranboy","region":"Goranboy","population":7333,"capitale":"non"},"geometry":{"type":"Point","coordinates":[46.79,40.61]}},
+{"type":"Feature","properties":{"nom":"Oguz","region":"Oguz","population":6876,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.458,41.071]}},
+{"type":"Feature","properties":{"nom":"Agdam","region":"Tovuz","population":0,"capitale":"non"},"geometry":{"type":"Point","coordinates":[45.556,40.905]}}
+]}

@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"micronesie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Palikir","region":null,"population":4645,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[158.15,6.917]}}
+]}

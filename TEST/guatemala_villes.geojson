@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"guatemala_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Guatemala City","region":"Guatemala","population":1024000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-90.529,14.623]}},
+{"type":"Feature","properties":{"nom":"Quetzaltenango","region":"Quezaltenango","population":575263,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.52,14.83]}},
+{"type":"Feature","properties":{"nom":"El Progreso","region":"El Progreso","population":147197,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.016,14.922]}},
+{"type":"Feature","properties":{"nom":"San Luis","region":"Petén","population":132470,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.44,16.2]}},
+{"type":"Feature","properties":{"nom":"Escuintla","region":"Escuintla","population":107638,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.78,14.3]}},
+{"type":"Feature","properties":{"nom":"Huehuetenango","region":"Huehuetenango","population":85992,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.47,15.32]}},
+{"type":"Feature","properties":{"nom":"Chimaltenango","region":"Chimaltenango","population":82370,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.82,14.662]}},
+{"type":"Feature","properties":{"nom":"Totonicapán","region":"Totonicapán","population":69734,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.358,14.914]}},
+{"type":"Feature","properties":{"nom":"Cobán","region":"Alta Verapaz","population":65194,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.38,15.47]}},
+{"type":"Feature","properties":{"nom":"Mazatenango","region":"Suchitepéquez","population":64652,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.51,14.53]}},
+{"type":"Feature","properties":{"nom":"Puerto Barrios","region":"Izabal","population":56605,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.593,15.717]}},
+{"type":"Feature","properties":{"nom":"Jutiapa","region":"Jutiapa","population":50681,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.9,14.29]}},
+{"type":"Feature","properties":{"nom":"Jalapa","region":"Jalapa","population":45834,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.989,14.633]}},
+{"type":"Feature","properties":{"nom":"Sololá","region":"Sololá","population":45373,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.183,14.773]}},
+{"type":"Feature","properties":{"nom":"Chiquimula","region":"Chiquimula","population":41521,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.544,14.797]}}
+]}

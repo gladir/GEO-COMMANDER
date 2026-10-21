@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"tuvalu_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Funafuti","region":null,"population":4749,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[179.217,-8.517]}}
+]}

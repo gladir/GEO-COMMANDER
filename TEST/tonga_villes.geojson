@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"tonga_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nuku'alofa","region":null,"population":42620,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-175.221,-21.139]}},
+{"type":"Feature","properties":{"nom":"Neiafu","region":null,"population":7391,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-173.983,-18.65]}}
+]}

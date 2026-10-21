@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"zaire_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kinshasa","region":"Kinshasa City","population":7843000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[15.313,-4.328]}},
+{"type":"Feature","properties":{"nom":"Lubumbashi","region":"Katanga","population":1352000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.478,-11.678]}},
+{"type":"Feature","properties":{"nom":"Mbuji-Mayi","region":"Kasaï-Oriental","population":1295000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.598,-6.148]}},
+{"type":"Feature","properties":{"nom":"Kananga","region":"Kasaï-Occidental","population":765000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.398,-5.888]}},
+{"type":"Feature","properties":{"nom":"Kikwit","region":"Bandundu","population":637736,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.85,-5.03]}},
+{"type":"Feature","properties":{"nom":"Kisangani","region":"Orientale","population":578470,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.22,0.52]}},
+{"type":"Feature","properties":{"nom":"Bukavu","region":"Sud-Kivu","population":436779,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.84,-2.51]}},
+{"type":"Feature","properties":{"nom":"Likasi","region":"Katanga","population":434408,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.78,-10.97]}},
+{"type":"Feature","properties":{"nom":"Kolwezi","region":"Katanga","population":418000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.472,-10.717]}},
+{"type":"Feature","properties":{"nom":"Beni","region":"Nord-Kivu","population":332903,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.45,0.49]}},
+{"type":"Feature","properties":{"nom":"Butembo","region":"Nord-Kivu","population":286403,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.28,0.13]}},
+{"type":"Feature","properties":{"nom":"Mbandaka","region":"Équateur","population":274996,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.26,0.04]}},
+{"type":"Feature","properties":{"nom":"Tshikapa","region":"Kasaï-Occidental","population":267462,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.77,-6.41]}},
+{"type":"Feature","properties":{"nom":"Kindu","region":"Maniema","population":262914,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.91,-2.964]}},
+{"type":"Feature","properties":{"nom":"Matadi","region":"Bas-Congo","population":245862,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.45,-5.817]}}
+]}

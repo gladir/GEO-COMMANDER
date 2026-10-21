@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saharaoccidental_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bir Lehlou","region":null,"population":500,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-9.653,26.119]}}
+]}

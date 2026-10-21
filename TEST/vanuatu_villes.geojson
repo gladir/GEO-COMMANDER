@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"vanuatu_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Port Vila","region":"Shefa","population":44040,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[168.317,-17.733]}},
+{"type":"Feature","properties":{"nom":"Luganville","region":"Sanma","population":13397,"capitale":"non"},"geometry":{"type":"Point","coordinates":[167.177,-15.513]}}
+]}

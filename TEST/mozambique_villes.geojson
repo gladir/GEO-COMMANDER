@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"mozambique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Maputo","region":"Maputo","population":1446000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[32.587,-25.953]}},
+{"type":"Feature","properties":{"nom":"Matola","region":"Maputo","population":543907,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.46,-25.97]}},
+{"type":"Feature","properties":{"nom":"Beira","region":"Sofala","population":530604,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.87,-19.82]}},
+{"type":"Feature","properties":{"nom":"Nampula","region":"Nampula","population":388526,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.293,-15.136]}},
+{"type":"Feature","properties":{"nom":"Chimoio","region":"Manica","population":256936,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.47,-19.12]}},
+{"type":"Feature","properties":{"nom":"Nacala","region":"Nampula","population":224795,"capitale":"non"},"geometry":{"type":"Point","coordinates":[40.715,-14.519]}},
+{"type":"Feature","properties":{"nom":"Quelimane","region":"Zambezia","population":188964,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.89,-17.88]}},
+{"type":"Feature","properties":{"nom":"Tete","region":"Tete","population":129316,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.58,-16.17]}},
+{"type":"Feature","properties":{"nom":"Xai-Xai","region":"Gaza","population":128805,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.64,-25.04]}},
+{"type":"Feature","properties":{"nom":"Maxixe","region":"Inhambane","population":119868,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.389,-23.866]}},
+{"type":"Feature","properties":{"nom":"Inhambane","region":"Inhambane","population":115776,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.34,-23.858]}},
+{"type":"Feature","properties":{"nom":"Pemba","region":"Cabo Delgado","population":110643,"capitale":"non"},"geometry":{"type":"Point","coordinates":[40.532,-12.983]}},
+{"type":"Feature","properties":{"nom":"Lichinga","region":"Nassa","population":109839,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.24,-13.3]}},
+{"type":"Feature","properties":{"nom":"Dondo","region":"Sofala","population":78648,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.73,-19.62]}},
+{"type":"Feature","properties":{"nom":"Cuamba","region":"Nassa","population":73268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.54,-14.79]}}
+]}

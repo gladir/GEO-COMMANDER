@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"caimans_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"George Town","region":null,"population":4268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.372,19.295]}}
+]}

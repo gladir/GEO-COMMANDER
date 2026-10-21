@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"delaware_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Wilmington","population":161560,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.547,39.746]}},
+{"type":"Feature","properties":{"nom":"Dover","population":76039,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-75.525,39.158]}}
+]}

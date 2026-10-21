@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"cambodge_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Phnom Penh","region":"Phnom Penh","population":1466000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[104.915,11.552]}},
+{"type":"Feature","properties":{"nom":"Battambang","region":"Batdâmbâng","population":154773,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.2,13.1]}},
+{"type":"Feature","properties":{"nom":"Siem Reap","region":"Siemréab","population":109398,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.85,13.367]}},
+{"type":"Feature","properties":{"nom":"Kampong Cham","region":"Kâmpóng Cham","population":83233,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.45,12.0]}},
+{"type":"Feature","properties":{"nom":"Kompong Chhnang","region":"Kâmpóng Chhnang","population":75244,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.667,12.25]}},
+{"type":"Feature","properties":{"nom":"Prey Veng","region":"Prey Ving","population":74000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.324,11.484]}},
+{"type":"Feature","properties":{"nom":"Pursat","region":"Pouthisat","population":52476,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.917,12.534]}},
+{"type":"Feature","properties":{"nom":"Sisophon","region":"Bântéay Méanchey","population":50302,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.983,13.584]}},
+{"type":"Feature","properties":{"nom":"Kampot","region":"Kâmpôt","population":50105,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.183,10.617]}},
+{"type":"Feature","properties":{"nom":"Kampong Spoe","region":"Kâmpóng Sp?","population":33231,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.519,11.452]}},
+{"type":"Feature","properties":{"nom":"Krong Koh Kong","region":"Kaôh Kong","population":33134,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.985,11.618]}},
+{"type":"Feature","properties":{"nom":"Stoeng Treng","region":"StMng Tr","population":29665,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.974,13.523]}},
+{"type":"Feature","properties":{"nom":"Phnum Tbeng Meanchey","region":"Preah Vihéar","population":24380,"capitale":"non"},"geometry":{"type":"Point","coordinates":[104.967,13.817]}},
+{"type":"Feature","properties":{"nom":"Svay Rieng","region":"Svay Rieng","population":23956,"capitale":"non"},"geometry":{"type":"Point","coordinates":[105.801,11.08]}},
+{"type":"Feature","properties":{"nom":"Kracheh","region":"Krâchéh","population":19975,"capitale":"non"},"geometry":{"type":"Point","coordinates":[106.024,12.469]}}
+]}

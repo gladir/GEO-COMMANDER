@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"pologne_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Katowice","region":"Silesian","population":2746000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.02,50.26]}},
+{"type":"Feature","properties":{"nom":"Warsaw","region":"Masovian","population":1707000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[21.005,52.231]}},
+{"type":"Feature","properties":{"nom":"?ódz","region":"Lódz","population":758000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.458,51.768]}},
+{"type":"Feature","properties":{"nom":"Kraków","region":"Lesser Poland","population":756000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.958,50.062]}},
+{"type":"Feature","properties":{"nom":"Gdansk","region":"Pomeranian","population":740000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.64,54.36]}},
+{"type":"Feature","properties":{"nom":"Bytom","region":"Silesian","population":662247,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.91,50.35]}},
+{"type":"Feature","properties":{"nom":"Wroc?aw","region":"Lower Silesian","population":634893,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.03,51.11]}},
+{"type":"Feature","properties":{"nom":"Poznan","region":"Greater Poland","population":623997,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.9,52.406]}},
+{"type":"Feature","properties":{"nom":"Gliwice","region":"Silesian","population":507670,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.67,50.33]}},
+{"type":"Feature","properties":{"nom":"Szczecin","region":"West Pomeranian","population":407811,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.53,53.42]}},
+{"type":"Feature","properties":{"nom":"Bydgoszcz","region":"Kuyavian-Pomeranian","population":366452,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.01,53.12]}},
+{"type":"Feature","properties":{"nom":"Lublin","region":"Lublin","population":360044,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.573,51.25]}},
+{"type":"Feature","properties":{"nom":"Gdynia","region":"Pomeranian","population":314664,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.53,54.52]}},
+{"type":"Feature","properties":{"nom":"Bia?ystok","region":"Podlachian","population":291855,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.182,53.132]}},
+{"type":"Feature","properties":{"nom":"Rzeszów","region":"Subcarpathian","population":245686,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.996,50.029]}}
+]}

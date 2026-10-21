@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"nebraska_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Omaha","population":877110,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.01,41.24]}},
+{"type":"Feature","properties":{"nom":"Lincoln","population":246220,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-96.68,40.82]}},
+{"type":"Feature","properties":{"nom":"Grand Island","population":45651,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.358,40.922]}},
+{"type":"Feature","properties":{"nom":"Kearney","population":31553,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-99.081,40.701]}},
+{"type":"Feature","properties":{"nom":"Scottsbluff","population":25475,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.661,41.868]}},
+{"type":"Feature","properties":{"nom":"North Platte","population":25247,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.77,41.136]}},
+{"type":"Feature","properties":{"nom":"Norfolk","population":25030,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.434,42.029]}},
+{"type":"Feature","properties":{"nom":"Alliance","population":8344,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.87,42.101]}},
+{"type":"Feature","properties":{"nom":"McCook","population":8012,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.626,40.206]}},
+{"type":"Feature","properties":{"nom":"Sidney","population":6492,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-102.978,41.14]}},
+{"type":"Feature","properties":{"nom":"Chadron","population":5798,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.003,42.828]}}
+]}

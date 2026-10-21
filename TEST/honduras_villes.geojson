@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"honduras_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tegucigalpa","region":"Francisco Morazán","population":946000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-87.219,14.104]}},
+{"type":"Feature","properties":{"nom":"San Pedro Sula","region":"Cortés","population":680091,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.03,15.5]}},
+{"type":"Feature","properties":{"nom":"La Ceiba","region":"Atlántida","population":145926,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.797,15.763]}},
+{"type":"Feature","properties":{"nom":"Choluteca","region":"Choluteca","population":99429,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.191,13.301]}},
+{"type":"Feature","properties":{"nom":"Comayagua","region":"Comayagua","population":71142,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.65,14.46]}},
+{"type":"Feature","properties":{"nom":"Nacaome","region":"Valle","population":47000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.49,13.53]}},
+{"type":"Feature","properties":{"nom":"Juticalpa","region":"Olancho","population":37442,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.23,14.67]}},
+{"type":"Feature","properties":{"nom":"Santa Rosa de Copán","region":"Copán","population":35529,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.78,14.77]}},
+{"type":"Feature","properties":{"nom":"La Paz","region":"La Paz","population":17555,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.684,14.32]}},
+{"type":"Feature","properties":{"nom":"Yoro","region":"Yoro","population":15774,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-87.129,15.13]}},
+{"type":"Feature","properties":{"nom":"Santa Bárbara","region":"Santa Bárbara","population":15119,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.236,14.919]}},
+{"type":"Feature","properties":{"nom":"Trujillo","region":"Colón","population":9646,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.96,15.91]}},
+{"type":"Feature","properties":{"nom":"Nueva Ocotepeque","region":"Ocotepeque","population":8780,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.182,14.437]}},
+{"type":"Feature","properties":{"nom":"Gracias","region":"Lempira","population":7909,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-88.583,14.583]}},
+{"type":"Feature","properties":{"nom":"Roatán","region":"Islas de la Bahía","population":7514,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-86.519,16.33]}}
+]}

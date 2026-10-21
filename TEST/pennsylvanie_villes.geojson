@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"pennsylvanie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Philadelphia","population":5492000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.18,39.946]}},
+{"type":"Feature","properties":{"nom":"Pittsburgh","population":1838000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.002,40.432]}},
+{"type":"Feature","properties":{"nom":"Harrisburg","population":528892,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-76.885,40.274]}},
+{"type":"Feature","properties":{"nom":"Allentown","population":496442,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.5,40.6]}},
+{"type":"Feature","properties":{"nom":"York","population":218010,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.728,39.963]}},
+{"type":"Feature","properties":{"nom":"Lancaster","population":209489,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.306,40.038]}},
+{"type":"Feature","properties":{"nom":"Erie","population":178182,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.085,42.13]}},
+{"type":"Feature","properties":{"nom":"Wilkes-Barre","population":158913,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.878,41.249]}},
+{"type":"Feature","properties":{"nom":"Scranton","population":156196,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.663,41.409]}},
+{"type":"Feature","properties":{"nom":"Beaver Falls","population":120125,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.319,40.752]}},
+{"type":"Feature","properties":{"nom":"State College","population":87926,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.86,40.794]}},
+{"type":"Feature","properties":{"nom":"Altoona","population":78607,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.395,40.519]}},
+{"type":"Feature","properties":{"nom":"Johnstown","population":69286,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.922,40.327]}},
+{"type":"Feature","properties":{"nom":"Williamsport","population":56877,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.001,41.241]}}
+]}

@@ -1,0 +1,22 @@
+{"type":"FeatureCollection","name":"amerique_sud_capitales",
+"features":[
+{"type":"Feature","properties":{"nom":"Port-of-Spain","pays":"Trinidad and Tobago","population":294934},"geometry":{"type":"Point","coordinates":[-61.517,10.652]}},
+{"type":"Feature","properties":{"nom":"Bridgetown","pays":"Barbados","population":191152},"geometry":{"type":"Point","coordinates":[-59.617,13.102]}},
+{"type":"Feature","properties":{"nom":"Kingstown","pays":"Saint Vincent and the Grenadines","population":49485},"geometry":{"type":"Point","coordinates":[-61.22,13.156]}},
+{"type":"Feature","properties":{"nom":"Saint George's","pays":"Grenada","population":33734},"geometry":{"type":"Point","coordinates":[-61.742,12.053]}},
+{"type":"Feature","properties":{"nom":"Montevideo","pays":"Uruguay","population":1513000},"geometry":{"type":"Point","coordinates":[-56.187,-34.905]}},
+{"type":"Feature","properties":{"nom":"Georgetown","pays":"Guyana","population":264350},"geometry":{"type":"Point","coordinates":[-58.167,6.802]}},
+{"type":"Feature","properties":{"nom":"Paramaribo","pays":"Suriname","population":254169},"geometry":{"type":"Point","coordinates":[-55.167,5.835]}},
+{"type":"Feature","properties":{"nom":"Asunción","pays":"Paraguay","population":1870000},"geometry":{"type":"Point","coordinates":[-57.626,-25.291]}},
+{"type":"Feature","properties":{"nom":"Panama City","pays":"Panama","population":1281000},"geometry":{"type":"Point","coordinates":[-79.535,8.97]}},
+{"type":"Feature","properties":{"nom":"Quito","pays":"Ecuador","population":1701000},"geometry":{"type":"Point","coordinates":[-78.502,-0.213]}},
+{"type":"Feature","properties":{"nom":"Valparaíso","pays":"Chile","population":854000},"geometry":{"type":"Point","coordinates":[-71.617,-33.048]}},
+{"type":"Feature","properties":{"nom":"Sucre","pays":"Bolivia","population":224838},"geometry":{"type":"Point","coordinates":[-65.26,-19.041]}},
+{"type":"Feature","properties":{"nom":"La Paz","pays":"Bolivia","population":1590000},"geometry":{"type":"Point","coordinates":[-68.152,-16.496]}},
+{"type":"Feature","properties":{"nom":"Brasília","pays":"Brazil","population":3716996},"geometry":{"type":"Point","coordinates":[-47.918,-15.781]}},
+{"type":"Feature","properties":{"nom":"Caracas","pays":"Venezuela","population":2985000},"geometry":{"type":"Point","coordinates":[-66.919,10.503]}},
+{"type":"Feature","properties":{"nom":"Lima","pays":"Peru","population":8012000},"geometry":{"type":"Point","coordinates":[-77.052,-12.046]}},
+{"type":"Feature","properties":{"nom":"Buenos Aires","pays":"Argentina","population":12795000},"geometry":{"type":"Point","coordinates":[-58.433,-34.611]}},
+{"type":"Feature","properties":{"nom":"Bogota","pays":"Colombia","population":7772000},"geometry":{"type":"Point","coordinates":[-74.085,4.598]}},
+{"type":"Feature","properties":{"nom":"Santiago","pays":"Chile","population":5720000},"geometry":{"type":"Point","coordinates":[-70.651,-33.44]}}
+]}

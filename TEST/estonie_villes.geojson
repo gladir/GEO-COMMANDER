@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"estonie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Tallinn","region":"Harju","population":394024,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[24.728,59.434]}},
+{"type":"Feature","properties":{"nom":"Tartu","region":"Tartu","population":101092,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.71,58.384]}},
+{"type":"Feature","properties":{"nom":"Narva","region":"Ida-Viru","population":66980,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.16,59.378]}},
+{"type":"Feature","properties":{"nom":"Kohtla-Järve","region":"Ida-Viru","population":46060,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.283,59.4]}},
+{"type":"Feature","properties":{"nom":"Pärnu","region":"Pärnu","population":44192,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.514,58.375]}},
+{"type":"Feature","properties":{"nom":"Viljandi","region":"Viljandi","population":20309,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.59,58.364]}},
+{"type":"Feature","properties":{"nom":"Haapsalu","region":"Lääne","population":11805,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.541,58.943]}}
+]}

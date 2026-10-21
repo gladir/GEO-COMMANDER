@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"quebec_mines",
+"features":[
+{"type":"Feature","properties":{"nom":"Canadian Malartic","substance":"or","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-78.12,48.125]}},
+{"type":"Feature","properties":{"nom":"LaRonde","substance":"or, zinc, cuivre","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-78.445,48.255]}},
+{"type":"Feature","properties":{"nom":"Goldex","substance":"or","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-77.82,48.12]}},
+{"type":"Feature","properties":{"nom":"Sigma-Lamaque","substance":"or","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-77.78,48.1]}},
+{"type":"Feature","properties":{"nom":"Casa Berardi","substance":"or","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-79.21,49.56]}},
+{"type":"Feature","properties":{"nom":"Fonderie Horne (Rouyn-Noranda)","substance":"fonderie de cuivre","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-79.02,48.25]}},
+{"type":"Feature","properties":{"nom":"Bracemac-McLeod (Matagami)","substance":"zinc, cuivre","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-77.62,49.77]}},
+{"type":"Feature","properties":{"nom":"Eleonore","substance":"or","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-76.08,52.71]}},
+{"type":"Feature","properties":{"nom":"Renard","substance":"diamants","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-72.35,52.82]}},
+{"type":"Feature","properties":{"nom":"Raglan","substance":"nickel, cuivre","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-73.67,61.68]}},
+{"type":"Feature","properties":{"nom":"Mont-Wright","substance":"fer","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-67.35,52.82]}},
+{"type":"Feature","properties":{"nom":"Lac Bloom","substance":"fer","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-67.05,52.75]}},
+{"type":"Feature","properties":{"nom":"Niobec","substance":"niobium","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-71.1,48.52]}},
+{"type":"Feature","properties":{"nom":"Jeffrey (Asbestos)","substance":"amiante (fermee)","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-71.92,45.77]}},
+{"type":"Feature","properties":{"nom":"Gaspe Mines (Murdochville)","substance":"cuivre (fermee)","precision":"position approximative saisie a la main (a verifier)"},"geometry":{"type":"Point","coordinates":[-65.5,48.96]}}
+]}

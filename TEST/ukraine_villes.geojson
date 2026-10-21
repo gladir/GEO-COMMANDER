@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"ukraine_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kyiv","region":"Kiev","population":2709000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[30.515,50.435]}},
+{"type":"Feature","properties":{"nom":"Kharkiv","region":"Kharkiv","population":1461000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[36.248,50.002]}},
+{"type":"Feature","properties":{"nom":"Dnipro","region":"Dnipropetrovs'k","population":1050000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.998,48.482]}},
+{"type":"Feature","properties":{"nom":"Odessa","region":"Odessa","population":991000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.708,46.492]}},
+{"type":"Feature","properties":{"nom":"Donetsk","region":"Donets'k","population":988000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.828,48.002]}},
+{"type":"Feature","properties":{"nom":"Lviv","region":"L'viv","population":803880,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.03,49.835]}},
+{"type":"Feature","properties":{"nom":"Zaporizhzhya","region":"Zaporizhzhya","population":788000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.175,47.859]}},
+{"type":"Feature","properties":{"nom":"Kryvyy Rih","region":"Dnipropetrovs'k","population":652380,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.345,47.928]}},
+{"type":"Feature","properties":{"nom":"Mykolayiv","region":"Mykolayiv","population":510840,"capitale":"non"},"geometry":{"type":"Point","coordinates":[31.984,46.968]}},
+{"type":"Feature","properties":{"nom":"Mariupol","region":"Donets'k","population":481626,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.556,47.096]}},
+{"type":"Feature","properties":{"nom":"Luhansk","region":"Luhans'k","population":452000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[39.334,48.57]}},
+{"type":"Feature","properties":{"nom":"Khmelnytskyy","region":"Khmel'nyts'kyy","population":398346,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.002,49.425]}},
+{"type":"Feature","properties":{"nom":"Horlivka","region":"Donets'k","population":396885,"capitale":"non"},"geometry":{"type":"Point","coordinates":[38.055,48.3]}},
+{"type":"Feature","properties":{"nom":"Makiyivka","region":"Donets'k","population":376610,"capitale":"non"},"geometry":{"type":"Point","coordinates":[37.975,48.03]}},
+{"type":"Feature","properties":{"nom":"Vinnytsya","region":"Vinnytsya","population":352115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[28.482,49.225]}}
+]}

@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"portcartier_major",
+"features":[
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.90598,50.01869],[-66.90733,50.01794],[-66.91442,50.01437],[-66.92167,50.01079],[-66.92924,50.00717]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.92924,50.00717],[-66.932,50.00587]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.89795,50.0242],[-66.89856,50.02385],[-66.89915,50.02342],[-66.90176,50.0212],[-66.90236,50.02077],[-66.904,50.01981]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.904,50.01981],[-66.90598,50.01869]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.89413,50.02562],[-66.89486,50.02539],[-66.89671,50.02477],[-66.8972,50.02458],[-66.89795,50.0242]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.88504,50.02867],[-66.89181,50.0264],[-66.89282,50.02605],[-66.89315,50.02594],[-66.89413,50.02562]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.8725,50.03207],[-66.87573,50.03133],[-66.87713,50.03102],[-66.87761,50.03093],[-66.87929,50.03053],[-66.88026,50.03026],[-66.88158,50.02982],[-66.88249,50.02954],[-66.88475,50.02877],[-66.88504,50.02867]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.85981,50.03514],[-66.8611,50.03474]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.8611,50.03474],[-66.86329,50.03414]]}},
+{"type":"Feature","properties":{"nom":"","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.86493,50.03371],[-66.86456,50.03373],[-66.86427,50.0337],[-66.86402,50.03362],[-66.8637,50.03344]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.86396,50.03397],[-66.86493,50.03371]]}},
+{"type":"Feature","properties":{"nom":"","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.8637,50.03344],[-66.86365,50.03382],[-66.8636,50.03389],[-66.86329,50.03414]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.86329,50.03414],[-66.86396,50.03397]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.86493,50.03371],[-66.86741,50.03317],[-66.8725,50.03207]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.84842,50.03746],[-66.85292,50.03686],[-66.85515,50.03643],[-66.85653,50.0361],[-66.85981,50.03514]]}},
+{"type":"Feature","properties":{"nom":"Route Jacques-Cartier","type":"trunk"},"geometry":{"type":"LineString","coordinates":[[-66.808,50.04294],[-66.80842,50.04286],[-66.81124,50.04245],[-66.81535,50.04193],[-66.8163,50.04177],[-66.83743,50.03893],[-66.84138,50.03838],[-66.84842,50.03746]]}}
+]}

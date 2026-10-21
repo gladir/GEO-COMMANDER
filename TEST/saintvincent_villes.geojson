@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saintvincent_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kingstown","region":null,"population":49485,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-61.22,13.156]}}
+]}

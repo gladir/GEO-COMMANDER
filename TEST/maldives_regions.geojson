@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"maldives_regions",
+"features":[
+{"type":"Feature","properties":{"nom":"Addu","type":"City","code":"S"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.24,-0.626],[73.227,-0.643],[73.23,-0.623],[73.24,-0.626]]],[[[73.247,-0.589],[73.245,-0.607],[73.236,-0.592],[73.247,-0.578],[73.247,-0.589]]],[[[73.098,-0.6],[73.119,-0.641],[73.111,-0.641],[73.095,-0.605],[73.091,-0.586],[73.105,-0.579],[73.098,-0.6]]]]}},
+{"type":"Feature","properties":{"nom":"Gaafu Dhaalu","type":"Atoll","code":"GDh"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.209,0.24],[73.217,0.238],[73.211,0.232],[73.209,0.24]]]]}},
+{"type":"Feature","properties":{"nom":"Alifu Alifu","type":"Atoll","code":"AA"},"geometry":{"type":"MultiPolygon","coordinates":[[[[72.957,4.438],[72.956,4.422],[72.947,4.423],[72.943,4.432],[72.957,4.438]]]]}},
+{"type":"Feature","properties":{"nom":"Lhaviyani","type":"Atoll","code":"Lh"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.323,5.368],[73.33,5.367],[73.319,5.363],[73.323,5.368]]]]}},
+{"type":"Feature","properties":{"nom":"Laamu","type":"Atoll","code":"L"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.365,1.791],[73.376,1.789],[73.368,1.783],[73.365,1.791]]],[[[73.4,1.806],[73.402,1.796],[73.394,1.795],[73.4,1.806]]],[[[73.453,1.827],[73.464,1.826],[73.457,1.82],[73.453,1.827]]],[[[73.568,2.11],[73.585,2.11],[73.562,2.095],[73.568,2.11]]]]}},
+{"type":"Feature","properties":{"nom":"Thaa","type":"Atoll","code":"Th"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.354,2.437],[73.366,2.412],[73.363,2.385],[73.354,2.437]]]]}},
+{"type":"Feature","properties":{"nom":"Dhaalu","type":"Atoll","code":"Dh"},"geometry":{"type":"MultiPolygon","coordinates":[[[[72.873,2.694],[72.874,2.684],[72.867,2.689],[72.873,2.694]]]]}},
+{"type":"Feature","properties":{"nom":"Malé","type":"Capital","code":"Ma"},"geometry":{"type":"Polygon","coordinates":[[[73.546,4.243],[73.552,4.228],[73.538,4.183],[73.511,4.162],[73.431,4.185],[73.512,4.186],[73.546,4.243]]]}},
+{"type":"Feature","properties":{"nom":"Noonu","type":"Atoll","code":"N"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.39,5.97],[73.395,5.958],[73.385,5.965],[73.39,5.97]]]]}},
+{"type":"Feature","properties":{"nom":"Haa Dhaalu","type":"Atoll","code":"HDh"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.16,6.787],[73.167,6.78],[73.153,6.749],[73.132,6.725],[73.16,6.787]]]]}},
+{"type":"Feature","properties":{"nom":"Haa Alifu","type":"Atoll","code":"HA"},"geometry":{"type":"MultiPolygon","coordinates":[[[[73.182,6.831],[73.197,6.828],[73.184,6.821],[73.182,6.831]]],[[[73.214,6.919],[73.204,6.885],[73.202,6.902],[73.214,6.919]]]]}}
+]}

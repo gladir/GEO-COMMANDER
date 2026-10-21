@@ -1,0 +1,19 @@
+{"type":"FeatureCollection","name":"malaisie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"George Town","region":"Pulau Pinang","population":2500000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.329,5.414]}},
+{"type":"Feature","properties":{"nom":"Kuala Lumpur","region":"Selangor","population":1448000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[101.689,3.14]}},
+{"type":"Feature","properties":{"nom":"Kelang","region":"Selangor","population":956000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.447,3.043]}},
+{"type":"Feature","properties":{"nom":"Johor Bahru","region":"Johor","population":875000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.728,1.482]}},
+{"type":"Feature","properties":{"nom":"Butterworth","region":"Pulau Pinang","population":821652,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.4,5.417]}},
+{"type":"Feature","properties":{"nom":"Malacca","region":"Melaka","population":788706,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.246,2.206]}},
+{"type":"Feature","properties":{"nom":"Ipoh","region":"Perak","population":673318,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.065,4.6]}},
+{"type":"Feature","properties":{"nom":"Kuching","region":"Sarawak","population":570407,"capitale":"non"},"geometry":{"type":"Point","coordinates":[110.33,1.53]}},
+{"type":"Feature","properties":{"nom":"Kota Kinabalu","region":"Sabah","population":527671,"capitale":"non"},"geometry":{"type":"Point","coordinates":[116.11,5.98]}},
+{"type":"Feature","properties":{"nom":"Kota Baharu","region":"Kelantan","population":505583,"capitale":"non"},"geometry":{"type":"Point","coordinates":[102.23,6.12]}},
+{"type":"Feature","properties":{"nom":"Shah Alam","region":"Selangor","population":481654,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.55,3.067]}},
+{"type":"Feature","properties":{"nom":"Sandakan","region":"Sabah","population":392288,"capitale":"non"},"geometry":{"type":"Point","coordinates":[118.108,5.843]}},
+{"type":"Feature","properties":{"nom":"Seremban","region":"Negeri Sembilan","population":372917,"capitale":"non"},"geometry":{"type":"Point","coordinates":[101.94,2.71]}},
+{"type":"Feature","properties":{"nom":"Kuantan","region":"Pahang","population":366229,"capitale":"non"},"geometry":{"type":"Point","coordinates":[103.32,3.83]}},
+{"type":"Feature","properties":{"nom":"Sungai Petani","region":"Kedah","population":358499,"capitale":"non"},"geometry":{"type":"Point","coordinates":[100.479,5.65]}},
+{"type":"Feature","properties":{"nom":"Putrajaya","region":"Selangor","population":67964,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[101.695,2.933]}}
+]}

@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"capvert_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Praia","region":null,"population":113364,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-23.517,14.917]}},
+{"type":"Feature","properties":{"nom":"Mindelo","region":null,"population":70611,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-25.0,16.884]}}
+]}

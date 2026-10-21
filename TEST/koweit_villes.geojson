@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"koweit_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kuwait City","region":"Al Kuwayt","population":2063000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[47.976,29.372]}},
+{"type":"Feature","properties":{"nom":"Al Jahra","region":"Al Jahrah","population":194193,"capitale":"non"},"geometry":{"type":"Point","coordinates":[47.658,29.337]}},
+{"type":"Feature","properties":{"nom":"Hawalli","region":"Hawalli","population":164212,"capitale":"non"},"geometry":{"type":"Point","coordinates":[48.0,29.333]}},
+{"type":"Feature","properties":{"nom":"Al Ahmadi","region":"Al Ahmadi","population":68763,"capitale":"non"},"geometry":{"type":"Point","coordinates":[48.084,29.077]}}
+]}

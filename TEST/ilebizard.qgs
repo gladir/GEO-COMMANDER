@@ -1,0 +1,34 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte de l'Île Bizard (Montréal)" version="3.34.0-Pascal">
+  <title>Carte de l'Île Bizard (Montréal)</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="ARRONDISSEMENT_DE_L_ILE-BIZARD--SAINTE-GENEVIEVE_1" name="Arrondissement de L'Ile-Bizard--Sainte-Genevieve" source="./ilebizard_ville.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_ARRONDISSEMENTS_ET_MUNICIPALITES_2" name="Autres arrondissements et municipalites" source="./ilebizard_voisines.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-8235603</xmin><ymin>5692263</ymin><xmax>-8218979</xmax><ymax>5706387</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Polygon">
+      <id>ARRONDISSEMENT_DE_L_ILE-BIZARD--SAINTE-GENEVIEVE_1</id>
+      <datasource>./ilebizard_ville.geojson</datasource>
+      <layername>Arrondissement de L'Ile-Bizard--Sainte-Genevieve</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>AUTRES_ARRONDISSEMENTS_ET_MUNICIPALITES_2</id>
+      <datasource>./ilebizard_voisines.geojson</datasource>
+      <layername>Autres arrondissements et municipalites</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

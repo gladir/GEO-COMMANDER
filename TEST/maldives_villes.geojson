@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"maldives_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Malé","region":null,"population":112927,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[73.509,4.172]}}
+]}

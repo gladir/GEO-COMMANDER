@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"gaspe_rail",
+"features":[
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.47359,48.82643],[-64.47382,48.82645]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.47272,48.82625],[-64.47312,48.82629],[-64.47335,48.82633],[-64.47422,48.82648],[-64.4751,48.82662]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.46779,48.82526],[-64.46817,48.82537],[-64.46868,48.82549],[-64.47022,48.82582],[-64.47142,48.82606],[-64.47218,48.82619],[-64.47359,48.82643]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.46362,48.82434],[-64.46416,48.82451],[-64.47012,48.82585],[-64.47138,48.82609],[-64.47266,48.82631],[-64.47322,48.8264],[-64.47359,48.82643]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.44575,48.8226],[-64.44626,48.8227],[-64.44651,48.82278],[-64.44672,48.82291],[-64.44681,48.82299],[-64.44689,48.82308],[-64.44695,48.82317],[-64.447,48.82326],[-64.44703,48.8234],[-64.44703,48.82352],[-64.447,48.82364],[-64.44692,48.82378],[-64.44678,48.82392],[-64.44664,48.82403],[-64.44607,48.82438]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.45038,48.82268],[-64.4497,48.82278],[-64.44942,48.82284],[-64.44905,48.82295],[-64.44852,48.82318],[-64.447,48.82393],[-64.44607,48.82438]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.45599,48.82285],[-64.45541,48.82276],[-64.4546,48.8227],[-64.45375,48.82265],[-64.45346,48.82263],[-64.45283,48.82261],[-64.45248,48.82263]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.45679,48.82296],[-64.45531,48.82288],[-64.45396,48.8229]]}},
+{"type":"Feature","properties":{"nom":"","type":"standard_gauge"},"geometry":{"type":"LineString","coordinates":[[-64.44607,48.82438],[-64.44386,48.82546],[-64.44367,48.82554],[-64.44343,48.82561],[-64.4422,48.82593]]}}
+]}

@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"ocean_atlantique_eau",
+"features":[
+{"type":"Feature","properties":{"nom":"Eau"},"geometry":{"type":"Polygon","coordinates":[[[-100,-62],[20,-62],[20,68],[-100,68],[-100,-62]]]}}
+]}

@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"trinite_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Port-of-Spain","region":"Port of Spain","population":294934,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-61.517,10.652]}},
+{"type":"Feature","properties":{"nom":"San Fernando","region":"San Fernando","population":166039,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-61.459,10.28]}}
+]}

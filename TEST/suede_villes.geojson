@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"suede_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Stockholm","region":"Stockholm","population":1264000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[18.066,59.324]}},
+{"type":"Feature","properties":{"nom":"Göteborg","region":"Västra Götaland","population":537797,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.979,57.709]}},
+{"type":"Feature","properties":{"nom":"Malmö","region":"Skåne","population":269349,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.023,55.599]}},
+{"type":"Feature","properties":{"nom":"Uppsala","region":"Uppsala","population":133117,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.64,59.86]}},
+{"type":"Feature","properties":{"nom":"Västerås","region":"Västmanland","population":107194,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.558,59.609]}},
+{"type":"Feature","properties":{"nom":"Örebro","region":"Orebro","population":98573,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.22,59.28]}},
+{"type":"Feature","properties":{"nom":"Linköping","region":"Östergötland","population":96732,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.63,58.41]}},
+{"type":"Feature","properties":{"nom":"Helsingborg","region":"Skåne","population":91304,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.723,56.041]}},
+{"type":"Feature","properties":{"nom":"Jönköping","region":"Jönköping","population":89780,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.165,57.771]}},
+{"type":"Feature","properties":{"nom":"Norrköping","region":"Östergötland","population":88639,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.179,58.595]}},
+{"type":"Feature","properties":{"nom":"Umeå","region":"Västerbotten","population":78197,"capitale":"non"},"geometry":{"type":"Point","coordinates":[20.24,63.83]}},
+{"type":"Feature","properties":{"nom":"Karlstad","region":"Värmland","population":74141,"capitale":"non"},"geometry":{"type":"Point","coordinates":[13.5,59.367]}},
+{"type":"Feature","properties":{"nom":"Sundsvall","region":"Västernorrland","population":73389,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.317,62.4]}},
+{"type":"Feature","properties":{"nom":"Gävle","region":"Gävleborg","population":68635,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.167,60.667]}},
+{"type":"Feature","properties":{"nom":"Borås","region":"Västra Götaland","population":65008,"capitale":"non"},"geometry":{"type":"Point","coordinates":[12.939,57.718]}}
+]}

@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"timor_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dili","region":"Dili","population":234331,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[125.579,-8.559]}}
+]}

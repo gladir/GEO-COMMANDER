@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"benin_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Cotonou","region":"Ouémé","population":762000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[2.404,6.363]}},
+{"type":"Feature","properties":{"nom":"Porto-Novo","region":"Ouémé","population":300000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[2.617,6.483]}},
+{"type":"Feature","properties":{"nom":"Djougou","region":"Donga","population":202810,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.68,9.7]}},
+{"type":"Feature","properties":{"nom":"Parakou","region":"Borgou","population":188853,"capitale":"non"},"geometry":{"type":"Point","coordinates":[2.62,9.34]}},
+{"type":"Feature","properties":{"nom":"Kandi","region":"Alibori","population":109701,"capitale":"non"},"geometry":{"type":"Point","coordinates":[2.94,11.13]}},
+{"type":"Feature","properties":{"nom":"Lokossa","region":"Mono","population":86971,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.715,6.615]}},
+{"type":"Feature","properties":{"nom":"Ouidah","region":"Atlantique","population":83503,"capitale":"non"},"geometry":{"type":"Point","coordinates":[2.09,6.36]}},
+{"type":"Feature","properties":{"nom":"Abomey","region":"Zou","population":82154,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.99,7.19]}},
+{"type":"Feature","properties":{"nom":"Natitingou","region":"Atakora","population":80892,"capitale":"non"},"geometry":{"type":"Point","coordinates":[1.39,10.32]}}
+]}

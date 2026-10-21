@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"venezuela_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Caracas","region":"Distrito Capital","population":2985000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-66.919,10.503]}},
+{"type":"Feature","properties":{"nom":"Maracaibo","region":"Zulia","population":2072000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.662,10.732]}},
+{"type":"Feature","properties":{"nom":"Valencia","region":"Carabobo","population":1770000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.982,10.232]}},
+{"type":"Feature","properties":{"nom":"Barquisimeto","region":"Lara","population":1116000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-69.302,10.052]}},
+{"type":"Feature","properties":{"nom":"Maracay","region":"Aragua","population":1007000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.598,10.249]}},
+{"type":"Feature","properties":{"nom":"Ciudad Guayana","region":"Bolívar","population":746535,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-62.62,8.37]}},
+{"type":"Feature","properties":{"nom":"Barcelona","region":"Anzoátegui","population":600954,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.72,10.13]}},
+{"type":"Feature","properties":{"nom":"Puerto la Cruz","region":"Anzoátegui","population":546616,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.68,10.17]}},
+{"type":"Feature","properties":{"nom":"Cabimas","region":"Trujillo","population":441094,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.45,10.43]}},
+{"type":"Feature","properties":{"nom":"San Cristóbal","region":"Táchira","population":438798,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.25,7.77]}},
+{"type":"Feature","properties":{"nom":"Maturín","region":"Monagas","population":410972,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-63.17,9.75]}},
+{"type":"Feature","properties":{"nom":"Mérida","region":"Mérida","population":345489,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.183,8.57]}},
+{"type":"Feature","properties":{"nom":"Ciudad Bolívar","region":"Bolívar","population":338000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-63.6,8.1]}},
+{"type":"Feature","properties":{"nom":"Cumaná","region":"Sucre","population":317603,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.18,10.45]}},
+{"type":"Feature","properties":{"nom":"Maiquetía","region":"Vargas","population":315442,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.97,10.6]}}
+]}

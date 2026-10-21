@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"chili_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Santiago","region":"Región Metropolitana de Santiago","population":5720000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-70.651,-33.44]}},
+{"type":"Feature","properties":{"nom":"Concepción","region":"Bío-Bío","population":889725,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.05,-36.83]}},
+{"type":"Feature","properties":{"nom":"Valparaíso","region":"Valparaíso","population":854000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-71.617,-33.048]}},
+{"type":"Feature","properties":{"nom":"Viña del Mar","region":"Valparaíso","population":503534,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.557,-33.025]}},
+{"type":"Feature","properties":{"nom":"Antofagasta","region":"Antofagasta","population":309832,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.4,-23.65]}},
+{"type":"Feature","properties":{"nom":"Talcahuano","region":"Bío-Bío","population":288074,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.117,-36.717]}},
+{"type":"Feature","properties":{"nom":"Temuco","region":"La Araucanía","population":265901,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.58,-38.73]}},
+{"type":"Feature","properties":{"nom":"San Bernardo","region":"Región Metropolitana de Santiago","population":246762,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.7,-33.6]}},
+{"type":"Feature","properties":{"nom":"Rancagua","region":"Libertador General Bernardo O'Higgins","population":233268,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.74,-34.17]}},
+{"type":"Feature","properties":{"nom":"Iquique","region":"Tarapacá","population":227499,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.13,-20.25]}},
+{"type":"Feature","properties":{"nom":"Talca","region":"Maule","population":197479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.666,-35.43]}},
+{"type":"Feature","properties":{"nom":"Arica","region":"Arica y Parinacota","population":185999,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.29,-18.5]}},
+{"type":"Feature","properties":{"nom":"Puerto Montt","region":"Los Lagos","population":174629,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.93,-41.47]}},
+{"type":"Feature","properties":{"nom":"Coquimbo","region":"Coquimbo","population":161317,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.344,-29.953]}},
+{"type":"Feature","properties":{"nom":"Valdivia","region":"Los Ríos","population":159599,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.233,-39.822]}}
+]}

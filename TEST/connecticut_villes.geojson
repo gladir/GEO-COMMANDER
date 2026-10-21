@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"connecticut_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bridgeport","population":1018000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.202,41.182]}},
+{"type":"Feature","properties":{"nom":"Hartford","population":913000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-72.682,41.772]}},
+{"type":"Feature","properties":{"nom":"New Haven","population":846766,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.9,41.33]}},
+{"type":"Feature","properties":{"nom":"Stamford","population":746920,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.539,41.053]}},
+{"type":"Feature","properties":{"nom":"Waterbury","population":174236,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.05,41.55]}},
+{"type":"Feature","properties":{"nom":"New London","population":96178,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-72.1,41.356]}}
+]}

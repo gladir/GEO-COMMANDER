@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"namibie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Windhoek","region":"Khomas","population":268132,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[17.084,-22.57]}},
+{"type":"Feature","properties":{"nom":"Rundu","region":"Kavango","population":58172,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.75,-17.92]}},
+{"type":"Feature","properties":{"nom":"Walvis Bay","region":"Erongo","population":52058,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.505,-22.958]}},
+{"type":"Feature","properties":{"nom":"Swakopmund","region":"Erongo","population":29491,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.535,-22.669]}},
+{"type":"Feature","properties":{"nom":"Rehoboth","region":"Hardap","population":25219,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.08,-23.32]}},
+{"type":"Feature","properties":{"nom":"Ongwediva","region":"Oshana","population":25032,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.77,-17.78]}},
+{"type":"Feature","properties":{"nom":"Katima Mulilo","region":"Caprivi","population":25027,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.26,-17.5]}},
+{"type":"Feature","properties":{"nom":"Otjiwarongo","region":"Otjozondjupa","population":24815,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.64,-20.46]}},
+{"type":"Feature","properties":{"nom":"Grootfontein","region":"Otjozondjupa","population":24099,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.117,-19.567]}},
+{"type":"Feature","properties":{"nom":"Okahandja","region":"Otjozondjupa","population":20879,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.91,-21.98]}},
+{"type":"Feature","properties":{"nom":"Keetmanshoop","region":"Karas","population":18039,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.13,-26.574]}},
+{"type":"Feature","properties":{"nom":"Gobabis","region":"Omaheke","population":16321,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.963,-22.455]}},
+{"type":"Feature","properties":{"nom":"Lüderitz","region":"Karas","population":15137,"capitale":"non"},"geometry":{"type":"Point","coordinates":[15.159,-26.648]}},
+{"type":"Feature","properties":{"nom":"Tsumeb","region":"Oshikoto","population":14959,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.71,-19.24]}},
+{"type":"Feature","properties":{"nom":"Mariental","region":"Hardap","population":13380,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.96,-24.62]}}
+]}

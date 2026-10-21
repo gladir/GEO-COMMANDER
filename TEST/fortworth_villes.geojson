@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"fortworth_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Cleburne","population":35545},"geometry":{"type":"Point","coordinates":[-97.3925,32.3515]}},
+{"type":"Feature","properties":{"nom":"Arlington","population":724777},"geometry":{"type":"Point","coordinates":[-97.0202,32.6848]}},
+{"type":"Feature","properties":{"nom":"Denton","population":176930},"geometry":{"type":"Point","coordinates":[-97.1288,33.2158]}},
+{"type":"Feature","properties":{"nom":"Ft.  Worth","population":1440454},"geometry":{"type":"Point","coordinates":[-97.34,32.74]}},
+{"type":"Feature","properties":{"nom":"Dallas","population":4798000},"geometry":{"type":"Point","coordinates":[-96.7947,32.772]}}
+]}

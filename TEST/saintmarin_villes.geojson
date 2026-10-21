@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saintmarin_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"San Marino","region":null,"population":29579,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[12.442,43.936]}}
+]}

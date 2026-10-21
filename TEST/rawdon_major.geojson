@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"rawdon_major",
+"features":[
+{"type":"Feature","properties":{"nom":"Route 125","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-73.782,46.02331],[-73.78155,46.0233],[-73.78097,46.02322],[-73.7804,46.02309],[-73.78008,46.02298],[-73.77979,46.02285]]}},
+{"type":"Feature","properties":{"nom":"Route 125","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-73.77934,46.02259],[-73.77903,46.02237],[-73.77856,46.0219]]}},
+{"type":"Feature","properties":{"nom":"Route 125","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-73.77979,46.02285],[-73.77956,46.02273],[-73.77934,46.02259]]}},
+{"type":"Feature","properties":{"nom":"Route 125","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-73.77856,46.0219],[-73.77815,46.0215],[-73.77754,46.02086],[-73.77685,46.02016],[-73.7766,46.01993],[-73.77633,46.01973]]}},
+{"type":"Feature","properties":{"nom":"Route 125","type":"primary"},"geometry":{"type":"LineString","coordinates":[[-73.77633,46.01973],[-73.77528,46.019]]}}
+]}

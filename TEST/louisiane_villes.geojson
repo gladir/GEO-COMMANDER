@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"louisiane_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"New Orleans","population":785000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.088,29.969]}},
+{"type":"Feature","properties":{"nom":"Baton Rouge","population":422072,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-91.14,30.458]}},
+{"type":"Feature","properties":{"nom":"Metairie","population":394206,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.153,29.984]}},
+{"type":"Feature","properties":{"nom":"Shreveport","population":248053,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.77,32.5]}},
+{"type":"Feature","properties":{"nom":"Lafayette","population":158214,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.02,30.2]}},
+{"type":"Feature","properties":{"nom":"Monroe","population":101724,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.119,32.51]}},
+{"type":"Feature","properties":{"nom":"Slidell","population":84239,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-89.781,30.275]}},
+{"type":"Feature","properties":{"nom":"Lake Charles","population":83821,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-93.217,30.226]}},
+{"type":"Feature","properties":{"nom":"Alexandria","population":76565,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-92.445,31.311]}},
+{"type":"Feature","properties":{"nom":"Houma","population":64592,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-90.719,29.596]}},
+{"type":"Feature","properties":{"nom":"New Iberia","population":37540,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-91.818,30.004]}}
+]}

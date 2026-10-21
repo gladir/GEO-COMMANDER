@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"cuba_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Havana","region":"Ciudad de la Habana","population":2174000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-82.366,23.134]}},
+{"type":"Feature","properties":{"nom":"Santiago de Cuba","region":"Santiago de Cuba","population":555865,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.821,20.025]}},
+{"type":"Feature","properties":{"nom":"Camagüey","region":"Camagüey","population":347562,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.917,21.381]}},
+{"type":"Feature","properties":{"nom":"Holguín","region":"Holguín","population":319102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.263,20.887]}},
+{"type":"Feature","properties":{"nom":"Guantánamo","region":"Guantánamo","population":272801,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.206,20.145]}},
+{"type":"Feature","properties":{"nom":"Santa Clara","region":"Villa Clara","population":250512,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.967,22.4]}},
+{"type":"Feature","properties":{"nom":"Las Tunas","region":"Las Tunas","population":203684,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.954,20.96]}},
+{"type":"Feature","properties":{"nom":"Bayamo","region":"Granma","population":192632,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.643,20.38]}},
+{"type":"Feature","properties":{"nom":"Pinar del Rio","region":"Pinar del Río","population":186990,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.698,22.418]}},
+{"type":"Feature","properties":{"nom":"Cienfuegos","region":"Cienfuegos","population":186644,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.44,22.144]}},
+{"type":"Feature","properties":{"nom":"Matanzas","region":"Matanzas","population":146733,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-81.577,23.042]}},
+{"type":"Feature","properties":{"nom":"Ciego de Ávila","region":"Ciego de Ávila","population":142027,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.762,21.84]}},
+{"type":"Feature","properties":{"nom":"Manzanillo","region":"Granma","population":128188,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.117,20.344]}},
+{"type":"Feature","properties":{"nom":"Sancti Spíritus","region":"Sancti Spíritus","population":127069,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-79.442,21.93]}},
+{"type":"Feature","properties":{"nom":"Palma Soriano","region":"Santiago de Cuba","population":102826,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-75.999,20.217]}},
+{"type":"Feature","properties":{"nom":"Güines","region":"La Habana","population":68935,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.028,22.836]}},
+{"type":"Feature","properties":{"nom":"Artemisa","region":"La Habana","population":68073,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.762,22.813]}},
+{"type":"Feature","properties":{"nom":"Morón","region":"Ciego de Ávila","population":66060,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-78.627,22.11]}},
+{"type":"Feature","properties":{"nom":"Colón","region":"Matanzas","population":63882,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.906,22.72]}},
+{"type":"Feature","properties":{"nom":"Sagua la Grande","region":"Villa Clara","population":62073,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-80.071,22.809]}}
+]}

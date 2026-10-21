@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"sierraleone_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Freetown","region":"Western","population":827000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-13.236,8.472]}},
+{"type":"Feature","properties":{"nom":"Bo","region":"Southern","population":174354,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-11.74,7.97]}},
+{"type":"Feature","properties":{"nom":"Kenema","region":"Eastern","population":143137,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-11.19,7.88]}},
+{"type":"Feature","properties":{"nom":"Makeni","region":"Northern","population":87679,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-12.05,8.88]}},
+{"type":"Feature","properties":{"nom":"Koidu","region":"Eastern","population":87539,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-10.85,8.44]}}
+]}

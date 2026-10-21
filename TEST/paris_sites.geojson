@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"paris_sites",
+"features":[
+{"type":"Feature","properties":{"nom":"Tour Eiffel","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.2945,48.8584]}},
+{"type":"Feature","properties":{"nom":"Arc de Triomphe","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.295,48.8738]}},
+{"type":"Feature","properties":{"nom":"Notre-Dame","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3499,48.853]}},
+{"type":"Feature","properties":{"nom":"Musée du Louvre","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3376,48.8606]}},
+{"type":"Feature","properties":{"nom":"Sacré-Coeur","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3431,48.8867]}},
+{"type":"Feature","properties":{"nom":"Panthéon","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3464,48.8462]}},
+{"type":"Feature","properties":{"nom":"Opéra Garnier","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3316,48.8719]}},
+{"type":"Feature","properties":{"nom":"Gare du Nord","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3553,48.8809]}},
+{"type":"Feature","properties":{"nom":"Gare de Lyon","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3744,48.8443]}},
+{"type":"Feature","properties":{"nom":"Place de la Bastille","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3691,48.8531]}},
+{"type":"Feature","properties":{"nom":"Invalides","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3125,48.855]}},
+{"type":"Feature","properties":{"nom":"Tour Montparnasse","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.322,48.8421]}},
+{"type":"Feature","properties":{"nom":"Place de la Concorde","precision":"approximative"},"geometry":{"type":"Point","coordinates":[2.3212,48.8656]}}
+]}

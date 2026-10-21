@@ -1,0 +1,23 @@
+{"type":"FeatureCollection","name":"norvege_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Oslo","region":"Oslo","population":835000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[10.748,59.919]}},
+{"type":"Feature","properties":{"nom":"Bergen","region":"Hordaland","population":213585,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.325,60.391]}},
+{"type":"Feature","properties":{"nom":"Stavanger","region":"Rogaland","population":173132,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.68,58.97]}},
+{"type":"Feature","properties":{"nom":"Trondheim","region":"Sør-Trøndelag","population":147139,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.417,63.417]}},
+{"type":"Feature","properties":{"nom":"Bærum","region":"Akershus","population":113659,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.347,59.913]}},
+{"type":"Feature","properties":{"nom":"Drammen","region":"Buskerud","population":90722,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.199,59.738]}},
+{"type":"Feature","properties":{"nom":"Skien","region":"Telemark","population":73330,"capitale":"non"},"geometry":{"type":"Point","coordinates":[9.6,59.2]}},
+{"type":"Feature","properties":{"nom":"Kristiansand","region":"Vest-Agder","population":63814,"capitale":"non"},"geometry":{"type":"Point","coordinates":[7.975,58.146]}},
+{"type":"Feature","properties":{"nom":"Tromsø","region":"Troms","population":52436,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.992,69.635]}},
+{"type":"Feature","properties":{"nom":"Ålesund","region":"MOre og Romsdal","population":47772,"capitale":"non"},"geometry":{"type":"Point","coordinates":[6.263,62.46]}},
+{"type":"Feature","properties":{"nom":"Sandnes","region":"Rogaland","population":46911,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.69,58.845]}},
+{"type":"Feature","properties":{"nom":"Haugesund","region":"Rogaland","population":40321,"capitale":"non"},"geometry":{"type":"Point","coordinates":[5.277,59.412]}},
+{"type":"Feature","properties":{"nom":"Tønsberg","region":"Vestfold","population":38914,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.421,59.264]}},
+{"type":"Feature","properties":{"nom":"Moss","region":"Ãstfold","population":36901,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.669,59.437]}},
+{"type":"Feature","properties":{"nom":"Bodø","region":"Nordland","population":34073,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.429,67.276]}},
+{"type":"Feature","properties":{"nom":"Arendal","region":"Aust-Agder","population":30916,"capitale":"non"},"geometry":{"type":"Point","coordinates":[8.766,58.465]}},
+{"type":"Feature","properties":{"nom":"Hamar","region":"Hedmark","population":29479,"capitale":"non"},"geometry":{"type":"Point","coordinates":[11.069,60.82]}},
+{"type":"Feature","properties":{"nom":"Gjøvik","region":"Oppland","population":22719,"capitale":"non"},"geometry":{"type":"Point","coordinates":[10.7,60.8]}},
+{"type":"Feature","properties":{"nom":"Mo i Rana","region":"Nordland","population":20409,"capitale":"non"},"geometry":{"type":"Point","coordinates":[14.167,66.317]}},
+{"type":"Feature","properties":{"nom":"Narvik","region":"Nordland","population":20000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.29,68.383]}}
+]}

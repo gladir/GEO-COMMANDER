@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"palestine_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Gaza City","region":null,"population":505700,"capitale":"non"},"geometry":{"type":"Point","coordinates":[34.445,31.53]}},
+{"type":"Feature","properties":{"nom":"Al Khalil","region":null,"population":280321,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.096,31.541]}},
+{"type":"Feature","properties":{"nom":"Nablus","region":null,"population":215981,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.254,32.221]}},
+{"type":"Feature","properties":{"nom":"Ramallah","region":null,"population":24599,"capitale":"non"},"geometry":{"type":"Point","coordinates":[35.206,31.903]}}
+]}

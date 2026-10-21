@@ -1,0 +1,9 @@
+{"type":"FeatureCollection","name":"bosnie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Sarajevo","region":"Sarajevo","population":696731,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[18.383,43.85]}},
+{"type":"Feature","properties":{"nom":"Banja Luka","region":"Serbian Republic","population":221738,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.18,44.78]}},
+{"type":"Feature","properties":{"nom":"Zenica","region":"Zenica-Doboj","population":164423,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.92,44.22]}},
+{"type":"Feature","properties":{"nom":"Mostar","region":"Herzegovina-Neretva","population":163067,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.82,43.35]}},
+{"type":"Feature","properties":{"nom":"Tuzla","region":"Tuzla","population":144334,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.68,44.55]}},
+{"type":"Feature","properties":{"nom":"Prijedor","region":"Serbian Republic","population":104858,"capitale":"non"},"geometry":{"type":"Point","coordinates":[16.7,44.98]}}
+]}

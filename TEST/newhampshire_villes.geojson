@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"newhampshire_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Manchester","population":196566,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-71.455,42.996]}},
+{"type":"Feature","properties":{"nom":"Concord","population":44606,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-71.538,43.208]}}
+]}

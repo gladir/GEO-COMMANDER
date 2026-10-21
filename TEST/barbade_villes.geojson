@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"barbade_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bridgetown","region":"Saint Michael","population":191152,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-59.617,13.102]}}
+]}

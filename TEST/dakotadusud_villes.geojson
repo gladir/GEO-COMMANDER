@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"dakotadusud_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Sioux Falls","population":155724,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.73,43.55]}},
+{"type":"Feature","properties":{"nom":"Rapid City","population":73632,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.231,44.081]}},
+{"type":"Feature","properties":{"nom":"Aberdeen","population":26041,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.486,45.465]}},
+{"type":"Feature","properties":{"nom":"Brookings","population":22411,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-96.788,44.307]}},
+{"type":"Feature","properties":{"nom":"Yankton","population":15580,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-97.392,42.882]}},
+{"type":"Feature","properties":{"nom":"Mitchell","population":15205,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-98.026,43.714]}},
+{"type":"Feature","properties":{"nom":"Pierre","population":13879,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-100.351,44.368]}},
+{"type":"Feature","properties":{"nom":"Mobridge","population":3156,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-100.435,45.54]}},
+{"type":"Feature","properties":{"nom":"Lead","population":2874,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-103.766,44.351]}}
+]}

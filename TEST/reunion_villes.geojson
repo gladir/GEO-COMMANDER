@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"reunion_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"St.-Denis","region":"La Réunion","population":190047,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.448,-20.879]}},
+{"type":"Feature","properties":{"nom":"St.-Benoit","region":"La Réunion","population":35310,"capitale":"non"},"geometry":{"type":"Point","coordinates":[55.713,-21.034]}}
+]}

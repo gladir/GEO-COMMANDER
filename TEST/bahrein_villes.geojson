@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"bahrein_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Manama","region":null,"population":563920,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[50.583,26.236]}}
+]}

@@ -1,0 +1,151 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Le métro de Moscou" version="3.34.0-Pascal">
+  <title>Le métro de Moscou</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="STATIONS_1" name="Stations" source="./metro_moscou_stations.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_1_SOKOLNITCHESKAIA_2" name="Ligne 1 Sokolnitcheskaia" source="./metro_moscou_1sokolnitche.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_2_ZAMOSKVORETSKAIA_3" name="Ligne 2 Zamoskvoretskaia" source="./metro_moscou_2zamoskvoret.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_3_ARBATSKO-POKROVSKAIA_4" name="Ligne 3 Arbatsko-Pokrovskaia" source="./metro_moscou_3arbatskopok.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_4_FILIOVSKAIA_5" name="Ligne 4 Filiovskaia" source="./metro_moscou_4filiovskaia.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_5_KOLTSEVAIA_6" name="Ligne 5 Koltsevaia" source="./metro_moscou_5koltsevaia.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_6_KALOUZHSKO-RIJSKAIA_7" name="Ligne 6 Kalouzhsko-Rijskaia" source="./metro_moscou_6kalouzhskor.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_7_TAGANSKO-KRASNOPRESNENSKAIA_8" name="Ligne 7 Tagansko-Krasnopresnenskaia" source="./metro_moscou_7taganskokra.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_8_KALININSKAIA_9" name="Ligne 8 Kalininskaia" source="./metro_moscou_8kalininskai.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_9_SERPOUKHOVSKO-TIMIRIAZEVSKAIA_10" name="Ligne 9 Serpoukhovsko-Timiriazevskaia" source="./metro_moscou_9serpoukhovs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_10_LIOUBLINSKO-DMITROVSKAIA_11" name="Ligne 10 Lioublinsko-Dmitrovskaia" source="./metro_moscou_10lioublinsk.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_11A_KAKHOVSKAIA_12" name="Ligne 11A Kakhovskaia" source="./metro_moscou_11akakhovska.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_11_BOLCHAIA_KOLTSEVAIA_13" name="Ligne 11 Bolchaia koltsevaia" source="./metro_moscou_11bolchaiako.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="LIGNE_15_NEKRASSOVSKAIA_14" name="Ligne 15 Nekrassovskaia" source="./metro_moscou_15nekrassovs.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PLANS_D_EAU_15" name="Plans d eau" source="./metro_moscou_eau.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>4156670</xmin><ymin>7487081</ymin><xmax>4219009</xmax><ymax>7532580</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>STATIONS_1</id>
+      <datasource>./metro_moscou_stations.geojson</datasource>
+      <layername>Stations</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="0" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_1_SOKOLNITCHESKAIA_2</id>
+      <datasource>./metro_moscou_1sokolnitche.geojson</datasource>
+      <layername>Ligne 1 Sokolnitcheskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_2_ZAMOSKVORETSKAIA_3</id>
+      <datasource>./metro_moscou_2zamoskvoret.geojson</datasource>
+      <layername>Ligne 2 Zamoskvoretskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="2" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_3_ARBATSKO-POKROVSKAIA_4</id>
+      <datasource>./metro_moscou_3arbatskopok.geojson</datasource>
+      <layername>Ligne 3 Arbatsko-Pokrovskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_4_FILIOVSKAIA_5</id>
+      <datasource>./metro_moscou_4filiovskaia.geojson</datasource>
+      <layername>Ligne 4 Filiovskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_5_KOLTSEVAIA_6</id>
+      <datasource>./metro_moscou_5koltsevaia.geojson</datasource>
+      <layername>Ligne 5 Koltsevaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_6_KALOUZHSKO-RIJSKAIA_7</id>
+      <datasource>./metro_moscou_6kalouzhskor.geojson</datasource>
+      <layername>Ligne 6 Kalouzhsko-Rijskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_7_TAGANSKO-KRASNOPRESNENSKAIA_8</id>
+      <datasource>./metro_moscou_7taganskokra.geojson</datasource>
+      <layername>Ligne 7 Tagansko-Krasnopresnenskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="5" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_8_KALININSKAIA_9</id>
+      <datasource>./metro_moscou_8kalininskai.geojson</datasource>
+      <layername>Ligne 8 Kalininskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_9_SERPOUKHOVSKO-TIMIRIAZEVSKAIA_10</id>
+      <datasource>./metro_moscou_9serpoukhovs.geojson</datasource>
+      <layername>Ligne 9 Serpoukhovsko-Timiriazevskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_10_LIOUBLINSKO-DMITROVSKAIA_11</id>
+      <datasource>./metro_moscou_10lioublinsk.geojson</datasource>
+      <layername>Ligne 10 Lioublinsko-Dmitrovskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_11A_KAKHOVSKAIA_12</id>
+      <datasource>./metro_moscou_11akakhovska.geojson</datasource>
+      <layername>Ligne 11A Kakhovskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="3" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_11_BOLCHAIA_KOLTSEVAIA_13</id>
+      <datasource>./metro_moscou_11bolchaiako.geojson</datasource>
+      <layername>Ligne 11 Bolchaia koltsevaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="3" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Line">
+      <id>LIGNE_15_NEKRASSOVSKAIA_14</id>
+      <datasource>./metro_moscou_15nekrassovs.geojson</datasource>
+      <layername>Ligne 15 Nekrassovskaia</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="13" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PLANS_D_EAU_15</id>
+      <datasource>./metro_moscou_eau.geojson</datasource>
+      <layername>Plans d eau</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="11" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

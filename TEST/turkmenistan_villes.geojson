@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"turkmenistan_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Ashgabat","region":"Ahal","population":727700,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[58.383,37.95]}},
+{"type":"Feature","properties":{"nom":"Türkmenabat","region":"Chardzhou","population":234817,"capitale":"non"},"geometry":{"type":"Point","coordinates":[63.58,39.11]}},
+{"type":"Feature","properties":{"nom":"Dasoguz","region":"Tashauz","population":201424,"capitale":"non"},"geometry":{"type":"Point","coordinates":[59.965,41.84]}},
+{"type":"Feature","properties":{"nom":"Mary","region":"Mary","population":178708,"capitale":"non"},"geometry":{"type":"Point","coordinates":[61.833,37.6]}},
+{"type":"Feature","properties":{"nom":"Balkanabat","region":"Balkan","population":110827,"capitale":"non"},"geometry":{"type":"Point","coordinates":[54.365,39.512]}},
+{"type":"Feature","properties":{"nom":"Türkmenbasy","region":"Balkan","population":68292,"capitale":"non"},"geometry":{"type":"Point","coordinates":[52.97,40.023]}},
+{"type":"Feature","properties":{"nom":"Tejen","region":"Ahal","population":67294,"capitale":"non"},"geometry":{"type":"Point","coordinates":[60.496,37.379]}},
+{"type":"Feature","properties":{"nom":"Serdar","region":"Balkan","population":48458,"capitale":"non"},"geometry":{"type":"Point","coordinates":[56.278,38.976]}},
+{"type":"Feature","properties":{"nom":"Buzmeyin","region":"Ahal","population":40813,"capitale":"non"},"geometry":{"type":"Point","coordinates":[58.21,38.052]}},
+{"type":"Feature","properties":{"nom":"Kaka","region":"Ahal","population":38381,"capitale":"non"},"geometry":{"type":"Point","coordinates":[59.6,37.35]}},
+{"type":"Feature","properties":{"nom":"Atamyrat","region":"Chardzhou","population":33242,"capitale":"non"},"geometry":{"type":"Point","coordinates":[65.2,37.825]}},
+{"type":"Feature","properties":{"nom":"Koneurgench","region":"Tashauz","population":31400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[59.167,42.317]}},
+{"type":"Feature","properties":{"nom":"Celeken","region":"Balkan","population":1206,"capitale":"non"},"geometry":{"type":"Point","coordinates":[53.123,39.436]}}
+]}

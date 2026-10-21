@@ -1,0 +1,10 @@
+{"type":"FeatureCollection","name":"slovaquie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bratislava","region":"Bratislavský","population":423737,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[17.117,48.15]}},
+{"type":"Feature","properties":{"nom":"Kosice","region":"Kosický","population":236563,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.25,48.73]}},
+{"type":"Feature","properties":{"nom":"Presov","region":"Presov","population":94718,"capitale":"non"},"geometry":{"type":"Point","coordinates":[21.239,49.0]}},
+{"type":"Feature","properties":{"nom":"Zilina","region":"Zilinský","population":87625,"capitale":"non"},"geometry":{"type":"Point","coordinates":[18.749,49.22]}},
+{"type":"Feature","properties":{"nom":"Banská Bystrica","region":"Banskobystrický","population":82336,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.15,48.733]}},
+{"type":"Feature","properties":{"nom":"Trnava","region":"Trnavský","population":69785,"capitale":"non"},"geometry":{"type":"Point","coordinates":[17.6,48.367]}},
+{"type":"Feature","properties":{"nom":"Zvolen","region":"Banskobystrický","population":44502,"capitale":"non"},"geometry":{"type":"Point","coordinates":[19.133,48.584]}}
+]}

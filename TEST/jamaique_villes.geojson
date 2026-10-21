@@ -1,0 +1,15 @@
+{"type":"FeatureCollection","name":"jamaique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Kingston","region":"Kingston","population":937700,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-76.767,17.977]}},
+{"type":"Feature","properties":{"nom":"Spanish Town","region":"Saint Catherine","population":432704,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.95,17.983]}},
+{"type":"Feature","properties":{"nom":"May Pen","region":"Clarendon","population":135142,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.233,17.967]}},
+{"type":"Feature","properties":{"nom":"Montego Bay","region":"Saint James","population":126008,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.917,18.467]}},
+{"type":"Feature","properties":{"nom":"Half Way Tree","region":"Saint Andrew","population":96494,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.8,18.033]}},
+{"type":"Feature","properties":{"nom":"Mandeville","region":"Manchester","population":47115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.5,18.033]}},
+{"type":"Feature","properties":{"nom":"Savanna-la-Mar","region":"Westmoreland","population":30000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.948,18.164]}},
+{"type":"Feature","properties":{"nom":"Port Antonio","region":"Portland","population":14400,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.38,18.159]}},
+{"type":"Feature","properties":{"nom":"Saint Ann's Bay","region":"Saint Ann","population":13671,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.2,18.433]}},
+{"type":"Feature","properties":{"nom":"Port Morant","region":"Saint Thomas","population":11536,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.329,17.891]}},
+{"type":"Feature","properties":{"nom":"Port Maria","region":"Saint Mary","population":7906,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-76.9,18.377]}},
+{"type":"Feature","properties":{"nom":"Falmouth","region":"Trelawny","population":7779,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-77.656,18.48]}}
+]}

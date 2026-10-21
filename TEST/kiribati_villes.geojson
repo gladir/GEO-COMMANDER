@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"kiribati_villes","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::4326"}},
+"features":[
+{"type":"Feature","properties":{"nom":"Tarawa","population":28802,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[173.018,1.338]}}
+]}

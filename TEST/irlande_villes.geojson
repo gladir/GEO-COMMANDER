@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"irlande_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Dublin","region":"Dublin","population":1059000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-6.257,53.347]}},
+{"type":"Feature","properties":{"nom":"Cork","region":"Cork","population":188907,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.465,51.893]}},
+{"type":"Feature","properties":{"nom":"Limerick","region":"Limerick","population":90054,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.623,52.665]}},
+{"type":"Feature","properties":{"nom":"Galway","region":"Galway","population":75594,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.049,53.272]}},
+{"type":"Feature","properties":{"nom":"Waterford","region":"Kilkenny","population":49275,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.112,52.258]}},
+{"type":"Feature","properties":{"nom":"Dundalk","region":"Louth","population":38884,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.396,54.0]}},
+{"type":"Feature","properties":{"nom":"Drogheda","region":"Louth","population":36533,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.35,53.709]}},
+{"type":"Feature","properties":{"nom":"Tralee","region":"Kerry","population":26384,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.717,52.267]}},
+{"type":"Feature","properties":{"nom":"Kilkenny","region":"Kilkenny","population":21589,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.252,52.655]}},
+{"type":"Feature","properties":{"nom":"Sligo","region":"Sligo","population":20228,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.483,54.267]}},
+{"type":"Feature","properties":{"nom":"Killarney","region":"Kerry","population":11902,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-9.517,52.05]}},
+{"type":"Feature","properties":{"nom":"Shannon","region":"Clare","population":8781,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.864,52.704]}},
+{"type":"Feature","properties":{"nom":"Muineachan","region":"Monaghan","population":5937,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.967,54.25]}},
+{"type":"Feature","properties":{"nom":"Ros Comain","region":"Roscommon","population":4860,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.183,53.633]}},
+{"type":"Feature","properties":{"nom":"Donegal","region":"Donegal","population":2513,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-8.117,54.65]}}
+]}

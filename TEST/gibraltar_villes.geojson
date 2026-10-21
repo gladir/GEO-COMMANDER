@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"gibraltar_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Gibraltar","region":"Gibraltar","population":187083,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-5.346,36.128]}}
+]}

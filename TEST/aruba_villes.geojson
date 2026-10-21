@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"aruba_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Oranjestad","region":null,"population":68775,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-70.026,12.522]}}
+]}
