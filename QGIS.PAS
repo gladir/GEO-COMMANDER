@@ -3813,6 +3813,10 @@ Begin
  End;
  FreeMem(XBuf,XLen+1);
  XBuf:=Nil;
+ If Authid<>'' Then Begin
+  ProjCRS:=Copy(Authid,1,24);
+  ProjCrsId:=CrsIdOf(Authid);
+ End;
  ProjFile:=FN;
  Dirty:=False;
  If Skipped>0 Then LoadWarn:=IntStr(Skipped)+' couche(s) non chargee(s) : '+

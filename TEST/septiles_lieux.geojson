@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"septiles_lieux",
+"features":[
+{"type":"Feature","properties":{"nom":"Sept-Îles","type":"ville","population":25000,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.383,50.2]}},
+{"type":"Feature","properties":{"nom":"Uashat","type":"communaute innue","population":1500,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.4,50.217]}},
+{"type":"Feature","properties":{"nom":"Maliotenam","type":"communaute innue","population":1000,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.167,50.217]}},
+{"type":"Feature","properties":{"nom":"Moisie","type":"quartier","population":1000,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.1,50.2]}},
+{"type":"Feature","properties":{"nom":"Port-Cartier","type":"ville","population":6500,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.867,50.033]}},
+{"type":"Feature","properties":{"nom":"Clarke City","type":"quartier","population":700,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.633,50.183]}},
+{"type":"Feature","properties":{"nom":"Aeroport de Sept-Îles","type":"aeroport","population":0,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.266,50.223]}},
+{"type":"Feature","properties":{"nom":"Île Grande Basque","type":"ile","population":0,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.283,50.15]}},
+{"type":"Feature","properties":{"nom":"Île du Corossol","type":"ile","population":0,"precision":"approximative"},"geometry":{"type":"Point","coordinates":[-66.317,50.167]}}
+]}

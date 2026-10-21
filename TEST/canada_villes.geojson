@@ -1,0 +1,20 @@
+{"type":"FeatureCollection","name":"canada_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Iqaluit","province":"Nunavut","population":6124,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-68.5,63.75]}},
+{"type":"Feature","properties":{"nom":"Winnipeg","province":"Manitoba","population":632063,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-97.166,49.883]}},
+{"type":"Feature","properties":{"nom":"Regina","province":"Saskatchewan","population":176183,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-104.617,50.45]}},
+{"type":"Feature","properties":{"nom":"Calgary","province":"Alberta","population":1110000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-114.082,51.085]}},
+{"type":"Feature","properties":{"nom":"Victoria","province":"British Columbia","population":289625,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-123.35,48.433]}},
+{"type":"Feature","properties":{"nom":"Yellowknife","province":"Northwest Territories","population":19234,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-114.397,62.442]}},
+{"type":"Feature","properties":{"nom":"Whitehorse","province":"Yukon","population":23276,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-135.05,60.717]}},
+{"type":"Feature","properties":{"nom":"Ottawa","province":"Ontario","population":1145000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-75.702,45.419]}},
+{"type":"Feature","properties":{"nom":"Québec","province":"Québec","population":624177,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-71.246,46.84]}},
+{"type":"Feature","properties":{"nom":"Halifax","province":"Nova Scotia","population":359111,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-63.6,44.65]}},
+{"type":"Feature","properties":{"nom":"St. John's","province":"Newfoundland and Labrador","population":131469,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-52.681,47.585]}},
+{"type":"Feature","properties":{"nom":"Charlottetown","province":"Prince Edward Island","population":42402,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-63.131,46.249]}},
+{"type":"Feature","properties":{"nom":"Edmonton","province":"Alberta","population":1058000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-113.502,53.552]}},
+{"type":"Feature","properties":{"nom":"Montréal","province":"Québec","population":3678000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-73.585,45.502]}},
+{"type":"Feature","properties":{"nom":"Vancouver","province":"British Columbia","population":2313328,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-123.124,49.275]}},
+{"type":"Feature","properties":{"nom":"Toronto","province":"Ontario","population":5213000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-79.389,43.665]}},
+{"type":"Feature","properties":{"nom":"Sept-Îles","province":"Québec","population":25000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.383,50.2]}}
+]}
