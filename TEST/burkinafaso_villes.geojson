@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"burkinafaso_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Ouagadougou","region":"Kadiogo","population":1149000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-1.527,12.372]}},
+{"type":"Feature","properties":{"nom":"Bobo Dioulasso","region":"Houet","population":360106,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-4.29,11.18]}},
+{"type":"Feature","properties":{"nom":"Koudougou","region":"Boulkiemdé","population":87347,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.37,12.25]}},
+{"type":"Feature","properties":{"nom":"Ouahigouya","region":"Yatenga","population":79504,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.42,13.57]}},
+{"type":"Feature","properties":{"nom":"Banfora","region":"Komoé","population":60288,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-4.76,10.63]}},
+{"type":"Feature","properties":{"nom":"Dédougou","region":"Mou Houn","population":45341,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-3.464,12.455]}},
+{"type":"Feature","properties":{"nom":"Kaya","region":"Sanmatenga","population":40017,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.09,13.09]}},
+{"type":"Feature","properties":{"nom":"Tenkodogo","region":"Boulgou","population":38108,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.37,11.78]}},
+{"type":"Feature","properties":{"nom":"Dori","region":"Séno","population":37806,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.028,14.034]}},
+{"type":"Feature","properties":{"nom":"Réo","region":"Sanguié","population":37535,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-2.467,12.333]}},
+{"type":"Feature","properties":{"nom":"Fada Ngourma","region":"Gourma","population":33910,"capitale":"non"},"geometry":{"type":"Point","coordinates":[0.361,12.055]}},
+{"type":"Feature","properties":{"nom":"Koupéla","region":"Kouritenga","population":32052,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-0.356,12.177]}},
+{"type":"Feature","properties":{"nom":"Kombissiri","region":"Bazéga","population":30137,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-1.334,12.064]}},
+{"type":"Feature","properties":{"nom":"Nouna","region":"Kossi","population":29048,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-3.86,12.729]}},
+{"type":"Feature","properties":{"nom":"Gaoua","region":"Poni","population":28023,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-3.174,10.325]}}
+]}

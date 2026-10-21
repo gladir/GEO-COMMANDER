@@ -1,0 +1,16 @@
+{"type":"FeatureCollection","name":"costarica_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"San José","region":"San José","population":1284000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-84.079,9.93]}},
+{"type":"Feature","properties":{"nom":"Alajuela","region":"Alajuela","population":387743,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.23,10.02]}},
+{"type":"Feature","properties":{"nom":"Cartago","region":"Cartago","population":196946,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.93,9.87]}},
+{"type":"Feature","properties":{"nom":"Limón","region":"Limón","population":85001,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.033,10.0]}},
+{"type":"Feature","properties":{"nom":"Puntarenas","region":"Puntarenas","population":57102,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.834,9.97]}},
+{"type":"Feature","properties":{"nom":"Liberia","region":"Guanacaste","population":45380,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.433,10.634]}},
+{"type":"Feature","properties":{"nom":"Quesada","region":"Alajuela","population":31106,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.44,10.33]}},
+{"type":"Feature","properties":{"nom":"Heredia","region":"Heredia","population":21947,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-84.12,9.992]}},
+{"type":"Feature","properties":{"nom":"Cañas","region":"Guanacaste","population":20306,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.1,10.43]}},
+{"type":"Feature","properties":{"nom":"Golfito","region":"Puntarenas","population":6777,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.15,8.65]}},
+{"type":"Feature","properties":{"nom":"La Cruz","region":"Guanacaste","population":4319,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-85.63,11.07]}},
+{"type":"Feature","properties":{"nom":"Ciudad Cortés","region":"Puntarenas","population":3850,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-83.53,8.96]}},
+{"type":"Feature","properties":{"nom":"Sixaola","region":"Limón","population":1823,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-82.62,9.52]}}
+]}

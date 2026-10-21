@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"bulgarie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Sofia","region":"Grad Sofiya","population":1185000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[23.315,42.685]}},
+{"type":"Feature","properties":{"nom":"Plovdiv","region":"Plovdiv","population":340494,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.754,42.154]}},
+{"type":"Feature","properties":{"nom":"Varna","region":"Varna","population":312770,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.895,43.216]}},
+{"type":"Feature","properties":{"nom":"Burgas","region":"Burgas","population":195966,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.475,42.515]}},
+{"type":"Feature","properties":{"nom":"Ruse","region":"Ruse","population":184270,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.973,43.854]}},
+{"type":"Feature","properties":{"nom":"Stara Zagora","region":"Stara Zagora","population":143431,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.623,42.423]}},
+{"type":"Feature","properties":{"nom":"Pleven","region":"Pleven","population":118675,"capitale":"non"},"geometry":{"type":"Point","coordinates":[24.613,43.424]}},
+{"type":"Feature","properties":{"nom":"Sliven","region":"Sliven","population":96368,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.33,42.679]}},
+{"type":"Feature","properties":{"nom":"Dobrich","region":"Dobrich","population":94831,"capitale":"non"},"geometry":{"type":"Point","coordinates":[27.84,43.585]}},
+{"type":"Feature","properties":{"nom":"Shumen","region":"Shumen","population":87283,"capitale":"non"},"geometry":{"type":"Point","coordinates":[26.929,43.27]}},
+{"type":"Feature","properties":{"nom":"Pernik","region":"Pernik","population":82467,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.023,42.61]}},
+{"type":"Feature","properties":{"nom":"Khaskovo","region":"Haskovo","population":79699,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.563,41.944]}},
+{"type":"Feature","properties":{"nom":"Vratsa","region":"Vratsa","population":71633,"capitale":"non"},"geometry":{"type":"Point","coordinates":[23.563,43.21]}},
+{"type":"Feature","properties":{"nom":"Turnovo","region":"Veliko Tarnovo","population":53115,"capitale":"non"},"geometry":{"type":"Point","coordinates":[25.656,43.086]}},
+{"type":"Feature","properties":{"nom":"Kyustendil","region":"Kyustendil","population":51067,"capitale":"non"},"geometry":{"type":"Point","coordinates":[22.691,42.284]}}
+]}

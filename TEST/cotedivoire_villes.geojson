@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"cotedivoire_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Abidjan","region":"Lagunes","population":3802000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-4.02,5.323]}},
+{"type":"Feature","properties":{"nom":"Bouaké","region":"Vallée du Bandama","population":567481,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-5.03,7.69]}},
+{"type":"Feature","properties":{"nom":"Daloa","region":"Haut-Sassandra","population":255168,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.45,6.89]}},
+{"type":"Feature","properties":{"nom":"San-Pedro","region":"Bas-Sassandra","population":210273,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.64,4.77]}},
+{"type":"Feature","properties":{"nom":"Yamoussoukro","region":"Lacs","population":206499,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-5.276,6.818]}},
+{"type":"Feature","properties":{"nom":"Korhogo","region":"Savanes","population":177711,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-5.64,9.46]}},
+{"type":"Feature","properties":{"nom":"Man","region":"Dix-Huit Montagnes","population":146974,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-7.55,7.4]}},
+{"type":"Feature","properties":{"nom":"Divo","region":"Sud-Bandama","population":127867,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-5.36,5.839]}},
+{"type":"Feature","properties":{"nom":"Gagnoa","region":"Fromager","population":123184,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-5.88,6.15]}},
+{"type":"Feature","properties":{"nom":"Soubré","region":"Bas-Sassandra","population":108933,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-6.61,5.79]}},
+{"type":"Feature","properties":{"nom":"Abengourou","region":"Moyen-Comoe","population":104020,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-3.49,6.73]}},
+{"type":"Feature","properties":{"nom":"Agboville","region":"Agnéby","population":81770,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-4.28,5.94]}},
+{"type":"Feature","properties":{"nom":"Grand Bassam","region":"Lagunes","population":73772,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-3.75,5.2]}},
+{"type":"Feature","properties":{"nom":"Dabou","region":"Lagunes","population":72913,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-4.39,5.32]}},
+{"type":"Feature","properties":{"nom":"Dimbokro","region":"N'zi-Comoé","population":67349,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-4.71,6.65]}}
+]}

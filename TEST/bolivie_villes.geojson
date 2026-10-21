@@ -1,0 +1,18 @@
+{"type":"FeatureCollection","name":"bolivie_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Santa Cruz","region":"Santa Cruz","population":2102998,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-63.228,-17.752]}},
+{"type":"Feature","properties":{"nom":"La Paz","region":"La Paz","population":1590000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-68.152,-16.496]}},
+{"type":"Feature","properties":{"nom":"Cochabamba","region":"Cochabamba","population":1000000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.17,-17.41]}},
+{"type":"Feature","properties":{"nom":"Oruro","region":"Oruro","population":246501,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-67.13,-17.98]}},
+{"type":"Feature","properties":{"nom":"Santa Ana","region":"El Beni","population":234478,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.58,-13.76]}},
+{"type":"Feature","properties":{"nom":"Quillacollo","region":"Cochabamba","population":227052,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.28,-17.4]}},
+{"type":"Feature","properties":{"nom":"Sucre","region":"Chuquisaca","population":224838,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-65.26,-19.041]}},
+{"type":"Feature","properties":{"nom":"Potosí","region":"Potosí","population":179901,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.75,-19.57]}},
+{"type":"Feature","properties":{"nom":"Tarija","region":"Tarija","population":159269,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.75,-21.517]}},
+{"type":"Feature","properties":{"nom":"Montero","region":"Santa Cruz","population":88616,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-63.26,-17.35]}},
+{"type":"Feature","properties":{"nom":"Trinidad","region":"El Beni","population":84259,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.9,-14.833]}},
+{"type":"Feature","properties":{"nom":"Riberalta","region":"El Beni","population":74014,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-66.1,-10.983]}},
+{"type":"Feature","properties":{"nom":"Cobija","region":"Acre","population":44437,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-68.769,-11.021]}},
+{"type":"Feature","properties":{"nom":"Villazón","region":"Potosí","population":37215,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-65.6,-22.08]}},
+{"type":"Feature","properties":{"nom":"Bermejo","region":"Tarija","population":36544,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.35,-22.73]}}
+]}

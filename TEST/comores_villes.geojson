@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"comores_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Moroni","region":null,"population":128698,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[43.24,-11.704]}}
+]}

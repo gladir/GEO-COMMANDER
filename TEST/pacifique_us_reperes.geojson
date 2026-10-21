@@ -1,0 +1,14 @@
+{"type":"FeatureCollection","name":"pacifique_us_reperes","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::4326"}},
+"features":[
+{"type":"Feature","properties":{"nom":"Atoll Johnston"},"geometry":{"type":"Point","coordinates":[190.469,16.742]}},
+{"type":"Feature","properties":{"nom":"Samoa américaines"},"geometry":{"type":"Point","coordinates":[190.376,-12.792]}},
+{"type":"Feature","properties":{"nom":"Guam"},"geometry":{"type":"Point","coordinates":[144.788,13.448]}},
+{"type":"Feature","properties":{"nom":"Îles Mariannes du Nord"},"geometry":{"type":"Point","coordinates":[145.386,17.333]}},
+{"type":"Feature","properties":{"nom":"Île Jarvis"},"geometry":{"type":"Point","coordinates":[199.981,-0.381]}},
+{"type":"Feature","properties":{"nom":"Île Baker"},"geometry":{"type":"Point","coordinates":[183.527,0.208]}},
+{"type":"Feature","properties":{"nom":"Île Howland"},"geometry":{"type":"Point","coordinates":[183.362,0.799]}},
+{"type":"Feature","properties":{"nom":"Île Wake"},"geometry":{"type":"Point","coordinates":[166.636,19.291]}},
+{"type":"Feature","properties":{"nom":"Îles Midway"},"geometry":{"type":"Point","coordinates":[182.645,28.206]}},
+{"type":"Feature","properties":{"nom":"Atoll Palmyra"},"geometry":{"type":"Point","coordinates":[197.919,5.88]}},
+{"type":"Feature","properties":{"nom":"Récif Kingman"},"geometry":{"type":"Point","coordinates":[197.607,6.438]}}
+]}

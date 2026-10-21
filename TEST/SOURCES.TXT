@@ -58,6 +58,13 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   Missouri, San Juan et Island dans l'etat de Washington). Les comtes
   d'Hawai sont au nombre de 5 ; la Louisiane montre des paroisses et la
   Virginie ses comtes et villes independantes. Les limites sont simplifiees.
+- pacifique_us.qgs : dependances americaines du Pacifique (Guam, Mariannes du
+  Nord, Samoa americaines, Wake, Midway, Johnston, Palmyra, Kingman, Baker,
+  Howland, Jarvis ; Hawai exclu) ; la plupart des iles sont trop petites
+  pour etre visibles a cette echelle, d'ou les reperes rouges. Longitudes de
+  0 a 360 degres (declarees en EPSG:4326). bouvet.qgs : ile Bouvet
+  (Natural Earth, contour tres generalise). chypre.qgs : la partie nord de
+  l'ile est affichee en gris comme territoire voisin.
 - Overture Maps Foundation (overturemaps.org), release 2026-09-23.1, donnees
   derivees d'OpenStreetMap (© contributeurs OpenStreetMap, licence ODbL) :
   rues, voies ferrees, plans d'eau, cours d'eau et parcs des cartes
@@ -117,32 +124,62 @@ Liste des projets :
   azerbaidjan.qgs          Carte de l'Azerbaïdjan
   bagdad.qgs               Carte de la ville de Bagdad (Irak) avec ses rues
   bahamas.qgs              Carte des Bahamas
+  bahrein.qgs              Carte du Bahreïn
+  bangladesh.qgs           Carte du Bangladesh
+  barbade.qgs              Carte de la Barbade
   barcelone.qgs            Carte de la ville de Barcelone (Espagne) avec ses rues
   belgique.qgs             Carte de la Belgique
+  belize.qgs               Carte de Belize
+  benin.qgs                Carte du Bénin
   berlin.qgs               Carte de la ville de Berlin (Allemagne) avec ses rues
+  bermudes.qgs             Carte des Bermudes
+  bhoutan.qgs              Carte du Bhoutan
+  bielorussie.qgs          Carte de la Biélorussie
   blainville.qgs           Carte de la ville de Blainville (Québec) avec ses rues
+  bolivie.qgs              Carte de la Bolivie
+  bosnie.qgs               Carte de la Bosnie-Herzégovine
   boston.qgs               Carte de la ville de Boston (États-Unis)
+  botswana.qgs             Carte du Botswana
+  bouvet.qgs               Carte de l'île Bouvet
   bresil.qgs               Carte du Brésil
+  brunei.qgs               Carte de Brunei
   bruxelles.qgs            Carte de la ville de Bruxelles (Belgique) avec ses rues
+  bulgarie.qgs             Carte de la Bulgarie
+  burkinafaso.qgs          Carte du Burkina Faso
+  burundi.qgs              Carte du Burundi
   californie.qgs           Carte de la Californie
+  cambodge.qgs             Carte du Cambodge
+  cameroun.qgs             Carte du Cameroun
   canada.qgs               Carte du Canada
   canada_mines.qgs         Carte des mines du Canada (sélection)
   canada_rail.qgs          Les voies ferroviaires du Canada
+  capvert.qgs              Carte du Cap-Vert
   carolinedunord.qgs       Carte de l'État de la Caroline du Nord
   carolinedusud.qgs        Carte de l'État de la Caroline du Sud
   charlevoix.qgs           Carte de Charlevoix
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
+  chili.qgs                Carte du Chili
   chine.qgs                Carte de la Chine
+  chypre.qgs               Carte de Chypre
+  colombie.qgs             Carte de la Colombie
   colombiebritannique.qgs  Carte de la province de la Colombie-Britannique
   colorado.qgs             Carte de l'État du Colorado
+  comores.qgs              Carte des Comores
+  congo.qgs                Carte du Congo (République du Congo)
   connecticut.qgs          Carte de l'État du Connecticut
   coreenord.qgs            Carte de la Corée du Nord
   coreesud.qgs             Carte de la Corée du Sud
+  costarica.qgs            Carte du Costa Rica
+  cotedivoire.qgs          Carte de la Côte d'Ivoire
+  croatie.qgs              Carte de la Croatie
   cuba.qgs                 Carte de Cuba
   dakotadunord.qgs         Carte de l'État du Dakota du Nord
   dakotadusud.qgs          Carte de l'État du Dakota du Sud
   dallas.qgs               Carte de la ville de Dallas (États-Unis) avec ses rues
+  danemark.qgs             Carte du Danemark
   delaware.qgs             Carte de l'État du Delaware
+  djibouti.qgs             Carte de Djibouti
+  dominique.qgs            Carte de la Dominique
   egypte.qgs               Carte de l'Égypte
   espagne.qgs              Carte de l'Espagne
   etat_newyork.qgs         Carte de l'État de New York
@@ -237,6 +274,7 @@ Liste des projets :
   oregon.qgs               Carte de l'État de l'Oregon
   osaka.qgs                Carte de la ville d'Osaka (Japon) avec ses rues
   ottawa.qgs               Carte de la ville d'Ottawa (Canada)
+  pacifique_us.qgs         Carte des dépendances américaines du Pacifique
   panama.qgs               Carte du Panama
   paris.qgs                Carte de la ville de Paris (France) avec ses rues
   pekin.qgs                Carte de la ville de Pékin (Chine)
@@ -286,3 +324,4 @@ Liste des projets :
   wyoming.qgs              Carte de l'État du Wyoming
   yokohama.qgs             Carte de la ville de Yokohama (Japon) avec ses rues
   yukon.qgs                Carte du Yukon
+  zaire.qgs                Carte de la République démocratique du Congo (Zaïre)

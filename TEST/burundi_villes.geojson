@@ -1,0 +1,17 @@
+{"type":"FeatureCollection","name":"burundi_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bujumbura","region":"Bujumbura Mairie","population":331700,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[29.36,-3.376]}},
+{"type":"Feature","properties":{"nom":"Muyinga","region":"Muyinga","population":71076,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.317,-2.852]}},
+{"type":"Feature","properties":{"nom":"Ruyigi","region":"Ruyigi","population":38458,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.244,-3.481]}},
+{"type":"Feature","properties":{"nom":"Gitega","region":"Muramvya","population":23167,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.844,-3.426]}},
+{"type":"Feature","properties":{"nom":"Ngozi","region":"Ngozi","population":21506,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.825,-2.912]}},
+{"type":"Feature","properties":{"nom":"Rutana","region":"Rutana","population":20893,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.993,-3.931]}},
+{"type":"Feature","properties":{"nom":"Bururi","region":"Bururi","population":20393,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.617,-3.951]}},
+{"type":"Feature","properties":{"nom":"Makamba","region":"Makamba","population":19642,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.8,-4.133]}},
+{"type":"Feature","properties":{"nom":"Kayanza","region":"Kayanza","population":19443,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.567,-2.9]}},
+{"type":"Feature","properties":{"nom":"Muramvya","region":"Muramvya","population":18041,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.612,-3.261]}},
+{"type":"Feature","properties":{"nom":"Bubanza","region":"Bubanza","population":12728,"capitale":"non"},"geometry":{"type":"Point","coordinates":[29.367,-3.083]}},
+{"type":"Feature","properties":{"nom":"Karusi","region":"Karuzi","population":10705,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.163,-3.1]}},
+{"type":"Feature","properties":{"nom":"Cankuzo","region":"Cankuzo","population":6585,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.517,-3.167]}},
+{"type":"Feature","properties":{"nom":"Kirundo","region":"Kirundo","population":6083,"capitale":"non"},"geometry":{"type":"Point","coordinates":[30.097,-2.585]}}
+]}

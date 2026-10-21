@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"dominique_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Roseau","region":"Saint George","population":23336,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[-61.387,15.301]}}
+]}

@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","name":"djibouti_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Djibouti","region":"Djibouti","population":923000,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[43.148,11.595]}},
+{"type":"Feature","properties":{"nom":"Ali Sabih","region":"Ali Sabieh","population":40074,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.713,11.156]}},
+{"type":"Feature","properties":{"nom":"Tadjoura","region":"Tadjourah","population":22193,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.9,11.783]}},
+{"type":"Feature","properties":{"nom":"Obock","region":"Obock","population":17776,"capitale":"non"},"geometry":{"type":"Point","coordinates":[43.286,11.973]}},
+{"type":"Feature","properties":{"nom":"Dikhil","region":"Dikhil","population":12043,"capitale":"non"},"geometry":{"type":"Point","coordinates":[42.372,11.104]}}
+]}

@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"bermudes_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Hamilton","region":null,"population":52320,"capitale":"non"},"geometry":{"type":"Point","coordinates":[-64.784,32.294]}}
+]}

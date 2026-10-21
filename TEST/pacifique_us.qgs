@@ -1,0 +1,43 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte des dépendances américaines du Pacifique" version="3.34.0-Pascal">
+  <title>Carte des dépendances américaines du Pacifique</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="REPERES_DES_TERRITOIRES_1" name="Reperes des territoires" source="./pacifique_us_reperes.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="TERRITOIRES_AMERICAINS_2" name="Territoires americains" source="./pacifique_us_territoires.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="AUTRES_PAYS_ET_TERRITOIRES_3" name="Autres pays et territoires" source="./pacifique_us_autres.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>15362090</xmin><ymin>-2037549</ymin><xmax>22263898</xmax><ymax>4028802</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>REPERES_DES_TERRITOIRES_1</id>
+      <datasource>./pacifique_us_reperes.geojson</datasource>
+      <layername>Reperes des territoires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>TERRITOIRES_AMERICAINS_2</id>
+      <datasource>./pacifique_us_territoires.geojson</datasource>
+      <layername>Territoires americains</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="14" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>AUTRES_PAYS_ET_TERRITOIRES_3</id>
+      <datasource>./pacifique_us_autres.geojson</datasource>
+      <layername>Autres pays et territoires</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","name":"chypre_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Nicosia","region":null,"population":224300,"capitale":"oui"},"geometry":{"type":"Point","coordinates":[33.367,35.167]}},
+{"type":"Feature","properties":{"nom":"Lemosos","region":"Limassol","population":154000,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.033,34.675]}},
+{"type":"Feature","properties":{"nom":"Larnaka","region":"Larnaca","population":48947,"capitale":"non"},"geometry":{"type":"Point","coordinates":[33.636,34.917]}},
+{"type":"Feature","properties":{"nom":"Paphos","region":"Paphos","population":35961,"capitale":"non"},"geometry":{"type":"Point","coordinates":[32.422,34.756]}}
+]}
