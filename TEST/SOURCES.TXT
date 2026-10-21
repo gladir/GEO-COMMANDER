@@ -41,8 +41,9 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   suivantes, qui montrent le centre de la ville (limites municipales et
   quartiers : geoBoundaries ou sources ci-dessus) : montreal_centreville,
   quebec_centreville, laval_ouest, saintedorothee, alma, septiles,
-  sherbrooke, schefferville, paris, londres, rome, berlin, munich,
-  barcelone, sandiego, dallas, houston, newyork, tokyo et mexico.
+  sherbrooke, schefferville, rimouski, saguenay, saintanne, toronto,
+  paris, londres, rome, berlin, munich, barcelone, sandiego, dallas,
+  houston, newyork, tokyo et mexico.
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -177,13 +178,13 @@ Liste des projets :
   quebec_centreville.qgs   Carte du centre-ville de Québec (Québec) avec ses rues
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
-  rimouski.qgs             Carte de la ville de Rimouski (Québec)
+  rimouski.qgs             Carte de la ville de Rimouski (Québec) avec ses rues
   rome.qgs                 Carte de la ville de Rome (Italie) avec ses rues
   roumanie.qgs             Carte de la Roumanie
   royaumeuni.qgs           Carte du Royaume-Uni
   russie.qgs               Carte de la Russie
-  saguenay.qgs             Carte de la ville de Saguenay (Québec)
-  saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec)
+  saguenay.qgs             Carte de la ville de Saguenay (Québec) avec ses rues
+  saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec) avec ses rues
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
   salvador.qgs             Carte du Salvador
   sandiego.qgs             Carte de la ville de San Diego (Californie) avec ses rues
@@ -198,7 +199,7 @@ Liste des projets :
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
   tokyo.qgs                Carte de la ville de Tokyo (Japon) avec ses rues
-  toronto.qgs              Carte de la ville de Toronto (Canada)
+  toronto.qgs              Carte de la ville de Toronto (Canada) avec ses rues
   troisrivieres.qgs        Carte de la ville de Trois-Rivières (Québec)
   vancouver.qgs            Carte de la ville de Vancouver (Canada)
   vietnam.qgs              Carte du Vietnam
