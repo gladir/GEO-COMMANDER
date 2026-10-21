@@ -112,7 +112,9 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
   Autres villes du Quebec avec leurs rues (limites geoBoundaries) : baiecomeau,
   portcartier, tadoussac, troispistoles, riviereduloup, saintsimeon, matane,
   amqui, levis, granby, drummondville, saintjerome, sainteustache, boisbriand,
-  terrebonne, mirabel, longueuil, boucherville, brossard et chambly.
+  terrebonne, mirabel, longueuil, boucherville, brossard, chambly,
+  chateauguay, beauharnois, montsainthilaire, saintjeansurrichelieu,
+  repentigny, mascouche, saintadele (Sainte-Adele) et saintsauveur.
   Pour les grandes villes, les rues ne couvrent que le centre (environ
   5 a 10 km de large) ; les contours de la ville restent complets et on
   peut dezoomer. Les couches de plus de 7 500 entites sont coupees en
@@ -167,7 +169,7 @@ Liste des projets :
   bangladesh.qgs           Carte du Bangladesh
   barbade.qgs              Carte de la Barbade
   barcelone.qgs            Carte de la ville de Barcelone (Espagne) avec ses rues
-  beauharnois.qgs          Carte de Beauharnois (Québec)
+  beauharnois.qgs          Carte de Beauharnois (Québec) avec ses rues
   belgique.qgs             Carte de la Belgique
   belize.qgs               Carte de Belize
   benin.qgs                Carte du Bénin
@@ -204,7 +206,7 @@ Liste des projets :
   centrafrique.qgs         Carte de la République centrafricaine
   chambly.qgs              Carte de Chambly (Québec) avec ses rues
   charlevoix.qgs           Carte de Charlevoix
-  chateauguay.qgs          Carte de Châteauguay (Québec)
+  chateauguay.qgs          Carte de Châteauguay (Québec) avec ses rues
   chibougamau.qgs          Carte de la ville de Chibougamau (Québec) avec ses rues
   chicago.qgs              Carte de la ville de Chicago (États-Unis) avec ses rues
   chili.qgs                Carte du Chili
@@ -352,7 +354,7 @@ Liste des projets :
   marshall.qgs             Carte des îles Marshall
   martinique.qgs           Carte de la Martinique
   maryland.qgs             Carte de l'État du Maryland
-  mascouche.qgs            Carte de Mascouche (Québec)
+  mascouche.qgs            Carte de Mascouche (Québec) avec ses rues
   massachusetts.qgs        Carte de l'État du Massachusetts
   matane.qgs               Carte de la ville de Matane (Québec) avec ses rues
   maurice.qgs              Carte de l'île Maurice
@@ -379,7 +381,7 @@ Liste des projets :
   montana.qgs              Carte de l'État du Montana
   montreal.qgs             Carte de la ville de Montréal (Québec)
   montreal_centreville.qgs Carte du centre-ville de Montréal (Québec) avec ses rues
-  montsainthilaire.qgs     Carte de Mont-Saint-Hilaire (Québec)
+  montsainthilaire.qgs     Carte de Mont-Saint-Hilaire (Québec) avec ses rues
   montserrat.qgs           Carte de Montserrat
   moscou.qgs               Carte de la ville de Moscou (Russie) avec ses rues
   mozambique.qgs           Carte du Mozambique
@@ -447,7 +449,7 @@ Liste des projets :
   quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
   quebec_mines.qgs         Carte des principales mines du Québec (sélection)
   rdominicaine.qgs         Carte de la République dominicaine
-  repentigny.qgs           Carte de Repentigny (Québec)
+  repentigny.qgs           Carte de Repentigny (Québec) avec ses rues
   reunion.qgs              Carte de la Réunion
   rhodeisland.qgs          Carte de l'État de Rhode Island
   rimouski.qgs             Carte de la ville de Rimouski (Québec) avec ses rues
@@ -459,7 +461,7 @@ Liste des projets :
   rwanda.qgs               Carte du Rwanda
   saguenay.qgs             Carte de la ville de Saguenay (Québec) avec ses rues
   saharaoccidental.qgs     Carte du Sahara occidental
-  saintadele.qgs           Carte de Sainte-Adèle (Québec)
+  saintadele.qgs           Carte de Sainte-Adèle (Québec) avec ses rues
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec) avec ses rues
   saintchristophe.qgs      Carte de Saint-Christophe-et-Niévès
   saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec) avec ses rues
@@ -467,11 +469,11 @@ Liste des projets :
   saintelucie.qgs          Carte de Sainte-Lucie
   sainteustache.qgs        Carte de la ville de Saint-Eustache (Québec) avec ses rues
   saintfelicien.qgs        Carte de la ville de Saint-Félicien (Québec) avec ses rues
-  saintjeansurrichelieu.qgs Carte de Saint-Jean-sur-Richelieu (Québec)
+  saintjeansurrichelieu.qgs Carte de Saint-Jean-sur-Richelieu (Québec) avec ses rues
   saintjerome.qgs          Carte de Saint-Jérôme (Québec) avec ses rues
   saintmarin.qgs           Carte de Saint-Marin
   saintpierre.qgs          Carte de Saint-Pierre-et-Miquelon
-  saintsauveur.qgs         Carte de Saint-Sauveur (Québec)
+  saintsauveur.qgs         Carte de Saint-Sauveur (Québec) avec ses rues
   saintsimeon.qgs          Carte de Saint-Siméon (Québec) avec ses rues
   saintvincent.qgs         Carte de Saint-Vincent-et-les-Grenadines
   salomon.qgs              Carte des îles Salomon
