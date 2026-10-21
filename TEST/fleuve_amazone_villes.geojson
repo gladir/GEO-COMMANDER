@@ -1,0 +1,20 @@
+{"type":"FeatureCollection","name":"fleuve_amazone_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Bogota","pays":"Colombia","population":7772000},"geometry":{"type":"Point","coordinates":[-74.085,4.598]}},
+{"type":"Feature","properties":{"nom":"Belém","pays":"Brazil","population":2167000},"geometry":{"type":"Point","coordinates":[-48.482,-1.448]}},
+{"type":"Feature","properties":{"nom":"Manaus","pays":"Brazil","population":1753000},"geometry":{"type":"Point","coordinates":[-60.002,-3.098]}},
+{"type":"Feature","properties":{"nom":"Vila Velha","pays":"Brazil","population":1209091},"geometry":{"type":"Point","coordinates":[-51.217,3.217]}},
+{"type":"Feature","properties":{"nom":"Natal","pays":"Brazil","population":980588},"geometry":{"type":"Point","coordinates":[-60.27,-6.984]}},
+{"type":"Feature","properties":{"nom":"Macapá","pays":"Brazil","population":499166},"geometry":{"type":"Point","coordinates":[-51.05,0.033]}},
+{"type":"Feature","properties":{"nom":"Iquitos","pays":"Peru","population":458729},"geometry":{"type":"Point","coordinates":[-73.25,-3.75]}},
+{"type":"Feature","properties":{"nom":"Villavicencio","pays":"Colombia","population":374763},"geometry":{"type":"Point","coordinates":[-73.635,4.153]}},
+{"type":"Feature","properties":{"nom":"Pucallpa","pays":"Peru","population":310750},"geometry":{"type":"Point","coordinates":[-74.535,-8.369]}},
+{"type":"Feature","properties":{"nom":"Porto Velho","pays":"Brazil","population":306180},"geometry":{"type":"Point","coordinates":[-63.9,-8.75]}},
+{"type":"Feature","properties":{"nom":"Crato","pays":"Brazil","population":273883},"geometry":{"type":"Point","coordinates":[-63.04,-7.464]}},
+{"type":"Feature","properties":{"nom":"Rio Branco","pays":"Brazil","population":257642},"geometry":{"type":"Point","coordinates":[-67.8,-9.967]}},
+{"type":"Feature","properties":{"nom":"Palmas","pays":"Brazil","population":235315},"geometry":{"type":"Point","coordinates":[-48.288,-10.238]}},
+{"type":"Feature","properties":{"nom":"Boa Vista","pays":"Brazil","population":235150},"geometry":{"type":"Point","coordinates":[-60.666,2.816]}},
+{"type":"Feature","properties":{"nom":"Santarém","pays":"Brazil","population":230428},"geometry":{"type":"Point","coordinates":[-54.7,-2.433]}},
+{"type":"Feature","properties":{"nom":"Marabá","pays":"Brazil","population":166182},"geometry":{"type":"Point","coordinates":[-49.116,-5.35]}},
+{"type":"Feature","properties":{"nom":"Girardot","pays":"Colombia","population":130289},"geometry":{"type":"Point","coordinates":[-74.81,4.31]}}
+]}

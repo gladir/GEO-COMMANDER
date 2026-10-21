@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"saintedorothee_repere",
+"features":[
+{"type":"Feature","properties":{"nom":"Sainte-Dorothee (repere approximatif)","precision":"position saisie a la main"},"geometry":{"type":"Point","coordinates":[-73.84,45.52]}}
+]}

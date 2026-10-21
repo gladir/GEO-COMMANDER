@@ -22,10 +22,25 @@ Sources des donnees d'exemple (projets .qgs du dossier TEST)
 - septiles_lieux.geojson et paris_sites.geojson : positions saisies a la main,
   approximatives.
 
+- WRI Global Power Plant Database (datasets.wri.org), licence CC BY 4.0 :
+  centrales electriques du Quebec (quebec_centrales*.geojson) et parcs
+  eoliens (quebec_eoliennes.qgs). Il s'agit de parcs eoliens, pas
+  d'eoliennes individuelles ; donnees d'environ 2018-2021.
+- Mines (quebec_mines, canada_mines, etatsunis_mines) : positions saisies a
+  la main, approximatives et a verifier ; listes non exhaustives.
+- fleuve_saintlaurent_trace.geojson : trace du Saint-Laurent dessinee a la
+  main a partir de reperes, approximative (Natural Earth n'a pas de ligne
+  centrale pour ce fleuve).
+- saintedorothee.qgs : seul un repere approximatif est fourni (aucune limite
+  de quartier disponible). Charlevoix et l'Abitibi sont approximes a partir
+  de listes de municipalites ; la Gaspesie comprend les Iles-de-la-Madeleine
+  (region administrative).
+
 Les contours sont simplifies pour l'affichage : ils ne conviennent pas a des
 mesures precises.
 
 Liste des projets :
+  abitibi.qgs              Carte de l'Abitibi
   afghanistan.qgs          Carte de l'Afghanistan
   afrique.qgs              Carte de l'Afrique
   afriquedusud.qgs         Carte de l'Afrique du Sud
@@ -58,11 +73,14 @@ Liste des projets :
   barcelone.qgs            Carte de la ville de Barcelone (Espagne)
   belgique.qgs             Carte de la Belgique
   berlin.qgs               Carte de la ville de Berlin (Allemagne)
+  blainville.qgs           Carte de la ville de Blainville (Québec)
   boston.qgs               Carte de la ville de Boston (États-Unis)
   bresil.qgs               Carte du Brésil
   bruxelles.qgs            Carte de la ville de Bruxelles (Belgique)
   californie.qgs           Carte de la Californie
   canada.qgs               Carte du Canada
+  canada_mines.qgs         Carte des mines du Canada (sélection)
+  charlevoix.qgs           Carte de Charlevoix
   chicago.qgs              Carte de la ville de Chicago (États-Unis)
   chine.qgs                Carte de la Chine
   colombiebritannique.qgs  Carte de la province de la Colombie-Britannique
@@ -73,15 +91,22 @@ Liste des projets :
   egypte.qgs               Carte de l'Égypte
   espagne.qgs              Carte de l'Espagne
   etatsunis.qgs            Carte des États-Unis
+  etatsunis_mines.qgs      Carte des mines des États-Unis (sélection)
   ethiopie.qgs             Carte de l'Éthiopie
   europe.qgs               Carte de l'Europe
+  fleuve_amazone.qgs       Carte du fleuve Amazone
+  fleuve_amour.qgs         Carte du fleuve Amour
+  fleuve_saintlaurent.qgs  Carte du fleuve Saint-Laurent
   floride.qgs              Carte de la Floride
   fortworth.qgs            Carte de la ville de Fort Worth (Texas) - comté de Tarrant
   france.qgs               Carte de la France
   gaspe.qgs                Carte de la ville de Gaspé (Québec)
+  gaspesie.qgs             Carte de la Gaspésie (et Îles-de-la-Madeleine)
+  gatineau.qgs             Carte de la ville de Gatineau (Québec)
   grece.qgs                Carte de la Grèce
   guadeloupe.qgs           Carte de la Guadeloupe
   houston.qgs              Carte de la ville de Houston (États-Unis)
+  ilebizard.qgs            Carte de l'Île Bizard (Montréal)
   ileduprinceedouard.qgs   Carte de la province de l'Île-du-Prince-Édouard
   irak.qgs                 Carte de l'Irak
   iran.qgs                 Carte de l'Iran
@@ -90,6 +115,10 @@ Liste des projets :
   japon.qgs                Carte du Japon
   jordanie.qgs             Carte de la Jordanie
   kyoto.qgs                Carte de la ville de Kyoto (Japon)
+  lac_ontario.qgs          Carte du lac Ontario
+  lac_saintjean.qgs        Carte du lac Saint-Jean
+  lac_superieur.qgs        Carte du lac Supérieur
+  lachute.qgs              Carte de la ville de Lachute (Québec)
   lasvegas.qgs             Carte de la ville de Las Vegas (États-Unis)
   laval.qgs                Carte de la ville de Laval (Québec)
   lecaire.qgs              Carte de la ville du Caire (Égypte)
@@ -104,6 +133,7 @@ Liste des projets :
   miami.qgs                Carte de la ville de Miami (États-Unis)
   monde.qgs                Carte du monde
   mongolie.qgs             Carte de la Mongolie
+  montreal.qgs             Carte de la ville de Montréal (Québec)
   munich.qgs               Carte de la ville de Munich (Allemagne)
   nagoya.qgs               Carte de la ville de Nagoya (Japon)
   newyork.qgs              Carte de la ville de New York (États-Unis)
@@ -124,6 +154,9 @@ Liste des projets :
   philadelphie.qgs         Carte de la ville de Philadelphie (États-Unis)
   portugal.qgs             Carte du Portugal
   quebec.qgs               Carte de la province de Québec
+  quebec_centrales.qgs     Carte des centrales électriques du Québec
+  quebec_eoliennes.qgs     Carte des parcs éoliens du Québec
+  quebec_mines.qgs         Carte des principales mines du Québec (sélection)
   rimouski.qgs             Carte de la ville de Rimouski (Québec)
   rome.qgs                 Carte de la ville de Rome (Italie)
   roumanie.qgs             Carte de la Roumanie
@@ -131,13 +164,17 @@ Liste des projets :
   russie.qgs               Carte de la Russie
   saguenay.qgs             Carte de la ville de Saguenay (Québec)
   saintanne.qgs            Carte de la ville de Sainte-Anne-des-Monts (Québec)
+  saintedorothee.qgs       Carte du quartier Sainte-Dorothée (Laval, Québec)
   salvador.qgs             Carte du Salvador
   sandiego.qgs             Carte de la ville de San Diego (Californie)
   sanfrancisco.qgs         Carte de la ville de San Francisco (Californie)
   sapporo.qgs              Carte de la ville de Sapporo (Japon)
   saskatchewan.qgs         Carte de la province de la Saskatchewan
+  schefferville.qgs        Carte de la ville de Schefferville (Québec)
   septiles.qgs             Carte de Sept-Îles
+  sherbrooke.qgs           Carte de la ville de Sherbrooke (Québec)
   sydney.qgs               Carte de la ville de Sydney (Australie)
+  terrebonne.qgs           Carte de la ville de Terrebonne (Québec)
   terreneuve.qgs           Carte de la province de Terre-Neuve-et-Labrador
   texas.qgs                Carte du Texas
   tokyo.qgs                Carte de la ville de Tokyo (Japon)

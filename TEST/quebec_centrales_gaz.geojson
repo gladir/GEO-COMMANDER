@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","name":"quebec_centrales_gaz",
+"features":[
+{"type":"Feature","properties":{"nom":"Bécancour","puissance_mw":507.0,"combustible":"Gas","mise_en_service":"","proprietaire":"TransCanada Energy Ltd"},"geometry":{"type":"Point","coordinates":[-72.4037,46.3675]}},
+{"type":"Feature","properties":{"nom":"Bécancour (HQ)","puissance_mw":411.0,"combustible":"Gas","mise_en_service":"","proprietaire":"Hydro-Québec"},"geometry":{"type":"Point","coordinates":[-72.3523,46.3919]}}
+]}

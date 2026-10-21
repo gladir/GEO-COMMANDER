@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"lac_saintjean_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Chicoutimi","population":53940},"geometry":{"type":"Point","coordinates":[-71.067,48.433]}}
+]}

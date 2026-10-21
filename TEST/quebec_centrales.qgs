@@ -1,0 +1,79 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Carte des centrales électriques du Québec" version="3.34.0-Pascal">
+  <title>Carte des centrales électriques du Québec</title>
+  <projectCrs>
+    <spatialrefsys><authid>EPSG:3857</authid></spatialrefsys>
+  </projectCrs>
+  <layer-tree-group>
+    <layer-tree-layer id="HYDROELECTRIQUE__140__1" name="Hydroelectrique (140)" source="./quebec_centrales_hydro.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="EOLIEN__43__2" name="Eolien (43)" source="./quebec_centrales_eolien.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="BIOMASSE__16__3" name="Biomasse (16)" source="./quebec_centrales_biomasse.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="GAZ__2__4" name="Gaz (2)" source="./quebec_centrales_gaz.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="MAZOUT__1__5" name="Mazout (1)" source="./quebec_centrales_mazout.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="REGIONS_ADMINISTRATIVES_6" name="Regions administratives" source="./quebec_regions.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+    <layer-tree-layer id="PROVINCES_ET_ETATS_VOISINS_7" name="Provinces et Etats voisins" source="./quebec_voisins.geojson" providerKey="ogr" checked="Qt::Checked" expanded="1"/>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas">
+    <units>0</units>
+    <extent><xmin>-8905559</xmin><ymin>5605792</ymin><xmax>-6345211</xmax><ymax>9002835</ymax></extent>
+    <destinationsrs><spatialrefsys><authid>EPSG:3857</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="vector" geometry="Point">
+      <id>HYDROELECTRIQUE__140__1</id>
+      <datasource>./quebec_centrales_hydro.geojson</datasource>
+      <layername>Hydroelectrique (140)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="9" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Point">
+      <id>EOLIEN__43__2</id>
+      <datasource>./quebec_centrales_eolien.geojson</datasource>
+      <layername>Eolien (43)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Point">
+      <id>BIOMASSE__16__3</id>
+      <datasource>./quebec_centrales_biomasse.geojson</datasource>
+      <layername>Biomasse (16)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="6" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Point">
+      <id>GAZ__2__4</id>
+      <datasource>./quebec_centrales_gaz.geojson</datasource>
+      <layername>Gaz (2)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Point">
+      <id>MAZOUT__1__5</id>
+      <datasource>./quebec_centrales_mazout.geojson</datasource>
+      <layername>Mazout (1)</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="12" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>REGIONS_ADMINISTRATIVES_6</id>
+      <datasource>./quebec_regions.geojson</datasource>
+      <layername>Regions administratives</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="10" type="QString"/></Option></customproperties>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon">
+      <id>PROVINCES_ET_ETATS_VOISINS_7</id>
+      <datasource>./quebec_voisins.geojson</datasource>
+      <layername>Provinces et Etats voisins</layername>
+      <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <customproperties><Option type="Map"><Option name="pascal_color" value="7" type="QString"/></Option></customproperties>
+    </maplayer>
+  </projectlayers>
+</qgis>

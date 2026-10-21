@@ -1,0 +1,12 @@
+{"type":"FeatureCollection","name":"lac_ontario_villes",
+"features":[
+{"type":"Feature","properties":{"nom":"Toronto","population":5213000},"geometry":{"type":"Point","coordinates":[-79.389,43.665]}},
+{"type":"Feature","properties":{"nom":"Buffalo","population":1016000},"geometry":{"type":"Point","coordinates":[-78.882,42.882]}},
+{"type":"Feature","properties":{"nom":"Rochester","population":755000},"geometry":{"type":"Point","coordinates":[-77.622,43.172]}},
+{"type":"Feature","properties":{"nom":"Hamilton","population":721053},"geometry":{"type":"Point","coordinates":[-79.83,43.25]}},
+{"type":"Feature","properties":{"nom":"Syracuse","population":662577},"geometry":{"type":"Point","coordinates":[-76.15,43.05]}},
+{"type":"Feature","properties":{"nom":"Oshawa","population":450963},"geometry":{"type":"Point","coordinates":[-78.85,43.88]}},
+{"type":"Feature","properties":{"nom":"Barrie","population":182041},"geometry":{"type":"Point","coordinates":[-79.7,44.384]}},
+{"type":"Feature","properties":{"nom":"Niagara Falls","population":153134},"geometry":{"type":"Point","coordinates":[-79.037,43.095]}},
+{"type":"Feature","properties":{"nom":"Kingston","population":114195},"geometry":{"type":"Point","coordinates":[-76.483,44.234]}}
+]}
